@@ -26,7 +26,7 @@ func init() {
 	if _, err := os.Stat(confDir); err != nil {
 		os.MkdirAll(confDir, os.ModePerm)
 	}
-	for _, name := range []string{"app.conf", "config.yaml", "reply.php"} {
+	for _, name := range []string{"config.yaml"} {
 		f, err := os.OpenFile(ExecPath+"/conf/"+name, os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
 			logs.Warn(err)
