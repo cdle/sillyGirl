@@ -2,8 +2,12 @@ package core
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"regexp"
+	"strings"
 
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/im"
 	"github.com/cdle/sillyGirl/im/tg"
 	tb "gopkg.in/tucnak/telebot.v2"
@@ -15,6 +19,8 @@ type Function struct {
 	Admin   bool
 	Handle  func(s im.Sender) bool
 }
+
+var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
 
 var functions = []Function{
 	{
@@ -29,11 +35,56 @@ var functions = []Function{
 			return true
 		},
 	},
+	{
+		Rules: []string{"^升级$"},
+		Handle: func(s im.Sender) bool {
+			s.Reply("傻妞开始拉取代码。")
+			rtn, err := exec.Command("sh", "-c", "cd "+ExecPath+" && git stash && git pull").Output()
+			if err != nil {
+				s.Reply("傻妞拉取代失败：" + err.Error() + "。")
+				return true
+			}
+			t := string(rtn)
+			if !strings.Contains(t, "changed") {
+				if strings.Contains(t, "Already") || strings.Contains(t, "已经是最新") {
+					s.Reply("傻妞已是最新版啦。")
+					return true
+				} else {
+					s.Reply("傻妞拉取代失败：" + t + "。")
+					return true
+				}
+			} else {
+				s.Reply("傻妞拉取代码成功。")
+			}
+			s.Reply("傻妞正在编译程序。")
+			rtn, err = exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname).Output()
+			if err != nil {
+				s.Reply("傻妞编译失败：" + err.Error())
+				return true
+			} else {
+				s.Reply("傻妞编译成功。")
+			}
+			s.Reply("傻妞重启程序。")
+			Daemon()
+			return true
+		},
+	},
+	{
+		Rules: []string{"^重启$"},
+		Handle: func(s im.Sender) bool {
+			s.Reply("傻妞重启程序。")
+			Daemon()
+			return true
+		},
+	},
 }
 
 var Senders chan im.Sender
 
 func initToHandleMessage() {
+	if len(Config.Im) == 0 {
+		logs.Warn("未配置置通讯工具")
+	}
 	for _, im := range Config.Im {
 		switch im.Type {
 		case "tg":
