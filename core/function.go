@@ -37,6 +37,7 @@ var functions = []Function{
 	},
 	{
 		Rules: []string{"^升级$"},
+		Admin: true,
 		Handle: func(s im.Sender) bool {
 			s.Reply("傻妞开始拉取代码。")
 			rtn, err := exec.Command("sh", "-c", "cd "+ExecPath+" && git stash && git pull").Output()
@@ -71,6 +72,7 @@ var functions = []Function{
 	},
 	{
 		Rules: []string{"^重启$"},
+		Admin: true,
 		Handle: func(s im.Sender) bool {
 			s.Reply("傻妞重启程序。")
 			Daemon()
