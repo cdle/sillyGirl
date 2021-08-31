@@ -1,9 +1,4 @@
 # im:
-#   - type: qq
-#     masters: 
-#       - 10000
-#     groups:
-#       - 100000000
 #   - type: tg
 #     token: xxxxx
 #     masters: 
