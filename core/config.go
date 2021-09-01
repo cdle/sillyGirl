@@ -34,7 +34,7 @@ func init() {
 		s, _ := ioutil.ReadAll(f)
 		if len(s) == 0 {
 			logs.Info("下载配置%s", name)
-			r, err := httplib.Get("https://ghproxy.com/" + "https://raw.githubusercontent.com/cdle/xdd/main/conf/demo_" + name).Response()
+			r, err := httplib.Get("https://ghproxy.com/" + "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_" + name).Response()
 			if err == nil {
 				io.Copy(f, r.Body)
 			}
