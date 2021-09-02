@@ -28,18 +28,21 @@ func init() {
 		{
 			Rules: []string{`^env\s+get\s+([\S]+)$`},
 			Handle: func(s im.Sender) interface{} {
-				m := s.Get()
-				env, err := GetEnv(m)
+				name := s.Get()
+				envs, err := GetEnvs(name)
 				if err != nil {
 					return err
 				}
-				if env == nil {
+				if len(envs) == 0 {
 					return "未设置该环境变量"
 				}
-				if env != nil {
-					return formatEnv(env)
+				es := []string{}
+				for _, env := range envs {
+					if env.Name == name {
+						es = append(es, formatEnv(&env))
+					}
 				}
-				return nil
+				return strings.Join(es, "\n\n")
 			},
 		},
 		{
