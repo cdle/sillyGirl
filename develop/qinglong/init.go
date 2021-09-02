@@ -39,7 +39,7 @@ func init() {
 	}
 	core.AddCommand([]core.Function{
 		{
-			Rules: []string{`^env\s+([\S]*)$`},
+			Rules: []string{`^env\s+get\s+([\S]*)$`},
 			Handle: func(s im.Sender) interface{} {
 				m := s.Get()
 				env, err := GetEnv(m)
@@ -60,6 +60,24 @@ func init() {
 					return fmt.Sprintf("名称：%v\n备注：%v\n状态：%v\n时间：%v\n值：%v", env.Name, env.Remarks, status, env.Timestamp, env.Value)
 				}
 				return nil
+			},
+		},
+		{
+			Rules: []string{`^env\s+find\s+([\S]*)$`},
+			Handle: func(s im.Sender) interface{} {
+				m := s.Get()
+				envs, err := GetEnvs(m)
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "未设置该环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					es = append(es, env.Value)
+				}
+				return strings.Join(es, "\n")
 			},
 		},
 		{
@@ -128,20 +146,17 @@ func req(ps ...interface{}) error {
 			if strings.Contains(reflect.TypeOf(p).String(), "*") {
 				toParse = p
 			} else {
-				fmt.Println(p, "--")
 				body, _ = json.Marshal(p)
-				fmt.Println(string(body), "++")
 			}
 		}
 	}
 	var req *httplib.BeegoHTTPRequest
 	api += apd
-
 	switch method {
 	case GET:
 		req = httplib.Get(Config.Host + "/open/" + api)
 	case POST:
-		req = httplib.Delete(Config.Host + "/open/" + api)
+		req = httplib.Post(Config.Host + "/open/" + api)
 	case DELETE:
 		req = httplib.Delete(Config.Host + "/open/" + api)
 	case PUT:
@@ -150,12 +165,11 @@ func req(ps ...interface{}) error {
 	req.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header("Content-Type", "application/json;charset=UTF-8")
 	if method != GET {
-
 		req.Body(body)
 	}
-	fmt.Println(Config.Host + "/open/" + api)
-	fmt.Println(method)
-	fmt.Println(string(body))
+	// fmt.Println(Config.Host + "/open/" + api)
+	// fmt.Println(method)
+	// fmt.Println(string(body))
 	req.Body(body)
 	data, err := req.Bytes()
 	if err != nil {
