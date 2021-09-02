@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -32,6 +33,9 @@ var ENVS = "envs"
 
 func init() {
 	core.ReadYaml(core.ExecPath+"/develop/qinglong/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/develop/qinglong/conf/demo_config.yaml")
+	if v := regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindStringSubmatch(Config.Host); len(v) == 2 {
+		Config.Host = v[1]
+	}
 	_, err := getToken()
 	if err == nil {
 		logs.Info("青龙已连接")
