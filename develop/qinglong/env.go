@@ -95,16 +95,17 @@ func init() {
 	})
 }
 
-func GetEnv(searchValue string) (*Env, error) {
-	envs, err := GetEnvs(searchValue)
+func GetEnv(name string) (*Env, error) {
+	envs, err := GetEnvs("")
 	if err != nil {
 		return nil, err
 	}
-
-	if len(envs) == 0 {
-		return nil, nil
+	for _, env := range envs {
+		if env.Name == name {
+			return &env, nil
+		}
 	}
-	return &envs[0], nil
+	return nil, nil
 }
 
 func GetEnvs(searchValue string) ([]Env, error) {
