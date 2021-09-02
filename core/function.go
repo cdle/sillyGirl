@@ -17,7 +17,7 @@ type Function struct {
 	Rules   []string
 	FindAll bool
 	Admin   bool
-	Handle  func(s im.Sender) bool
+	Handle  func(s im.Sender) interface{}
 }
 
 var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
@@ -25,34 +25,31 @@ var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
 var functions = []Function{
 	{
 		Rules: []string{"^傻妞 (.*)$", "^傻妞$"},
-		Handle: func(s im.Sender) bool {
+		Handle: func(s im.Sender) interface{} {
 			m := s.Get()
 			if m != "" {
 				s.Reply(fmt.Sprintf("哎呀，傻妞不懂%s是什么意思啦。", m))
 			} else {
 				s.Reply("请说，我在。")
 			}
-			return true
+			return nil
 		},
 	},
 	{
 		Rules: []string{"^升级$"},
 		Admin: true,
-		Handle: func(s im.Sender) bool {
+		Handle: func(s im.Sender) interface{} {
 			s.Reply("傻妞开始拉取代码。")
 			rtn, err := exec.Command("sh", "-c", "cd "+ExecPath+" && git stash && git pull").Output()
 			if err != nil {
-				s.Reply("傻妞拉取代失败：" + err.Error() + "。")
-				return true
+				return "傻妞拉取代失败：" + err.Error() + "。"
 			}
 			t := string(rtn)
 			if !strings.Contains(t, "changed") {
 				if strings.Contains(t, "Already") || strings.Contains(t, "已经是最新") {
-					s.Reply("傻妞已是最新版啦。")
-					return true
+					return "傻妞已是最新版啦。"
 				} else {
-					s.Reply("傻妞拉取代失败：" + t + "。")
-					return true
+					return "傻妞拉取代失败：" + t + "。"
 				}
 			} else {
 				s.Reply("傻妞拉取代码成功。")
@@ -60,23 +57,22 @@ var functions = []Function{
 			s.Reply("傻妞正在编译程序。")
 			rtn, err = exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname).Output()
 			if err != nil {
-				s.Reply("傻妞编译失败：" + err.Error())
-				return true
+				return "傻妞编译失败：" + err.Error()
 			} else {
 				s.Reply("傻妞编译成功。")
 			}
 			s.Reply("傻妞重启程序。")
 			Daemon()
-			return true
+			return nil
 		},
 	},
 	{
 		Rules: []string{"^重启$"},
 		Admin: true,
-		Handle: func(s im.Sender) bool {
+		Handle: func(s im.Sender) interface{} {
 			s.Reply("傻妞重启程序。")
 			Daemon()
-			return true
+			return nil
 		},
 	},
 }
@@ -108,8 +104,8 @@ func initToHandleMessage() {
 	}()
 }
 
-func AddCommand(cmd *Function) {
-	functions = append(functions, *cmd)
+func AddCommand(cmd []Function) {
+	functions = append(functions, cmd...)
 }
 
 func handleMessage(sender im.Sender) {
@@ -131,7 +127,15 @@ func handleMessage(sender im.Sender) {
 					matched = true
 				}
 			}
-			if matched && function.Handle(sender) {
+			if matched {
+				if function.Admin && sender.IsAdmin() {
+					sender.Reply("没有权限操作")
+					return
+				}
+				rt := function.Handle(sender)
+				if rt != nil {
+					sender.Reply(rt)
+				}
 				return
 			}
 		}

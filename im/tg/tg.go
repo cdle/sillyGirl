@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -127,7 +128,7 @@ func (sender *Sender) Reply(rt interface{}) error {
 	}
 	switch rt.(type) {
 	case error:
-		b.Send(r, rt.(error).Error, &tb.SendOptions{ReplyTo: sender.Message})
+		b.Send(r, fmt.Sprintf("错误：%v", rt), &tb.SendOptions{ReplyTo: sender.Message})
 	case []byte:
 		b.Send(r, string(rt.([]byte)), &tb.SendOptions{ReplyTo: sender.Message})
 	case string:

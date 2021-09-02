@@ -27,14 +27,13 @@ type Reply struct {
 func InitReplies() {
 	for _, v := range Config.Replies {
 		reply := v
-		var handler func(s im.Sender) bool
+		var handler func(s im.Sender) interface{}
 		if reply.Type != "url" {
-			handler = func(s im.Sender) bool {
-				s.Reply(reply.Content)
-				return true
+			handler = func(s im.Sender) interface{} {
+				return reply.Content
 			}
 		}
-		handler = func(s im.Sender) bool {
+		handler = func(s im.Sender) interface{} {
 			url := reply.Request.Url
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {
@@ -63,7 +62,7 @@ func InitReplies() {
 				} else {
 					s.Reply(err)
 				}
-				return true
+				return nil
 			}
 			switch reply.Request.ResponseType {
 			case "image":
@@ -81,7 +80,7 @@ func InitReplies() {
 				fmt.Println(string(d))
 				s.Reply(d)
 			}
-			return true
+			return nil
 		}
 		functions = append(functions, Function{
 			Rules:  reply.Rules,
