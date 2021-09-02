@@ -22,7 +22,7 @@ var ExecPath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 var Config Yaml
 
 func init() {
-	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/config.yaml")
+	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
 }
