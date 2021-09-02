@@ -55,7 +55,7 @@ func getToken() (string, error) {
 	req := httplib.Get(fmt.Sprintf("%s/open/auth/token?client_id=%s&client_secret=%s", Config.Host, Config.ClientID, Config.ClientSecret))
 	data, err := req.Bytes()
 	if err != nil {
-		msg := fmt.Sprintf("青龙链接失败：%v", err)
+		msg := fmt.Sprintf("青龙连接失败：%v", err)
 		logs.Warn(msg)
 		return "", errors.New(msg)
 	}

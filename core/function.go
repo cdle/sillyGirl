@@ -132,7 +132,7 @@ func handleMessage(sender im.Sender) {
 				}
 			}
 			if matched {
-				if function.Admin && sender.IsAdmin() {
+				if function.Admin && !sender.IsAdmin() {
 					sender.Reply("没有权限操作")
 					return
 				}
