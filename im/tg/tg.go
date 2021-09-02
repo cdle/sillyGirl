@@ -126,15 +126,19 @@ func (sender *Sender) Reply(rt interface{}) error {
 	} else {
 		r = sender.Message.Chat
 	}
+	var err error
 	switch rt.(type) {
 	case error:
-		b.Send(r, fmt.Sprintf("错误：%v", rt), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, fmt.Sprintf("%v", rt), &tb.SendOptions{ReplyTo: sender.Message})
 	case []byte:
-		b.Send(r, string(rt.([]byte)), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, string(rt.([]byte)), &tb.SendOptions{ReplyTo: sender.Message})
 	case string:
-		b.Send(r, rt.(string), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, rt.(string), &tb.SendOptions{ReplyTo: sender.Message})
 	case *http.Response:
-		b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rt.(*http.Response).Body)}}, &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rt.(*http.Response).Body)}}, &tb.SendOptions{ReplyTo: sender.Message})
 	}
-	return nil
+	if err != nil {
+		sender.Reply(err)
+	}
+	return err
 }

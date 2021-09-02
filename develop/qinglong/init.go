@@ -30,6 +30,12 @@ var PUT = "PUT"
 var POST = "POST"
 var DELETE = "DELETE"
 var ENVS = "envs"
+var CRONS = "crons"
+
+type Carrier struct {
+	Get   string
+	Value string
+}
 
 func init() {
 	core.ReadYaml(core.ExecPath+"/develop/qinglong/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/develop/qinglong/conf/demo_config.yaml")
@@ -73,6 +79,7 @@ func req(ps ...interface{}) error {
 	body := []byte{}
 	api := ENVS
 	apd := ""
+	var c *Carrier
 	var toParse interface{}
 	for _, p := range ps {
 		switch p.(type) {
@@ -80,13 +87,15 @@ func req(ps ...interface{}) error {
 			switch p.(string) {
 			case GET, POST, DELETE, PUT:
 				method = p.(string)
-			case ENVS:
+			case ENVS, CRONS:
 				api = p.(string)
 			default:
 				apd = p.(string)
 			}
 		case []byte:
 			body = p.([]byte)
+		case *Carrier:
+			c = p.(*Carrier)
 		default:
 			if strings.Contains(reflect.TypeOf(p).String(), "*") {
 				toParse = p
@@ -97,6 +106,7 @@ func req(ps ...interface{}) error {
 	}
 	var req *httplib.BeegoHTTPRequest
 	api += apd
+	api = strings.Trim(api, " ")
 	switch method {
 	case GET:
 		req = httplib.Get(Config.Host + "/open/" + api)
@@ -112,10 +122,9 @@ func req(ps ...interface{}) error {
 	if method != GET {
 		req.Body(body)
 	}
-	fmt.Println(Config.Host + "/open/" + api)
-	fmt.Println(method)
-	fmt.Println(string(body))
-	req.Body(body)
+	// fmt.Println(Config.Host + "/open/" + api)
+	// fmt.Println(method)
+	// fmt.Println(string(body))
 	data, err := req.Bytes()
 	if err != nil {
 		return err
@@ -126,8 +135,14 @@ func req(ps ...interface{}) error {
 	}
 	if toParse != nil {
 		if err := json.Unmarshal(data, toParse); err != nil {
-			return errors.New(fmt.Sprintf("解析错误：%v,%v", err, string(data)))
+			fmt.Println(err)
+			return err
 		}
+		// fmt.Println(string(data))
+		// fmt.Println(toParse)
+	}
+	if c != nil {
+		c.Value, _ = jsonparser.GetString(data, strings.Split(c.Get, ".")...)
 	}
 	return nil
 }
