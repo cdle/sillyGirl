@@ -1,6 +1,7 @@
 package qinglong
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ type Env struct {
 func init() {
 	core.AddCommand([]core.Function{
 		{
-			Rules: []string{`^env\s+get\s+([\S]*)$`},
+			Rules: []string{`^env\s+get\s+([\S]+)$`},
 			Handle: func(s im.Sender) interface{} {
 				m := s.Get()
 				env, err := GetEnv(m)
@@ -42,7 +43,7 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+find\s+([\S]*)$`},
+			Rules: []string{`^env\s+find\s+([\S]+)$`},
 			Handle: func(s im.Sender) interface{} {
 				m := s.Get()
 				envs, err := GetEnvs(m)
@@ -74,9 +75,18 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+del\s+([\S]*)$`},
+			Rules: []string{`^env\s+del\s+([\S]+)$`},
 			Handle: func(s im.Sender) interface{} {
 				if err := RemEnv(&Env{ID: s.Get()}); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`^env\s+remark\s+([\S]+)\s+([\S]+)$`},
+			Handle: func(s im.Sender) interface{} {
+				if err := ModEnv(&Env{ID: s.Get(0), Remarks: s.Get(1)}); err != nil {
 					return err
 				}
 				return "操作成功"
@@ -106,15 +116,52 @@ func GetEnvs(searchValue string) ([]Env, error) {
 }
 
 func SetEnv(e *Env) error {
-	es, err := GetEnvs(e.Name)
+	if e.Name == "JD_COOKIE" {
+		return errors.New("不支持的操作")
+	}
+	envs, err := GetEnvs("")
 	if err != nil {
 		return err
 	}
-	if len(es) == 0 {
-		return AddEnv(e)
+	for _, env := range envs {
+		if env.Name == e.Name {
+			if e.Remarks != "" {
+				env.Remarks = e.Remarks
+			}
+			if e.Value != "" {
+				env.Value = e.Value
+			}
+			if e.Name != "" {
+				env.Name = e.Name
+			}
+			env.Timestamp = ""
+			return req(PUT, ENVS, env)
+		}
 	}
-	e.ID = es[0].ID
-	return req(PUT, ENVS, *e)
+	return AddEnv(e)
+}
+
+func ModEnv(e *Env) error {
+	envs, err := GetEnvs("")
+	if err != nil {
+		return err
+	}
+	for _, env := range envs {
+		if env.ID == e.ID {
+			if e.Remarks != "" {
+				env.Remarks = e.Remarks
+			}
+			if e.Value != "" {
+				env.Value = e.Value
+			}
+			if e.Name != "" {
+				env.Name = e.Name
+			}
+			env.Timestamp = ""
+			return req(PUT, ENVS, env)
+		}
+	}
+	return errors.New("找不到环境变量")
 }
 
 func AddEnv(e *Env) error {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -39,6 +40,9 @@ var functions = []Function{
 		Rules: []string{"^升级$"},
 		Admin: true,
 		Handle: func(s im.Sender) interface{} {
+			if runtime.GOOS == "darwin" {
+				return "沙雕。"
+			}
 			s.Reply("傻妞开始拉取代码。")
 			rtn, err := exec.Command("sh", "-c", "cd "+ExecPath+" && git stash && git pull").Output()
 			if err != nil {
