@@ -22,33 +22,37 @@ var ExecPath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 var Config Yaml
 
 func init() {
-	confDir := ExecPath + "/conf"
+	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/config.yaml")
+	InitReplies()
+	initToHandleMessage()
+}
+
+func ReadYaml(confDir string, conf interface{}, url string) {
+	path := confDir + "config.yaml"
 	if _, err := os.Stat(confDir); err != nil {
 		os.MkdirAll(confDir, os.ModePerm)
 	}
-	for _, name := range []string{"config.yaml"} {
-		f, err := os.OpenFile(ExecPath+"/conf/"+name, os.O_RDWR|os.O_CREATE, 0777)
-		if err != nil {
-			logs.Warn(err)
-		}
-		s, _ := ioutil.ReadAll(f)
-		if len(s) == 0 {
-			logs.Info("下载配置%s", name)
-			r, err := httplib.Get("https://ghproxy.com/" + "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_" + name).Response()
-			if err == nil {
-				io.Copy(f, r.Body)
-			}
-		}
-		f.Close()
-	}
-	content, err := ioutil.ReadFile(ExecPath + "/conf/config.yaml")
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0777)
 	if err != nil {
-		logs.Warn("解析config.yaml读取错误: %v", err)
+		logs.Warn(err)
 	}
-	if yaml.Unmarshal(content, &Config) != nil {
-		logs.Warn("解析config.yaml出错: %v", err)
+	s, _ := ioutil.ReadAll(f)
+	if len(s) == 0 {
+		logs.Info("下载配置%s", url)
+		r, err := httplib.Get("https://ghproxy.com/" + url).Response()
+		if err == nil {
+			io.Copy(f, r.Body)
+		}
 	}
-
-	InitReplies()
-	initToHandleMessage()
+	f.Close()
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		logs.Warn("解析配置文件%s读取错误: %v", path, err)
+		return
+	}
+	if yaml.Unmarshal(content, conf) != nil {
+		logs.Warn("解析配置文件%s出错: %v", path, err)
+		return
+	}
+	logs.Info("解析配置文件%s", path)
 }
