@@ -12,7 +12,6 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/buger/jsonparser"
 	"github.com/cdle/sillyGirl/core"
-	"github.com/cdle/sillyGirl/im"
 )
 
 type Yaml struct {
@@ -37,64 +36,6 @@ func init() {
 	if err == nil {
 		logs.Info("青龙已连接")
 	}
-	core.AddCommand([]core.Function{
-		{
-			Rules: []string{`^env\s+get\s+([\S]*)$`},
-			Handle: func(s im.Sender) interface{} {
-				m := s.Get()
-				env, err := GetEnv(m)
-				if err != nil {
-					return err
-				}
-				if env == nil {
-					return "未设置该环境变量"
-				}
-				if env != nil {
-					status := "已启用"
-					if env.Status != 0 {
-						status = "已禁用"
-					}
-					if env.Remarks == "" {
-						env.Remarks = "无"
-					}
-					return fmt.Sprintf("名称：%v\n备注：%v\n状态：%v\n时间：%v\n值：%v", env.Name, env.Remarks, status, env.Timestamp, env.Value)
-				}
-				return nil
-			},
-		},
-		{
-			Rules: []string{`^env\s+find\s+([\S]*)$`},
-			Handle: func(s im.Sender) interface{} {
-				m := s.Get()
-				envs, err := GetEnvs(m)
-				if err != nil {
-					return err
-				}
-				if len(envs) == 0 {
-					return "未设置该环境变量"
-				}
-				es := []string{}
-				for _, env := range envs {
-					es = append(es, env.Value)
-				}
-				return strings.Join(es, "\n")
-			},
-		},
-		{
-			Rules: []string{`^export\s+([^'"=]+)=['"]?([^=]+?)['"]?$`, `^env\s+set\s+([^'"=]+)=['"]?([^=]+?)['"]?$`},
-			Handle: func(s im.Sender) interface{} {
-				e := &Env{
-					Name:  s.Get(0),
-					Value: s.Get(1),
-				}
-				err := SetEnv(e)
-				if err != nil {
-					return err
-				}
-				return fmt.Sprintf("操作成功")
-			},
-		},
-	})
 }
 
 func getToken() (string, error) {

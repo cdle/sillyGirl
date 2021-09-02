@@ -1,5 +1,13 @@
 package qinglong
 
+import (
+	"fmt"
+	"strings"
+
+	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/im"
+)
+
 type EnvResponse struct {
 	Code int   `json:"code"`
 	Data []Env `json:"data"`
@@ -12,6 +20,69 @@ type Env struct {
 	Name      string `json:"name,omitempty"`
 	Timestamp string `json:"timestamp,omitempty"`
 	Remarks   string `json:"remarks,omitempty"`
+}
+
+func init() {
+	core.AddCommand([]core.Function{
+		{
+			Rules: []string{`^env\s+get\s+([\S]*)$`},
+			Handle: func(s im.Sender) interface{} {
+				m := s.Get()
+				env, err := GetEnv(m)
+				if err != nil {
+					return err
+				}
+				if env == nil {
+					return "未设置该环境变量"
+				}
+				if env != nil {
+					return formatEnv(env)
+				}
+				return nil
+			},
+		},
+		{
+			Rules: []string{`^env\s+find\s+([\S]*)$`},
+			Handle: func(s im.Sender) interface{} {
+				m := s.Get()
+				envs, err := GetEnvs(m)
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "未设置该环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					es = append(es, formatEnv(&env))
+				}
+				return strings.Join(es, "\n\n")
+			},
+		},
+		{
+			Rules: []string{`^export\s+([^'"=]+)=['"]?([^=]+?)['"]?$`, `^env\s+set\s+([^'"=]+)=['"]?([^=]+?)['"]?$`},
+			Handle: func(s im.Sender) interface{} {
+				e := &Env{
+					Name:  s.Get(0),
+					Value: s.Get(1),
+				}
+				err := SetEnv(e)
+				if err != nil {
+					return err
+				}
+				return fmt.Sprintf("操作成功")
+			},
+		},
+		{
+			Rules: []string{`^env\s+del\s+([\S]*)$`},
+			Handle: func(s im.Sender) interface{} {
+				if err := RemEnv(&Env{ID: s.Get()}); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+	})
 }
 
 func GetEnv(searchValue string) (*Env, error) {
@@ -51,16 +122,16 @@ func AddEnv(e *Env) error {
 }
 
 func RemEnv(e *Env) error {
-	es, err := GetEnvs(e.Name)
-	if err != nil {
-		return err
+	return req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
+}
+
+func formatEnv(env *Env) string {
+	status := "已启用"
+	if env.Status != 0 {
+		status = "已禁用"
 	}
-	if len(es) == 0 {
-		return nil
+	if env.Remarks == "" {
+		env.Remarks = "无"
 	}
-	td := []string{}
-	for _, e := range es {
-		td = append(td, e.ID)
-	}
-	return req(DELETE, ENVS, td)
+	return fmt.Sprintf("名称：%v\n编号：%v\n备注：%v\n状态：%v\n时间：%v\n值：%v", env.Name, env.ID, env.Remarks, status, env.Timestamp, env.Value)
 }
