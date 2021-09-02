@@ -108,9 +108,9 @@ func req(ps ...interface{}) error {
 	if method != GET {
 		req.Body(body)
 	}
-	// fmt.Println(Config.Host + "/open/" + api)
-	// fmt.Println(method)
-	// fmt.Println(string(body))
+	fmt.Println(Config.Host + "/open/" + api)
+	fmt.Println(method)
+	fmt.Println(string(body))
 	req.Body(body)
 	data, err := req.Bytes()
 	if err != nil {
