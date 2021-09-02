@@ -26,6 +26,23 @@ type Env struct {
 func init() {
 	core.AddCommand([]core.Function{
 		{
+			Rules: []string{`^envs$`},
+			Handle: func(_ im.Sender) interface{} {
+				envs, err := GetEnvs("")
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "未设置任何环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					es = append(es, formatEnv(&env))
+				}
+				return strings.Join(es, "\n\n")
+			},
+		},
+		{
 			Rules: []string{`^env\s+get\s+([\S]+)$`},
 			Handle: func(s im.Sender) interface{} {
 				name := s.Get()
@@ -54,7 +71,7 @@ func init() {
 					return err
 				}
 				if len(envs) == 0 {
-					return "未设置该环境变量"
+					return "找不到环境变量"
 				}
 				es := []string{}
 				for _, env := range envs {
