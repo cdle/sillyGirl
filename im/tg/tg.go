@@ -121,21 +121,23 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(rt interface{}) error {
 	var r tb.Recipient
+	var options = []interface{}{}
 	if !sender.Message.FromGroup() {
 		r = sender.Message.Sender
 	} else {
 		r = sender.Message.Chat
+		options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
 	}
 	var err error
 	switch rt.(type) {
 	case error:
-		_, err = b.Send(r, fmt.Sprintf("%v", rt), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, fmt.Sprintf("%v", rt), options...)
 	case []byte:
-		_, err = b.Send(r, string(rt.([]byte)), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, string(rt.([]byte)), options...)
 	case string:
-		_, err = b.Send(r, rt.(string), &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.Send(r, rt.(string), options...)
 	case *http.Response:
-		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rt.(*http.Response).Body)}}, &tb.SendOptions{ReplyTo: sender.Message})
+		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rt.(*http.Response).Body)}}, options...)
 	}
 	if err != nil {
 		sender.Reply(err)

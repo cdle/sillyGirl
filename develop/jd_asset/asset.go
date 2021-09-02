@@ -33,7 +33,7 @@ var ua = `Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) Appl
 func init() {
 	core.AddCommand([]core.Function{
 		{
-			Rules: []string{`^asset\s+(.+)$`},
+			Rules: []string{`^asset\s+(.+)$`, `^查询\s+(.+)$`},
 			Handle: func(s im.Sender) interface{} {
 				a := s.Get()
 				envs, err := qinglong.GetEnvs("JD_COOKIE")
