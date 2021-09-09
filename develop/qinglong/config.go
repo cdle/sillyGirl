@@ -25,6 +25,124 @@ func init() {
 	})
 }
 
+func init() {
+	core.AddCommand("ql", []core.Function{
+		{
+			Rules: []string{`envs`},
+			Admin: true,
+			Handle: func(_ im.Sender) interface{} {
+				envs, err := GetConfigEnvs("")
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "未设置任何环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					es = append(es, formatEnv(&env))
+				}
+				return strings.Join(es, "\n\n")
+			},
+		},
+		{
+			Rules: []string{`env get ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				name := s.Get()
+				envs, err := GetConfigEnvs(name)
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "未设置该环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					if env.Name == name {
+						es = append(es, formatEnv(&env))
+					}
+				}
+				return strings.Join(es, "\n\n")
+			},
+		},
+		{
+			Rules: []string{`env find ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				m := s.Get()
+				envs, err := GetConfigEnvs(m)
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "找不到环境变量"
+				}
+				es := []string{}
+				for _, env := range envs {
+					es = append(es, formatEnv(&env))
+				}
+				return strings.Join(es, "\n\n")
+			},
+		},
+		{
+			Rules: []string{`env set ? ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				err := SetConfigEnv(Env{
+					Name:   s.Get(0),
+					Value:  s.Get(1),
+					Status: 3,
+				})
+				if err != nil {
+					return err
+				}
+				return fmt.Sprintf("操作成功")
+			},
+		},
+		// {
+		// 	Rules: []string{`env delete ?`},
+		// 	Admin: true,
+		// 	Handle: func(s im.Sender) interface{} {
+		// 		if err := DelEnv(&Env{ID: s.Get()}); err != nil {
+		// 			return err
+		// 		}
+		// 		return "操作成功"
+		// 	},
+		// },
+		{
+			Rules: []string{`env remark ? ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				if err := SetConfigEnv(Env{Name: s.Get(0), Remarks: s.Get(1), Status: 3}); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`env disable ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				if err := SetConfigEnv(Env{Name: s.Get(0), Status: 1}); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`env enable ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				if err := SetConfigEnv(Env{Name: s.Get(0)}); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+	})
+}
+
 func GetConfig() (string, error) {
 	config := "data"
 	if err := req(CONFIG, &config, "/config.sh"); err != nil {
@@ -43,7 +161,7 @@ func SvaeConfig(content string) error {
 	return nil
 }
 
-func GetEnvs(searchValue string) ([]Env, error) {
+func GetConfigEnvs(searchValue string) ([]Env, error) {
 	envs := []Env{}
 	content, err := GetConfig()
 	if err != nil {
@@ -70,13 +188,16 @@ func GetEnvs(searchValue string) ([]Env, error) {
 	return envs, nil
 }
 
-func SetEnv(envs ...Env) error {
+func SetConfigEnv(envs ...Env) error {
 	config, err := GetConfig()
 	if err != nil {
 		return err
 	}
 	lines := strings.Split(config, "\n")
 	for _, env := range envs {
+		if env.Name == "" {
+			continue
+		}
 		set := false
 		for j, line := range lines {
 			for i, pattern := range []string{`^\s*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*([^'"=\s]+)=[ '"]?(.*?)['"]?$`} {
@@ -90,15 +211,15 @@ func SetEnv(envs ...Env) error {
 					if env.Name != e.Name {
 						continue
 					}
-					if env.Value != e.Value {
+					if env.Value != "" && env.Value != e.Value {
 						e.Value = env.Value
 					}
-					if env.Status != e.Status {
+					if env.Status < 2 {
 						e.Status = env.Status
 					}
 					h := ""
 					if e.Status == 1 {
-						h = "# "
+						h = "## "
 					}
 					if i <= 1 {
 						h = "export "
@@ -114,4 +235,12 @@ func SetEnv(envs ...Env) error {
 		}
 	}
 	return SvaeConfig(strings.Join(lines, "\n"))
+}
+
+func formatEnv(env *Env) string {
+	status := "已启用"
+	if env.Status != 0 {
+		status = "已禁用"
+	}
+	return fmt.Sprintf("名称：%v\n状态：%v\n值：%v", env.Name, status, env.Value)
 }
