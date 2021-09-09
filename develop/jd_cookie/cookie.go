@@ -1,5 +1,0 @@
-package jdcookie
-
-func init() {
-
-}

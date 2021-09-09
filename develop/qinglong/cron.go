@@ -29,9 +29,10 @@ type Cron struct {
 }
 
 func init() {
-	core.AddCommand([]core.Function{
+	core.AddCommand("ql", []core.Function{
 		{
-			Rules: []string{`^crons$`},
+			Rules: []string{`crons`},
+			Admin: true,
 			Handle: func(_ im.Sender) interface{} {
 				crons, err := GetCrons("")
 				if err != nil {
@@ -48,7 +49,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^cron\s+get\s+([\S]+)$`},
+			Rules: []string{`cron get ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				name := s.Get()
 				crons, err := GetCrons("")
@@ -68,7 +70,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^cron\s+find\s+([\S]+)$`},
+			Rules: []string{`cron find ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				name := s.Get()
 				crons, err := GetCrons("")
@@ -88,7 +91,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^cron\s+logs\s+([\S]+)$`},
+			Rules: []string{`cron logs ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				data, err := GetCronLog(s.Get())
 				if err != nil {
