@@ -96,7 +96,7 @@ func init() {
 				}
 			}
 			for i := range f {
-				qinglong.SetEnv(&qinglong.Env{
+				qinglong.SetEnv(qinglong.Env{
 					Name:  i,
 					Value: f[i],
 				})

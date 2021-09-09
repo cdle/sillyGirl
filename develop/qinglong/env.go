@@ -65,7 +65,7 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`env find ?)`},
+			Rules: []string{`env find ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				m := s.Get()
@@ -84,15 +84,13 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`export ([^'"=]+)=['"]?([^=]+?)['"]?`},
-			Regex: true,
+			Rules: []string{`env set ? ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
-				e := &Env{
+				err := SetEnv(Env{
 					Name:  s.Get(0),
 					Value: s.Get(1),
-				}
-				err := SetEnv(e)
+				})
 				if err != nil {
 					return err
 				}
@@ -135,39 +133,39 @@ func GetEnv(name string) (*Env, error) {
 	return nil, nil
 }
 
-func GetEnvs(searchValue string) ([]Env, error) {
-	er := EnvResponse{}
-	if err := req(ENVS, &er, "?searchValue="+searchValue); err != nil {
-		return nil, err
-	}
-	return er.Data, nil
-}
+// func GetEnvs(searchValue string) ([]Env, error) {
+// 	er := EnvResponse{}
+// 	if err := req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+// 		return nil, err
+// 	}
+// 	return er.Data, nil
+// }
 
-func SetEnv(e *Env) error {
-	if e.Name == "JD_COOKIE" {
-		return errors.New("不支持的操作")
-	}
-	envs, err := GetEnvs("")
-	if err != nil {
-		return err
-	}
-	for _, env := range envs {
-		if env.Name == e.Name {
-			if e.Remarks != "" {
-				env.Remarks = e.Remarks
-			}
-			if e.Value != "" {
-				env.Value = e.Value
-			}
-			if e.Name != "" {
-				env.Name = e.Name
-			}
-			env.Timestamp = ""
-			return req(PUT, ENVS, env)
-		}
-	}
-	return AddEnv(e)
-}
+// func SetEnv(e *Env) error {
+// 	if e.Name == "JD_COOKIE" {
+// 		return errors.New("不支持的操作")
+// 	}
+// 	envs, err := GetEnvs("")
+// 	if err != nil {
+// 		return err
+// 	}
+// 	for _, env := range envs {
+// 		if env.Name == e.Name {
+// 			if e.Remarks != "" {
+// 				env.Remarks = e.Remarks
+// 			}
+// 			if e.Value != "" {
+// 				env.Value = e.Value
+// 			}
+// 			if e.Name != "" {
+// 				env.Name = e.Name
+// 			}
+// 			env.Timestamp = ""
+// 			return req(PUT, ENVS, env)
+// 		}
+// 	}
+// 	return AddEnv(e)
+// }
 
 func ModEnv(e *Env) error {
 	envs, err := GetEnvs("")
@@ -205,8 +203,5 @@ func formatEnv(env *Env) string {
 	if env.Status != 0 {
 		status = "已禁用"
 	}
-	if env.Remarks == "" {
-		env.Remarks = "无"
-	}
-	return fmt.Sprintf("名称：%v\n编号：%v\n备注：%v\n状态：%v\n时间：%v\n值：%v", env.Name, env.ID, env.Remarks, status, env.Timestamp, env.Value)
+	return fmt.Sprintf("名称：%v\n备注：%v\n状态：%v\n值：%v", env.Name, env.Remarks, status, env.Value)
 }
