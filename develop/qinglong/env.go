@@ -24,9 +24,10 @@ type Env struct {
 }
 
 func init() {
-	core.AddCommand([]core.Function{
+	core.AddCommand("ql", []core.Function{
 		{
-			Rules: []string{`^envs$`},
+			Rules: []string{`envs`},
+			Admin: true,
 			Handle: func(_ im.Sender) interface{} {
 				envs, err := GetEnvs("")
 				if err != nil {
@@ -43,7 +44,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+get\s+([\S]+)$`},
+			Rules: []string{`env get ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				name := s.Get()
 				envs, err := GetEnvs(name)
@@ -63,7 +65,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+find\s+([\S]+)$`},
+			Rules: []string{`env find ?)`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				m := s.Get()
 				envs, err := GetEnvs(m)
@@ -81,7 +84,9 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^export\s+([^'"=]+)=['"]?([^=]+?)['"]?$`, `^env\s+set\s+([^'"=]+)=['"]?([^=]+?)['"]?$`},
+			Rules: []string{`export ([^'"=]+)=['"]?([^=]+?)['"]?`},
+			Regex: true,
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				e := &Env{
 					Name:  s.Get(0),
@@ -95,7 +100,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+del\s+([\S]+)$`},
+			Rules: []string{`env del ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				if err := RemEnv(&Env{ID: s.Get()}); err != nil {
 					return err
@@ -104,7 +110,8 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`^env\s+remark\s+([\S]+)\s+([\S]+)$`},
+			Rules: []string{`env remark ? ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				if err := ModEnv(&Env{ID: s.Get(0), Remarks: s.Get(1)}); err != nil {
 					return err

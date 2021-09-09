@@ -19,6 +19,7 @@ type Function struct {
 	FindAll bool
 	Admin   bool
 	Handle  func(s im.Sender) interface{}
+	Regex   bool
 }
 
 var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
@@ -108,8 +109,20 @@ func initToHandleMessage() {
 	}()
 }
 
-func AddCommand(cmd []Function) {
-	functions = append(functions, cmd...)
+func AddCommand(prefix string, cmds []Function) {
+	for _, cmd := range cmds {
+		if !cmd.Regex {
+			for i := range cmd.Rules {
+				if prefix != "" {
+					cmd.Rules[i] += prefix + `\s+` + cmd.Rules[i]
+				}
+				cmd.Rules[i] = strings.Replace(cmd.Rules[i], " ", `\s+`, -1)
+				cmd.Rules[i] = strings.Replace(cmd.Rules[i], "?", `(\S+)`, -1)
+				cmd.Rules[i] += "^" + cmd.Rules[i] + "$"
+			}
+		}
+		functions = append(functions, cmd)
+	}
 }
 
 func handleMessage(sender im.Sender) {
