@@ -95,12 +95,14 @@ func init() {
 					f["JD_CASH_SHARECODES"] = e[k]
 				}
 			}
+			envs := []qinglong.Env{}
 			for i := range f {
-				qinglong.SetEnv(qinglong.Env{
+				envs = append(envs, qinglong.Env{
 					Name:  i,
 					Value: f[i],
 				})
 			}
+			qinglong.SetEnv(envs...)
 			return
 		}
 	}
