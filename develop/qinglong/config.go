@@ -70,46 +70,48 @@ func GetEnvs(searchValue string) ([]Env, error) {
 	return envs, nil
 }
 
-func SetEnv(env Env) error {
+func SetEnv(envs ...Env) error {
 	config, err := GetConfig()
 	if err != nil {
 		return err
 	}
 	lines := strings.Split(config, "\n")
-	set := false
-	for j, line := range lines {
-		for i, pattern := range []string{`^\s*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*([^'"=\s]+)=[ '"]?(.*?)['"]?$`} {
-			if v := regexp.MustCompile(pattern).FindStringSubmatch(line); len(v) > 0 {
-				e := Env{}
-				if i == 1 || i == 3 {
-					e.Status = 1
+	for _, env := range envs {
+		set := false
+		for j, line := range lines {
+			for i, pattern := range []string{`^\s*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*export\s+([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*([^'"=\s]+)=[ '"]?(.*?)['"]?$`, `^\s*#[#\s]*([^'"=\s]+)=[ '"]?(.*?)['"]?$`} {
+				if v := regexp.MustCompile(pattern).FindStringSubmatch(line); len(v) > 0 {
+					e := Env{}
+					if i == 1 || i == 3 {
+						e.Status = 1
+					}
+					e.Name = v[1]
+					e.Value = v[2]
+					if env.Name != e.Name {
+						continue
+					}
+					if env.Value != e.Value {
+						e.Value = env.Value
+					}
+					if env.Status != e.Status {
+						e.Status = env.Status
+					}
+					h := ""
+					if e.Status == 1 {
+						h = "# "
+					}
+					if i <= 1 {
+						h = "export "
+					}
+					lines[j] = h + fmt.Sprintf("%s=\"%s\"", e.Name, e.Value)
+					set = true
+					break
 				}
-				e.Name = v[1]
-				e.Value = v[2]
-				if env.Name != e.Name {
-					continue
-				}
-				if env.Value != e.Value {
-					e.Value = env.Value
-				}
-				if env.Status != e.Status {
-					e.Status = env.Status
-				}
-				h := ""
-				if e.Status == 1 {
-					h = "# "
-				}
-				if i <= 1 {
-					h = "export "
-				}
-				lines[j] = h + fmt.Sprintf("%s=\"%s\"", e.Name, e.Value)
-				set = true
-				break
 			}
 		}
-	}
-	if !set {
-		lines = append(lines, fmt.Sprintf("export %s=\"%s\"", env.Name, env.Value))
+		if !set {
+			lines = append(lines, fmt.Sprintf("export %s=\"%s\"", env.Name, env.Value))
+		}
 	}
 	return SvaeConfig(strings.Join(lines, "\n"))
 }
