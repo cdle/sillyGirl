@@ -31,9 +31,9 @@ type JdCookie struct {
 var ua = `Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5 UCBrowser/13.4.2.1122`
 
 func init() {
-	core.AddCommand("ql", []core.Function{
+	core.AddCommand("jd", []core.Function{
 		{
-			Rules: []string{`jd asset ?`},
+			Rules: []string{`asset ?`},
 			Handle: func(s im.Sender) interface{} {
 				a := s.Get()
 				envs, err := qinglong.GetEnvs("JD_COOKIE")
