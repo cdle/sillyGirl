@@ -31,6 +31,7 @@ var POST = "POST"
 var DELETE = "DELETE"
 var ENVS = "envs"
 var CRONS = "crons"
+var CONFIG = "configs"
 
 type Carrier struct {
 	Get   string
@@ -79,6 +80,7 @@ func req(ps ...interface{}) error {
 	body := []byte{}
 	api := ENVS
 	apd := ""
+	var get *string
 	var c *Carrier
 	var toParse interface{}
 	for _, p := range ps {
@@ -87,7 +89,7 @@ func req(ps ...interface{}) error {
 			switch p.(string) {
 			case GET, POST, DELETE, PUT:
 				method = p.(string)
-			case ENVS, CRONS:
+			case ENVS, CRONS, CONFIG:
 				api = p.(string)
 			default:
 				apd = p.(string)
@@ -96,6 +98,8 @@ func req(ps ...interface{}) error {
 			body = p.([]byte)
 		case *Carrier:
 			c = p.(*Carrier)
+		case *string:
+			get = p.(*string)
 		default:
 			if strings.Contains(reflect.TypeOf(p).String(), "*") {
 				toParse = p
@@ -135,11 +139,13 @@ func req(ps ...interface{}) error {
 	}
 	if toParse != nil {
 		if err := json.Unmarshal(data, toParse); err != nil {
-			fmt.Println(err)
 			return err
 		}
-		// fmt.Println(string(data))
-		// fmt.Println(toParse)
+	}
+	if get != nil {
+		if *get, err = jsonparser.GetString(data, *get); err != nil {
+			return err
+		}
 	}
 	if c != nil {
 		c.Value, _ = jsonparser.GetString(data, strings.Split(c.Get, ".")...)
