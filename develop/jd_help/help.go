@@ -102,7 +102,7 @@ func init() {
 					Value: f[i],
 				})
 			}
-			qinglong.SetEnv(envs...)
+			qinglong.SetConfigEnv(envs...)
 			return
 		}
 	}
