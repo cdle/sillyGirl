@@ -34,6 +34,7 @@ func init() {
 	core.AddCommand("jd", []core.Function{
 		{
 			Rules: []string{`asset ?`},
+			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				a := s.Get()
 				envs, err := qinglong.GetEnvs("JD_COOKIE")
