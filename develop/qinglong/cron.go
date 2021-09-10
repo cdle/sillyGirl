@@ -1,6 +1,7 @@
 package qinglong
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -39,7 +40,7 @@ func init() {
 					return err
 				}
 				if len(crons) == 0 {
-					return "没有任务"
+					return "没有任务。"
 				}
 				es := []string{}
 				for _, cron := range crons {
@@ -49,24 +50,84 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`cron get ?`},
+			Rules: []string{`cron status ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
-				name := s.Get()
+				keyword := s.Get()
 				crons, err := GetCrons("")
 				if err != nil {
 					return err
 				}
 				es := []string{}
 				for _, cron := range crons {
-					if cron.Name == name || regexp.MustCompile(name+"$").FindString(cron.Command) != "" {
+					if cron.ID == keyword {
+						es = append(es, formatCron(&cron))
+						break
+					}
+					if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
 						es = append(es, formatCron(&cron))
 					}
 				}
 				if len(es) == 0 {
-					return "找不到该任务"
+					return "找不到任务。"
 				}
 				return strings.Join(es, "\n\n")
+			},
+		},
+		{
+			Rules: []string{`cron run ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				cron, err := GetCronID(s.Get())
+				if err != nil {
+					return err
+				}
+				if err := Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`cron stop ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				cron, err := GetCronID(s.Get())
+				if err != nil {
+					return err
+				}
+				if err := Req(CRONS, PUT, "/stop", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`cron enable ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				cron, err := GetCronID(s.Get())
+				if err != nil {
+					return err
+				}
+				if err := Req(CRONS, PUT, "/enable", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`cron disable ?`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				cron, err := GetCronID(s.Get())
+				if err != nil {
+					return err
+				}
+				if err := Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+					return err
+				}
+				return "操作成功"
 			},
 		},
 		{
@@ -94,7 +155,11 @@ func init() {
 			Rules: []string{`cron logs ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
-				data, err := GetCronLog(s.Get())
+				cron, err := GetCronID(s.Get())
+				if err != nil {
+					return err
+				}
+				data, err := GetCronLog(cron.ID)
 				if err != nil {
 					return err
 				}
@@ -106,7 +171,7 @@ func init() {
 
 func GetCrons(searchValue string) ([]Cron, error) {
 	er := CronResponse{}
-	if err := req(CRONS, &er, "?searchValue="+searchValue); err != nil {
+	if err := Req(CRONS, &er, "?searchValue="+searchValue); err != nil {
 		return nil, err
 	}
 	return er.Data, nil
@@ -116,7 +181,7 @@ func GetCronLog(id string) (string, error) {
 	c := &Carrier{
 		Get: "data",
 	}
-	if err := req(CRONS, "/"+id+"/log", c); err != nil {
+	if err := Req(CRONS, "/"+id+"/log", c); err != nil {
 		return "", err
 	}
 	return c.Value, nil
@@ -137,4 +202,31 @@ func formatCron(cron *Cron) string {
 		fmt.Sprintf("定时：%v", cron.Schedule),
 		fmt.Sprintf("状态：%v", status),
 	}, "\n")
+}
+
+func GetCronID(keyword string) (*Cron, error) {
+	crons, err := GetCrons("")
+	if err != nil {
+		return nil, err
+	}
+	cs := []Cron{}
+	for _, cron := range crons {
+		if cron.ID == keyword {
+			cs = append(cs, cron)
+			break
+		}
+		if cron.Name == keyword {
+			cs = append(cs, cron)
+		}
+		if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
+			cs = append(cs, cron)
+		}
+	}
+	if len(cs) == 0 {
+		return nil, errors.New("找不到任务。")
+	}
+	if len(cs) != 1 {
+		return nil, errors.New("搜索到多个任务，请再具体一些！")
+	}
+	return &cs[0], nil
 }

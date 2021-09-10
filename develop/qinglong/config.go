@@ -124,7 +124,7 @@ func init() {
 			Rules: []string{`env disable ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
-				if err := SetConfigEnv(Env{Name: s.Get(0), Status: 1}); err != nil {
+				if err := SetConfigEnv(Env{Name: s.Get(), Status: 1}); err != nil {
 					return err
 				}
 				return "操作成功"
@@ -134,7 +134,7 @@ func init() {
 			Rules: []string{`env enable ?`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
-				if err := SetConfigEnv(Env{Name: s.Get(0)}); err != nil {
+				if err := SetConfigEnv(Env{Name: s.Get()}); err != nil {
 					return err
 				}
 				return "操作成功"
@@ -145,14 +145,14 @@ func init() {
 
 func GetConfig() (string, error) {
 	config := "data"
-	if err := req(CONFIG, &config, "/config.sh"); err != nil {
+	if err := Req(CONFIG, &config, "/config.sh"); err != nil {
 		return "", err
 	}
 	return config, nil
 }
 
 func SvaeConfig(content string) error {
-	if err := req(POST, CONFIG, map[string]interface{}{
+	if err := Req(POST, CONFIG, map[string]interface{}{
 		"name":    "config.sh",
 		"content": content,
 	}, "/save"); err != nil {
@@ -222,7 +222,7 @@ func SetConfigEnv(envs ...Env) error {
 						h = "## "
 					}
 					if i <= 1 {
-						h = "export "
+						h += "export "
 					}
 					lines[j] = h + fmt.Sprintf("%s=\"%s\"", e.Name, e.Value)
 					set = true

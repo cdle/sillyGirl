@@ -71,7 +71,7 @@ func getToken() (string, error) {
 	return token, nil
 }
 
-func req(ps ...interface{}) error {
+func Req(ps ...interface{}) error {
 	token, err := getToken()
 	if err != nil {
 		return err
