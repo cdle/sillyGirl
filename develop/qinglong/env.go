@@ -10,21 +10,20 @@ type EnvResponse struct {
 }
 
 type Env struct {
-	Value     string `json:"value,omitempty"`
-	ID        string `json:"_id,omitempty"`
-	Status    int    `json:"status,omitempty"`
-	Name      string `json:"name,omitempty"`
-	Timestamp string `json:"timestamp,omitempty"`
-	Remarks   string `json:"remarks,omitempty"`
+	Value   string `json:"value,omitempty"`
+	ID      string `json:"_id,omitempty"`
+	Status  int    `json:"status,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Remarks string `json:"remarks,omitempty"`
 }
 
-func GetEnv(name string) (*Env, error) {
+func GetEnv(id string) (*Env, error) {
 	envs, err := GetEnvs("")
 	if err != nil {
 		return nil, err
 	}
 	for _, env := range envs {
-		if env.Name == name {
+		if env.ID == id {
 			return &env, nil
 		}
 	}
@@ -33,13 +32,13 @@ func GetEnv(name string) (*Env, error) {
 
 func GetEnvs(searchValue string) ([]Env, error) {
 	er := EnvResponse{}
-	if err := req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+	if err := Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
 		return nil, err
 	}
 	return er.Data, nil
 }
 
-func SetEnv(e *Env) error {
+func SetEnv(e Env) error {
 	envs, err := GetEnvs("")
 	if err != nil {
 		return err
@@ -55,14 +54,13 @@ func SetEnv(e *Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
-			env.Timestamp = ""
-			return req(PUT, ENVS, env)
+			return Req(PUT, ENVS, env)
 		}
 	}
 	return AddEnv(e)
 }
 
-func ModEnv(e *Env) error {
+func ModEnv(e Env) error {
 	envs, err := GetEnvs("")
 	if err != nil {
 		return err
@@ -78,17 +76,16 @@ func ModEnv(e *Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
-			env.Timestamp = ""
-			return req(PUT, ENVS, env)
+			return Req(PUT, ENVS, env)
 		}
 	}
 	return errors.New("找不到环境变量")
 }
 
-func AddEnv(e *Env) error {
-	return req(POST, ENVS, []Env{*e})
+func AddEnv(e Env) error {
+	return Req(POST, ENVS, []Env{e})
 }
 
 func RemEnv(e *Env) error {
-	return req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
+	return Req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
 }
