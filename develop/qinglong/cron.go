@@ -195,6 +195,54 @@ func init() {
 				return data
 			},
 		},
+		{
+			Rules: []string{`cron hide duplicate`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				w := func(s string) int {
+					if strings.Contains(s, "shufflewzc") {
+						return 1
+					}
+					if strings.Contains(s, "novpx") {
+						return 10
+					}
+					if strings.Contains(s, "smiek2221") {
+						return 9
+					}
+					if strings.Contains(s, "Aaron-lv") {
+						return 8
+					}
+					return 0
+				}
+				crons, err := GetCrons("")
+				if err != nil {
+					return err
+				}
+				tasks := map[string]Cron{}
+				for i := range crons {
+					if crons[i].IsDisabled != 0 {
+						continue
+					}
+					if task, ok := tasks[crons[i].Name]; ok {
+						var dup Cron
+						if w(task.Command) > w(crons[i].Command) {
+							dup = crons[i]
+						} else {
+							dup = task
+							tasks[crons[i].Name] = crons[i]
+						}
+						if err := Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, dup.ID))); err != nil {
+							s.Reply(fmt.Sprintf("隐藏 %v %v %v", dup.Name, dup.Command, err))
+						} else {
+							s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v", dup.Name, dup.Command))
+						}
+					} else {
+						tasks[crons[i].Name] = crons[i]
+					}
+				}
+				return "操作成功"
+			},
+		},
 	})
 }
 
