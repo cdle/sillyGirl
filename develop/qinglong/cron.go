@@ -166,6 +166,35 @@ func init() {
 				return data
 			},
 		},
+		{
+			Rules: []string{`update`},
+			Admin: true,
+			Handle: func(_ im.Sender) interface{} {
+				cron, err := GetCronID("更新面板")
+				if err != nil {
+					return err
+				}
+				if err := Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+					return err
+				}
+				return "操作成功"
+			},
+		},
+		{
+			Rules: []string{`update logs`},
+			Admin: true,
+			Handle: func(_ im.Sender) interface{} {
+				cron, err := GetCronID("更新面板")
+				if err != nil {
+					return err
+				}
+				data, err := GetCronLog(cron.ID)
+				if err != nil {
+					return err
+				}
+				return data
+			},
+		},
 	})
 }
 
