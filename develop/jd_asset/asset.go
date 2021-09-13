@@ -104,7 +104,7 @@ func init() {
 				for i := range beans {
 					all += <-beans[i]
 				}
-				return fmt.Sprintf("今日收入%d京豆", all)
+				return fmt.Sprintf("今日收入%d京豆。", all)
 			},
 		},
 	})
