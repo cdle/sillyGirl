@@ -66,6 +66,47 @@ func init() {
 				return nil
 			},
 		},
+		{
+			Rules: []string{`today bean(?)`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				a := s.Get()
+				envs, err := qinglong.GetEnvs("JD_COOKIE")
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "青龙没有京东账号。"
+				}
+				cks := []JdCookie{}
+				for _, env := range envs {
+					pt_key := FetchJdCookieValue("pt_key", env.Value)
+					pt_pin := FetchJdCookieValue("pt_pin", env.Value)
+					if pt_key != "" && pt_pin != "" {
+						cks = append(cks, JdCookie{
+							PtKey: pt_key,
+							PtPin: pt_pin,
+							Note:  env.Remarks,
+						})
+					}
+				}
+				cks = LimitJdCookie(cks, a)
+				if len(cks) == 0 {
+					return "没有匹配的京东账号。"
+				}
+				var beans []chan int
+				for _, ck := range cks {
+					var bean = make(chan int)
+					go GetTodayBean(&ck, bean)
+					beans = append(beans, bean)
+				}
+				all := 0
+				for i := range beans {
+					all += <-beans[i]
+				}
+				return fmt.Sprintf("今日收入%d京豆", all)
+			},
+		},
 	})
 
 }
@@ -145,7 +186,6 @@ func (ck *JdCookie) QueryAsset() string {
 	}
 	asset := Asset{}
 	if ck.Available() {
-
 		msgs = append(msgs, fmt.Sprintf("用户等级：%v", ck.UserLevel))
 		msgs = append(msgs, fmt.Sprintf("等级名称：%v", ck.LevelName))
 		cookie := fmt.Sprintf("pt_key=%s;pt_pin=%s;", ck.PtKey, ck.PtPin)
@@ -1022,4 +1062,39 @@ func FetchJdCookieValue(key string, cookies string) string {
 	} else {
 		return ""
 	}
+}
+
+func GetTodayBean(ck *JdCookie, state chan int) {
+	cookie := fmt.Sprintf("pt_key=%s;pt_pin=%s;", ck.PtKey, ck.PtPin)
+	today := time.Now().Local().Format("2006-01-02")
+	page := 1
+	end := false
+	in := 0
+	defer func() {
+		state <- in
+	}()
+	for {
+		if end {
+			return
+		}
+		bds := getJingBeanBalanceDetail(page, cookie)
+		if bds == nil {
+			break
+		}
+		for _, bd := range bds {
+			amount := Int(bd.Amount)
+			if strings.Contains(bd.Date, today) {
+				if amount > 0 {
+					in += amount
+				} else {
+
+				}
+			} else {
+				end = true
+				break
+			}
+		}
+		page++
+	}
+	return
 }
