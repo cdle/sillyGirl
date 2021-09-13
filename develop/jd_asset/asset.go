@@ -107,6 +107,47 @@ func init() {
 				return fmt.Sprintf("今日收入%d京豆。", all)
 			},
 		},
+		{
+			Rules: []string{`yestoday bean(?)`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				a := s.Get()
+				envs, err := qinglong.GetEnvs("JD_COOKIE")
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "青龙没有京东账号。"
+				}
+				cks := []JdCookie{}
+				for _, env := range envs {
+					pt_key := FetchJdCookieValue("pt_key", env.Value)
+					pt_pin := FetchJdCookieValue("pt_pin", env.Value)
+					if pt_key != "" && pt_pin != "" {
+						cks = append(cks, JdCookie{
+							PtKey: pt_key,
+							PtPin: pt_pin,
+							Note:  env.Remarks,
+						})
+					}
+				}
+				cks = LimitJdCookie(cks, a)
+				if len(cks) == 0 {
+					return "没有匹配的京东账号。"
+				}
+				var beans []chan int
+				for _, ck := range cks {
+					var bean = make(chan int)
+					go GetYestodayBean(&ck, bean)
+					beans = append(beans, bean)
+				}
+				all := 0
+				for i := range beans {
+					all += <-beans[i]
+				}
+				return fmt.Sprintf("昨日收入%d京豆。", all)
+			},
+		},
 	})
 
 }
@@ -1089,6 +1130,44 @@ func GetTodayBean(ck *JdCookie, state chan int) {
 				} else {
 
 				}
+			} else {
+				end = true
+				break
+			}
+		}
+		page++
+	}
+	return
+}
+
+func GetYestodayBean(ck *JdCookie, state chan int) {
+	cookie := fmt.Sprintf("pt_key=%s;pt_pin=%s;", ck.PtKey, ck.PtPin)
+	today := time.Now().Local().Format("2006-01-02")
+	yestoday := time.Now().Local().Add(-time.Hour * 24).Format("2006-01-02")
+	page := 1
+	end := false
+	in := 0
+	defer func() {
+		state <- in
+	}()
+	for {
+		if end {
+			return
+		}
+		bds := getJingBeanBalanceDetail(page, cookie)
+		if bds == nil {
+			break
+		}
+		for _, bd := range bds {
+			amount := Int(bd.Amount)
+			if strings.Contains(bd.Date, yestoday) {
+				if amount > 0 {
+					in += amount
+				} else {
+
+				}
+			} else if strings.Contains(bd.Date, today) {
+
 			} else {
 				end = true
 				break
