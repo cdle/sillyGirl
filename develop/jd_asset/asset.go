@@ -148,6 +148,42 @@ func init() {
 				return fmt.Sprintf("昨日收入%d京豆。", all)
 			},
 		},
+		{
+			Rules: []string{`bean sum(?)`},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				a := s.Get()
+				envs, err := qinglong.GetEnvs("JD_COOKIE")
+				if err != nil {
+					return err
+				}
+				if len(envs) == 0 {
+					return "青龙没有京东账号。"
+				}
+				cks := []JdCookie{}
+				for _, env := range envs {
+					pt_key := FetchJdCookieValue("pt_key", env.Value)
+					pt_pin := FetchJdCookieValue("pt_pin", env.Value)
+					if pt_key != "" && pt_pin != "" {
+						cks = append(cks, JdCookie{
+							PtKey: pt_key,
+							PtPin: pt_pin,
+							Note:  env.Remarks,
+						})
+					}
+				}
+				cks = LimitJdCookie(cks, a)
+				if len(cks) == 0 {
+					return "没有匹配的京东账号。"
+				}
+				all := 0
+				for _, ck := range cks {
+					ck.Available()
+					all += Int(ck.BeanNum)
+				}
+				return fmt.Sprintf("总计%d京豆。", all)
+			},
+		},
 	})
 
 }
