@@ -118,6 +118,8 @@ func AddCommand(prefix string, cmds []Function) {
 				}
 				cmd.Rules[i] = strings.Replace(cmd.Rules[i], " ", `\s+`, -1)
 				cmd.Rules[i] = strings.Replace(cmd.Rules[i], "?", `(\S+)`, -1)
+				cmd.Rules[i] = strings.Replace(cmd.Rules[i], "(", `[(]`, -1)
+				cmd.Rules[i] = strings.Replace(cmd.Rules[i], ")", `[)]`, -1)
 				cmd.Rules[i] = "^" + cmd.Rules[i] + "$"
 			}
 		}
