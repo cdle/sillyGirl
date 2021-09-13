@@ -149,7 +149,7 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{`bean sum(?)`},
+			Rules: []string{`bean(?)`},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				a := s.Get()
