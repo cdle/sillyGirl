@@ -60,6 +60,10 @@ func SetEnv(e Env) error {
 	return AddEnv(e)
 }
 
+func UdpEnv(env Env) error {
+	return Req(PUT, ENVS, env)
+}
+
 func ModEnv(e Env) error {
 	envs, err := GetEnvs("")
 	if err != nil {
