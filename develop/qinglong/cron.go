@@ -198,7 +198,8 @@ func init() {
 		{
 			Rules: []string{`cron hide duplicate`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Cron:  "*/10 * * * *",
+			Handle: func(_ im.Sender) interface{} {
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
 						return 1
@@ -232,9 +233,9 @@ func init() {
 							tasks[crons[i].Name] = crons[i]
 						}
 						if err := Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, dup.ID))); err != nil {
-							s.Reply(fmt.Sprintf("隐藏 %v %v %v", dup.Name, dup.Command, err))
+							// s.Reply(fmt.Sprintf("隐藏 %v %v %v", dup.Name, dup.Command, err))
 						} else {
-							s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v", dup.Name, dup.Command))
+							// s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v", dup.Name, dup.Command))
 						}
 					} else {
 						tasks[crons[i].Name] = crons[i]

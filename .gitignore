@@ -5,3 +5,4 @@ sillyGirl
 dev.go
 .DS_Store
 develop/jd_cookie
+*.cache
