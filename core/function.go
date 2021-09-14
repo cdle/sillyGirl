@@ -11,8 +11,16 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/im"
 	"github.com/cdle/sillyGirl/im/tg"
+	cron "github.com/robfig/cron/v3"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
+
+var c *cron.Cron
+
+func init() {
+	c = cron.New()
+	c.Start()
+}
 
 type Function struct {
 	Rules   []string
@@ -20,6 +28,7 @@ type Function struct {
 	Admin   bool
 	Handle  func(s im.Sender) interface{}
 	Regex   bool
+	Cron    string
 }
 
 var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
@@ -124,6 +133,11 @@ func AddCommand(prefix string, cmds []Function) {
 			}
 		}
 		functions = append(functions, cmd)
+		if cmd.Cron != "" {
+			c.AddFunc(cmd.Cron, func() {
+				cmd.Handle(nil)
+			})
+		}
 	}
 }
 
