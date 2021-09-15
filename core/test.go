@@ -6,8 +6,6 @@ import (
 	"github.com/cdle/sillyGirl/im"
 )
 
-var Buckets = []Bucket{sillyGirl}
-
 func init() {
 	AddCommand("", []Function{
 		{
