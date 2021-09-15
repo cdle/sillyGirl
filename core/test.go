@@ -31,7 +31,7 @@ func init() {
 			},
 		},
 		{
-			Rules: []string{"get ? ? ?"},
+			Rules: []string{"get ? ?"},
 			Handle: func(s im.Sender) interface{} {
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
