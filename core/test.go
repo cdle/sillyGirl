@@ -9,6 +9,7 @@ import (
 func init() {
 	AddCommand("", []Function{
 		{
+			Admin: true,
 			Rules: []string{"set ? ? ?"},
 			Handle: func(s im.Sender) interface{} {
 				b := Bucket(s.Get(0))
@@ -20,6 +21,7 @@ func init() {
 			},
 		},
 		{
+			Admin: true,
 			Rules: []string{"delete ? ?"},
 			Handle: func(s im.Sender) interface{} {
 				b := Bucket(s.Get(0))
@@ -31,6 +33,7 @@ func init() {
 			},
 		},
 		{
+			Admin: true,
 			Rules: []string{"get ? ?"},
 			Handle: func(s im.Sender) interface{} {
 				b := Bucket(s.Get(0))

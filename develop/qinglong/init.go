@@ -22,6 +22,7 @@ type Yaml struct {
 }
 
 var Config Yaml
+var qinglong = core.NewBucket("qinglong")
 
 var token string
 var expiration int64
@@ -39,7 +40,9 @@ type Carrier struct {
 }
 
 func init() {
-	core.ReadYaml(core.ExecPath+"/develop/qinglong/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/develop/qinglong/conf/demo_config.yaml")
+	Config.Host = qinglong.Get("host")
+	Config.ClientID = qinglong.Get("client_id")
+	Config.ClientSecret = qinglong.Get("client_secret")
 	if v := regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindStringSubmatch(Config.Host); len(v) == 2 {
 		Config.Host = v[1]
 	}

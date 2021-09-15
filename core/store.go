@@ -1,6 +1,9 @@
 package core
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/boltdb/bolt"
 )
 
@@ -25,13 +28,13 @@ func init() {
 	}
 }
 
-func (bucket Bucket) Set(key, value string) {
+func (bucket Bucket) Set(key string, value interface{}) {
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
-		b.Put([]byte(key), []byte(value))
+		b.Put([]byte(key), []byte(fmt.Sprint(value)))
 		return nil
 	})
 }
@@ -56,10 +59,31 @@ func (bucket Bucket) Get(kv ...string) string {
 	return value
 }
 
+func (bucket Bucket) GetInt(key string, vs ...int) int {
+	var value int
+	if len(vs) != 0 {
+		value = vs[0]
+	}
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return nil
+		}
+		value = Int(string(b.Get([]byte(key))))
+		return nil
+	})
+	return value
+}
+
 func (bucket Bucket) Foreach(f func(k, v []byte) error) {
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		b.ForEach(f)
 		return nil
 	})
+}
+
+var Int = func(s string) int {
+	i, _ := strconv.Atoi(s)
+	return i
 }
