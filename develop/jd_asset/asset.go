@@ -1132,7 +1132,15 @@ type UserInfoResult struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
-func FetchJdCookieValue(key string, cookies string) string {
+func FetchJdCookieValue(ps ...string) string {
+	var key, cookies string
+	if len(ps) == 2 {
+		if len(ps[0]) > len(ps[1]) {
+			key, cookies = ps[1], ps[0]
+		} else {
+			key, cookies = ps[0], ps[1]
+		}
+	}
 	match := regexp.MustCompile(key + `=([^;]*);{0,1}`).FindStringSubmatch(cookies)
 	if len(match) == 2 {
 		return match[1]
