@@ -4,10 +4,18 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-var sillyGirl Bucket = "sillyGirl"
+var sillyGirl Bucket = NewBucket("sillyGirl")
 var db *bolt.DB
 
 type Bucket string
+
+var Buckets = []Bucket{}
+
+func NewBucket(name string) Bucket {
+	b := Bucket(name)
+	Buckets = append(Buckets)
+	return b
+}
 
 func init() {
 	var err error
