@@ -13,7 +13,7 @@ var Buckets = []Bucket{}
 
 func NewBucket(name string) Bucket {
 	b := Bucket(name)
-	Buckets = append(Buckets)
+	Buckets = append(Buckets, b)
 	return b
 }
 
