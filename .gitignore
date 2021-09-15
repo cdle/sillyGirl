@@ -6,3 +6,4 @@ dev.go
 .DS_Store
 develop/jd_cookie
 *.cache
+jd_wskey
