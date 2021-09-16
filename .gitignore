@@ -7,3 +7,4 @@ dev.go
 develop/jd_cookie
 *.cache
 jd_wskey
+logs/*
