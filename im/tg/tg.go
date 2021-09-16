@@ -40,12 +40,13 @@ func init() {
 		logs.Warn("监听telegram机器人失败：%v", err)
 		return
 	}
-	b.Handle(tb.OnText, Handler)
-	logs.Info("监听telegram机器人")
-	b.Start()
 	core.Pushs["tg"] = func(i int, s string) {
 		b.Send(&tb.User{ID: i}, s)
 	}
+	b.Handle(tb.OnText, Handler)
+	logs.Info("监听telegram机器人")
+	b.Start()
+
 }
 
 func (sender *Sender) GetContent() string {
