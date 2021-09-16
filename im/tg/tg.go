@@ -43,7 +43,7 @@ func init() {
 	b.Handle(tb.OnText, Handler)
 	logs.Info("监听telegram机器人")
 	b.Start()
-	core.Pushs["qq"] = func(i int, s string) {
+	core.Pushs["tg"] = func(i int, s string) {
 		b.Send(&tb.User{ID: i}, s)
 	}
 }
