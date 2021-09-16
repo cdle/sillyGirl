@@ -35,6 +35,7 @@ func init() {
 		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
+
 	if err != nil {
 		logs.Warn("监听telegram机器人失败：%v", err)
 		return

@@ -53,7 +53,9 @@ func (bucket Bucket) Get(kv ...string) string {
 		if b == nil {
 			return nil
 		}
-		value = string(b.Get([]byte(key)))
+		if v := string(b.Get([]byte(key))); v != "" {
+			value = v
+		}
 		return nil
 	})
 	return value
@@ -78,7 +80,9 @@ func (bucket Bucket) GetInt(key string, vs ...int) int {
 func (bucket Bucket) Foreach(f func(k, v []byte) error) {
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
-		b.ForEach(f)
+		if b != nil {
+			b.ForEach(f)
+		}
 		return nil
 	})
 }
