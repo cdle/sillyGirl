@@ -18,6 +18,7 @@ type Sender interface {
 	IsAdmin() bool
 	IsMedia() bool
 	Reply(interface{}) error
+	RecallGroupMessage() error
 }
 
 type Config struct {
@@ -97,5 +98,9 @@ func (sender *Faker) IsMedia() bool {
 }
 
 func (sender *Faker) Reply(msg interface{}) error {
+	return nil
+}
+
+func (sender *Faker) RecallGroupMessage() error {
 	return nil
 }

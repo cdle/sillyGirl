@@ -152,3 +152,7 @@ func (sender *Sender) Reply(rt interface{}) error {
 	}
 	return err
 }
+
+func (sender *Sender) RecallGroupMessage() error {
+	return nil
+}

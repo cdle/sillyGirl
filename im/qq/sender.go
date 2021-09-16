@@ -16,6 +16,17 @@ type Sender struct {
 	matches [][]string
 }
 
+func (sender *Sender) RecallGroupMessage() error {
+	switch sender.Message.(type) {
+	case *message.GroupMessage:
+		m := sender.Message.(*message.GroupMessage)
+		if err := bot.Client.RecallGroupMessage(m.GroupCode, m.Id, m.InternalId); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (sender *Sender) GetContent() string {
 	text := ""
 	switch sender.Message.(type) {
