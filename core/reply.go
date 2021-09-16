@@ -77,7 +77,6 @@ func InitReplies() {
 				s.Reply(f)
 			default:
 				d, _ := ioutil.ReadAll(rsp.Body)
-				fmt.Println(string(d))
 				s.Reply(d)
 			}
 			return nil
