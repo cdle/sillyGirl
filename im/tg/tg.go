@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
-	"github.com/cdle/sillyGirl/im"
+	"github.com/cdle/sillyGirl/core"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -15,25 +15,31 @@ type Sender struct {
 	matches [][]string
 }
 
+var tg = core.NewBucket("tg")
 var b *tb.Bot
-var cfg *im.Config
 var Handler = func(message *tb.Message) {
-
+	core.Senders <- &Sender{
+		Message: message,
+	}
 }
 
-func RunBot(conf *im.Config) {
-	cfg = conf
+func init() {
+	token := tg.Get("token")
+	if token == "" {
+		logs.Warn("未提供telegram机器人token")
+		return
+	}
 	var err error
 	b, err = tb.NewBot(tb.Settings{
-		Token:  cfg.Token,
+		Token:  token,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
-		logs.Warn("监听tgbot失败：%v", err)
+		logs.Warn("监听telegram机器人失败：%v", err)
 		return
 	}
 	b.Handle(tb.OnText, Handler)
-	logs.Info("监听tgbot")
+	logs.Info("监听telegram机器人")
 	b.Start()
 }
 
@@ -107,12 +113,13 @@ func (sender *Sender) Get(index ...int) string {
 }
 
 func (sender *Sender) IsAdmin() bool {
-	for _, id := range cfg.Masters {
-		if id == sender.Message.Sender.ID {
-			return true
-		}
-	}
-	return false
+	return sender.Message.Sender.ID == tg.GetInt("master")
+	// for _, id := range cfg.Masters {
+	// 	if id == sender.Message.Sender.ID {
+	// 		return true
+	// 	}
+	// }
+	// return false
 }
 
 func (sender *Sender) IsMedia() bool {

@@ -8,11 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/im"
-	"github.com/cdle/sillyGirl/im/tg"
 	cron "github.com/robfig/cron/v3"
-	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 var c *cron.Cron
@@ -94,22 +91,6 @@ var functions = []Function{
 var Senders chan im.Sender
 
 func initToHandleMessage() {
-	if len(Config.Im) == 0 {
-		logs.Warn("未配置置通讯工具")
-	}
-	for _, im := range Config.Im {
-		switch im.Type {
-		case "tg":
-			tg.Handler = func(message *tb.Message) {
-				Senders <- &tg.Sender{
-					Message: message,
-				}
-			}
-			go tg.RunBot(&im)
-		case "qq":
-
-		}
-	}
 	Senders = make(chan im.Sender)
 	go func() {
 		for {
