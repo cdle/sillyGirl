@@ -149,20 +149,22 @@ func (sender *Sender) Reply(msg interface{}) error {
 		}
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
+		content := ""
 		switch msg.(type) {
 		case string:
-			if strings.Contains(msg.(string), "\n") {
-				msg = "\n" + msg.(string)
-			}
-			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: msg.(string)}}})
+			content = msg.(string)
+
 		case []byte:
-			if strings.Contains(string(msg.([]byte)), "\n") {
-				msg = "\n" + msg.(string)
-			}
-			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: msg.(string)}}})
+			content = string(msg.([]byte))
 		case *http.Response:
 			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
 			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		}
+		if content != "" {
+			if strings.Contains(content, "\n") {
+				content = "\n" + content
+			}
+			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: content}}})
 		}
 	}
 	return nil
