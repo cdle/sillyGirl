@@ -2,12 +2,23 @@ package core
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/cdle/sillyGirl/im"
 )
 
 func init() {
 	AddCommand("", []Function{
+		{
+			Rules: []string{"raw 命令"},
+			Handle: func(_ im.Sender) interface{} {
+				ss := []string{}
+				for _, f := range functions {
+					ss = append(ss, strings.Join(f.Rules, " "))
+				}
+				return strings.Join(ss, "\n")
+			},
+		},
 		{
 			Admin: true,
 			Rules: []string{"set ? ? ?"},

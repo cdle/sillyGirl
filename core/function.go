@@ -23,7 +23,6 @@ type Function struct {
 	FindAll bool
 	Admin   bool
 	Handle  func(s im.Sender) interface{}
-	Regex   bool
 	Cron    string
 }
 
@@ -91,23 +90,25 @@ func initToHandleMessage() {
 }
 
 func AddCommand(prefix string, cmds []Function) {
-	for _, cmd := range cmds {
-		if !cmd.Regex {
-			for i := range cmd.Rules {
-				if prefix != "" {
-					cmd.Rules[i] = prefix + `\s+` + cmd.Rules[i]
-				}
-				cmd.Rules[i] = strings.Replace(cmd.Rules[i], "(", `[(]`, -1)
-				cmd.Rules[i] = strings.Replace(cmd.Rules[i], ")", `[)]`, -1)
-				cmd.Rules[i] = strings.Replace(cmd.Rules[i], " ", `\s+`, -1)
-				cmd.Rules[i] = strings.Replace(cmd.Rules[i], "?", `(\S+)`, -1)
-				cmd.Rules[i] = "^" + cmd.Rules[i] + "$"
+	for j := range cmds {
+		for i := range cmds[j].Rules {
+			if strings.Contains(cmds[j].Rules[i], "raw ") {
+				cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "raw ", "", -1)
+				continue
 			}
+			if prefix != "" {
+				cmds[j].Rules[i] = prefix + `\s+` + cmds[j].Rules[i]
+			}
+			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "(", `[(]`, -1)
+			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], ")", `[)]`, -1)
+			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], " ", `\s+`, -1)
+			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "?", `(\S+)`, -1)
+			cmds[j].Rules[i] = "^" + cmds[j].Rules[i] + "$"
 		}
-		functions = append(functions, cmd)
-		if cmd.Cron != "" {
-			c.AddFunc(cmd.Cron, func() {
-				cmd.Handle(nil)
+		functions = append(functions, cmds[j])
+		if cmds[j].Cron != "" {
+			c.AddFunc(cmds[j].Cron, func() {
+				cmds[j].Handle(nil)
 			})
 		}
 	}
