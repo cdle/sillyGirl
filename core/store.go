@@ -20,7 +20,7 @@ func NewBucket(name string) Bucket {
 	return b
 }
 
-func init() {
+func initStore() {
 	var err error
 	db, err = bolt.Open(ExecPath+"/sillyGirl.cache", 0600, nil)
 	if err != nil {
