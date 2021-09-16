@@ -1,9 +1,3 @@
-# im:
-#   - type: tg
-#     token: xxxxx
-#     masters: 
-#       - 1000000
-
 replies:
   #文本类型的回复
   - type: text

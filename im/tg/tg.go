@@ -114,6 +114,7 @@ func (sender *Sender) Get(index ...int) string {
 }
 
 func (sender *Sender) IsAdmin() bool {
+
 	return strings.Contains(tg.Get("masters"), fmt.Sprint(sender.Message.Sender.ID))
 }
 
