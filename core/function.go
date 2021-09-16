@@ -34,6 +34,12 @@ var name = func() string {
 
 var functions = []Function{
 	{
+		Rules: []string{"^name$"},
+		Handle: func(_ im.Sender) interface{} {
+			return name()
+		},
+	},
+	{
 		Rules: []string{"^升级$"},
 		Admin: true,
 		Handle: func(s im.Sender) interface{} {

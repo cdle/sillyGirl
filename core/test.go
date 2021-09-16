@@ -10,7 +10,7 @@ import (
 func init() {
 	AddCommand("", []Function{
 		{
-			Rules: []string{"raw 命令"},
+			Rules: []string{"raw ^命令$"},
 			Handle: func(_ im.Sender) interface{} {
 				ss := []string{}
 				for _, f := range functions {
