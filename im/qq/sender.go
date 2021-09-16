@@ -155,6 +155,11 @@ func (sender *Sender) Reply(msg interface{}) error {
 				msg = "\n" + msg.(string)
 			}
 			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: msg.(string)}}})
+		case []byte:
+			if strings.Contains(string(msg.([]byte)), "\n") {
+				msg = "\n" + msg.(string)
+			}
+			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: msg.(string)}}})
 		case *http.Response:
 			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
 			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
