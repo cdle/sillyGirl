@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
@@ -30,19 +29,11 @@ type Function struct {
 
 var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
 
+var name = func() string {
+	return sillyGirl.Get("name", "傻妞")
+}
+
 var functions = []Function{
-	{
-		Rules: []string{"^傻妞 (.*)$", "^傻妞$"},
-		Handle: func(s im.Sender) interface{} {
-			m := s.Get()
-			if m != "" {
-				s.Reply(fmt.Sprintf("哎呀，傻妞不懂%s是什么意思啦。", m))
-			} else {
-				s.Reply("请说，我在。")
-			}
-			return nil
-		},
-	},
 	{
 		Rules: []string{"^升级$"},
 		Admin: true,
@@ -50,29 +41,29 @@ var functions = []Function{
 			if runtime.GOOS == "darwin" {
 				return "沙雕。"
 			}
-			s.Reply("傻妞开始拉取代码。")
+			s.Reply(name() + "开始拉取代码。")
 			rtn, err := exec.Command("sh", "-c", "cd "+ExecPath+" && git stash && git pull").Output()
 			if err != nil {
-				return "傻妞拉取代失败：" + err.Error() + "。"
+				return name() + "拉取代失败：" + err.Error() + "。"
 			}
 			t := string(rtn)
 			if !strings.Contains(t, "changed") {
 				if strings.Contains(t, "Already") || strings.Contains(t, "已经是最新") {
-					return "傻妞已是最新版啦。"
+					return name() + "已是最新版啦。"
 				} else {
-					return "傻妞拉取代失败：" + t + "。"
+					return name() + "拉取代失败：" + t + "。"
 				}
 			} else {
-				s.Reply("傻妞拉取代码成功。")
+				s.Reply(name() + "拉取代码成功。")
 			}
-			s.Reply("傻妞正在编译程序。")
+			s.Reply(name() + "正在编译程序。")
 			rtn, err = exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname).Output()
 			if err != nil {
-				return "傻妞编译失败：" + err.Error()
+				return name() + "编译失败：" + err.Error()
 			} else {
-				s.Reply("傻妞编译成功。")
+				s.Reply(name() + "编译成功。")
 			}
-			s.Reply("傻妞重启程序。")
+			s.Reply(name() + "重启程序。")
 			Daemon()
 			return nil
 		},
@@ -81,7 +72,7 @@ var functions = []Function{
 		Rules: []string{"^重启$"},
 		Admin: true,
 		Handle: func(s im.Sender) interface{} {
-			s.Reply("傻妞重启程序。")
+			s.Reply(name() + "重启程序。")
 			Daemon()
 			return nil
 		},
