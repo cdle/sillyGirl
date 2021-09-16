@@ -140,12 +140,18 @@ func (sender *Sender) Reply(msg interface{}) error {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
+		content := ""
 		switch msg.(type) {
 		case string:
-			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: msg.(string)}}})
+			content = msg.(string)
+		case []byte:
+			content = string(msg.([]byte))
 		case *http.Response:
 			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
 			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		}
+		if content != "" {
+			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: msg.(string)}}})
 		}
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
