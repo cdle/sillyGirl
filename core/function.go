@@ -114,7 +114,7 @@ func AddCommand(prefix string, cmds []Function) {
 		functions = append(functions, cmds[j])
 		if cmds[j].Cron != "" {
 			c.AddFunc(cmds[j].Cron, func() {
-				cmds[j].Handle(nil)
+				cmds[j].Handle(&im.Faker{})
 			})
 		}
 	}
