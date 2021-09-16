@@ -7,7 +7,7 @@ import (
 	"github.com/cdle/sillyGirl/im"
 )
 
-func init() {
+func initSys() {
 	AddCommand("", []Function{
 		{
 			Rules: []string{"raw ^name$"},
