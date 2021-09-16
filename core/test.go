@@ -10,6 +10,42 @@ import (
 func init() {
 	AddCommand("", []Function{
 		{
+			Rules: []string{"raw ^name$"},
+			Handle: func(_ im.Sender) interface{} {
+				return name()
+			},
+		},
+		{
+			Rules: []string{"raw ^升级$"},
+			Admin: true,
+			Handle: func(s im.Sender) interface{} {
+				s.Reply(name() + "开始拉取代码。")
+				need, err := GitPull("")
+				if err != nil {
+					return err
+				}
+				if !need {
+					return name() + "已是最新版。"
+				}
+				s.Reply(name() + "开始拉取成功。")
+				s.Reply(name() + "正在编译程序。")
+				if err := CompileCode(); err != nil {
+					return err
+				}
+				s.Reply(name() + "编译程序完毕。")
+				Daemon()
+				return nil
+			},
+		},
+		{
+			Rules: []string{"raw ^重启$"},
+			Admin: true,
+			Handle: func(_ im.Sender) interface{} {
+				Daemon()
+				return nil
+			},
+		},
+		{
 			Rules: []string{"raw ^命令$"},
 			Handle: func(_ im.Sender) interface{} {
 				ss := []string{}
