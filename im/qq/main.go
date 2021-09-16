@@ -215,4 +215,7 @@ func init() {
 	bot.Client.OnSelfPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnSelfGroupMessage(OnGroupMessage)
+	core.Pushs["qq"] = func(i int, s string) {
+		bot.SendPrivateMessage(int64(i), int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: s}}})
+	}
 }
