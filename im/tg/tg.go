@@ -3,6 +3,7 @@ package tg
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -113,13 +114,7 @@ func (sender *Sender) Get(index ...int) string {
 }
 
 func (sender *Sender) IsAdmin() bool {
-	return sender.Message.Sender.ID == tg.GetInt("master")
-	// for _, id := range cfg.Masters {
-	// 	if id == sender.Message.Sender.ID {
-	// 		return true
-	// 	}
-	// }
-	// return false
+	return strings.Contains(tg.Get("masters"), fmt.Sprint(sender.Message.Sender.ID))
 }
 
 func (sender *Sender) IsMedia() bool {
