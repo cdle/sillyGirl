@@ -2,6 +2,7 @@ package qq
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -116,8 +117,19 @@ func (sender *Sender) Get(index ...int) string {
 }
 
 func (sender *Sender) IsAdmin() bool {
-	return true
-	// return sender.Message.Sender.ID == qq.GetInt("master")
+	var sid int64 = 0
+	switch sender.Message.(type) {
+	case *message.PrivateMessage:
+		m := sender.Message.(*message.PrivateMessage)
+		sid = m.Sender.Uin
+		if m.Target == m.Sender.Uin {
+			return true
+		}
+	case *message.GroupMessage:
+		m := sender.Message.(*message.GroupMessage)
+		sid = m.Sender.Uin
+	}
+	return strings.Contains(qq.Get("masters"), fmt.Sprint(sid))
 }
 
 func (sender *Sender) IsMedia() bool {
