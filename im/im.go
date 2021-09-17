@@ -1,6 +1,8 @@
 package im
 
-import "time"
+import (
+	"time"
+)
 
 type Sender interface {
 	GetUserID() int
