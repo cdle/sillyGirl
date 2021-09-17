@@ -21,5 +21,9 @@ func (ct *Chat) Push(content interface{}) {
 		if push, ok := GroupPushs[ct.Class]; ok {
 			push(ct.ID, ct.UserID, content.(string))
 		}
+	case error:
+		if push, ok := GroupPushs[ct.Class]; ok {
+			push(ct.ID, ct.UserID, content.(error).Error())
+		}
 	}
 }
