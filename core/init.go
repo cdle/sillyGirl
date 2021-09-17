@@ -1,6 +1,11 @@
 package core
 
-import "os"
+import (
+	"os"
+	"time"
+)
+
+var Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
 
 func init() {
 	killp()

@@ -158,8 +158,11 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	if err != nil {
 		sender.Reply(err)
 	}
-	if rt != nil {
-
+	if rt != nil && sender.Duration != nil {
+		go func() {
+			time.Sleep(*sender.Duration)
+			b.Delete(rt)
+		}()
 	}
 	return err
 }
@@ -171,5 +174,9 @@ func (sender *Sender) Delete() error {
 }
 
 func (sender *Sender) Disappear(lifetime ...time.Duration) {
-
+	if len(lifetime) == 0 {
+		sender.Duration = &core.Duration
+	} else {
+		sender.Duration = &lifetime[0]
+	}
 }
