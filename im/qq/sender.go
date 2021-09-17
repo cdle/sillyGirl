@@ -14,9 +14,10 @@ import (
 )
 
 type Sender struct {
-	Message interface{}
-	matches [][]string
-	chat    *core.Chat
+	Message  interface{}
+	matches  [][]string
+	Duration *time.Duration
+	deleted  bool
 }
 
 func (sender *Sender) GetContent() string {
@@ -141,10 +142,6 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(msgs ...interface{}) error {
 	msg := msgs[0]
-	if sender.chat != nil {
-		sender.chat.Push(msg)
-		return nil
-	}
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
@@ -162,6 +159,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: content}}})
 		}
 	case *message.GroupMessage:
+		var id int32
 		m := sender.Message.(*message.GroupMessage)
 		content := ""
 		switch msg.(type) {
@@ -172,34 +170,47 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 			content = string(msg.([]byte))
 		case *http.Response:
 			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
-			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {
 				content = "\n" + content
 			}
-			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: content}}})
+			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: content}}})
 		}
+		if id > 0 && sender.Duration != nil {
+			go func() {
+				time.Sleep(*sender.Duration)
+				sender.Delete()
+				MSG := bot.GetMessage(id)
+				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+			}()
+
+		}
+
 	}
 	return nil
 }
 
 func (sender *Sender) Delete() error {
+	if sender.deleted {
+		return nil
+	}
 	switch sender.Message.(type) {
 	case *message.GroupMessage:
-		sender.chat = &core.Chat{
-			Class:  sender.GetImType(),
-			ID:     sender.GetChatID(),
-			UserID: sender.GetUserID(),
-		}
 		m := sender.Message.(*message.GroupMessage)
 		if err := bot.Client.RecallGroupMessage(m.GroupCode, m.Id, m.InternalId); err != nil {
 			return err
 		}
 	}
+	sender.deleted = true
 	return nil
 }
 
 func (sender *Sender) Disappear(lifetime ...time.Duration) {
-
+	if len(lifetime) == 0 {
+		sender.Duration = &core.Duration
+	} else {
+		sender.Duration = &lifetime[0]
+	}
 }

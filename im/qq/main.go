@@ -11,6 +11,7 @@ import (
 	"github.com/Mrs4s/go-cqhttp/global"
 	"github.com/Mrs4s/go-cqhttp/global/config"
 	"github.com/cdle/sillyGirl/core"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/Mrs4s/MiraiGo/binary"
 	"github.com/Mrs4s/MiraiGo/client"
@@ -41,6 +42,24 @@ func init() {
 	conf.Account.Uin = int64(qq.GetInt("uin", 0))
 	conf.Account.Password = qq.Get("password")
 	conf.Message.ReportSelfMessage = true
+	conf.Database = map[string]yaml.Node{
+		"leveldb": {
+			Kind: 4,
+			Tag:  "!!map",
+			Content: []*yaml.Node{
+				{
+					Kind:  8,
+					Tag:   "!!str",
+					Value: "enable",
+				},
+				{
+					Kind:  8,
+					Tag:   "!!bool",
+					Value: "true",
+				},
+			},
+		},
+	}
 	if conf.Output.Debug {
 		log.SetReportCaller(true)
 	}
@@ -197,16 +216,11 @@ func init() {
 		core.Senders <- &Sender{
 			Message: m,
 		}
-
-		// cqm := coolq.ToStringMessage(m.Elements, 0, true)
-		// fmt.Println(cqm, m.Self, m.Target, m.Sender.Uin)
 		if m.Sender.Uin != c.Uin {
 			c.MarkPrivateMessageReaded(m.Sender.Uin, int64(m.Time))
 		}
 	}
-	OnGroupMessage := func(c *client.QQClient, m *message.GroupMessage) {
-		// cqm := coolq.ToStringMessage(m.Elements, m.GroupCode, true)
-		// fmt.Println(cqm, m.GroupCode, m.Sender.Uin)
+	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
 		core.Senders <- &Sender{
 			Message: m,
 		}
