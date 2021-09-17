@@ -213,7 +213,7 @@ func init() {
 	}
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
-	if qq.Get("self", "true") == "true" {
+	if qq.Get("onself", "true") == "true" {
 		bot.Client.OnSelfPrivateMessage(onPrivateMessage)
 		bot.Client.OnSelfGroupMessage(OnGroupMessage)
 	}
