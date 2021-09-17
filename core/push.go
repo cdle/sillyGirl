@@ -22,5 +22,4 @@ func (ct *Chat) Push(content interface{}) {
 			push(ct.ID, ct.UserID, content.(string))
 		}
 	}
-
 }
