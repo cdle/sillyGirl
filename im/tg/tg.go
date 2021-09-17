@@ -161,6 +161,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	if rt != nil && sender.Duration != nil {
 		go func() {
 			time.Sleep(*sender.Duration)
+			sender.Delete()
 			b.Delete(rt)
 		}()
 	}
@@ -168,6 +169,9 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 }
 
 func (sender *Sender) Delete() error {
+	if sender.deleted {
+		return nil
+	}
 	msg := *sender.Message
 	sender.deleted = true
 	return b.Delete(&msg)
