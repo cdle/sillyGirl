@@ -15,6 +15,7 @@ type Sender struct {
 	Message  *tb.Message
 	matches  [][]string
 	Duration *time.Duration
+	deleted  bool
 }
 
 var tg = core.NewBucket("tg")
@@ -139,7 +140,9 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 		r = sender.Message.Sender
 	} else {
 		r = sender.Message.Chat
-		options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+		if !sender.deleted {
+			options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+		}
 	}
 	var err error
 	switch msg.(type) {
@@ -163,6 +166,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 
 func (sender *Sender) Delete() error {
 	msg := *sender.Message
+	sender.deleted = true
 	return b.Delete(&msg)
 }
 
