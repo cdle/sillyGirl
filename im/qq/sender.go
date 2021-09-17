@@ -140,7 +140,7 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(msg interface{}) error {
 	if sender.chat != nil {
-		sender.chat.Push(msg.(string))
+		sender.chat.Push(msg)
 		return nil
 	}
 	switch sender.Message.(type) {
