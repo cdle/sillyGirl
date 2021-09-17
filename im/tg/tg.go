@@ -14,6 +14,7 @@ import (
 type Sender struct {
 	Message *tb.Message
 	matches [][]string
+	chat    *core.Chat
 }
 
 var tg = core.NewBucket("tg")
@@ -43,10 +44,12 @@ func init() {
 	core.Pushs["tg"] = func(i int, s string) {
 		b.Send(&tb.User{ID: i}, s)
 	}
+	core.GroupPushs["tg"] = func(i, j int, s string) {
+		b.Send(&tb.Chat{ID: int64(i)}, s)
+	}
 	b.Handle(tb.OnText, Handler)
 	logs.Info("监听telegram机器人")
 	b.Start()
-
 }
 
 func (sender *Sender) GetContent() string {
@@ -128,6 +131,10 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(rt interface{}) error {
+	if sender.chat != nil {
+		sender.chat.Push(rt.(string))
+		return nil
+	}
 	var r tb.Recipient
 	var options = []interface{}{}
 	if !sender.Message.FromGroup() {
@@ -154,5 +161,14 @@ func (sender *Sender) Reply(rt interface{}) error {
 }
 
 func (sender *Sender) RecallGroupMessage() error {
+	cid := sender.GetChatID()
+	if cid == 0 {
+		return nil
+	}
+	sender.chat = &core.Chat{
+		Class:  sender.GetImType(),
+		ID:     sender.GetChatID(),
+		UserID: sender.GetUserID(),
+	}
 	return b.Delete(sender.Message)
 }

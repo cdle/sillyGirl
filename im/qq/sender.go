@@ -9,22 +9,13 @@ import (
 
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
+	"github.com/cdle/sillyGirl/core"
 )
 
 type Sender struct {
 	Message interface{}
 	matches [][]string
-}
-
-func (sender *Sender) RecallGroupMessage() error {
-	switch sender.Message.(type) {
-	case *message.GroupMessage:
-		m := sender.Message.(*message.GroupMessage)
-		if err := bot.Client.RecallGroupMessage(m.GroupCode, m.Id, m.InternalId); err != nil {
-			return err
-		}
-	}
-	return nil
+	chat    *core.Chat
 }
 
 func (sender *Sender) GetContent() string {
@@ -148,6 +139,10 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msg interface{}) error {
+	if sender.chat != nil {
+		sender.chat.Push(msg.(string))
+		return nil
+	}
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
@@ -182,6 +177,22 @@ func (sender *Sender) Reply(msg interface{}) error {
 				content = "\n" + content
 			}
 			bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: content}}})
+		}
+	}
+	return nil
+}
+
+func (sender *Sender) RecallGroupMessage() error {
+	switch sender.Message.(type) {
+	case *message.GroupMessage:
+		sender.chat = &core.Chat{
+			Class:  sender.GetImType(),
+			ID:     sender.GetChatID(),
+			UserID: sender.GetUserID(),
+		}
+		m := sender.Message.(*message.GroupMessage)
+		if err := bot.Client.RecallGroupMessage(m.GroupCode, m.Id, m.InternalId); err != nil {
+			return err
 		}
 	}
 	return nil
