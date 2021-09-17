@@ -15,8 +15,12 @@ type Chat struct {
 	UserID int
 }
 
-func (ct *Chat) Push(content string) {
-	if push, ok := GroupPushs[ct.Class]; ok {
-		push(ct.ID, ct.UserID, content)
+func (ct *Chat) Push(content interface{}) {
+	switch content.(type) {
+	case string:
+		if push, ok := GroupPushs[ct.Class]; ok {
+			push(ct.ID, ct.UserID, content.(string))
+		}
 	}
+
 }
