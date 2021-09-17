@@ -154,5 +154,5 @@ func (sender *Sender) Reply(rt interface{}) error {
 }
 
 func (sender *Sender) RecallGroupMessage() error {
-	return nil
+	return b.Delete(sender.Message)
 }
