@@ -19,6 +19,7 @@ func initSys() {
 			Rules: []string{"raw ^升级$"},
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				s.Reply(name() + "开始拉取代码。")
 				need, err := GitPull("")
 				if err != nil {
@@ -47,7 +48,8 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^命令$"},
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				ss := []string{}
 				for _, f := range functions {
 					ss = append(ss, strings.Join(f.Rules, " "))
@@ -59,6 +61,7 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"set ? ? ?"},
 			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
 					return errors.New("不存在的存储桶")
@@ -71,6 +74,7 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"delete ? ?"},
 			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
 					return errors.New("不存在的存储桶")
@@ -83,6 +87,7 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"get ? ?"},
 			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
 					return errors.New("不存在的存储桶")
