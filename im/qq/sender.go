@@ -185,9 +185,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 				MSG := bot.GetMessage(id)
 				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 			}()
-
 		}
-
 	}
 	return nil
 }
