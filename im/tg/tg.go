@@ -12,9 +12,9 @@ import (
 )
 
 type Sender struct {
-	Message *tb.Message
-	matches [][]string
-	chat    *core.Chat
+	Message  *tb.Message
+	matches  [][]string
+	Duration *time.Duration
 }
 
 var tg = core.NewBucket("tg")
@@ -130,11 +130,9 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(rt interface{}) error {
-	if sender.chat != nil {
-		sender.chat.Push(rt)
-		return nil
-	}
+func (sender *Sender) Reply(msgs ...interface{}) error {
+	msg := msgs[0]
+	var rt *tb.Message
 	var r tb.Recipient
 	var options = []interface{}{}
 	if !sender.Message.FromGroup() {
@@ -144,31 +142,30 @@ func (sender *Sender) Reply(rt interface{}) error {
 		options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
 	}
 	var err error
-	switch rt.(type) {
+	switch msg.(type) {
 	case error:
-		_, err = b.Send(r, fmt.Sprintf("%v", rt), options...)
+		rt, err = b.Send(r, fmt.Sprintf("%v", msg), options...)
 	case []byte:
-		_, err = b.Send(r, string(rt.([]byte)), options...)
+		rt, err = b.Send(r, string(msg.([]byte)), options...)
 	case string:
-		_, err = b.Send(r, rt.(string), options...)
+		rt, err = b.Send(r, msg.(string), options...)
 	case *http.Response:
-		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rt.(*http.Response).Body)}}, options...)
+		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(msg.(*http.Response).Body)}}, options...)
 	}
 	if err != nil {
 		sender.Reply(err)
 	}
+	if rt != nil {
+
+	}
 	return err
 }
 
-func (sender *Sender) RecallGroupMessage() error {
-	cid := sender.GetChatID()
-	if cid == 0 {
-		return nil
-	}
-	sender.chat = &core.Chat{
-		Class:  sender.GetImType(),
-		ID:     sender.GetChatID(),
-		UserID: sender.GetUserID(),
-	}
-	return b.Delete(sender.Message)
+func (sender *Sender) Delete() error {
+	msg := *sender.Message
+	return b.Delete(&msg)
+}
+
+func (sender *Sender) Disappear(lifetime ...time.Duration) {
+
 }

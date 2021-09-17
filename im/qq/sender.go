@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
@@ -138,7 +139,8 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(msg interface{}) error {
+func (sender *Sender) Reply(msgs ...interface{}) error {
+	msg := msgs[0]
 	if sender.chat != nil {
 		sender.chat.Push(msg)
 		return nil
@@ -182,7 +184,7 @@ func (sender *Sender) Reply(msg interface{}) error {
 	return nil
 }
 
-func (sender *Sender) RecallGroupMessage() error {
+func (sender *Sender) Delete() error {
 	switch sender.Message.(type) {
 	case *message.GroupMessage:
 		sender.chat = &core.Chat{
@@ -196,4 +198,8 @@ func (sender *Sender) RecallGroupMessage() error {
 		}
 	}
 	return nil
+}
+
+func (sender *Sender) Disappear(lifetime ...time.Duration) {
+
 }
