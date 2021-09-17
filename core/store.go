@@ -71,7 +71,10 @@ func (bucket Bucket) GetInt(key string, vs ...int) int {
 		if b == nil {
 			return nil
 		}
-		value = Int(string(b.Get([]byte(key))))
+		v := Int(string(b.Get([]byte(key))))
+		if v != 0 {
+			value = v
+		}
 		return nil
 	})
 	return value
