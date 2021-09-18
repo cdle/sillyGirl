@@ -27,8 +27,10 @@ type Sender interface {
 }
 
 type Edit int
+type Replace int
 
 var E Edit
+var R Replace
 
 type Faker struct {
 	Message interface{}
