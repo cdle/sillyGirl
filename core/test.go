@@ -44,7 +44,7 @@ func initSys() {
 			Rules: []string{"raw ^升级$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				s.Reply(name()+"开始检查核心功能。", E)
+				s.Reply("开始检查核心功能。", E)
 				update := false
 				record := func(b bool) {
 					if !update && b {
@@ -56,37 +56,37 @@ func initSys() {
 					return err
 				}
 				if !need {
-					s.Reply(name()+"核心功能已是最新。", E)
+					s.Reply("核心功能已是最新。", E)
 				} else {
 					record(need)
-					s.Reply(name()+"核心功能发现更新。", E)
+					s.Reply("核心功能发现更新。", E)
 				}
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() {
 						need, err := GitPull("/develop/" + f.Name())
 						if err != nil {
-							s.Reply(name()+"扩展"+f.Name()+"更新错误"+err.Error()+"。", E)
+							s.Reply("扩展"+f.Name()+"更新错误"+err.Error()+"。", E)
 						}
 						if !need {
-							s.Reply(name()+"扩展"+f.Name()+"已是最新。", E)
+							s.Reply("扩展"+f.Name()+"已是最新。", E)
 						} else {
 							record(need)
-							s.Reply(name()+"扩展"+f.Name()+"发现更新。", E)
+							s.Reply("扩展"+f.Name()+"发现更新。", E)
 						}
 					}
 				}
 				if !update {
-					s.Reply(name()+"没有更新。", E)
+					s.Reply("没有更新。", E)
 					return nil
 				}
-				s.Reply(name()+"正在编译程序。", E)
+				s.Reply("正在编译程序。", E)
 				if err := CompileCode(); err != nil {
 					return err
 				}
-				s.Reply(name()+"编译程序完毕。", E)
+				s.Reply("编译程序完毕。", E)
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
-				s.Reply(name()+"更新完成，即将重启！", E)
+				s.Reply("更新完成，即将重启！", E)
 				Daemon()
 				return nil
 			},
