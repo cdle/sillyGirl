@@ -45,9 +45,9 @@ func initSys() {
 							s.Reply(name() + "扩展" + f.Name() + "更新错误" + err.Error() + "。")
 						}
 						if !need {
-							record(need)
 							s.Reply(name() + "扩展" + f.Name() + "已是最新。")
 						} else {
+							record(need)
 							s.Reply(name() + "扩展" + f.Name() + "发现更新。")
 						}
 					}
