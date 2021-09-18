@@ -7,7 +7,6 @@ import (
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/buger/jsonparser"
-	"github.com/cdle/sillyGirl/im"
 )
 
 type Reply struct {
@@ -27,13 +26,13 @@ type Reply struct {
 func InitReplies() {
 	for _, v := range Config.Replies {
 		reply := v
-		var handler func(s im.Sender) interface{}
+		var handler func(s Sender) interface{}
 		if reply.Type != "url" {
-			handler = func(s im.Sender) interface{} {
+			handler = func(s Sender) interface{} {
 				return reply.Content
 			}
 		}
-		handler = func(s im.Sender) interface{} {
+		handler = func(s Sender) interface{} {
 			url := reply.Request.Url
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {

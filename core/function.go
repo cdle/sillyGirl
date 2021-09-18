@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/adapter/logs"
-	"github.com/cdle/sillyGirl/im"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -21,7 +20,7 @@ type Function struct {
 	Rules   []string
 	FindAll bool
 	Admin   bool
-	Handle  func(s im.Sender) interface{}
+	Handle  func(s Sender) interface{}
 	Cron    string
 }
 
@@ -33,10 +32,10 @@ var name = func() string {
 
 var functions = []Function{}
 
-var Senders chan im.Sender
+var Senders chan Sender
 
 func initToHandleMessage() {
-	Senders = make(chan im.Sender)
+	Senders = make(chan Sender)
 	go func() {
 		for {
 			go handleMessage(<-Senders)
@@ -63,7 +62,7 @@ func AddCommand(prefix string, cmds []Function) {
 		functions = append(functions, cmds[j])
 		if cmds[j].Cron != "" {
 			if _, err := c.AddFunc(cmds[j].Cron, func() {
-				cmds[j].Handle(&im.Faker{})
+				cmds[j].Handle(&Faker{})
 			}); err != nil {
 				logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
 			} else {
@@ -73,7 +72,7 @@ func AddCommand(prefix string, cmds []Function) {
 	}
 }
 
-func handleMessage(sender im.Sender) {
+func handleMessage(sender Sender) {
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool

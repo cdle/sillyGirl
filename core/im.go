@@ -1,4 +1,4 @@
-package im
+package core
 
 import (
 	"time"
@@ -24,14 +24,6 @@ type Sender interface {
 	Reply(...interface{}) error
 	Delete() error
 	Disappear(lifetime ...time.Duration)
-}
-
-type Config struct {
-	Type         string
-	Masters      []int
-	Groups       []int
-	Token        string
-	CustomConfig string
 }
 
 type Faker struct {

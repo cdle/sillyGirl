@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"strings"
 	"time"
-
-	"github.com/cdle/sillyGirl/im"
 )
 
 func init() {
@@ -37,7 +35,7 @@ func initSys() {
 	AddCommand("", []Function{
 		{
 			Rules: []string{"raw ^name$"},
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				return name()
 			},
@@ -45,7 +43,7 @@ func initSys() {
 		{
 			Rules: []string{"raw ^升级$"},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				s.Reply(name() + "开始检查核心功能。")
 				update := false
@@ -95,7 +93,7 @@ func initSys() {
 		{
 			Rules: []string{"raw ^重启$"},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				Daemon()
@@ -104,7 +102,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^命令$"},
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				ss := []string{}
 				for _, f := range functions {
@@ -116,7 +114,7 @@ func initSys() {
 		{
 			Admin: true,
 			Rules: []string{"set ? ? ?"},
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
@@ -129,7 +127,7 @@ func initSys() {
 		{
 			Admin: true,
 			Rules: []string{"delete ? ?"},
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
@@ -142,7 +140,7 @@ func initSys() {
 		{
 			Admin: true,
 			Rules: []string{"get ? ?"},
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
