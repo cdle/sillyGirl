@@ -292,7 +292,7 @@ func GetCronID(keyword string) (*Cron, error) {
 			cs = append(cs, cron)
 			break
 		}
-		if cron.Name == keyword {
+		if strings.Contains(cron.Name, keyword) {
 			cs = append(cs, cron)
 		}
 		if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
