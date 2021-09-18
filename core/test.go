@@ -14,7 +14,7 @@ func init() {
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
-			msg := name() + "重启完成。"
+			msg := "重启完成。"
 			if cd == 0 {
 				Push(tp, ud, msg)
 			} else {
