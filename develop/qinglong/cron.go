@@ -84,7 +84,7 @@ func init() {
 				if err := Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return "操作成功"
+				return fmt.Sprintf("已运行 %v", cron.Name)
 			},
 		},
 		{
