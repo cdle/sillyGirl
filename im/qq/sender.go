@@ -181,14 +181,9 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 		if id > 0 && sender.Duration != nil {
 			go func() {
 				time.Sleep(*sender.Duration)
-				for i := 1; i < 5; i++ {
-					sender.Delete()
-					MSG := bot.GetMessage(id)
-					if bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32)) == nil {
-						break
-					}
-					time.Sleep(time.Second)
-				}
+				sender.Delete()
+				MSG := bot.GetMessage(id)
+				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 			}()
 		}
 	}
