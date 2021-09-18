@@ -98,6 +98,7 @@ func initSys() {
 			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
+				s.Reply("即将重启！", E)
 				Daemon()
 				return nil
 			},
