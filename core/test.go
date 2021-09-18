@@ -157,6 +157,14 @@ func initSys() {
 				return v
 			},
 		},
+		{
+			Admin: true,
+			Rules: []string{"send ? ? ?"},
+			Handle: func(s Sender) interface{} {
+				Push(s.Get(0), Int(s.Get(1)), s.Get(2))
+				return "发送成功呢"
+			},
+		},
 	})
 }
 
