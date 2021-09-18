@@ -179,6 +179,9 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 					ID: int(*edit),
 				}, msg.(string))
 			}
+			if sender.reply == nil {
+				return 0, nil
+			}
 			return sender.reply.ID, nil
 		}
 		if replace != nil {
