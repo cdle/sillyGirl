@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/cdle/sillyGirl/core"
-	"github.com/cdle/sillyGirl/im"
 )
 
 func init() {
@@ -14,7 +13,7 @@ func init() {
 		{
 			Rules: []string{`config`},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				config, err := GetConfig()
 				if err != nil {
 					return err
@@ -30,7 +29,7 @@ func init() {
 		{
 			Rules: []string{`envs`},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				envs, err := GetConfigEnvs("")
 				if err != nil {
 					return err
@@ -48,7 +47,7 @@ func init() {
 		{
 			Rules: []string{`env get ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				name := s.Get()
 				envs, err := GetConfigEnvs(name)
 				if err != nil {
@@ -69,7 +68,7 @@ func init() {
 		{
 			Rules: []string{`env find ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				m := s.Get()
 				envs, err := GetConfigEnvs(m)
 				if err != nil {
@@ -88,7 +87,7 @@ func init() {
 		{
 			Rules: []string{`env set ? ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				err := SetConfigEnv(Env{
 					Name:   s.Get(0),
 					Value:  s.Get(1),
@@ -103,7 +102,7 @@ func init() {
 		// {
 		// 	Rules: []string{`env delete ?`},
 		// 	Admin: true,
-		// 	Handle: func(s im.Sender) interface{} {
+		// 	Handle: func(s core.Sender) interface{} {
 		// 		if err := DelEnv(&Env{ID: s.Get()}); err != nil {
 		// 			return err
 		// 		}
@@ -113,7 +112,7 @@ func init() {
 		{
 			Rules: []string{`env remark ? ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				if err := SetConfigEnv(Env{Name: s.Get(0), Remarks: s.Get(1), Status: 3}); err != nil {
 					return err
 				}
@@ -123,7 +122,7 @@ func init() {
 		{
 			Rules: []string{`env disable ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				if err := SetConfigEnv(Env{Name: s.Get(), Status: 1}); err != nil {
 					return err
 				}
@@ -133,7 +132,7 @@ func init() {
 		{
 			Rules: []string{`env enable ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				if err := SetConfigEnv(Env{Name: s.Get()}); err != nil {
 					return err
 				}

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/cdle/sillyGirl/core"
-	"github.com/cdle/sillyGirl/im"
 )
 
 type CronResponse struct {
@@ -34,7 +33,7 @@ func init() {
 		{
 			Rules: []string{`crons`},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				crons, err := GetCrons("")
 				if err != nil {
 					return err
@@ -52,7 +51,7 @@ func init() {
 		{
 			Rules: []string{`cron status ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				keyword := s.Get()
 				crons, err := GetCrons("")
 				if err != nil {
@@ -77,7 +76,7 @@ func init() {
 		{
 			Rules: []string{`cron run ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				cron, err := GetCronID(s.Get())
 				if err != nil {
 					return err
@@ -91,7 +90,7 @@ func init() {
 		{
 			Rules: []string{`cron stop ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				cron, err := GetCronID(s.Get())
 				if err != nil {
 					return err
@@ -105,7 +104,7 @@ func init() {
 		{
 			Rules: []string{`cron enable ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				cron, err := GetCronID(s.Get())
 				if err != nil {
 					return err
@@ -119,7 +118,7 @@ func init() {
 		{
 			Rules: []string{`cron disable ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				cron, err := GetCronID(s.Get())
 				if err != nil {
 					return err
@@ -133,7 +132,7 @@ func init() {
 		{
 			Rules: []string{`cron find ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				name := s.Get()
 				crons, err := GetCrons("")
 				if err != nil {
@@ -154,7 +153,7 @@ func init() {
 		{
 			Rules: []string{`cron logs ?`},
 			Admin: true,
-			Handle: func(s im.Sender) interface{} {
+			Handle: func(s core.Sender) interface{} {
 				cron, err := GetCronID(s.Get())
 				if err != nil {
 					return err
@@ -169,7 +168,7 @@ func init() {
 		{
 			Rules: []string{`update`},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				cron, err := GetCronID("更新面板")
 				if err != nil {
 					return err
@@ -183,7 +182,7 @@ func init() {
 		{
 			Rules: []string{`update logs`},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				cron, err := GetCronID("更新面板")
 				if err != nil {
 					return err
@@ -199,7 +198,7 @@ func init() {
 			Rules: []string{`cron hide duplicate`},
 			Admin: true,
 			Cron:  "*/10 * * * *",
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(_ core.Sender) interface{} {
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
 						return 1

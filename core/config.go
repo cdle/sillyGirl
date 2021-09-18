@@ -8,12 +8,10 @@ import (
 
 	"github.com/astaxie/beego/logs"
 	"github.com/beego/beego/v2/adapter/httplib"
-	"github.com/cdle/sillyGirl/im"
 	"gopkg.in/yaml.v2"
 )
 
 type Yaml struct {
-	Im      []im.Config
 	Replies []Reply
 }
 
