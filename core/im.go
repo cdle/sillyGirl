@@ -26,7 +26,9 @@ type Sender interface {
 	Disappear(lifetime ...time.Duration)
 }
 
-type Edit string
+type Edit int
+
+var E Edit
 
 type Faker struct {
 	Message interface{}
