@@ -27,30 +27,32 @@ var Handler = func(message *tb.Message) {
 }
 
 func init() {
-	token := tg.Get("token")
-	if token == "" {
-		logs.Warn("未提供telegram机器人token")
-		return
-	}
-	var err error
-	b, err = tb.NewBot(tb.Settings{
-		Token:  token,
-		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
-	})
+	go func() {
+		token := tg.Get("token")
+		if token == "" {
+			logs.Warn("未提供telegram机器人token")
+			return
+		}
+		var err error
+		b, err = tb.NewBot(tb.Settings{
+			Token:  token,
+			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+		})
 
-	if err != nil {
-		logs.Warn("监听telegram机器人失败：%v", err)
-		return
-	}
-	core.Pushs["tg"] = func(i int, s string) {
-		b.Send(&tb.User{ID: i}, s)
-	}
-	core.GroupPushs["tg"] = func(i, j int, s string) {
-		b.Send(&tb.Chat{ID: int64(i)}, s)
-	}
-	b.Handle(tb.OnText, Handler)
-	logs.Info("监听telegram机器人")
-	b.Start()
+		if err != nil {
+			logs.Warn("监听telegram机器人失败：%v", err)
+			return
+		}
+		core.Pushs["tg"] = func(i int, s string) {
+			b.Send(&tb.User{ID: i}, s)
+		}
+		core.GroupPushs["tg"] = func(i, j int, s string) {
+			b.Send(&tb.Chat{ID: int64(i)}, s)
+		}
+		b.Handle(tb.OnText, Handler)
+		logs.Info("监听telegram机器人")
+		b.Start()
+	}()
 }
 
 func (sender *Sender) GetContent() string {
