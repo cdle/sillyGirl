@@ -2,11 +2,36 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 
 	"github.com/cdle/sillyGirl/im"
 )
+
+func init() {
+	go func() {
+		v := sillyGirl.Get("rebootInfo")
+		if v != "" {
+			vv := strings.Split(v, " ")
+			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
+			msg := name() + "重启完成。"
+			if cd == 0 {
+				Push(tp, ud, msg)
+			} else {
+				for i := 0; i < 10; i++ {
+					if push, ok := GroupPushs[tp]; ok {
+						push(cd, ud, msg)
+						break
+					}
+					time.Sleep(time.Second)
+				}
+			}
+			sillyGirl.Set("rebootInfo", "")
+		}
+	}()
+}
 
 func initSys() {
 	AddCommand("", []Function{
@@ -60,6 +85,7 @@ func initSys() {
 					return err
 				}
 				s.Reply(name() + "编译程序完毕。")
+				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				Daemon()
 				return nil
 			},
