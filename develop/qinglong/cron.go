@@ -84,7 +84,7 @@ func init() {
 				if err := Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return "操作成功"
+				return fmt.Sprintf("已运行 %v", cron.Name)
 			},
 		},
 		{
@@ -197,7 +197,7 @@ func init() {
 		{
 			Rules: []string{`cron hide duplicate`},
 			Admin: true,
-			Cron:  "*/10 * * * *",
+			Cron:  "*/5 * * * *",
 			Handle: func(_ core.Sender) interface{} {
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
@@ -292,7 +292,7 @@ func GetCronID(keyword string) (*Cron, error) {
 			cs = append(cs, cron)
 			break
 		}
-		if cron.Name == keyword {
+		if strings.Contains(cron.Name, keyword) {
 			cs = append(cs, cron)
 		}
 		if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
