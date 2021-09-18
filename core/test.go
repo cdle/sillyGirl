@@ -44,7 +44,7 @@ func initSys() {
 			Rules: []string{"raw ^升级$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				s.Reply("开始检查核心功能。", E)
+				s.Reply("开始检查核心更新...", E)
 				update := false
 				record := func(b bool) {
 					if !update && b {
@@ -64,6 +64,7 @@ func initSys() {
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() {
+						s.Reply("检查扩展"+f.Name()+"更新...", E)
 						need, err := GitPull("/develop/" + f.Name())
 						if err != nil {
 							s.Reply("扩展"+f.Name()+"更新错误"+err.Error()+"。", E)
@@ -80,7 +81,7 @@ func initSys() {
 					s.Reply("没有更新。", E)
 					return nil
 				}
-				s.Reply("正在编译程序。", E)
+				s.Reply("正在编译程序...", E)
 				if err := CompileCode(); err != nil {
 					return err
 				}
