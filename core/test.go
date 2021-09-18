@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"io/ioutil"
 	"strings"
 
 	"github.com/cdle/sillyGirl/im"
@@ -21,15 +22,37 @@ func initSys() {
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				s.Disappear()
-				s.Reply(name() + "开始拉取代码。")
+				s.Reply(name() + "开始检查核心功能。")
+				update := false
+				record := func(b bool) {
+					if !update && b {
+						update = true
+					}
+				}
 				need, err := GitPull("")
 				if err != nil {
 					return err
 				}
 				if !need {
-					return name() + "已是最新版。"
+					record(need)
+					s.Reply(name() + "核心功能已是最新。")
 				}
-				s.Reply(name() + "开始拉取成功。")
+				files, _ := ioutil.ReadDir(ExecPath + "/develop")
+				for _, f := range files {
+					if f.IsDir() {
+						need, err := GitPull("/" + f.Name())
+						if err != nil {
+							s.Reply(name() + "扩展" + f.Name() + "更新错误" + err.Error() + "。")
+						}
+						if !need {
+							record(need)
+							s.Reply(name() + "扩展" + f.Name() + "已是最新。")
+						}
+					}
+				}
+				if !need {
+					return name() + "没有更新。"
+				}
 				s.Reply(name() + "正在编译程序。")
 				if err := CompileCode(); err != nil {
 					return err
