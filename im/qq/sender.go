@@ -25,6 +25,8 @@ func (sender *Sender) GetContent() string {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		text = coolq.ToStringMessage(sender.Message.(*message.PrivateMessage).Elements, 0, true)
+	case *message.TempMessage:
+		text = coolq.ToStringMessage(sender.Message.(*message.TempMessage).Elements, 0, true)
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
 		text = coolq.ToStringMessage(m.Elements, m.GroupCode, true)
@@ -37,6 +39,8 @@ func (sender *Sender) GetUserID() int {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		id = int(sender.Message.(*message.PrivateMessage).Sender.Uin)
+	case *message.TempMessage:
+		id = int(sender.Message.(*message.TempMessage).Sender.Uin)
 	case *message.GroupMessage:
 		id = int(sender.Message.(*message.GroupMessage).Sender.Uin)
 	}
@@ -46,7 +50,6 @@ func (sender *Sender) GetUserID() int {
 func (sender *Sender) GetChatID() int {
 	id := 0
 	switch sender.Message.(type) {
-	case *message.PrivateMessage:
 	case *message.GroupMessage:
 		id = int(sender.Message.(*message.GroupMessage).GroupCode)
 	}
@@ -62,6 +65,8 @@ func (sender *Sender) GetMessageID() int {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		id = int(sender.Message.(*message.PrivateMessage).Id)
+	case *message.TempMessage:
+		id = int(sender.Message.(*message.TempMessage).Id)
 	case *message.GroupMessage:
 		id = int(sender.Message.(*message.GroupMessage).Id)
 	}
@@ -73,6 +78,8 @@ func (sender *Sender) GetUsername() string {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		name = sender.Message.(*message.PrivateMessage).Sender.Nickname
+	case *message.TempMessage:
+		name = sender.Message.(*message.TempMessage).Sender.Nickname
 	case *message.GroupMessage:
 		name = sender.Message.(*message.GroupMessage).Sender.Nickname
 	}
@@ -129,6 +136,8 @@ func (sender *Sender) IsAdmin() bool {
 		if m.Target == m.Sender.Uin {
 			return true
 		}
+	case *message.TempMessage:
+		return false
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
 		sid = m.Sender.Uin
@@ -145,6 +154,21 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
+		content := ""
+		switch msg.(type) {
+		case string:
+			content = msg.(string)
+		case []byte:
+			content = string(msg.([]byte))
+		case *http.Response:
+			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
+			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		}
+		if content != "" {
+			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: content}}})
+		}
+	case *message.TempMessage:
+		m := sender.Message.(*message.TempMessage)
 		content := ""
 		switch msg.(type) {
 		case string:
