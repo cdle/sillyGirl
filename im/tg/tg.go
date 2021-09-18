@@ -208,8 +208,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			b.Delete(rt)
 		}
 	}
-	sender.reply = rt
-	return sender.reply.ID, err
+	if rt != nil && sender.reply == nil {
+		sender.reply = rt
+	}
+	if sender.reply != nil {
+		return sender.reply.ID, err
+	}
+	return 0, nil
 }
 
 func (sender *Sender) Delete() error {
