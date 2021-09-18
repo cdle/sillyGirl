@@ -42,6 +42,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^升级$"},
+			Cron:  "41 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				s.Reply("开始检查核心更新...", E)
