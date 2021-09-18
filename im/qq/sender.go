@@ -149,7 +149,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(msgs ...interface{}) error {
+func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	msg := msgs[0]
 	for _, item := range msgs {
 		switch item.(type) {
@@ -225,7 +225,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 
 		}
 	}
-	return nil
+	return 0, nil
 }
 
 func (sender *Sender) Delete() error {
