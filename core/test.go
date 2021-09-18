@@ -52,7 +52,7 @@ func initSys() {
 						}
 					}
 				}
-				if !need {
+				if !update {
 					return name() + "没有更新。"
 				}
 				s.Reply(name() + "正在编译程序。")
