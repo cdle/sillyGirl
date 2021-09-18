@@ -95,6 +95,7 @@ func initSys() {
 			Admin: true,
 			Handle: func(s im.Sender) interface{} {
 				s.Disappear()
+				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				Daemon()
 				return nil
 			},
