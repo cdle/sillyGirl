@@ -15,16 +15,19 @@ func init() {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
 			msg := "重启完成。"
-			if cd == 0 {
-				Push(tp, ud, msg)
-			} else {
-				for i := 0; i < 10; i++ {
+			for i := 0; i < 10; i++ {
+				if cd == 0 {
+					if push, ok := Pushs[tp]; ok {
+						push(ud, msg)
+						break
+					}
+				} else {
 					if push, ok := GroupPushs[tp]; ok {
 						push(cd, ud, msg)
 						break
 					}
-					time.Sleep(time.Second)
 				}
+				time.Sleep(time.Second)
 			}
 			sillyGirl.Set("rebootInfo", "")
 		}
