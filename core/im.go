@@ -26,6 +26,8 @@ type Sender interface {
 	Disappear(lifetime ...time.Duration)
 }
 
+type Edit string
+
 type Faker struct {
 	Message interface{}
 	matches [][]string

@@ -16,6 +16,7 @@ type Sender struct {
 	matches  [][]string
 	Duration *time.Duration
 	deleted  bool
+	reply    *tb.Message
 }
 
 var tg = core.NewBucket("tg")
@@ -135,9 +136,16 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(msgs ...interface{}) error {
 	msg := msgs[0]
-	if len(msgs) > 1 {
-		du := msgs[1].(time.Duration)
-		sender.Duration = &du
+	var edit *core.Edit
+	for _, item := range msgs {
+		switch item.(type) {
+		case core.Edit:
+			v := msgs[2].(core.Edit)
+			edit = &v
+		case time.Duration:
+			du := msgs[1].(time.Duration)
+			sender.Duration = &du
+		}
 	}
 	var rt *tb.Message
 	var r tb.Recipient
@@ -157,6 +165,10 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	case []byte:
 		rt, err = b.Send(r, string(msg.([]byte)), options...)
 	case string:
+		if edit != nil && sender.reply != nil {
+			b.Edit(sender.reply, msg.(string))
+			return nil
+		}
 		rt, err = b.Send(r, msg.(string), options...)
 	case *http.Response:
 		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(msg.(*http.Response).Body)}}, options...)
@@ -176,6 +188,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 			b.Delete(rt)
 		}
 	}
+	sender.reply = rt
 	return err
 }
 

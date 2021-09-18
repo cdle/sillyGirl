@@ -44,7 +44,6 @@ func initSys() {
 			Rules: []string{"raw ^升级$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				s.Disappear()
 				s.Reply(name() + "开始检查核心功能。")
 				update := false
 				record := func(b bool) {
