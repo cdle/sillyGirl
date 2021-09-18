@@ -38,6 +38,10 @@ var bot *coolq.CQBot
 var qq = core.NewBucket("qq")
 
 func init() {
+	go start()
+}
+
+func start() {
 	conf = &config.Config{}
 	conf.Account.Uin = int64(qq.GetInt("uin", 0))
 	conf.Account.Password = qq.Get("password")
