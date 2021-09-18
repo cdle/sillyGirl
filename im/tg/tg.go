@@ -140,10 +140,10 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	for _, item := range msgs {
 		switch item.(type) {
 		case core.Edit:
-			v := msgs[2].(core.Edit)
+			v := item.(core.Edit)
 			edit = &v
 		case time.Duration:
-			du := msgs[1].(time.Duration)
+			du := item.(time.Duration)
 			sender.Duration = &du
 		}
 	}
