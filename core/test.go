@@ -40,7 +40,7 @@ func initSys() {
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() {
-						need, err := GitPull("/" + f.Name())
+						need, err := GitPull("/develop/" + f.Name())
 						if err != nil {
 							s.Reply(name() + "扩展" + f.Name() + "更新错误" + err.Error() + "。")
 						}
