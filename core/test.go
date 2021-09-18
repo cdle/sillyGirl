@@ -11,7 +11,8 @@ func initSys() {
 	AddCommand("", []Function{
 		{
 			Rules: []string{"raw ^name$"},
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				return name()
 			},
 		},
