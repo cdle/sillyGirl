@@ -197,7 +197,7 @@ func init() {
 		{
 			Rules: []string{`cron hide duplicate`},
 			Admin: true,
-			Cron:  "*/10 * * * *",
+			Cron:  "*/5 * * * *",
 			Handle: func(_ core.Sender) interface{} {
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
