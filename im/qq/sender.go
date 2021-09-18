@@ -154,7 +154,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	for _, item := range msgs {
 		switch item.(type) {
 		case time.Duration:
-			du := msgs[1].(time.Duration)
+			du := item.(time.Duration)
 			sender.Duration = &du
 		}
 	}
