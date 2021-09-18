@@ -151,9 +151,12 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(msgs ...interface{}) error {
 	msg := msgs[0]
-	if len(msgs) > 1 {
-		du := msgs[1].(time.Duration)
-		sender.Duration = &du
+	for _, item := range msgs {
+		switch item.(type) {
+		case time.Duration:
+			du := msgs[1].(time.Duration)
+			sender.Duration = &du
+		}
 	}
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
