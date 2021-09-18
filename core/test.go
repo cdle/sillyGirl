@@ -41,7 +41,8 @@ func initSys() {
 		{
 			Rules: []string{"raw ^重启$"},
 			Admin: true,
-			Handle: func(_ im.Sender) interface{} {
+			Handle: func(s im.Sender) interface{} {
+				s.Disappear()
 				Daemon()
 				return nil
 			},
