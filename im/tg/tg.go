@@ -134,7 +134,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(msgs ...interface{}) error {
+func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	msg := msgs[0]
 	var edit *core.Edit
 	for _, item := range msgs {
@@ -167,7 +167,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 	case string:
 		if edit != nil && sender.reply != nil {
 			b.Edit(sender.reply, msg.(string))
-			return nil
+			return sender.reply.ID, nil
 		}
 		rt, err = b.Send(r, msg.(string), options...)
 	case *http.Response:
@@ -189,7 +189,7 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 		}
 	}
 	sender.reply = rt
-	return err
+	return sender.reply.ID, err
 }
 
 func (sender *Sender) Delete() error {

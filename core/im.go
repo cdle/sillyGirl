@@ -21,7 +21,7 @@ type Sender interface {
 	GetContent() string
 	IsAdmin() bool
 	IsMedia() bool
-	Reply(...interface{}) error
+	Reply(...interface{}) (int, error)
 	Delete() error
 	Disappear(lifetime ...time.Duration)
 }
@@ -98,8 +98,8 @@ func (sender *Faker) IsMedia() bool {
 	return false
 }
 
-func (sender *Faker) Reply(msgs ...interface{}) error {
-	return nil
+func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
+	return 0, nil
 }
 
 func (sender *Faker) Delete() error {
