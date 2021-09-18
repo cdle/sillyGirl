@@ -84,7 +84,7 @@ func initSys() {
 				if err := CompileCode(); err != nil {
 					return err
 				}
-				s.Reply(name() + "编译程序完毕。")
+				s.Reply(name()+"编译程序完毕。", time.Duration(0))
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				Daemon()
 				return nil

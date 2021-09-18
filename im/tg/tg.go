@@ -135,6 +135,10 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) Reply(msgs ...interface{}) error {
 	msg := msgs[0]
+	if len(msgs) > 1 {
+		du := msgs[1].(time.Duration)
+		sender.Duration = &du
+	}
 	var rt *tb.Message
 	var r tb.Recipient
 	var options = []interface{}{}
@@ -161,11 +165,16 @@ func (sender *Sender) Reply(msgs ...interface{}) error {
 		sender.Reply(err)
 	}
 	if rt != nil && sender.Duration != nil {
-		go func() {
-			time.Sleep(*sender.Duration)
+		if *sender.Duration != 0 {
+			go func() {
+				time.Sleep(*sender.Duration)
+				sender.Delete()
+				b.Delete(rt)
+			}()
+		} else {
 			sender.Delete()
 			b.Delete(rt)
-		}()
+		}
 	}
 	return err
 }
