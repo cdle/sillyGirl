@@ -59,8 +59,10 @@ func initSys() {
 					return err
 				}
 				if !need {
-					record(need)
 					s.Reply(name() + "核心功能已是最新。")
+				} else {
+					record(need)
+					s.Reply(name() + "核心功能发现更新。")
 				}
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
