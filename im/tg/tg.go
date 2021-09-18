@@ -169,7 +169,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	case []byte:
 		rt, err = b.Send(r, string(msg.([]byte)), options...)
 	case string:
-		if edit != nil {
+		if edit != nil && sender.reply != nil {
 			if *edit == 0 {
 				if sender.reply != nil {
 					b.Edit(sender.reply, msg.(string))
