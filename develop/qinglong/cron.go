@@ -288,6 +288,9 @@ func GetCronID(keyword string) (*Cron, error) {
 	}
 	cs := []Cron{}
 	for _, cron := range crons {
+		if cron.IsDisabled != 0 {
+			continue
+		}
 		if cron.ID == keyword {
 			cs = append(cs, cron)
 			break
