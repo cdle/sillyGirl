@@ -29,6 +29,7 @@ func init() {
 		server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 			//TODO
 			//回复消息：演示回复用户发送的消息
+			fmt.Println(msg.Content)
 			text := message.NewText(msg.Content)
 			return &message.Reply{MsgType: message.MsgTypeText, MsgData: text}
 		})
