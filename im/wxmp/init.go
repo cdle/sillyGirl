@@ -18,11 +18,11 @@ func init() {
 		wc := wechat.NewWechat()
 		memory := cache.NewMemory()
 		cfg := &offConfig.Config{
-			AppID:          wxmp.Get("app_id"),
-			AppSecret:      wxmp.Get("app_secret"),
-			Token:          wxmp.Get("token"),
-			EncodingAESKey: wxmp.Get("encoding_aes_key"),
-			Cache:          memory,
+			AppID:     wxmp.Get("app_id"),
+			AppSecret: wxmp.Get("app_secret"),
+			Token:     wxmp.Get("token"),
+			// EncodingAESKey: wxmp.Get("encoding_aes_key"),
+			Cache: memory,
 		}
 		officialAccount := wc.GetOfficialAccount(cfg)
 		server := officialAccount.GetServer(c.Request, c.Writer)
