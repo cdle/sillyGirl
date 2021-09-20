@@ -33,14 +33,14 @@ func init() {
 			sender := &Sender{}
 			sender.Message = msg.Content
 			fmt.Println(sender.Message)
-			sender.Wait = make(chan string)
+			sender.Wait = make(chan string, 1)
 			sender.uid = u2i.GetInt(msg.FromUserName)
 			if sender.uid == 0 {
 				sender.uid = int(time.Now().UnixNano())
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
 			core.Senders <- sender
-			end := strings.Join(sender.Responses, "\n")
+			end := <-sender.Wait
 			fmt.Println(end)
 			if end == "" {
 				return nil
@@ -141,6 +141,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		switch item.(type) {
 		case string:
 			sender.Responses = append(sender.Responses, item.(string))
+		case []byte:
+			sender.Responses = append(sender.Responses, string(item.([]byte)))
 		}
 	}
 	return 0, nil
@@ -155,5 +157,5 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
-
+	sender.Wait <- strings.Join(sender.Responses, "\n")
 }
