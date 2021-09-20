@@ -12,12 +12,14 @@ require (
 	github.com/beego/beego/v2 v2.0.1
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
+	github.com/gin-gonic/gin v1.7.0
 	github.com/guonaihong/gout v0.2.7 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/silenceper/wechat/v2 v2.0.9
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.9.1 // indirect
