@@ -99,6 +99,7 @@ func handleMessage(sender Sender) {
 				rt := function.Handle(sender)
 				if rt != nil {
 					sender.Reply(rt)
+					sender.Finish()
 				}
 				return
 			}

@@ -250,3 +250,7 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 		sender.Duration = &lifetime[0]
 	}
 }
+
+func (sender *Sender) Finish() {
+
+}

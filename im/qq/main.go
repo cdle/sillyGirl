@@ -248,7 +248,3 @@ func start() {
 		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: int64(j)}, &message.TextElement{Content: s}}})
 	}
 }
-
-func (sender *Sender) Temporary() {
-
-}

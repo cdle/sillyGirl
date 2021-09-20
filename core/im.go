@@ -24,6 +24,7 @@ type Sender interface {
 	Reply(...interface{}) (int, error)
 	Delete() error
 	Disappear(lifetime ...time.Duration)
+	Finish()
 }
 
 type Edit int
@@ -109,5 +110,9 @@ func (sender *Faker) Delete() error {
 }
 
 func (sender *Faker) Disappear(lifetime ...time.Duration) {
+
+}
+
+func (sender *Faker) Finish() {
 
 }

@@ -28,24 +28,24 @@ func initStore() {
 	}
 }
 
-func (bucket Bucket) Set(key string, value interface{}) {
+func (bucket Bucket) Set(key interface{}, value interface{}) {
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
-		b.Put([]byte(key), []byte(fmt.Sprint(value)))
+		b.Put([]byte(fmt.Sprint(key)), []byte(fmt.Sprint(value)))
 		return nil
 	})
 }
 
-func (bucket Bucket) Get(kv ...string) string {
+func (bucket Bucket) Get(kv ...interface{}) string {
 	var key, value string
 	for i := range kv {
 		if i == 0 {
-			key = kv[0]
+			key = fmt.Sprint(kv[0])
 		} else {
-			value = kv[1]
+			value = fmt.Sprint(kv[1])
 		}
 	}
 	db.View(func(tx *bolt.Tx) error {
@@ -61,7 +61,7 @@ func (bucket Bucket) Get(kv ...string) string {
 	return value
 }
 
-func (bucket Bucket) GetInt(key string, vs ...int) int {
+func (bucket Bucket) GetInt(key interface{}, vs ...int) int {
 	var value int
 	if len(vs) != 0 {
 		value = vs[0]
@@ -71,7 +71,7 @@ func (bucket Bucket) GetInt(key string, vs ...int) int {
 		if b == nil {
 			return nil
 		}
-		v := Int(string(b.Get([]byte(key))))
+		v := Int(string(b.Get([]byte(fmt.Sprint(key)))))
 		if v != 0 {
 			value = v
 		}
