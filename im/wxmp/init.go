@@ -40,7 +40,9 @@ func init() {
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
 			core.Senders <- sender
+			fmt.Println("++++")
 			end := <-sender.Wait
+			fmt.Println("----")
 			fmt.Println(end)
 			if end == "" {
 				return nil
