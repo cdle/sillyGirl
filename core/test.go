@@ -168,6 +168,12 @@ func initSys() {
 				return "发送成功呢"
 			},
 		},
+		{
+			Rules: []string{"raw ^myuid$"},
+			Handle: func(s Sender) interface{} {
+				return fmt.Sprint(s.GetUserID())
+			},
+		},
 	})
 }
 
