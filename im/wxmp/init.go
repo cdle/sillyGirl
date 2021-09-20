@@ -32,14 +32,19 @@ func init() {
 		server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 			sender := &Sender{}
 			sender.Message = msg.Content
+			fmt.Println(sender.Message)
 			sender.Wait = make(chan string)
 			sender.uid = u2i.GetInt(msg.FromUserName)
 			if sender.uid == 0 {
 				sender.uid = int(time.Now().UnixNano())
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
-
-			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(<-sender.Wait)}
+			end := <-sender.Wait
+			fmt.Println(end)
+			if end == "" {
+				return nil
+			}
+			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(end)}
 		})
 		err := server.Serve()
 		if err != nil {
