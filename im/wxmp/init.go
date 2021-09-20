@@ -14,7 +14,7 @@ import (
 var wxmp = core.NewBucket("wxmp")
 
 func init() {
-	core.Server.Any("/wx", func(c *gin.Context) {
+	core.Server.Any("/wx/", func(c *gin.Context) {
 		wc := wechat.NewWechat()
 		memory := cache.NewMemory()
 		cfg := &offConfig.Config{
