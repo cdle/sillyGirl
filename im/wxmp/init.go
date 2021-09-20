@@ -33,14 +33,16 @@ func init() {
 			sender := &Sender{}
 			sender.Message = msg.Content
 			fmt.Println(sender.Message)
-			sender.Wait = make(chan string)
+			sender.Wait = make(chan string, 1)
 			sender.uid = u2i.GetInt(msg.FromUserName)
 			if sender.uid == 0 {
 				sender.uid = int(time.Now().UnixNano())
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
 			core.Senders <- sender
-			end := strings.Join(sender.Responses, "\n")
+			fmt.Println("++++")
+			end := <-sender.Wait
+			fmt.Println("----")
 			fmt.Println(end)
 			if end == "" {
 				return nil
@@ -137,10 +139,13 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	fmt.Println(msgs...)
 	for _, item := range msgs {
 		switch item.(type) {
 		case string:
 			sender.Responses = append(sender.Responses, item.(string))
+		case []byte:
+			sender.Responses = append(sender.Responses, string(item.([]byte)))
 		}
 	}
 	return 0, nil
@@ -155,5 +160,6 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
-
+	fmt.Println("finish")
+	sender.Wait <- strings.Join(sender.Responses, "\n")
 }
