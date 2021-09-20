@@ -137,6 +137,7 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	fmt.Println(msgs...)
 	for _, item := range msgs {
 		switch item.(type) {
 		case string:
@@ -157,5 +158,6 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
+	fmt.Println("finish")
 	sender.Wait <- strings.Join(sender.Responses, "\n")
 }
