@@ -30,10 +30,12 @@ func (ct *Chat) Push(content interface{}) {
 	}
 }
 
-func NotifyMasters(class string, content string) {
-	for _, v := range regexp.MustCompile(`(\d+)`).FindAllStringSubmatch(Bucket(class).Get("masters"), -1) {
-		if push, ok := Pushs[class]; ok {
-			push(Int(v[1]), content)
+func NotifyMasters(content string) {
+	for _, class := range []string{"tg", "qq"} {
+		for _, v := range regexp.MustCompile(`(\d+)`).FindAllStringSubmatch(Bucket(class).Get("masters"), -1) {
+			if push, ok := Pushs[class]; ok {
+				push(Int(v[1]), content)
+			}
 		}
 	}
 }
