@@ -1,5 +1,7 @@
 package core
 
+import "regexp"
+
 var Pushs = map[string]func(int, string){}
 var GroupPushs = map[string]func(int, int, string){}
 
@@ -24,6 +26,14 @@ func (ct *Chat) Push(content interface{}) {
 	case error:
 		if push, ok := GroupPushs[ct.Class]; ok {
 			push(ct.ID, ct.UserID, content.(error).Error())
+		}
+	}
+}
+
+func NotifyMasters(class string, content string) {
+	for _, v := range regexp.MustCompile(`(\d+)`).FindAllStringSubmatch(Bucket(class).Get("masters"), -1) {
+		if push, ok := Pushs[class]; ok {
+			push(Int(v[1]), content)
 		}
 	}
 }
