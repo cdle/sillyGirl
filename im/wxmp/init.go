@@ -40,7 +40,7 @@ func init() {
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
 			core.Senders <- sender
-			end := <-sender.Wait
+			end := strings.Join(sender.Responses, "\n")
 			fmt.Println(end)
 			if end == "" {
 				return nil
@@ -155,5 +155,5 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
-	sender.Wait <- strings.Join(sender.Responses, "\n")
+
 }
