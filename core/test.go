@@ -92,7 +92,10 @@ func initSys() {
 				s.Reply("编译程序完毕。", E)
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				s.Reply("更新完成，即将重启！", E)
-				Daemon()
+				go func() {
+					time.Sleep(time.Second)
+					Daemon()
+				}()
 				return nil
 			},
 		},
@@ -166,6 +169,12 @@ func initSys() {
 			Handle: func(s Sender) interface{} {
 				Push(s.Get(0), Int(s.Get(1)), s.Get(2))
 				return "发送成功呢"
+			},
+		},
+		{
+			Rules: []string{"raw ^myuid$"},
+			Handle: func(s Sender) interface{} {
+				return fmt.Sprint(s.GetUserID())
 			},
 		},
 	})
