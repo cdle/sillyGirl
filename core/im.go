@@ -29,9 +29,11 @@ type Sender interface {
 
 type Edit int
 type Replace int
+type Notify int
 
 var E Edit
 var R Replace
+var N Notify
 
 type Faker struct {
 	Message interface{}
@@ -102,14 +104,21 @@ func (sender *Faker) IsMedia() bool {
 }
 
 func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
-	if len(msgs) == 0 {
-		return 0, nil
+	rt := ""
+	var n *Notify
+	for _, msg := range msgs {
+		switch msgs[0].(type) {
+		case []byte:
+			rt = (string(msg.([]byte)))
+		case string:
+			rt = (msg.(string))
+		case Notify:
+			v := msg.(Notify)
+			n = &v
+		}
 	}
-	switch msgs[0].(type) {
-	case []byte:
-		NotifyMasters(string(msgs[0].([]byte)))
-	case string:
-		NotifyMasters(msgs[0].(string))
+	if rt != "" && n != nil {
+		NotifyMasters(rt)
 	}
 	return 0, nil
 }
