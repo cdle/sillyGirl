@@ -102,6 +102,15 @@ func (sender *Faker) IsMedia() bool {
 }
 
 func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
+	if len(msgs) == 0 {
+		return 0, nil
+	}
+	switch msgs[0].(type) {
+	case []byte:
+		NotifyMasters(string(msgs[0].([]byte)))
+	case string:
+		NotifyMasters(msgs[0].(string))
+	}
 	return 0, nil
 }
 
