@@ -65,7 +65,17 @@ func InitReplies() {
 			}
 			switch reply.Request.ResponseType {
 			case "image":
-				s.Reply(rsp)
+				if reply.Request.Get != "" {
+					d, _ := ioutil.ReadAll(rsp.Body)
+					f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
+					if err != nil {
+						s.Reply(err)
+						return true
+					}
+					s.Reply(httplib.Get(f).Response())
+				} else {
+					s.Reply(rsp)
+				}
 			case "json":
 				d, _ := ioutil.ReadAll(rsp.Body)
 				f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
