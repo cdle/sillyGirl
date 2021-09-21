@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -20,6 +21,7 @@ type Reply struct {
 		Headers      []string
 		ResponseType string `yaml:"response_type"` //text json image
 		Get          string
+		Regex        string
 	}
 }
 
@@ -70,12 +72,20 @@ func InitReplies() {
 					f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
 					if err != nil {
 						s.Reply(err)
-						return true
+						return nil
 					}
 					s.Reply(httplib.Get(f).Response())
-				} else {
-					s.Reply(rsp)
+					return nil
 				}
+				if reply.Request.Regex != "" {
+					d, _ := ioutil.ReadAll(rsp.Body)
+					res := regexp.MustCompile(reply.Request.Regex).FindStringSubmatch(string(d))
+					if len(res) != 0 {
+						s.Reply(httplib.Get(res[1]).Response())
+					}
+					return nil
+				}
+				s.Reply(rsp)
 			case "json":
 				d, _ := ioutil.ReadAll(rsp.Body)
 				f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
