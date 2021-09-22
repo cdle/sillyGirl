@@ -199,6 +199,9 @@ func init() {
 			Admin: true,
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
+				if s.GetImType() == "" && qinglong.Get("autoCronHideDuplicate", "true") == "false" {
+					return nil
+				}
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
 						return 1
@@ -221,6 +224,10 @@ func init() {
 				tasks := map[string]Cron{}
 				for i := range crons {
 					if crons[i].IsDisabled != 0 {
+						continue
+					}
+					if strings.Contains(crons[i].Command, "jd_disable.py") {
+						Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, crons[i].ID)))
 						continue
 					}
 					if task, ok := tasks[crons[i].Name]; ok {
