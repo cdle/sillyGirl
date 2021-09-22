@@ -199,6 +199,9 @@ func init() {
 			Admin: true,
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
+				if s.GetImType() == "" && qinglong.Get("autoCronHideDuplicate", "false") == "false" {
+					return nil
+				}
 				w := func(s string) int {
 					if strings.Contains(s, "shufflewzc") {
 						return 1
