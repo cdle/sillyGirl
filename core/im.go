@@ -107,7 +107,7 @@ func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
 	rt := ""
 	var n *Notify
 	for _, msg := range msgs {
-		switch msgs[0].(type) {
+		switch msg.(type) {
 		case []byte:
 			rt = (string(msg.([]byte)))
 		case string:
