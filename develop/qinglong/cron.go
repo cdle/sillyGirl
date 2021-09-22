@@ -228,6 +228,7 @@ func init() {
 					}
 					if strings.Contains(crons[i].Command, "jd_disable.py") {
 						Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, crons[i].ID)))
+						continue
 					}
 					if task, ok := tasks[crons[i].Name]; ok {
 						var dup Cron
