@@ -14,6 +14,10 @@ func init() {
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
+			if tp == "fake" {
+				NotifyMasters("已完成自动更新。")
+				return
+			}
 			msg := "重启完成。"
 			for i := 0; i < 10; i++ {
 				if cd == 0 {
@@ -45,7 +49,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^升级$"},
-			Cron:  "*/5 * * * *",
+			Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				s.Reply("开始检查核心更新...", E)
@@ -90,9 +94,6 @@ func initSys() {
 					return err
 				}
 				s.Reply("编译程序完毕。", E)
-				if s.GetImType() == "" {
-					s.Reply("已自动更新。", E, N)
-				}
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				s.Reply("更新完成，即将重启！", E)
 				go func() {
