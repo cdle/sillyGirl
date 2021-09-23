@@ -32,7 +32,11 @@ func (ct *Chat) Push(content interface{}) {
 
 func NotifyMasters(content string) {
 	for _, class := range []string{"tg", "qq"} {
-		for _, v := range regexp.MustCompile(`(\d+)`).FindAllStringSubmatch(Bucket(class).Get("masters"), -1) {
+		notify := Bucket(class).Get("notifiers")
+		if notify == "" {
+			notify = Bucket(class).Get("masters")
+		}
+		for _, v := range regexp.MustCompile(`(\d+)`).FindAllStringSubmatch(notify, -1) {
 			if push, ok := Pushs[class]; ok {
 				push(Int(v[1]), content)
 			}
