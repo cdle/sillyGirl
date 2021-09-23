@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/buger/jsonparser"
@@ -96,9 +97,15 @@ func InitReplies() {
 					return true
 				}
 				s.Reply(f)
-			case "template": //gjson(list, i?, \n)
+			case "template":
 				data, _ := ioutil.ReadAll(rsp.Body)
 				content := reply.Request.Template
+				for _, re := range regexp.MustCompile(`tfmt[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
+					v := re[0]
+					get := strings.Replace(strings.TrimRight(v, ")"), "tfmt(", "", -1)
+					f := time.Now().Format(get)
+					content = strings.Replace(content, v, f, -1)
+				}
 				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
 					v := re[0]
 					get := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
@@ -119,22 +126,26 @@ func InitReplies() {
 						ptn = ps[1]
 						con = ps[2]
 					}
-
 					i := 0
 					ptns := []string{}
 					for {
 						cptn := ptn
 						cget := strings.Replace(get, "[i]", fmt.Sprintf(`[%d]`, i), -1)
-						f, err := jsonparser.GetString(data, strings.Split(cget, ".")...)
+						f, _, _, err := jsonparser.Get(data, strings.Split(cget, ".")...)
 						i++
 						if err != nil {
 							break
 						}
-
 						cptn = strings.Replace(cptn, "[i]", fmt.Sprintf(`%d`, i), -1)
-
-						cptn = strings.Replace(cptn, "[?]", f, -1)
-
+						for _, v := range regexp.MustCompile(`\[(\?[^\[\]]*)\]`).FindAllStringSubmatch(cptn, -1) {
+							g := ""
+							if v[1] == "?" {
+								g = string(f)
+							} else {
+								g, _ = jsonparser.GetString(data, strings.Split(v[1], ".")[1:]...)
+							}
+							cptn = strings.Replace(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g, -1)
+						}
 						ptns = append(ptns, cptn)
 					}
 					content = strings.Replace(content, v, strings.Join(ptns, con), -1)
