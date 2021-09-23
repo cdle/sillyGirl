@@ -22,6 +22,7 @@ type Reply struct {
 		ResponseType string `yaml:"response_type"` //text json image
 		Get          string
 		Regex        string
+		Template     string
 	}
 }
 
@@ -94,6 +95,14 @@ func InitReplies() {
 					return true
 				}
 				s.Reply(f)
+			case "template":
+				data, _ := ioutil.ReadAll(rsp.Body)
+				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(reply.Request.Template, -1) {
+					get := strings.TrimLeft(strings.TrimRight(re[1], ")"), "gjson(")
+					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
+					reply.Request.Template = strings.Replace(reply.Request.Template, get, f, -1)
+				}
+				s.Reply(reply.Request.Template)
 			default:
 				d, _ := ioutil.ReadAll(rsp.Body)
 				s.Reply(d)
