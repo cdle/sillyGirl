@@ -98,9 +98,13 @@ func InitReplies() {
 			case "template":
 				data, _ := ioutil.ReadAll(rsp.Body)
 				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(reply.Request.Template, -1) {
-					get := strings.TrimLeft(strings.TrimRight(re[0], ")"), "gjson(")
+					v := re[0]
+					fmt.Println(v)
+					get := strings.TrimLeft(strings.TrimRight(v, ")"), "gjson(")
+					fmt.Println(get)
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
-					reply.Request.Template = strings.Replace(reply.Request.Template, get, f, -1)
+					fmt.Println(f)
+					reply.Request.Template = strings.Replace(reply.Request.Template, v, f, -1)
 				}
 				s.Reply(reply.Request.Template)
 			default:
