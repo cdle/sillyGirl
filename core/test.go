@@ -52,6 +52,7 @@ func initSys() {
 			Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				fmt.Println("检查更新。。。")
 				s.Reply("开始检查核心更新...", E)
 				update := false
 				record := func(b bool) {
