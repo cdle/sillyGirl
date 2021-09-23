@@ -107,7 +107,7 @@ func InitReplies() {
 				}
 				for _, re := range regexp.MustCompile(`fjson[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
 					v := re[0]
-					ins := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
+					ins := strings.Replace(strings.TrimRight(v, ")"), "fjson(", "", -1)
 					ps := strings.Split(ins, ",")
 					get := ps[0]
 					ptn := ""
