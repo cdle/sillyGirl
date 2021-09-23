@@ -61,8 +61,9 @@ func AddCommand(prefix string, cmds []Function) {
 		}
 		functions = append(functions, cmds[j])
 		if cmds[j].Cron != "" {
+			cmd := cmds[j]
 			if _, err := c.AddFunc(cmds[j].Cron, func() {
-				cmds[j].Handle(&Faker{})
+				cmd.Handle(&Faker{})
 			}); err != nil {
 				logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
 			} else {
