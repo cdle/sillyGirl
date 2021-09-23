@@ -55,6 +55,9 @@ func (sender *Faker) GetChatID() int {
 }
 
 func (sender *Faker) GetImType() string {
+	if sender.Type == "" {
+		return "fake"
+	}
 	return sender.Type
 }
 
