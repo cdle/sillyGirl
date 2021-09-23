@@ -126,6 +126,7 @@ func InitReplies() {
 						index := fmt.Sprintf(`[%d]`, i)
 						cget := strings.Replace(get, "[x]", index, -1)
 						f, err := jsonparser.GetString(data, strings.Split(cget, ".")...)
+						fmt.Println(cget, f, err)
 						i++
 						if err != nil {
 							break
