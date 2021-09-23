@@ -145,7 +145,8 @@ func InitReplies() {
 							} else {
 								g, _ = jsonparser.GetString(f, strings.Split(v[1], ".")[1:]...)
 							}
-							fmt.Println(g)
+
+							fmt.Println(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g)
 							cptn = strings.Replace(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g, -1)
 						}
 						ptns = append(ptns, cptn)
