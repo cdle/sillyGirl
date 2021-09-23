@@ -119,7 +119,7 @@ func InitReplies() {
 						ptn = ps[1]
 						con = ps[2]
 					}
-					fmt.Println(get, ptn, con, "++++")
+
 					i := 0
 					ptns := []string{}
 					for {
@@ -130,11 +130,11 @@ func InitReplies() {
 						if err != nil {
 							break
 						}
-						fmt.Println(cptn)
-						cptn = strings.Replace(cptn, "[i]", fmt.Sprintf(`[%d]`, i), -1)
-						fmt.Println(cptn)
+
+						cptn = strings.Replace(cptn, "[i]", fmt.Sprintf(`%d`, i), -1)
+
 						cptn = strings.Replace(cptn, "[?]", f, -1)
-						fmt.Println(cptn)
+
 						ptns = append(ptns, cptn)
 					}
 					content = strings.Replace(content, v, strings.Join(ptns, con), -1)
