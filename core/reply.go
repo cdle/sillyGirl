@@ -143,7 +143,7 @@ func InitReplies() {
 							if v[1] == "?" {
 								g = string(f)
 							} else {
-								g, _ = jsonparser.GetString(data, strings.Split(v[1], ".")[1:]...)
+								g, _ = jsonparser.GetString(f, strings.Split(v[1], ".")[1:]...)
 							}
 							fmt.Println(g)
 							cptn = strings.Replace(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g, -1)
