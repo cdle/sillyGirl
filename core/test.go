@@ -45,7 +45,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^升级$"},
-			Cron:  "41 * * * *",
+			Cron:  "*/5 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				s.Reply("开始检查核心更新...", E)
@@ -63,7 +63,7 @@ func initSys() {
 					s.Reply("核心功能已是最新。", E)
 				} else {
 					record(need)
-					s.Reply("核心功能发现更新。", E)
+					s.Reply("核心功能发现更新。", E, N)
 				}
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
@@ -77,7 +77,7 @@ func initSys() {
 							s.Reply("扩展"+f.Name()+"已是最新。", E)
 						} else {
 							record(need)
-							s.Reply("扩展"+f.Name()+"发现更新。", E)
+							s.Reply("扩展"+f.Name()+"发现更新。", E, N)
 						}
 					}
 				}
@@ -90,6 +90,9 @@ func initSys() {
 					return err
 				}
 				s.Reply("编译程序完毕。", E)
+				if s.GetImType() == "" {
+					s.Reply("已自动更新。", E, N)
+				}
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				s.Reply("更新完成，即将重启！", E)
 				go func() {
