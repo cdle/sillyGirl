@@ -24,6 +24,7 @@ type Reply struct {
 		Regex        string
 		Template     string
 	}
+	Replace [][]string
 }
 
 func InitReplies() {
@@ -97,16 +98,19 @@ func InitReplies() {
 				s.Reply(f)
 			case "template":
 				data, _ := ioutil.ReadAll(rsp.Body)
-				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(reply.Request.Template, -1) {
+				content := reply.Request.Template
+				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
 					v := re[0]
-					fmt.Println(v)
 					get := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
-					fmt.Println(get)
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
-					fmt.Println(f)
-					reply.Request.Template = strings.Replace(reply.Request.Template, v, f, -1)
+					content = strings.Replace(content, v, f, -1)
 				}
-				s.Reply(reply.Request.Template)
+				for i := range reply.Replace {
+					if len(reply.Replace[i]) >= 2 {
+						strings.Replace(content, reply.Replace[i][0], reply.Replace[i][1], -1)
+					}
+				}
+				s.Reply(content)
 			default:
 				d, _ := ioutil.ReadAll(rsp.Body)
 				s.Reply(d)
