@@ -15,7 +15,7 @@ func init() {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
 			if tp == "fake" {
-				NotifyMasters("已完成自动更新。")
+				NotifyMasters("自动更新完成。")
 				return
 			}
 			msg := "重启完成。"
