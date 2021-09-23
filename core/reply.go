@@ -123,16 +123,17 @@ func InitReplies() {
 					ptns := []string{}
 					for {
 						cptn := ptn
-						index := fmt.Sprintf(`[%d]`, i)
-						cget := strings.Replace(get, "[x]", index, -1)
+						cget := strings.Replace(get, "[i]", fmt.Sprintf(`[%d]`, i), -1)
 						f, err := jsonparser.GetString(data, strings.Split(cget, ".")...)
-						fmt.Println(cget, f, err)
 						i++
 						if err != nil {
 							break
 						}
-						cptn = strings.Replace(cptn, "[i]", index, -1)
+						fmt.Println(cptn)
+						cptn = strings.Replace(cptn, "[i]", fmt.Sprintf(`[%d]`, i), -1)
+						fmt.Println(cptn)
 						cptn = strings.Replace(cptn, "[?]", f, -1)
+						fmt.Println(cptn)
 						ptns = append(ptns, cptn)
 					}
 					content = strings.Replace(content, v, strings.Join(ptns, con), -1)
