@@ -100,7 +100,7 @@ func InitReplies() {
 				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(reply.Request.Template, -1) {
 					v := re[0]
 					fmt.Println(v)
-					get := strings.TrimLeft(strings.TrimRight(v, ")"), "gjson(")
+					get := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
 					fmt.Println(get)
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
 					fmt.Println(f)
