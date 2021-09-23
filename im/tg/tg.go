@@ -190,7 +190,20 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				ID: int(*edit),
 			})
 		}
-		rt, err = b.Send(r, msg.(string), options...)
+		ct := msg.(string)
+		bt := []byte(ct)
+		for {
+			l := len(bt)
+			if l <= 400 {
+				rt, err = b.Send(r, string(bt), options...)
+				break
+			} else {
+				nt := bt[:400]
+				rt, err = b.Send(r, string(nt), options...)
+				bt = bt[400:]
+			}
+		}
+
 	case *http.Response:
 		_, err = b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(msg.(*http.Response).Body)}}, options...)
 	}
