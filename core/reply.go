@@ -96,7 +96,7 @@ func InitReplies() {
 					return true
 				}
 				s.Reply(f)
-			case "template":
+			case "template": //gjson(list, i?, \n)
 				data, _ := ioutil.ReadAll(rsp.Body)
 				content := reply.Request.Template
 				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
@@ -104,6 +104,36 @@ func InitReplies() {
 					get := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
 					content = strings.Replace(content, v, f, -1)
+				}
+				for _, re := range regexp.MustCompile(`fjson[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
+					v := re[0]
+					ins := strings.Replace(strings.TrimRight(v, ")"), "gjson(", "", -1)
+					ps := strings.Split(ins, ",")
+					get := ps[0]
+					ptn := ""
+					con := ""
+					switch len(ps) {
+					case 2:
+						ptn = ps[1]
+					case 3:
+						con = ps[2]
+					}
+					i := 0
+					ptns := []string{}
+					for {
+						cptn := ptn
+						index := fmt.Sprintf(`[%d]`, i)
+						cget := strings.Replace(get, "[x]", index, -1)
+						f, err := jsonparser.GetString(data, strings.Split(cget, ".")...)
+						i++
+						if err != nil {
+							break
+						}
+						cptn = strings.Replace(cptn, "[i]", index, -1)
+						cptn = strings.Replace(cptn, "[?]", f, -1)
+						ptns = append(ptns, cptn)
+					}
+					content = strings.Replace(content, v, strings.Join(ptns, con), -1)
 				}
 				for i := range reply.Replace {
 					if len(reply.Replace[i]) >= 2 {
