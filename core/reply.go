@@ -105,14 +105,11 @@ func InitReplies() {
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
 					content = strings.Replace(content, v, f, -1)
 				}
-				fmt.Println(reply.Replace)
 				for i := range reply.Replace {
-					reply.Replace[i][0] = strings.Trim(reply.Replace[i][0], " ")
 					if len(reply.Replace[i]) >= 2 {
-						reply.Replace[i][0] = strings.Trim(reply.Replace[i][1], " ")
-						strings.Replace(content, reply.Replace[i][0], reply.Replace[i][1], -1)
+						content = strings.Replace(content, reply.Replace[i][0], reply.Replace[i][1], -1)
 					} else {
-						strings.Replace(content, reply.Replace[i][0], "", -1)
+						content = strings.Replace(content, reply.Replace[i][0], "", -1)
 					}
 				}
 				s.Reply(content)
