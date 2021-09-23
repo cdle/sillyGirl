@@ -118,6 +118,7 @@ func InitReplies() {
 					case 3:
 						con = ps[2]
 					}
+					fmt.Println(get, ptn, con, "++++")
 					i := 0
 					ptns := []string{}
 					for {
