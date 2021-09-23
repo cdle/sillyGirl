@@ -116,6 +116,7 @@ func InitReplies() {
 					case 2:
 						ptn = ps[1]
 					case 3:
+						ptn = ps[1]
 						con = ps[2]
 					}
 					fmt.Println(get, ptn, con, "++++")
