@@ -98,6 +98,7 @@ func InitReplies() {
 			case "template":
 				data, _ := ioutil.ReadAll(rsp.Body)
 				for _, re := range regexp.MustCompile(`gjson[(][^()]+[)]`).FindAllStringSubmatch(reply.Request.Template, -1) {
+					fmt.Println(re)
 					get := strings.TrimLeft(strings.TrimRight(re[1], ")"), "gjson(")
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
 					reply.Request.Template = strings.Replace(reply.Request.Template, get, f, -1)
