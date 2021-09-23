@@ -112,6 +112,13 @@ func InitReplies() {
 						content = strings.Replace(content, reply.Replace[i][0], "", -1)
 					}
 				}
+				for _, re := range regexp.MustCompile(`image[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
+					v := re[0]
+					get := strings.Replace(strings.TrimRight(v, ")"), "image(", "", -1)
+					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
+					s.Reply(httplib.Get(f).Response())
+					content = strings.Replace(content, v, "", -1)
+				}
 				s.Reply(content)
 			default:
 				d, _ := ioutil.ReadAll(rsp.Body)
