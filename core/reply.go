@@ -107,6 +107,7 @@ func InitReplies() {
 				}
 				fmt.Println(reply.Replace)
 				for i := range reply.Replace {
+					fmt.Println(reply.Replace[i][0], reply.Replace[i][1])
 					if len(reply.Replace[i]) >= 2 {
 						strings.Replace(content, reply.Replace[i][0], reply.Replace[i][1], -1)
 					} else {
