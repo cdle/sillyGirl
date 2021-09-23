@@ -138,12 +138,14 @@ func InitReplies() {
 						}
 						cptn = strings.Replace(cptn, "[i]", fmt.Sprintf(`%d`, i), -1)
 						for _, v := range regexp.MustCompile(`\[(\?[^\[\]]*)\]`).FindAllStringSubmatch(cptn, -1) {
+							fmt.Println(v)
 							g := ""
 							if v[1] == "?" {
 								g = string(f)
 							} else {
 								g, _ = jsonparser.GetString(data, strings.Split(v[1], ".")[1:]...)
 							}
+							fmt.Println(g)
 							cptn = strings.Replace(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g, -1)
 						}
 						ptns = append(ptns, cptn)
@@ -164,6 +166,7 @@ func InitReplies() {
 					s.Reply(httplib.Get(f).Response())
 					content = strings.Replace(content, v, "", -1)
 				}
+				content = strings.Replace(content, `[d]`, ",", -1)
 				s.Reply(content)
 			default:
 				d, _ := ioutil.ReadAll(rsp.Body)
