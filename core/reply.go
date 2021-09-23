@@ -147,7 +147,7 @@ func InitReplies() {
 							}
 
 							fmt.Println(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g)
-							cptn = strings.Replace(cptn, fmt.Sprintf(`"[%s]"`, v[1]), g, -1)
+							cptn = strings.Replace(cptn, fmt.Sprintf(`[%s]`, v[1]), g, -1)
 						}
 						ptns = append(ptns, cptn)
 					}
