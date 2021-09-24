@@ -32,7 +32,6 @@ func init() {
 		server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 			sender := &Sender{}
 			sender.Message = msg.Content
-			fmt.Println(sender.Message)
 			sender.Wait = make(chan string, 1)
 			sender.uid = u2i.GetInt(msg.FromUserName)
 			if sender.uid == 0 {
