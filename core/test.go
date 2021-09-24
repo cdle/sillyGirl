@@ -15,7 +15,7 @@ func init() {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
 			if tp == "fake" {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 10)
 				NotifyMasters("自动更新完成。")
 				return
 			}
