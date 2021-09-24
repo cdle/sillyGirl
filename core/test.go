@@ -14,11 +14,10 @@ func init() {
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
-			if tp == "fake" {
-				time.Sleep(time.Second * 10)
-				NotifyMasters("自动更新完成。")
-				return
-			}
+			// if tp == "fake" {
+			// 	NotifyMasters("自动更新完成。")
+			// 	return
+			// }
 			msg := "重启完成。"
 			for i := 0; i < 10; i++ {
 				if cd == 0 {
@@ -68,7 +67,7 @@ func initSys() {
 					s.Reply("核心功能已是最新。", E)
 				} else {
 					record(need)
-					s.Reply("核心功能发现更新。", E, N)
+					s.Reply("核心功能发现更新。", E)
 				}
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
@@ -82,7 +81,7 @@ func initSys() {
 							s.Reply("扩展"+f.Name()+"已是最新。", E)
 						} else {
 							record(need)
-							s.Reply("扩展"+f.Name()+"发现更新。", E, N)
+							s.Reply("扩展"+f.Name()+"发现更新。", E)
 						}
 					}
 				}
