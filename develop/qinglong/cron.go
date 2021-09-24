@@ -199,7 +199,7 @@ func init() {
 			Admin: true,
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
-				if s.GetImType() == "" && qinglong.Get("autoCronHideDuplicate", "true") == "false" {
+				if s.GetImType() == "fake" && qinglong.Get("autoCronHideDuplicate", "true") == "false" {
 					return nil
 				}
 				w := func(s string) int {
