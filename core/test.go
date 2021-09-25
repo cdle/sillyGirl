@@ -14,7 +14,8 @@ func init() {
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
-			if tp == "fake" && sillyGirl.Get("update_notify", "false") == "true" {
+			if tp == "fake" && sillyGirl.GetBool("update_notify", false) == true {
+				time.Sleep(time.Second * 20)
 				NotifyMasters("自动更新完成。")
 				return
 			}
