@@ -248,6 +248,7 @@ func start() {
 
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
+			time.Sleep(time.Second)
 			request.Accept()
 			core.NotifyMasters(fmt.Sprintf("QQ已同意%v的好友申请，验证信息为：%v", request.RequesterUin, request.Message))
 		}
