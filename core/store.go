@@ -80,6 +80,27 @@ func (bucket Bucket) GetInt(key interface{}, vs ...int) int {
 	return value
 }
 
+func (bucket Bucket) GetBool(key interface{}, vs ...bool) bool {
+	var value bool
+	if len(vs) != 0 {
+		value = vs[0]
+	}
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return nil
+		}
+		v := string(b.Get([]byte(fmt.Sprint(key))))
+		if v == "true" {
+			value = true
+		} else if v == "false" {
+			value = false
+		}
+		return nil
+	})
+	return value
+}
+
 func (bucket Bucket) Foreach(f func(k, v []byte) error) {
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
