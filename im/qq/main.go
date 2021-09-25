@@ -224,12 +224,15 @@ func start() {
 			c.MarkPrivateMessageReaded(m.Sender.Uin, int64(m.Time))
 		}
 	}
-	onTempMessage := func(c *client.QQClient, e *client.TempMessageEvent) {
+	onTempMessage := func(_ *client.QQClient, e *client.TempMessageEvent) {
 		core.Senders <- &Sender{
 			Message: e.Message,
 		}
 	}
 	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
+		if m.GroupCode != int64(qq.GetInt("groupCode")) {
+			return
+		}
 		core.Senders <- &Sender{
 			Message: m,
 		}
@@ -237,7 +240,7 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	if qq.Get("onself", "true") == "true" {
+	if qq.GetBool("onself", true) == true {
 		bot.Client.OnSelfPrivateMessage(onPrivateMessage)
 		bot.Client.OnSelfGroupMessage(OnGroupMessage)
 	}
