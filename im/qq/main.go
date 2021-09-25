@@ -231,7 +231,7 @@ func start() {
 		}
 	}
 	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
-		if m.GroupCode != int64(qq.GetInt("groupCode")) {
+		if groupCode := int64(qq.GetInt("groupCode")); groupCode != 0 && m.GroupCode != groupCode {
 			return
 		}
 		core.Senders <- &Sender{
