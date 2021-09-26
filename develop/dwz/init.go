@@ -6,8 +6,8 @@ import (
 )
 
 func init() {
-	core.Server.GET("/http:add", func(c *gin.Context) {
-		addr := "http" + c.Param("add")
+	core.Server.GET("/dwz", func(c *gin.Context) {
+		addr := c.Param("addr")
 		c.String(200, addr)
 	})
 }
