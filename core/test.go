@@ -182,6 +182,18 @@ func initSys() {
 				return fmt.Sprint(s.GetUserID())
 			},
 		},
+		{
+			Rules: []string{"raw ^compiled_at$"},
+			Handle: func(s Sender) interface{} {
+				return sillyGirl.Get("compiled_at")
+			},
+		},
+		{
+			Rules: []string{"raw ^started_at$"},
+			Handle: func(s Sender) interface{} {
+				return sillyGirl.Get("started_at")
+			},
+		},
 	})
 }
 

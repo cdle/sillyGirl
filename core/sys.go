@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/astaxie/beego/logs"
 )
@@ -55,6 +56,7 @@ func CompileCode() error {
 	if err != nil {
 		return errors.New("编译失败：" + err.Error() + "。")
 	}
+	sillyGirl.Set("compiled_at", time.Now().Format("2006-01-02 15:04:05"))
 	return nil
 }
 
