@@ -24,11 +24,19 @@ type Reply struct {
 		Get          string
 		Regex        string
 		Template     string
+		Disappear    bool
 	}
 	Replace [][]string
 }
 
 func InitReplies() {
+	appreciate := Reply{
+		Rules: []string{"^打赏", "^赞赏"},
+		Type:  "url",
+	}
+	appreciate.Request.Url = "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg"
+	appreciate.Request.ResponseType = "image"
+	Config.Replies = append(Config.Replies, appreciate)
 	for _, v := range Config.Replies {
 		reply := v
 		var handler func(s Sender) interface{}
