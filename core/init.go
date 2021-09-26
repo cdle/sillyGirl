@@ -21,7 +21,7 @@ func init() {
 	initStore()
 	initToHandleMessage()
 	InitReplies()
-	file, err := os.Open(ExecPath + "/conf/sets.conf")
+	file, err := os.Open("/etc/sillyGirl/sets.conf")
 	if err == nil {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
