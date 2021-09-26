@@ -21,6 +21,9 @@ func NewBucket(name string) Bucket {
 }
 
 func initStore() {
+	// if _, err := os.Stat(ExecPath + "/sillyGirl.cache"); err == nil {
+	// 	os.Rename(ExecPath+"/sillyGirl.cache", "/etc/sillyGirl/sillyGirl.cache")
+	// }
 	var err error
 	db, err = bolt.Open("/etc/sillyGirl/sillyGirl.cache", 0600, nil)
 	if err != nil {
