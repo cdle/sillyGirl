@@ -36,6 +36,7 @@ func InitReplies() {
 	}
 	appreciate.Request.Url = "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg"
 	appreciate.Request.ResponseType = "image"
+	appreciate.Request.Disappear = true
 	Config.Replies = append(Config.Replies, appreciate)
 	for _, v := range Config.Replies {
 		reply := v
@@ -46,6 +47,9 @@ func InitReplies() {
 			}
 		}
 		handler = func(s Sender) interface{} {
+			if reply.Request.Disappear {
+				s.Disappear()
+			}
 			url := reply.Request.Url
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {
