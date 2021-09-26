@@ -1,7 +1,9 @@
 package core
 
 import (
+	"bufio"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -16,9 +18,21 @@ func init() {
 		}
 	}
 	initStore()
-	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
-	InitReplies()
 	initToHandleMessage()
+	InitReplies()
+	file, err := os.Open(ExecPath + "/conf/sets.conf")
+	if err == nil {
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			if regexp.MustCompile(`^set`).MatchString(line) {
+				Senders <- &Faker{
+					Message: line,
+				}
+			}
+		}
+		file.Close()
+	}
 	initSys()
 	Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
 }
