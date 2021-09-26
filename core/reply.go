@@ -34,7 +34,7 @@ func InitReplies() {
 		Rules: []string{"^打赏", "^赞赏"},
 		Type:  "url",
 	}
-	appreciate.Request.Url = "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg"
+	appreciate.Request.Url = sillyGirl.Get("appreciate", "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg")
 	appreciate.Request.ResponseType = "image"
 	appreciate.Request.Disappear = true
 	Config.Replies = append(Config.Replies, appreciate)
