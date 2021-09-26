@@ -10,6 +10,13 @@ import (
 var Duration time.Duration
 
 func init() {
+	killp()
+	for _, arg := range os.Args {
+		if arg == "-d" {
+			initStore()
+			Daemon()
+		}
+	}
 	_, err := os.Stat("/etc/sillyGirl/")
 	if err != nil {
 		os.MkdirAll("/etc/sillyGirl/", os.ModePerm)
