@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -25,9 +26,9 @@ func init() {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
-			if regexp.MustCompile(`^set`).MatchString(line) {
+			if regexp.MustCompile(`^\s*set`).MatchString(line) {
 				Senders <- &Faker{
-					Message: line,
+					Message: strings.Trim(line, " "),
 				}
 			}
 		}
