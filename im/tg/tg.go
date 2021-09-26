@@ -193,7 +193,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		rt, err = b.Send(r, msg.(string), options...)
 	case *http.Response:
 		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(msg.(*http.Response).Body)}}, options...)
-		if err != nil {
+		if err == nil {
 			rt = &rts[0]
 		}
 	}
