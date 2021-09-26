@@ -19,6 +19,7 @@ func init() {
 		}
 	}
 	initStore()
+	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
 	file, err := os.Open("/etc/sillyGirl/sets.conf")
@@ -36,5 +37,4 @@ func init() {
 	}
 	initSys()
 	Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
-
 }
