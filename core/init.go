@@ -2,10 +2,8 @@ package core
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 )
 
@@ -25,12 +23,8 @@ func init() {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
-			fmt.Println(line, "---")
-			if regexp.MustCompile(`^\s*set`).MatchString(line) {
-				fmt.Println(line, "+++")
-				Senders <- &Faker{
-					Message: strings.Trim(line, " "),
-				}
+			if v := regexp.MustCompile(`^\s*set\s+(\S+)\s+(\S+)\s+(\S+)`).FindStringSubmatch(line); len(v) > 0 {
+				Bucket(v[1]).Set(v[2], v[3])
 			}
 		}
 		file.Close()
