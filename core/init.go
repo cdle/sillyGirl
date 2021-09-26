@@ -19,8 +19,8 @@ func init() {
 		}
 	}
 	initStore()
-	initToHandleMessage()
 	InitReplies()
+	initToHandleMessage()
 	file, err := os.Open("/etc/sillyGirl/sets.conf")
 	if err == nil {
 		scanner := bufio.NewScanner(file)
@@ -36,4 +36,5 @@ func init() {
 	}
 	initSys()
 	Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
+
 }
