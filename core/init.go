@@ -31,7 +31,9 @@ func init() {
 		for scanner.Scan() {
 			line := scanner.Text()
 			if v := regexp.MustCompile(`^\s*set\s+(\S+)\s+(\S+)\s+(\S+)`).FindStringSubmatch(line); len(v) > 0 {
-				Bucket(v[1]).Set(v[2], v[3])
+				if Bucket(v[1]).Get(v[2]) != v[3] {
+					Bucket(v[1]).Set(v[2], v[3])
+				}
 			}
 		}
 		file.Close()
