@@ -2,6 +2,7 @@ package core
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -24,7 +25,9 @@ func init() {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
+			fmt.Println(line, "---")
 			if regexp.MustCompile(`^\s*set`).MatchString(line) {
+				fmt.Println(line, "+++")
 				Senders <- &Faker{
 					Message: strings.Trim(line, " "),
 				}
