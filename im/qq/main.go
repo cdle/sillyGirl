@@ -47,6 +47,7 @@ func start() {
 	conf.Account.Uin = int64(qq.GetInt("uin", 0))
 	conf.Account.Password = qq.Get("password")
 	conf.Message.ReportSelfMessage = true
+	conf.Account.ReLogin.MaxTimes = 30
 	conf.Database = map[string]yaml.Node{
 		"leveldb": {
 			Kind: 4,
