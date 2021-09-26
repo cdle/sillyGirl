@@ -46,6 +46,9 @@ func InitReplies() {
 			}
 		}
 		handler = func(s Sender) interface{} {
+			if reply.Request.Disappear {
+				s.Disappear()
+			}
 			url := reply.Request.Url
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {
