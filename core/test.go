@@ -121,14 +121,14 @@ func initSys() {
 				s.Disappear()
 				ss := []string{}
 				for _, f := range functions {
-					f := f
-					for i := range f.Rules {
-						f.Rules[i] = strings.Trim(f.Rules[i], "^$")
-						f.Rules[i] = strings.Replace(f.Rules[i], `\s+`, " ", -1)
-						f.Rules[i] = strings.Replace(f.Rules[i], `(\S+)`, "?", -1)
-						f.Rules[i] = strings.Replace(f.Rules[i], `[(]`, "(", -1)
-						f.Rules[i] = strings.Replace(f.Rules[i], `[)]`, ")", -1)
-					}
+					// f := f
+					// for i := range f.Rules {
+					// 	f.Rules[i] = strings.Trim(f.Rules[i], "^$")
+					// 	f.Rules[i] = strings.Replace(f.Rules[i], `\s+`, " ", -1)
+					// 	f.Rules[i] = strings.Replace(f.Rules[i], `(\S+)`, "?", -1)
+					// 	f.Rules[i] = strings.Replace(f.Rules[i], `[(]`, "(", -1)
+					// 	f.Rules[i] = strings.Replace(f.Rules[i], `[)]`, ")", -1)
+					// }
 					ss = append(ss, strings.Join(f.Rules, " "))
 				}
 				return strings.Join(ss, "\n")
