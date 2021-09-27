@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -50,17 +51,19 @@ func InitReplies() {
 			if reply.Request.Disappear {
 				s.Disappear()
 			}
-			url := reply.Request.Url
+			Url := reply.Request.Url
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {
-				url = strings.Replace(url, fmt.Sprintf(`{{%d}}`, k+1), v, -1)
+				Url = strings.Replace(Url, fmt.Sprintf(`{{%d}}`, k+1), v, -1)
 				body = strings.Replace(body, fmt.Sprintf(`{{%d}}`, k+1), v, -1)
+				Url = strings.Replace(Url, fmt.Sprintf(`{{encode(%d)}}`, k+1), url.QueryEscape(v), -1)
+				body = strings.Replace(body, fmt.Sprintf(`{{encode(%d)}}`, k+1), url.QueryEscape(v), -1)
 			}
 			var req httplib.BeegoHTTPRequest
 			if strings.ToLower(reply.Request.Method) == "post" {
-				req = *httplib.Post(url)
+				req = *httplib.Post(Url)
 			} else {
-				req = *httplib.Get(url)
+				req = *httplib.Get(Url)
 			}
 			for _, header := range reply.Request.Headers {
 				ss := strings.Split(header, ":")
