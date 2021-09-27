@@ -113,12 +113,6 @@ func initSys() {
 					return err
 				}
 				s.Reply("编译程序完毕。", E)
-				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
-				s.Reply("更新完成，即将重启！", E)
-				go func() {
-					time.Sleep(time.Second)
-					Daemon()
-				}()
 				return nil
 			},
 		},
