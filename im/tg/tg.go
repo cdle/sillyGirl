@@ -22,6 +22,11 @@ type Sender struct {
 var tg = core.NewBucket("tg")
 var b *tb.Bot
 var Handler = func(message *tb.Message) {
+	if message.FromGroup() {
+		if groupCode := tg.GetInt("groupCode"); groupCode != 0 && groupCode != int(message.Chat.ID) {
+			return
+		}
+	}
 	core.Senders <- &Sender{
 		Message: message,
 	}
