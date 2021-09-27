@@ -71,7 +71,7 @@ func (sender *Sender) GetUserID() int {
 }
 
 func (sender *Sender) GetChatID() int {
-	return int(sender.GetChatID())
+	return int(sender.Message.Chat.ID)
 }
 
 func (sender *Sender) GetImType() string {
