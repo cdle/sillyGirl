@@ -105,6 +105,24 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"raw ^编译$"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				s.Reply("正在编译程序...", E)
+				if err := CompileCode(); err != nil {
+					return err
+				}
+				s.Reply("编译程序完毕。", E)
+				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
+				s.Reply("更新完成，即将重启！", E)
+				go func() {
+					time.Sleep(time.Second)
+					Daemon()
+				}()
+				return nil
+			},
+		},
+		{
 			Rules: []string{"raw ^重启$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
