@@ -203,6 +203,12 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"raw ^groupCode$"},
+			Handle: func(s Sender) interface{} {
+				return fmt.Sprintf("%d", s.GetChatID())
+			},
+		},
+		{
 			Rules: []string{"raw ^compiled_at$"},
 			Handle: func(s Sender) interface{} {
 				return sillyGirl.Get("compiled_at")
