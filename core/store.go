@@ -1,7 +1,9 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -118,3 +120,45 @@ var Int = func(s string) int {
 	i, _ := strconv.Atoi(s)
 	return i
 }
+
+func (bucket Bucket) Create(i interface{}) error {
+	s := reflect.ValueOf(i).Elem()
+	id := s.FieldByName("ID")
+	return db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			b, _ = tx.CreateBucket([]byte(bucket))
+		}
+		sq, _ := b.NextSequence()
+		id.SetInt(int64(sq))
+		buf, err := json.Marshal(i)
+		if err != nil {
+			return err
+		}
+		return b.Put(itob(sq), buf)
+	})
+}
+
+func itob(i uint64) []byte {
+	return []byte(fmt.Sprint(i))
+}
+
+func (bucket Bucket) First(i interface{}) {
+	id := reflect.ValueOf(i).Elem().FieldByName("ID").Int()
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return nil
+		}
+		data := b.Get(itob(uint64(id)))
+		if len(data) == 0 {
+			return nil
+		}
+		json.Unmarshal(data, i)
+		return nil
+	})
+}
+
+// func (bucket Bucket) Find(o interface{}) {
+
+// }
