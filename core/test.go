@@ -121,6 +121,7 @@ func initSys() {
 				s.Disappear()
 				ss := []string{}
 				for _, f := range functions {
+					f := f
 					for i := range f.Rules {
 						f.Rules[i] = strings.Trim(f.Rules[i], "^$")
 						f.Rules[i] = strings.Replace(f.Rules[i], `\s+`, " ", -1)
