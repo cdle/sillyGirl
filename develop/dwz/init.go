@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/cdle/sillyGirl/core"
@@ -42,7 +43,7 @@ func getDwz(url string) string {
 		Url: url,
 	}
 	dwz.Create(su)
-	return dwz.Get("address", "https://4co.cc"+"/d"+encode(int64(su.ID)))
+	return dwz.Get("address", regexp.MustCompile(`https?://[\.\w]+:?\d*`).FindString(dwz.Get("address"))+"/"+dwz.Get("prefix", "d")+encode(int64(su.ID)))
 }
 
 func getWz(id string) string {
