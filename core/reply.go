@@ -59,34 +59,42 @@ func InitReplies() {
 				Url = strings.Replace(Url, fmt.Sprintf(`{{encode(%d)}}`, k+1), url.QueryEscape(v), -1)
 				body = strings.Replace(body, fmt.Sprintf(`{{encode(%d)}}`, k+1), url.QueryEscape(v), -1)
 			}
-			var req httplib.BeegoHTTPRequest
-			if strings.ToLower(reply.Request.Method) == "post" {
-				req = *httplib.Post(Url)
-			} else {
-				req = *httplib.Get(Url)
-			}
-			for _, header := range reply.Request.Headers {
-				ss := strings.Split(header, ":")
-				if len(ss) > 0 {
-					req.Header(ss[0], strings.Join(ss[1:], ":"))
-				}
-			}
-			if reply.Request.Body != "" {
-				req.Body(body)
-			}
-			rsp, err := req.Response()
-			if err != nil {
-				if reply.Content != "" {
-					s.Reply(reply.Content)
+			data := func() []byte {
+				var req httplib.BeegoHTTPRequest
+				if strings.ToLower(reply.Request.Method) == "post" {
+					req = *httplib.Post(Url)
 				} else {
-					s.Reply(err)
+					req = *httplib.Get(Url)
 				}
-				return nil
+				for _, header := range reply.Request.Headers {
+					ss := strings.Split(header, ":")
+					if len(ss) > 0 {
+						req.Header(ss[0], strings.Join(ss[1:], ":"))
+					}
+				}
+				if reply.Request.Body != "" {
+					req.Body(body)
+				}
+				rsp, err := req.Response()
+				if err != nil {
+					if reply.Content != "" {
+						s.Reply(reply.Content)
+					} else {
+						s.Reply(err)
+					}
+					return nil
+				}
+				d, _ := ioutil.ReadAll(rsp.Body)
+				return d
 			}
+
 			switch reply.Request.ResponseType {
 			case "image":
 				if reply.Request.Get != "" {
-					d, _ := ioutil.ReadAll(rsp.Body)
+					d := data()
+					if d == nil {
+						return nil
+					}
 					f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
 					if err != nil {
 						s.Reply(err)
@@ -96,16 +104,22 @@ func InitReplies() {
 					return nil
 				}
 				if reply.Request.Regex != "" {
-					d, _ := ioutil.ReadAll(rsp.Body)
+					d := data()
+					if d == nil {
+						return nil
+					}
 					res := regexp.MustCompile(reply.Request.Regex).FindStringSubmatch(string(d))
 					if len(res) != 0 {
 						s.Reply(ImageUrl(res[1]))
 					}
 					return nil
 				}
-				s.Reply(rsp)
+				s.Reply(ImageUrl(Url))
 			case "json":
-				d, _ := ioutil.ReadAll(rsp.Body)
+				d := data()
+				if d == nil {
+					return nil
+				}
 				f, err := jsonparser.GetString(d, strings.Split(reply.Request.Get, ".")...)
 				if err != nil {
 					s.Reply(err)
@@ -113,7 +127,10 @@ func InitReplies() {
 				}
 				s.Reply(f)
 			case "template":
-				data, _ := ioutil.ReadAll(rsp.Body)
+				data := data()
+				if data == nil {
+					return nil
+				}
 				content := reply.Request.Template
 				for _, re := range regexp.MustCompile(`tfmt[(][^()]+[)]`).FindAllStringSubmatch(content, -1) {
 					v := re[0]
@@ -182,7 +199,10 @@ func InitReplies() {
 				content = strings.Replace(content, `[d]`, ",", -1)
 				s.Reply(content)
 			default:
-				d, _ := ioutil.ReadAll(rsp.Body)
+				d := data()
+				if d == nil {
+					return nil
+				}
 				s.Reply(d)
 			}
 			return nil
