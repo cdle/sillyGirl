@@ -51,6 +51,8 @@ func (sender *Sender) GetChatID() int {
 	switch sender.Message.(type) {
 	case *message.GroupMessage:
 		id = int(sender.Message.(*message.GroupMessage).GroupCode)
+	case *message.TempMessage:
+		id = int(sender.Message.(*message.TempMessage).GroupCode)
 	}
 	return id
 }
