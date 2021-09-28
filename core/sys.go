@@ -13,7 +13,12 @@ import (
 	"github.com/astaxie/beego/logs"
 )
 
+var BeforeStop = []func(){}
+
 func Daemon() {
+	for _, bs := range BeforeStop {
+		bs()
+	}
 	args := os.Args[1:]
 	execArgs := make([]string, 0)
 	l := len(args)
