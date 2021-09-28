@@ -18,6 +18,7 @@ import (
 
 var wxmp = core.NewBucket("wxmp")
 var u2i = core.NewBucket("wxmpu2i")
+var material = core.NewBucket("wxmpMaterial")
 
 func init() {
 	file_dir := core.ExecPath + "/logs/wxmp/"
@@ -83,6 +84,7 @@ func init() {
 					if err != nil {
 						return err
 					}
+					material.Set(mediaID, filename)
 					return nil
 				}()
 				if err != nil {
