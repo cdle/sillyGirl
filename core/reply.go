@@ -39,7 +39,7 @@ func InitReplies() {
 	appreciate.Request.Url = sillyGirl.Get("appreciate", recommand)
 	appreciate.Request.ResponseType = "image"
 	appreciate.Request.Disappear = true
-	Config.Replies = append(Config.Replies, appreciate)
+	Config.Replies = append([]Reply{appreciate}, Config.Replies...)
 	for _, v := range Config.Replies {
 		reply := v
 		var handler func(s Sender) interface{}
