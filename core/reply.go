@@ -35,7 +35,8 @@ func InitReplies() {
 		Rules: []string{"^打赏", "^赞赏"},
 		Type:  "url",
 	}
-	appreciate.Request.Url = sillyGirl.Get("appreciate", "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg")
+	recommand := "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg"
+	appreciate.Request.Url = sillyGirl.Get("appreciate", recommand)
 	appreciate.Request.ResponseType = "image"
 	appreciate.Request.Disappear = true
 	Config.Replies = append(Config.Replies, appreciate)
@@ -125,6 +126,9 @@ func InitReplies() {
 					s.Reply(err)
 					return true
 				}
+				if appreciate.Request.Url != recommand {
+					f += "\n" + Tail
+				}
 				s.Reply(f)
 			case "template":
 				data := data()
@@ -197,6 +201,9 @@ func InitReplies() {
 					content = strings.Replace(content, v, "", -1)
 				}
 				content = strings.Replace(content, `[d]`, ",", -1)
+				if appreciate.Request.Url != recommand {
+					content += "\n" + Tail
+				}
 				s.Reply(content)
 			default:
 				d := data()
