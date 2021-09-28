@@ -35,6 +35,8 @@ var E Edit
 var R Replace
 var N Notify
 
+type ImageUrl string
+
 type Faker struct {
 	Message string
 	matches [][]string

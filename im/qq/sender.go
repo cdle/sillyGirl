@@ -3,13 +3,12 @@ package qq
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
+	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -167,9 +166,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			content = msg.(string)
 		case []byte:
 			content = string(msg.([]byte))
-		case *http.Response:
-			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
-			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		case core.ImageUrl:
+			data, err := httplib.Get(string(msg.(core.ImageUrl))).Bytes()
+			if err != nil {
+				sender.Reply(err)
+				return 0, nil
+			} else {
+				bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+			}
 		}
 		if content != "" {
 			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: content}}})
@@ -182,9 +186,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			content = msg.(string)
 		case []byte:
 			content = string(msg.([]byte))
-		case *http.Response:
-			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
-			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		case core.ImageUrl:
+			data, err := httplib.Get(string(msg.(core.ImageUrl))).Bytes()
+			if err != nil {
+				sender.Reply(err)
+				return 0, nil
+			} else {
+				bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+			}
 		}
 		if content != "" {
 			bot.SendPrivateMessage(m.Sender.Uin, int64(qq.GetInt("groupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: content}}})
@@ -199,9 +208,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 		case []byte:
 			content = string(msg.([]byte))
-		case *http.Response:
-			data, _ := ioutil.ReadAll(msg.(*http.Response).Body)
-			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+		case core.ImageUrl:
+			data, err := httplib.Get(string(msg.(core.ImageUrl))).Bytes()
+			if err != nil {
+				sender.Reply(err)
+				return 0, nil
+			} else {
+				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: "\n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+			}
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {
