@@ -44,7 +44,7 @@ func init() {
 				return nil
 			}
 			// {
-			// 	wechat.AddMaterial(message.MsgTypeText, filename string)
+			// 	wechat.AddMaterial(message.MsgTypeText, "xxx")
 			// }
 			// return &message.Reply{MsgType: message.MsgTypeImage, MsgData: message.NewText(end)}
 			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(end)}
