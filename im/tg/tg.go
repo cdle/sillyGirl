@@ -168,7 +168,6 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
 		}
 	}
-	fmt.Println(msg, "+++")
 	var err error
 	switch msg.(type) {
 	case error:
@@ -198,7 +197,6 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		}
 		rt, err = b.Send(r, msg.(string), options...)
 	case core.ImageUrl:
-		fmt.Println(msg.(core.ImageUrl), "+++")
 		rsp, err := httplib.Get(string(msg.(core.ImageUrl))).Response()
 		if err != nil {
 			sender.Reply(err)

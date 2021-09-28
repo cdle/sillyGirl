@@ -8,6 +8,11 @@ func init() {
 	Server = gin.New()
 }
 
+var Tail = "--来自sillyGirl，傻妞技术交流群654346133。"
+
 func RunServer() {
+	Server.GET("/", func(c *gin.Context) {
+		c.String(200, Tail)
+	})
 	Server.Run(":" + sillyGirl.Get("port", "8080"))
 }

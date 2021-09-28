@@ -43,6 +43,10 @@ func init() {
 			if end == "" {
 				return nil
 			}
+			// {
+			// 	wechat.AddMaterial(message.MsgTypeText, filename string)
+			// }
+			// return &message.Reply{MsgType: message.MsgTypeImage, MsgData: message.NewText(end)}
 			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(end)}
 		})
 		err := server.Serve()
@@ -135,13 +139,13 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
-	fmt.Println(msgs...)
 	for _, item := range msgs {
 		switch item.(type) {
 		case string:
 			sender.Responses = append(sender.Responses, item.(string))
 		case []byte:
 			sender.Responses = append(sender.Responses, string(item.([]byte)))
+		case core.ImageUrl:
 		}
 	}
 	return 0, nil
