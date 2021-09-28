@@ -164,6 +164,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		m := sender.Message.(*message.PrivateMessage)
 		content := ""
 		switch msg.(type) {
+		case error:
+			content = msg.(error).Error()
 		case string:
 			content = msg.(string)
 		case []byte:
@@ -184,6 +186,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		m := sender.Message.(*message.TempMessage)
 		content := ""
 		switch msg.(type) {
+		case error:
+			content = msg.(error).Error()
 		case string:
 			content = msg.(string)
 		case []byte:
@@ -205,9 +209,10 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		m := sender.Message.(*message.GroupMessage)
 		content := ""
 		switch msg.(type) {
+		case error:
+			content = msg.(error).Error()
 		case string:
 			content = msg.(string)
-
 		case []byte:
 			content = string(msg.([]byte))
 		case core.ImageUrl:
