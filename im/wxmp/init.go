@@ -21,6 +21,7 @@ var u2i = core.NewBucket("wxmpu2i")
 
 func init() {
 	file_dir := core.ExecPath + "/logs/wxmp/"
+	os.MkdirAll(file_dir, os.ModePerm)
 	core.Server.Any("/wx/", func(c *gin.Context) {
 		wc := wechat.NewWechat()
 		memory := cache.NewMemory()
@@ -45,11 +46,11 @@ func init() {
 			}
 			core.Senders <- sender
 			end := <-sender.Wait
-			if len(end) == 0 {
-				return nil
-			}
 			ss := []string{}
 			url := ""
+			if len(end) == 0 {
+				ss = append(ss, "无法回复该消息")
+			}
 			for _, item := range end {
 				switch item.(type) {
 				case error:
@@ -64,7 +65,7 @@ func init() {
 			}
 			mediaID := ""
 			if url != "" {
-				filename := file_dir + fmt.Sprint(time.Now().UnixNano())
+				filename := file_dir + fmt.Sprint(time.Now().UnixNano()) + ".jpg"
 				err := func() error {
 					f, err := os.Open(filename)
 					if err != nil {
