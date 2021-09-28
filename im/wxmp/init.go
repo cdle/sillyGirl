@@ -67,7 +67,7 @@ func init() {
 			if url != "" {
 				filename := file_dir + fmt.Sprint(time.Now().UnixNano()) + ".jpg"
 				err := func() error {
-					f, err := os.Open(filename)
+					f, err := os.Create(filename)
 					if err != nil {
 						return err
 					}
