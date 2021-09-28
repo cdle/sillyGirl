@@ -92,14 +92,14 @@ func InitReplies() {
 						s.Reply(err)
 						return nil
 					}
-					s.Reply(httplib.Get(f).Response())
+					s.Reply(ImageUrl(f))
 					return nil
 				}
 				if reply.Request.Regex != "" {
 					d, _ := ioutil.ReadAll(rsp.Body)
 					res := regexp.MustCompile(reply.Request.Regex).FindStringSubmatch(string(d))
 					if len(res) != 0 {
-						s.Reply(httplib.Get(res[1]).Response())
+						s.Reply(ImageUrl(res[1]))
 					}
 					return nil
 				}
@@ -176,7 +176,7 @@ func InitReplies() {
 					v := re[0]
 					get := strings.Replace(strings.TrimRight(v, ")"), "image(", "", -1)
 					f, _ := jsonparser.GetString(data, strings.Split(get, ".")...)
-					s.Reply(httplib.Get(f).Response())
+					s.Reply(ImageUrl(f))
 					content = strings.Replace(content, v, "", -1)
 				}
 				content = strings.Replace(content, `[d]`, ",", -1)
