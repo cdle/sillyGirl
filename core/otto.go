@@ -21,6 +21,9 @@ func init() {
 		return
 	}
 	for _, v := range files {
+		if v.IsDir() {
+			continue
+		}
 		jr := string(ExecPath + "/develop/" + v.Name())
 		data := ""
 		if strings.Contains(jr, "http") {
