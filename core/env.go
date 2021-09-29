@@ -13,6 +13,7 @@ func init() {
 	// fmt.Println(replies)
 	var template = `
 var content = {{1}}
+var data = request
 
 	`
 	fmt.Println(template)
