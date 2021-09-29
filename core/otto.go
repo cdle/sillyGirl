@@ -15,13 +15,16 @@ import (
 type JsReply string
 
 func init() {
-	files, err := ioutil.ReadDir(ExecPath + "/develop")
+	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
-		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop", err)
+		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
 		return
 	}
 	for _, v := range files {
-		jr := string(ExecPath + "/develop/" + v.Name())
+		if v.IsDir() {
+			continue
+		}
+		jr := string(ExecPath + "/develop/replies/" + v.Name())
 		data := ""
 		if strings.Contains(jr, "http") {
 			data, err = httplib.Get(jr).String()
