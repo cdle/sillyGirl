@@ -24,7 +24,7 @@ func init() {
 		if v.IsDir() {
 			continue
 		}
-		jr := string(ExecPath + "/develop/" + v.Name())
+		jr := string(ExecPath + "/develop/replies/" + v.Name())
 		data := ""
 		if strings.Contains(jr, "http") {
 			data, err = httplib.Get(jr).String()
