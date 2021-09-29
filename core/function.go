@@ -94,6 +94,8 @@ func handleMessage(sender Sender) {
 			}
 			if matched {
 				if function.Admin && !sender.IsAdmin() {
+                                        sender.Delete()
+                                        sender.Disappear()
 					sender.Reply("没有权限操作")
 					sender.Finish()
 					return
