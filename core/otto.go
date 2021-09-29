@@ -110,10 +110,10 @@ func init() {
 			rt, err := vm.Run(template + `
 ""
 `)
-			result := rt.String()
 			if err != nil {
 				return err
 			}
+			result := rt.String()
 			for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*\]`).FindAllStringSubmatch(result, -1) {
 				s.Reply(ImageUrl(v[1]))
 				result = strings.Replace(result, fmt.Sprintf(`[image:%s]`, v[1]), "", -1)
