@@ -246,8 +246,9 @@ Alias=sillyGirl.service`
 					s.Reply(err)
 					return nil
 				}
-				s.Reply(data)
+
 				if !strings.Contains(string(data), "bin") {
+					s.Reply(data)
 					return nil
 				}
 				os.WriteFile("/usr/lib/systemd/system/sillyGirl.service", []byte(service), 0o644)
