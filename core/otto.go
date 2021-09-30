@@ -88,7 +88,10 @@ func init() {
 			return otto.Value{}
 		}
 		if strings.Contains(dataType, "json") {
-			obj, _ := otto.New().Object(fmt.Sprintf(`(%s)`, data))
+			obj, err := otto.New().Object(fmt.Sprintf(`(%s)`, data))
+			if err != nil {
+				return otto.Value{}
+			}
 			return obj
 		}
 		result, err := otto.ToValue(data)
