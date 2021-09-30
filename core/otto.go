@@ -82,14 +82,16 @@ func init() {
 			}
 			data, err := req.String()
 			if err != nil {
-				return nil
+				return otto.Value{}
 			}
-
 			if strings.Contains(dataType, "json") {
 				obj, _ := otto.New().Object(fmt.Sprintf(`(%s)`, data))
 				return obj
 			}
-			result, _ := otto.ToValue(data)
+			result, err := otto.ToValue(data)
+			if err != nil {
+				return otto.Value{}
+			}
 			return result
 		}
 		var handler = func(s Sender) interface{} {
