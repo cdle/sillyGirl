@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -222,6 +224,36 @@ func initSys() {
 			Rules: []string{"raw ^started_at$"},
 			Handle: func(s Sender) interface{} {
 				return sillyGirl.Get("started_at")
+			},
+		},
+		{
+			Rules: []string{"^开启不死模式"},
+			Handle: func(s Sender) interface{} {
+				service := `
+[Service]
+Type=forking
+ExecStart=` + ExecPath + "/" + pname + ` -d
+PIDFile=/var/run/sillyGirl.pid
+Restart=always
+User=root
+Group=root
+				
+[Install]
+WantedBy=multi-user.target
+Alias=sillyGirl.service`
+				data, err := exec.Command("sh", "-c", "type systemctl").Output()
+				if err != nil {
+					s.Reply(err)
+					return nil
+				}
+				s.Reply(data)
+				if !strings.Contains(string(data), "bin") {
+					return nil
+				}
+				os.WriteFile("/usr/lib/systemd/system/sillyGirl.service", []byte(service), 0o644)
+				exec.Command("systemctl", "disable", string(sillyGirl)).Output()
+				exec.Command("systemctl", "enable", string(sillyGirl)).Output()
+				return "电脑重启后生效。"
 			},
 		},
 	})
