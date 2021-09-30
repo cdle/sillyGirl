@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -251,7 +250,7 @@ Alias=sillyGirl.service`
 					s.Reply(data)
 					return nil
 				}
-				os.WriteFile("/usr/lib/systemd/system/sillyGirl.service", []byte(service), 0o644)
+				WriteToFile("/usr/lib/systemd/system/sillyGirl.service", (service))
 				exec.Command("systemctl", "disable", string(sillyGirl)).Output()
 				exec.Command("systemctl", "enable", string(sillyGirl)).Output()
 				return "电脑重启后生效。"
