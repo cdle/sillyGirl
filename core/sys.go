@@ -15,6 +15,8 @@ import (
 
 var BeforeStop = []func(){}
 
+var pidf = "/var/run/sillyGirl.pid"
+
 func Daemon() {
 	for _, bs := range BeforeStop {
 		bs()
@@ -34,6 +36,7 @@ func Daemon() {
 		panic(err)
 	}
 	logs.Info(sillyGirl.Get("name", "傻妞") + "以静默形式运行")
+	os.WriteFile(pidf, []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 	os.Exit(0)
 }
 
@@ -66,6 +69,11 @@ func CompileCode() error {
 }
 
 func killp() {
+	// data, _ := os.ReadFile(pidf)
+	// pid := Int(string(data))
+	// if pid > 0 {
+	// 	syscall.Kill(-pid, syscall.SIGKILL)
+	// }
 	pids, err := ppid()
 	if err == nil {
 		if len(pids) == 0 {
