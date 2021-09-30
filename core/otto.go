@@ -20,6 +20,83 @@ func init() {
 		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
 		return
 	}
+	var o = NewBucket("otto")
+	get := func(call otto.FunctionCall) (result otto.Value) {
+		key := call.Argument(0).String()
+		value := call.Argument(1).String()
+		result, _ = otto.ToValue(o.Get(key, value))
+		return
+	}
+	set := func(call otto.FunctionCall) interface{} {
+		key := call.Argument(0).String()
+		value := call.Argument(1).String()
+		o.Set(key, value)
+		return otto.Value{}
+	}
+	sendMessage := func(call otto.Value) interface{} {
+		imType, _ := call.Object().Get("imType")
+		groupCode, _ := call.Object().Get("groupCode")
+		userID, _ := call.Object().Get("userID")
+		message, _ := call.Object().Get("message")
+		gid, _ := groupCode.ToInteger()
+		if gid != 0 {
+			if push, ok := GroupPushs[imType.String()]; ok {
+				uid, _ := userID.ToInteger()
+				push(int(gid), int(uid), message.String())
+			}
+		} else {
+			if push, ok := Pushs[imType.String()]; ok {
+				uid, _ := userID.ToInteger()
+				push(int(uid), message.String())
+			}
+		}
+		return otto.Value{}
+	}
+	request := func(call otto.Value) interface{} {
+		url := ""
+		dataType := ""
+		method := "get"
+		body := ""
+		{
+			v, _ := call.Object().Get("url")
+			url = v.String()
+		}
+		{
+			v, _ := call.Object().Get("dataType")
+			dataType = v.String()
+		}
+		{
+			v, _ := call.Object().Get("body")
+			body = v.String()
+		}
+		var req *httplib.BeegoHTTPRequest
+		switch strings.ToLower(method) {
+		case "delete":
+			req = httplib.Delete(url)
+		case "post":
+			req = httplib.Post(url)
+		case "put":
+			req = httplib.Put(url)
+		default:
+			req = httplib.Get(url)
+		}
+		if body != "" {
+			req.Body(body)
+		}
+		data, err := req.String()
+		if err != nil {
+			return otto.Value{}
+		}
+		if strings.Contains(dataType, "json") {
+			obj, _ := otto.New().Object(fmt.Sprintf(`(%s)`, data))
+			return obj
+		}
+		result, err := otto.ToValue(data)
+		if err != nil {
+			return otto.Value{}
+		}
+		return result
+	}
 	for _, v := range files {
 		if v.IsDir() {
 			continue
@@ -49,56 +126,17 @@ func init() {
 			logs.Warn("回复：%s找不到规则", jr, err)
 			continue
 		}
-		request := func(call otto.Value) interface{} {
-			url := ""
-			dataType := ""
-			method := "get"
-			body := ""
-			{
-				v, _ := call.Object().Get("url")
-				url = v.String()
-			}
-			{
-				v, _ := call.Object().Get("dataType")
-				dataType = v.String()
-			}
-			{
-				v, _ := call.Object().Get("body")
-				body = v.String()
-			}
-			var req *httplib.BeegoHTTPRequest
-			switch strings.ToLower(method) {
-			case "delete":
-				req = httplib.Delete(url)
-			case "post":
-				req = httplib.Post(url)
-			case "put":
-				req = httplib.Put(url)
-			default:
-				req = httplib.Get(url)
-			}
-			if body != "" {
-				req.Body(body)
-			}
-			data, err := req.String()
-			if err != nil {
-				return nil
-			}
 
-			if strings.Contains(dataType, "json") {
-				obj, _ := otto.New().Object(fmt.Sprintf(`(%s)`, data))
-				return obj
-			}
-			result, _ := otto.ToValue(data)
-			return result
-		}
 		var handler = func(s Sender) interface{} {
 			template := data
 			for k, v := range s.GetMatch() {
 				template = strings.Replace(template, fmt.Sprintf(`param(%d)`, k+1), fmt.Sprintf(`"%s"`, v), -1)
 			}
 			vm := otto.New()
+			vm.Set("set", set)
+			vm.Set("get", get)
 			vm.Set("request", request)
+			vm.Set("sendGroupMessage", sendMessage)
 			vm.Set("sendText", func(call otto.Value) interface{} {
 				s.Reply(call.String())
 				return nil
