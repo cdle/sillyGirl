@@ -259,6 +259,6 @@ func start() {
 		bot.SendPrivateMessage(int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: s}}})
 	}
 	core.GroupPushs["qq"] = func(i, j int, s string) {
-		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: int64(j)}, &message.TextElement{Content: s}}})
+		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: s}}}) //&message.AtElement{Target: int64(j)}
 	}
 }
