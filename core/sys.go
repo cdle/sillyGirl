@@ -8,12 +8,15 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/astaxie/beego/logs"
 )
 
 var BeforeStop = []func(){}
+
+var pidf = "/var/run/sillyGirl.pid"
 
 func Daemon() {
 	for _, bs := range BeforeStop {
@@ -34,7 +37,7 @@ func Daemon() {
 		panic(err)
 	}
 	logs.Info(sillyGirl.Get("name", "傻妞") + "以静默形式运行")
-	os.Exit(0)
+	os.WriteFile(pidf, []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 }
 
 func GitPull(filename string) (bool, error) {
@@ -66,16 +69,19 @@ func CompileCode() error {
 }
 
 func killp() {
-	pids, err := ppid()
-	if err == nil {
-		if len(pids) == 0 {
-			return
-		} else {
-			exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
-		}
-	} else {
-		return
-	}
+	data, _ := os.ReadFile(pidf)
+	pid := Int(string(data))
+	syscall.Kill(-pid, syscall.SIGKILL)
+	// pids, err := ppid()
+	// if err == nil {
+	// 	if len(pids) == 0 {
+	// 		return
+	// 	} else {
+	// 		exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
+	// 	}
+	// } else {
+	// 	return
+	// }
 }
 
 func ppid() ([]string, error) {
