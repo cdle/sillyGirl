@@ -232,7 +232,7 @@ func initSys() {
 				service := `
 [Service]
 Type=forking
-ExecStart=` + ExecPath + "/" + pname + ` -d
+ExecStart=` + ExecPath + "/sillyGirl" + ` -d
 PIDFile=/var/run/sillyGirl.pid
 Restart=always
 User=root
