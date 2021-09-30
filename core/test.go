@@ -54,7 +54,7 @@ func initSys() {
 			Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				if !sillyGirl.GetBool("auto_update", false) {
+				if !sillyGirl.GetBool("auto_update", true) {
 					return nil
 				}
 				s.Reply("开始检查核心更新...", E)
