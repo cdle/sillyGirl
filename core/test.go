@@ -227,12 +227,12 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"^开启不死模式"},
+			Rules: []string{"^守护傻妞"},
 			Handle: func(s Sender) interface{} {
 				service := `
 [Service]
 Type=forking
-ExecStart=` + ExecPath + "/" + pname + ` -d
+ExecStart=` + ExecPath + "/sillyGirl" + ` -d
 PIDFile=/var/run/sillyGirl.pid
 Restart=always
 User=root
@@ -246,8 +246,9 @@ Alias=sillyGirl.service`
 					s.Reply(err)
 					return nil
 				}
-				s.Reply(data)
+
 				if !strings.Contains(string(data), "bin") {
+					s.Reply(data)
 					return nil
 				}
 				os.WriteFile("/usr/lib/systemd/system/sillyGirl.service", []byte(service), 0o644)
