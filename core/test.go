@@ -11,12 +11,14 @@ import (
 func init() {
 	go func() {
 		v := sillyGirl.Get("rebootInfo")
+		defer sillyGirl.Set("rebootInfo", "")
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
 			if tp == "fake" && sillyGirl.GetBool("update_notify", false) == true { //
 				time.Sleep(time.Second * 10)
 				NotifyMasters("自动更新完成。")
+
 				return
 			}
 			msg := "重启完成。"
@@ -34,7 +36,6 @@ func init() {
 				}
 				time.Sleep(time.Second)
 			}
-			sillyGirl.Set("rebootInfo", "")
 		}
 	}()
 }
