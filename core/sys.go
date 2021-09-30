@@ -36,7 +36,7 @@ func Daemon() {
 		panic(err)
 	}
 	logs.Info(sillyGirl.Get("name", "傻妞") + "以静默形式运行")
-	WriteToFile(pidf, (fmt.Sprintf("%d", proc.Process.Pid)))
+	os.WriteFile(pidf, []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 	os.Exit(0)
 }
 
