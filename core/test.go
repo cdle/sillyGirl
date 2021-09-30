@@ -227,7 +227,7 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"^开启不死模式"},
+			Rules: []string{"^守护傻妞"},
 			Handle: func(s Sender) interface{} {
 				service := `
 [Service]
