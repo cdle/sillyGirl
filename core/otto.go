@@ -33,21 +33,21 @@ func init() {
 		o.Set(key, value)
 		return otto.Value{}
 	}
-	sendMessage := func(call otto.Value) interface{} {
+	push := func(call otto.Value) interface{} {
 		imType, _ := call.Object().Get("imType")
 		groupCode, _ := call.Object().Get("groupCode")
 		userID, _ := call.Object().Get("userID")
-		message, _ := call.Object().Get("message")
+		content, _ := call.Object().Get("content")
 		gid, _ := groupCode.ToInteger()
 		if gid != 0 {
 			if push, ok := GroupPushs[imType.String()]; ok {
 				uid, _ := userID.ToInteger()
-				push(int(gid), int(uid), message.String())
+				push(int(gid), int(uid), content.String())
 			}
 		} else {
 			if push, ok := Pushs[imType.String()]; ok {
 				uid, _ := userID.ToInteger()
-				push(int(uid), message.String())
+				push(int(uid), content.String())
 			}
 		}
 		return otto.Value{}
@@ -122,6 +122,14 @@ func init() {
 		for _, v := range regexp.MustCompile(`\[rule:\s*([^\s\[\]]+)\s*\]`).FindAllStringSubmatch(data, -1) {
 			rules = append(rules, v[1])
 		}
+		cron := ""
+		if res := regexp.MustCompile(`\[cron:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+			cron = strings.Trim(res[1], " ")
+		}
+		admin := false
+		if regexp.MustCompile(`\[cron:\s*true\]`).FindString(data) != "" {
+			admin = true
+		}
 		if len(rules) == 0 {
 			logs.Warn("回复：%s找不到规则", jr, err)
 			continue
@@ -136,7 +144,7 @@ func init() {
 			vm.Set("set", set)
 			vm.Set("get", get)
 			vm.Set("request", request)
-			vm.Set("sendGroupMessage", sendMessage)
+			vm.Set("push", push)
 			vm.Set("sendText", func(call otto.Value) interface{} {
 				s.Reply(call.String())
 				return nil
@@ -165,6 +173,8 @@ func init() {
 		functions = append(functions, Function{
 			Handle: handler,
 			Rules:  rules,
+			Cron:   cron,
+			Admin:  admin,
 		})
 	}
 }
