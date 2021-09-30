@@ -169,11 +169,13 @@ func init() {
 			return result
 		}
 		logs.Warn("回复：%s添加成功", jr)
-		functions = append(functions, Function{
-			Handle: handler,
-			Rules:  rules,
-			Cron:   cron,
-			Admin:  admin,
+		AddCommand("", []Function{
+			{
+				Handle: handler,
+				Rules:  rules,
+				Cron:   cron,
+				Admin:  admin,
+			},
 		})
 	}
 }
