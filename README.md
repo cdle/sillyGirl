@@ -16,6 +16,10 @@ set sillyGirl duration 5
 
 set sillyGirl update_notify false
 
+#### 是否开启傻妞自动更新
+
+set sillyGirl auto_update true
+
 ##### 傻妞内置赞赏码
 
 set sillyGirl appreciate https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg
