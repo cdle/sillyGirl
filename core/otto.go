@@ -119,22 +119,21 @@ func init() {
 			data = string(v)
 		}
 		rules := []string{}
-		for _, v := range regexp.MustCompile(`\[rule:\s*([^\s\[\]]+)\s*\]`).FindAllStringSubmatch(data, -1) {
-			rules = append(rules, v[1])
+		for _, res := range regexp.MustCompile(`\[rule:([^\[\]]+)\]`).FindAllStringSubmatch(data, -1) {
+			rules = append(rules, strings.Trim(res[1], " "))
 		}
 		cron := ""
 		if res := regexp.MustCompile(`\[cron:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			cron = strings.Trim(res[1], " ")
 		}
 		admin := false
-		if regexp.MustCompile(`\[cron:\s*true\]`).FindString(data) != "" {
-			admin = true
+		if res := regexp.MustCompile(`\[admin:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+			admin = strings.Trim(res[1], " ") == "true"
 		}
 		if len(rules) == 0 {
 			logs.Warn("回复：%s找不到规则", jr, err)
 			continue
 		}
-
 		var handler = func(s Sender) interface{} {
 			template := data
 			for k, v := range s.GetMatch() {
