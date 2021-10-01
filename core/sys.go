@@ -60,7 +60,9 @@ func GitPull(filename string) (bool, error) {
 }
 
 func CompileCode() error {
+
 	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname)
+	NotifyMasters("cd " + ExecPath + " && go build -o " + pname)
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New("编译失败：" + err.Error() + "。")
