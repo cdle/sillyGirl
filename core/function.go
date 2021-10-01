@@ -1,6 +1,7 @@
 package core
 
 import (
+	"os"
 	"regexp"
 	"strings"
 
@@ -23,7 +24,7 @@ type Function struct {
 	Cron    string
 }
 
-var pname = string(sillyGirl)
+var pname = regexp.MustCompile(`/([^/\s]+)`).FindStringSubmatch(os.Args[0])[1]
 
 var name = func() string {
 	return sillyGirl.Get("name", "傻妞")
