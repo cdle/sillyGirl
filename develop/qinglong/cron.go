@@ -203,6 +203,9 @@ func init() {
 					return nil
 				}
 				w := func(s string) int {
+					if strings.Contains(s, "cdle") {
+						return 20
+					}
 					if strings.Contains(s, "shufflewzc") {
 						return 1
 					}
