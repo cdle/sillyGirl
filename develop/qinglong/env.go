@@ -32,7 +32,7 @@ func GetEnv(id string) (*Env, error) {
 
 func GetEnvs(searchValue string) ([]Env, error) {
 	er := EnvResponse{}
-	if err := Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+	if err := Config.Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
 		return nil, err
 	}
 	return er.Data, nil
@@ -54,14 +54,14 @@ func SetEnv(e Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
-			return Req(PUT, ENVS, env)
+			return Config.Req(PUT, ENVS, env)
 		}
 	}
 	return AddEnv(e)
 }
 
 func UdpEnv(env Env) error {
-	return Req(PUT, ENVS, env)
+	return Config.Req(PUT, ENVS, env)
 }
 
 func ModEnv(e Env) error {
@@ -80,16 +80,16 @@ func ModEnv(e Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
-			return Req(PUT, ENVS, env)
+			return Config.Req(PUT, ENVS, env)
 		}
 	}
 	return errors.New("找不到环境变量")
 }
 
 func AddEnv(e Env) error {
-	return Req(POST, ENVS, []Env{e})
+	return Config.Req(POST, ENVS, []Env{e})
 }
 
 func RemEnv(e *Env) error {
-	return Req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
+	return Config.Req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
 }
