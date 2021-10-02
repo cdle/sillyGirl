@@ -15,16 +15,16 @@ import (
 	"github.com/cdle/sillyGirl/core"
 )
 
-type Yaml struct {
-	Host         string
-	ClientID     string `yaml:"client_id"`
-	ClientSecret string `yaml:"client_secret"`
+type QingLong struct {
+	Host         string `json:"host"`
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Token        string
 }
 
-var Config Yaml
+var Config *QingLong
 var qinglong = core.NewBucket("qinglong")
 
-var token string
 var expiration int64
 var GET = "GET"
 var PUT = "PUT"
@@ -40,23 +40,27 @@ type Carrier struct {
 }
 
 func init() {
+	Config = &QingLong{}
 	Config.Host = qinglong.Get("host")
 	Config.ClientID = qinglong.Get("client_id")
 	Config.ClientSecret = qinglong.Get("client_secret")
+	if Config.Host == "" {
+		return
+	}
 	if v := regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindStringSubmatch(Config.Host); len(v) == 2 {
 		Config.Host = v[1]
 	}
-	_, err := getToken()
+	_, err := Config.GetToken()
 	if err == nil {
 		logs.Info("青龙已连接")
 	}
 }
 
-func getToken() (string, error) {
-	if token != "" && expiration > time.Now().Unix() {
-		return token, nil
+func (ql *QingLong) GetToken() (string, error) {
+	if ql.Token != "" && expiration > time.Now().Unix() {
+		return ql.Token, nil
 	}
-	req := httplib.Get(fmt.Sprintf("%s/open/auth/token?client_id=%s&client_secret=%s", Config.Host, Config.ClientID, Config.ClientSecret))
+	req := httplib.Get(fmt.Sprintf("%s/open/auth/token?client_id=%s&client_secret=%s", ql.Host, ql.ClientID, ql.ClientSecret))
 	data, err := req.Bytes()
 	if err != nil {
 		msg := fmt.Sprintf("青龙连接失败：%v", err)
@@ -69,13 +73,13 @@ func getToken() (string, error) {
 		logs.Warn(msg)
 		return "", errors.New(msg)
 	}
-	token, _ = jsonparser.GetString(data, "data", "token")
+	ql.Token, _ = jsonparser.GetString(data, "data", "token")
 	expiration, _ = jsonparser.GetInt(data, "data", "expiration")
-	return token, nil
+	return ql.Token, nil
 }
 
-func Req(ps ...interface{}) error {
-	token, err := getToken()
+func (ql *QingLong) Req(ps ...interface{}) error {
+	token, err := ql.GetToken()
 	if err != nil {
 		return err
 	}
@@ -116,22 +120,19 @@ func Req(ps ...interface{}) error {
 	api = strings.Trim(api, " ")
 	switch method {
 	case GET:
-		req = httplib.Get(Config.Host + "/open/" + api)
+		req = httplib.Get(ql.Host + "/open/" + api)
 	case POST:
-		req = httplib.Post(Config.Host + "/open/" + api)
+		req = httplib.Post(ql.Host + "/open/" + api)
 	case DELETE:
-		req = httplib.Delete(Config.Host + "/open/" + api)
+		req = httplib.Delete(ql.Host + "/open/" + api)
 	case PUT:
-		req = httplib.Put(Config.Host + "/open/" + api)
+		req = httplib.Put(ql.Host + "/open/" + api)
 	}
 	req.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header("Content-Type", "application/json;charset=UTF-8")
 	if method != GET {
 		req.Body(body)
 	}
-	// fmt.Println(Config.Host + "/open/" + api)
-	// fmt.Println(method)
-	// fmt.Println(string(body))
 	data, err := req.Bytes()
 	if err != nil {
 		return err
