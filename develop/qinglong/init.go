@@ -79,6 +79,9 @@ func (ql *QingLong) GetToken() (string, error) {
 }
 
 func (ql *QingLong) Req(ps ...interface{}) error {
+	if ql.Host == "" {
+		return nil
+	}
 	token, err := ql.GetToken()
 	if err != nil {
 		return err
