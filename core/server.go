@@ -11,6 +11,9 @@ func init() {
 var Tail = "--来自sillyGirl，傻妞技术交流群654346133。"
 
 func RunServer() {
+	if sillyGirl.GetBool("enable_http_server", false) == false {
+		return
+	}
 	Server.GET("/", func(c *gin.Context) {
 		c.String(200, Tail)
 	})
