@@ -41,7 +41,7 @@ type Carrier struct {
 
 func init() {
 	Config = &QingLong{}
-	Config.Host = qinglong.Get("host")
+	Config.Host = qinglong.Get("host", "http://127.0.0.1:5700")
 	Config.ClientID = qinglong.Get("client_id")
 	Config.ClientSecret = qinglong.Get("client_secret")
 	if Config.Host == "" {
