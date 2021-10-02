@@ -199,6 +199,9 @@ func init() {
 			Admin: true,
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
+				if Config.Host == "" {
+					return nil
+				}
 				if s.GetImType() == "fake" && qinglong.GetBool("autoCronHideDuplicate", true) == false {
 					return nil
 				}
