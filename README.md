@@ -24,6 +24,10 @@ set sillyGirl auto_update true
 
 set sillyGirl appreciate https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg
 
+#### 是否启动http服务
+
+set sillyGirl enable_http_server false
+
 ##### 设置青龙openapi的client_id参数
 
 set qinglong client_id ?
