@@ -30,6 +30,7 @@ type Sender interface {
 type Edit int
 type Replace int
 type Notify int
+type Article []string
 
 var E Edit
 var R Replace

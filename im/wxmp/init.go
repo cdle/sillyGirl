@@ -65,7 +65,7 @@ func init() {
 				}
 			}
 			mediaID := ""
-			if url != "" {
+			if url != "" && len(ss) == 0 {
 				filename := file_dir + fmt.Sprint(time.Now().UnixNano()) + ".jpg"
 				err := func() error {
 					f, err := os.Create(filename)

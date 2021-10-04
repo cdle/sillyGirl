@@ -20,7 +20,6 @@ func init() {
 			if tp == "fake" && sillyGirl.GetBool("update_notify", false) == true { //
 				time.Sleep(time.Second * 10)
 				NotifyMasters("自动更新完成。")
-
 				return
 			}
 			msg := "重启完成。"
