@@ -31,6 +31,9 @@ func (ct *Chat) Push(content interface{}) {
 }
 
 func NotifyMasters(content string) {
+	if sillyGirl.GetBool("ignore_notify", true) == true {
+		return
+	}
 	for _, class := range []string{"tg", "qq"} {
 		notify := Bucket(class).Get("notifiers")
 		if notify == "" {
