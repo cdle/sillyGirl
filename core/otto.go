@@ -9,58 +9,65 @@ import (
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/beego/beego/v2/adapter/logs"
-	"github.com/dop251/goja"
+	"github.com/robertkrimen/otto"
 )
 
 type JsReply string
 
 func init() {
-
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
 		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
 		return
 	}
 	var o = NewBucket("otto")
-	get := func(call goja.FunctionCall) string {
+	get := func(call otto.FunctionCall) (result otto.Value) {
 		key := call.Argument(0).String()
 		value := call.Argument(1).String()
-		return o.Get(key, value)
+		result, _ = otto.ToValue(o.Get(key, value))
+		return
 	}
-	set := func(call goja.FunctionCall) {
+	set := func(call otto.FunctionCall) interface{} {
 		key := call.Argument(0).String()
 		value := call.Argument(1).String()
 		o.Set(key, value)
+		return otto.Value{}
 	}
-	push := func(call goja.Value) {
-		imType := call.ToObject(nil).Get("imType").String()
-		groupCode := call.ToObject(nil).Get("groupCode").ToInteger()
-		userID := call.ToObject(nil).Get("userID").ToInteger()
-		content := call.ToObject(nil).Get("content").String()
-		if groupCode != 0 {
-			if push, ok := GroupPushs[imType]; ok {
-				push(int(groupCode), int(userID), content)
+	push := func(call otto.Value) interface{} {
+		imType, _ := call.Object().Get("imType")
+		groupCode, _ := call.Object().Get("groupCode")
+		userID, _ := call.Object().Get("userID")
+		content, _ := call.Object().Get("content")
+		gid, _ := groupCode.ToInteger()
+		if gid != 0 {
+			if push, ok := GroupPushs[imType.String()]; ok {
+				uid, _ := userID.ToInteger()
+				push(int(gid), int(uid), content.String())
 			}
 		} else {
-			if push, ok := Pushs[imType]; ok {
-				push(int(userID), content)
+			if push, ok := Pushs[imType.String()]; ok {
+				uid, _ := userID.ToInteger()
+				push(int(uid), content.String())
 			}
 		}
+		return otto.Value{}
 	}
-	request := func(call goja.Value) interface{} {
+	request := func(call otto.Value) interface{} {
 		url := ""
 		dataType := ""
 		method := "get"
 		body := ""
 		{
-			url = call.ToObject(nil).Get("url").String()
+			v, _ := call.Object().Get("url")
+			url = v.String()
 		}
 		{
-			dataType = call.ToObject(nil).Get("dataType").String()
+			v, _ := call.Object().Get("dataType")
+			dataType = v.String()
 		}
 		{
-			v := call.ToObject(nil).Get("body").String()
-			body = v
+			v, _ := call.Object().Get("body")
+			body = v.String()
 		}
 		var req *httplib.BeegoHTTPRequest
 		switch strings.ToLower(method) {
@@ -78,16 +85,20 @@ func init() {
 		}
 		data, err := req.String()
 		if err != nil {
-			return goja.Undefined()
+			return otto.Value{}
 		}
 		if strings.Contains(dataType, "json") {
-			// obj, err := goja.New().Object(fmt.Sprintf(`(%s)`, data))
-			// if err != nil {
-			// 	return goja.Undefined()
-			// }
-			// return obj
+			obj, err := otto.New().Object(fmt.Sprintf(`(%s)`, data))
+			if err != nil {
+				return otto.Value{}
+			}
+			return obj
 		}
-		return data
+		result, err := otto.ToValue(data)
+		if err != nil {
+			return otto.Value{}
+		}
+		return result
 	}
 	for _, v := range files {
 		if v.IsDir() {
@@ -131,19 +142,20 @@ func init() {
 			for k, v := range s.GetMatch() {
 				template = strings.Replace(template, fmt.Sprintf(`param(%d)`, k+1), fmt.Sprintf(`"%s"`, v), -1)
 			}
-			vm := goja.New()
+			vm := otto.New()
 			vm.Set("set", set)
 			vm.Set("get", get)
 			vm.Set("request", request)
 			vm.Set("push", push)
-			vm.Set("sendText", func(call goja.Value) {
+			vm.Set("sendText", func(call otto.Value) interface{} {
 				s.Reply(call.String())
-
+				return otto.Value{}
 			})
-			vm.Set("sendImage", func(call goja.Value) {
+			vm.Set("sendImage", func(call otto.Value) interface{} {
 				s.Reply(ImageUrl(call.String()))
+				return otto.Value{}
 			})
-			rt, err := vm.RunString(template + `
+			rt, err := vm.Run(template + `
 ""
 `)
 			if err != nil {
