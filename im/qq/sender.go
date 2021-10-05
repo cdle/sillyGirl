@@ -151,6 +151,9 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	if spy_on := qq.Get("spy_on"); spy_on != "" && strings.Contains(spy_on, fmt.Sprint(sender.GetChatID())) {
+		return 0, nil
+	}
 	msg := msgs[0]
 	for _, item := range msgs {
 		switch item.(type) {
