@@ -59,12 +59,10 @@ func init() {
 		core.GroupPushs["tg"] = func(i, j int, s string) {
 			paths := []string{}
 			ct := &tb.Chat{ID: int64(i)}
-			b.Send(ct, s)
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			}
-
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
