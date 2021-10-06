@@ -62,8 +62,9 @@ func init() {
 				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			}
-			ct := &tb.Chat{ID: int64(i)}
 
+			ct := &tb.Chat{ID: int64(i)}
+			b.Send(ct, s)
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
