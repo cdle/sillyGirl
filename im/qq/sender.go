@@ -75,19 +75,6 @@ func (sender *Sender) GetMessageID() int {
 	return id
 }
 
-func (sender *Sender) GetUsername() string {
-	name := ""
-	switch sender.Message.(type) {
-	case *message.PrivateMessage:
-		name = sender.Message.(*message.PrivateMessage).Sender.Nickname
-	case *message.TempMessage:
-		name = sender.Message.(*message.TempMessage).Sender.Nickname
-	case *message.GroupMessage:
-		name = sender.Message.(*message.GroupMessage).Sender.Nickname
-	}
-	return name
-}
-
 func (sender *Sender) IsReply() bool {
 	return false
 }
@@ -280,7 +267,7 @@ func (sender *Sender) Finish() {
 
 }
 
-func (sender *Sender) GetUserName() string {
+func (sender *Sender) GetUsername() string {
 
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:

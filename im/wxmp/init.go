@@ -206,10 +206,6 @@ func (sender *Sender) Finish() {
 	sender.Wait <- sender.Responses
 }
 
-func (sender *Sender) GetUserName() string {
-	return ""
-}
-
 func (sender *Sender) Continue() {
 	sender.goon = true
 }
