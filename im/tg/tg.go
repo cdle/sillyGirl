@@ -58,6 +58,7 @@ func init() {
 		}
 		core.GroupPushs["tg"] = func(i, j int, s string) {
 			paths := []string{}
+
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
