@@ -271,9 +271,9 @@ func start() {
 		}
 	})
 	core.Pushs["qq"] = func(i int, s string) {
-		bot.SendPrivateMessage(int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: s}}})
+		bot.SendPrivateMessage(int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 	}
 	core.GroupPushs["qq"] = func(i, j int, s string) {
-		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: []message.IMessageElement{&message.TextElement{Content: s}}}) //&message.AtElement{Target: int64(j)}
+		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, true)}) //&message.AtElement{Target: int64(j)}
 	}
 }
