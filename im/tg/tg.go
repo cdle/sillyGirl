@@ -44,9 +44,10 @@ func init() {
 		}
 		var err error
 		b, err = tb.NewBot(tb.Settings{
-			URL:    tg.Get("url"),
-			Token:  token,
-			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+			URL:       tg.Get("url"),
+			Token:     token,
+			Poller:    &tb.LongPoller{Timeout: 10 * time.Second},
+			ParseMode: tb.ModeMarkdown,
 		})
 
 		if err != nil {
