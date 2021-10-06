@@ -252,3 +252,7 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 func (sender *Sender) Finish() {
 
 }
+
+func (sender *Sender) GetUserName() string {
+	return sender.Message.Chat.Username
+}
