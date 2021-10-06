@@ -2,6 +2,8 @@ package tg
 
 import (
 	"fmt"
+	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -55,7 +57,22 @@ func init() {
 			b.Send(&tb.User{ID: i}, s)
 		}
 		core.GroupPushs["tg"] = func(i, j int, s string) {
-			b.Send(&tb.Chat{ID: int64(i)}, s)
+			paths := []string{}
+			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
+				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
+				s = strings.Replace(s, fmt.Sprintf(v[0]), "", -1)
+			}
+			ct := &tb.Chat{ID: int64(i)}
+			b.Send(ct, s)
+			for _, path := range paths {
+				func() {
+					f, err := os.Open(path)
+					if err == nil {
+						defer f.Close()
+						b.SendAlbum(ct, tb.Album{&tb.Photo{File: tb.FromReader(f)}})
+					}
+				}()
+			}
 		}
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
@@ -201,6 +218,17 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			})
 		}
 		rt, err = b.Send(r, msg.(string), options...)
+	case core.ImagePath:
+		f, err := os.Open(string(msg.(core.ImagePath)))
+		if err != nil {
+			sender.Reply(err)
+			return 0, nil
+		} else {
+			rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
+			if err == nil {
+				rt = &rts[0]
+			}
+		}
 	case core.ImageUrl:
 		rsp, err := httplib.Get(string(msg.(core.ImageUrl))).Response()
 		if err != nil {
