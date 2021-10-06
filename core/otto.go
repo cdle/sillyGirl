@@ -122,7 +122,7 @@ func init() {
 			data = string(v)
 		}
 		rules := []string{}
-		for _, res := range regexp.MustCompile(`\[rule:([^\[\]]+)\]`).FindAllStringSubmatch(data, -1) {
+		for _, res := range regexp.MustCompile(`\[rule:(.+)\]`).FindAllStringSubmatch(data, -1) {
 			rules = append(rules, strings.Trim(res[1], " "))
 		}
 		cron := ""
