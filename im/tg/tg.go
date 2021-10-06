@@ -69,6 +69,7 @@ func init() {
 					f, err := os.Open(path)
 					if err == nil {
 						defer f.Close()
+						b.Send(ct, path)
 						b.SendAlbum(ct, tb.Album{&tb.Photo{File: tb.FromReader(f)}})
 					}
 				}()
