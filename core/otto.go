@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/beego/beego/v2/adapter/logs"
@@ -15,6 +16,13 @@ import (
 type JsReply string
 
 func init() {
+	go func() {
+		time.Sleep(time.Second)
+		init123()
+	}()
+}
+
+func init123() {
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
 		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
