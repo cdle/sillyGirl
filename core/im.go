@@ -39,6 +39,7 @@ var R Replace
 var N Notify
 
 type ImageUrl string
+type ImagePath string
 
 type Faker struct {
 	Message string
