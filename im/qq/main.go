@@ -93,6 +93,18 @@ func start() {
 
 	log.AddHook(global.NewLocalHook(w, logFormatter, global.GetLogLevel(conf.Output.LogLevel)...))
 
+	mkCacheDir := func(path string, _type string) {
+		if !global.PathExists(path) {
+			if err := os.MkdirAll(path, 0o755); err != nil {
+				log.Fatalf("创建%s缓存文件夹失败: %v", _type, err)
+			}
+		}
+	}
+	mkCacheDir(global.ImagePath, "图片")
+	mkCacheDir(global.VoicePath, "语音")
+	mkCacheDir(global.VideoPath, "视频")
+	mkCacheDir(global.CachePath, "发送图片")
+
 	if device := qq.Get("device.json"); device == "" {
 		client.GenRandomDevice()
 		qq.Set("device.json", string(client.SystemDeviceInfo.ToJson()))
