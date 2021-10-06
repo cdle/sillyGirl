@@ -63,21 +63,29 @@ func init() {
 				s = strings.Replace(s, fmt.Sprintf(v[0]), "", -1)
 			}
 			ct := &tb.Chat{ID: int64(i)}
-			b.Send(ct, s)
-			for _, path := range paths {
-				func() {
+
+			if len(paths) > 0 {
+				is := []tb.InputMedia{}
+				for index, path := range paths {
 					data, err := os.ReadFile(path)
 					if err == nil {
 						url := regexp.MustCompile("(https.*)").FindString(string(data))
 						if url != "" {
 							rsp, err := httplib.Get(url).Response()
 							if err == nil {
-								b.SendAlbum(ct, tb.Album{&tb.Photo{File: tb.FromReader(rsp.Body)}})
+								i := &tb.Photo{File: tb.FromReader(rsp.Body)}
+								if index == 0 {
+									i.Caption = s
+								}
+								is = append(is, i)
 							}
 						}
 					}
-				}()
+				}
+				b.SendAlbum(ct, is)
+				return
 			}
+			b.Send(ct, s)
 		}
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
