@@ -254,5 +254,5 @@ func (sender *Sender) Finish() {
 }
 
 func (sender *Sender) GetUserName() string {
-	return sender.Message.Chat.Username
+	return sender.Message.Sender.Username
 }
