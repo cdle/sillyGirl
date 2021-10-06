@@ -158,7 +158,11 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUserName())
 				return v
 			}
+			Continue := func() {
+				s.Continue()
+			}
 			vm := otto.New()
+			vm.Set("Continue", Continue)
 			vm.Set("GetUserName", GetUserName)
 			vm.Set("set", set)
 			vm.Set("param", param)

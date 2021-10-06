@@ -17,6 +17,7 @@ type Sender struct {
 	matches  [][]string
 	Duration *time.Duration
 	deleted  bool
+	goon     bool
 }
 
 func (sender *Sender) GetContent() string {
@@ -302,4 +303,12 @@ func (sender *Sender) GetUserName() string {
 		return m.Sender.Nickname
 	}
 	return ""
+}
+
+func (sender *Sender) Continue() {
+	sender.goon = true
+}
+
+func (sender *Sender) IsContinue() bool {
+	return sender.goon
 }

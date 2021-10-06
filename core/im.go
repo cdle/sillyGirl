@@ -26,6 +26,8 @@ type Sender interface {
 	Delete() error
 	Disappear(lifetime ...time.Duration)
 	Finish()
+	Continue()
+	IsContinue() bool
 }
 
 type Edit int
@@ -156,4 +158,12 @@ func (sender *Faker) Finish() {
 
 func (sender *Faker) GetUserName() string {
 	return ""
+}
+
+func (sender *Faker) Continue() {
+
+}
+
+func (sender *Faker) IsContinue() bool {
+	return true
 }
