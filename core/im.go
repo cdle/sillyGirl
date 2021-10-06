@@ -19,7 +19,6 @@ type Sender interface {
 	GetAllMatch() [][]string
 	Get(...int) string
 	GetContent() string
-	GetUserName() string
 	IsAdmin() bool
 	IsMedia() bool
 	Reply(...interface{}) (int, error)
@@ -154,10 +153,6 @@ func (sender *Faker) Disappear(lifetime ...time.Duration) {
 
 func (sender *Faker) Finish() {
 
-}
-
-func (sender *Faker) GetUserName() string {
-	return ""
 }
 
 func (sender *Faker) Continue() {

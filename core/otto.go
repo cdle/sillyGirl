@@ -146,8 +146,8 @@ func init() {
 				v, _ := otto.ToValue(s.Get(int(i - 1)))
 				return v
 			}
-			GetUserName := func() otto.Value {
-				v, _ := otto.ToValue(s.GetUserName())
+			GetUsername := func() otto.Value {
+				v, _ := otto.ToValue(s.GetUsername())
 				return v
 			}
 			Continue := func() {
@@ -155,7 +155,7 @@ func init() {
 			}
 			vm := otto.New()
 			vm.Set("Continue", Continue)
-			vm.Set("GetUserName", GetUserName)
+			vm.Set("GetUsername", GetUsername)
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
