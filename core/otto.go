@@ -139,7 +139,6 @@ func init() {
 		}
 		var handler = func(s Sender) interface{} {
 			template := data
-
 			template = strings.Replace(template, "ImType()", fmt.Sprintf(`"%s"`, s.GetImType()), -1)
 			template = strings.Replace(template, "GetChatID()", fmt.Sprint(s.GetChatID()), -1)
 			param := func(call otto.Value) otto.Value {
@@ -147,7 +146,12 @@ func init() {
 				v, _ := otto.ToValue(s.Get(int(i - 1)))
 				return v
 			}
+			GetUserName := func(_ otto.Value) otto.Value {
+				v, _ := otto.ToValue(s.GetUserName())
+				return v
+			}
 			vm := otto.New()
+			vm.Set("GetUserName", GetUserName)
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
@@ -170,7 +174,7 @@ func init() {
 			result := rt.String()
 			for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*\]`).FindAllStringSubmatch(result, -1) {
 				s.Reply(ImageUrl(v[1]))
-				result = strings.Replace(result, fmt.Sprintf(`[image:%s]`, v[1]), "", -1)
+				result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
 			}
 			if result == "" {
 				return nil

@@ -278,3 +278,18 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 func (sender *Sender) Finish() {
 
 }
+
+func (sender *Sender) GetUserName() string {
+	switch sender.Message.(type) {
+	case *message.PrivateMessage:
+		m := sender.Message.(*message.PrivateMessage)
+		return m.Sender.Nickname
+	case *message.TempMessage:
+		m := sender.Message.(*message.TempMessage)
+		return m.Sender.Nickname
+	case *message.GroupMessage:
+		m := sender.Message.(*message.GroupMessage)
+		return m.Sender.Nickname
+	}
+	return ""
+}
