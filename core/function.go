@@ -79,6 +79,7 @@ func AddCommand(prefix string, cmds []Function) {
 }
 
 func handleMessage(sender Sender) {
+	defer sender.Finish()
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool
@@ -109,10 +110,13 @@ func handleMessage(sender Sender) {
 				if rt != nil {
 					sender.Reply(rt)
 				}
-				sender.Finish()
+				if sender.IsContinue() {
+					goto goon
+				}
 				return
 			}
 		}
+	goon:
 	}
 }
 

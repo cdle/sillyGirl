@@ -110,6 +110,7 @@ type Sender struct {
 	Responses []interface{}
 	Wait      chan []interface{}
 	uid       int
+	goon      bool
 }
 
 func (sender *Sender) GetContent() string {
@@ -207,4 +208,12 @@ func (sender *Sender) Finish() {
 
 func (sender *Sender) GetUserName() string {
 	return ""
+}
+
+func (sender *Sender) Continue() {
+	sender.goon = true
+}
+
+func (sender *Sender) IsContinue() bool {
+	return sender.goon
 }
