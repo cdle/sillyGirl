@@ -47,7 +47,7 @@ func init() {
 			URL:       tg.Get("url"),
 			Token:     token,
 			Poller:    &tb.LongPoller{Timeout: 10 * time.Second},
-			ParseMode: tb.ModeMarkdown,
+			ParseMode: tb.ModeMarkdownV2,
 		})
 
 		if err != nil {
