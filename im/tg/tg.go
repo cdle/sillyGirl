@@ -83,7 +83,11 @@ func (sender *Sender) GetMessageID() int {
 }
 
 func (sender *Sender) GetUsername() string {
-	return sender.Message.Sender.Username
+	name := sender.Message.Sender.Username
+	if name == "" {
+		name = fmt.Sprint(sender.Message.Sender.ID)
+	}
+	return name
 }
 
 func (sender *Sender) IsReply() bool {
@@ -254,5 +258,9 @@ func (sender *Sender) Finish() {
 }
 
 func (sender *Sender) GetUserName() string {
-	return sender.Message.Sender.Username
+	name := sender.Message.Sender.Username
+	if name == "" {
+		name = fmt.Sprint(sender.Message.Sender.ID)
+	}
+	return name
 }
