@@ -280,15 +280,25 @@ func (sender *Sender) Finish() {
 }
 
 func (sender *Sender) GetUserName() string {
+
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
+		if m.Sender.Nickname == "" {
+			return fmt.Sprint(m.Sender.Uin)
+		}
 		return m.Sender.Nickname
 	case *message.TempMessage:
 		m := sender.Message.(*message.TempMessage)
+		if m.Sender.Nickname == "" {
+			return fmt.Sprint(m.Sender.Uin)
+		}
 		return m.Sender.Nickname
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
+		if m.Sender.Nickname == "" {
+			return fmt.Sprint(m.Sender.Uin)
+		}
 		return m.Sender.Nickname
 	}
 	return ""
