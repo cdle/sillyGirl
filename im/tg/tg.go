@@ -66,11 +66,15 @@ func init() {
 			b.Send(ct, s)
 			for _, path := range paths {
 				func() {
-					f, err := os.Open(path)
+					data, err := os.ReadFile(path)
 					if err == nil {
-						defer f.Close()
-						b.Send(ct, path)
-						b.SendAlbum(ct, tb.Album{&tb.Photo{File: tb.FromReader(f)}})
+						url := regexp.MustCompile("(https.*)").FindString(string(data))
+						if url != "" {
+							rsp, err := httplib.Get(url).Response()
+							if err == nil {
+								b.SendAlbum(ct, tb.Album{&tb.Photo{File: tb.FromReader(rsp.Body)}})
+							}
+						}
 					}
 				}()
 			}
