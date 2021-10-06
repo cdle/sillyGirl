@@ -139,13 +139,17 @@ func init() {
 		}
 		var handler = func(s Sender) interface{} {
 			template := data
-			for k, v := range s.GetMatch() {
-				template = strings.Replace(template, fmt.Sprintf(`param(%d)`, k+1), fmt.Sprintf(`"%s"`, v), -1)
-			}
+
 			template = strings.Replace(template, "ImType()", fmt.Sprintf(`"%s"`, s.GetImType()), -1)
 			template = strings.Replace(template, "GetChatID()", fmt.Sprint(s.GetChatID()), -1)
+			param := func(call otto.Value) otto.Value {
+				i, _ := call.ToInteger()
+				v, _ := otto.ToValue(s.Get(int(i - 1)))
+				return v
+			}
 			vm := otto.New()
 			vm.Set("set", set)
+			vm.Set("param", param)
 			vm.Set("get", get)
 			vm.Set("request", request)
 			vm.Set("push", push)
