@@ -139,9 +139,7 @@ func init() {
 		}
 		var handler = func(s Sender) interface{} {
 			template := data
-			for k, v := range s.GetMatch() {
-				template = strings.Replace(template, fmt.Sprintf(`param(%d)`, k+1), fmt.Sprintf(`"%s"`, v), -1)
-			}
+
 			template = strings.Replace(template, "ImType()", fmt.Sprintf(`"%s"`, s.GetImType()), -1)
 			template = strings.Replace(template, "GetChatID()", fmt.Sprint(s.GetChatID()), -1)
 			param := func(call otto.Value) otto.Value {
