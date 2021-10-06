@@ -63,6 +63,15 @@ func init() {
 				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			}
+			{
+				t := []string{}
+				for _, v := range strings.Split(s, "\n") {
+					if v != "" {
+						t = append(t, v)
+					}
+				}
+				s = strings.Join(t, "\n")
+			}
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
