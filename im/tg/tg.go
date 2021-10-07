@@ -112,15 +112,15 @@ func init() {
 			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
 			Handler(m)
 		})
-		b.Handle(tb.OnSticker, func(m *tb.Message) {
-			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-			filepath := core.ExecPath + "/data/images/" + filename
-			if b.Download(&m.Sticker.File, filepath) == nil {
+		// b.Handle(tb.OnSticker, func(m *tb.Message) {
+		// 	filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+		// 	filepath := core.ExecPath + "/data/images/" + filename
+		// 	if b.Download(&m.Sticker.File, filepath) == nil {
 
-			}
-			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-			Handler(m)
-		})
+		// 	}
+		// 	m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+		// 	Handler(m)
+		// })
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
 		b.Start()
