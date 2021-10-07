@@ -105,7 +105,8 @@ func init() {
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
 			data, _ := json.Marshal(m.Photo)
-			b.Send(m.Chat, data)
+			// b.Send(m.Chat, )
+			fmt.Println(string(data))
 			// m.
 			// 	b.Send(m.Chat, m.Caption+" "+m.AlbumID)
 			// b.Download()
