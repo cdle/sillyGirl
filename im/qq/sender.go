@@ -31,6 +31,7 @@ func (sender *Sender) GetContent() string {
 		m := sender.Message.(*message.GroupMessage)
 		text = coolq.ToStringMessage(m.Elements, m.GroupCode, true)
 	}
+	text = strings.Replace(text, "amp;", "", -1)
 	return text
 }
 
