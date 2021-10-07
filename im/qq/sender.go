@@ -32,7 +32,9 @@ func (sender *Sender) GetContent() string {
 		text = coolq.ToStringMessage(m.Elements, m.GroupCode, true)
 	}
 	text = strings.Replace(text, "amp;", "", -1)
-	// text = regexp.MustCompile(`&#\d+;`).ReplaceAllString(text, "")
+	text = strings.Replace(text, "&#91;", "[", -1)
+	text = strings.Replace(text, "&#93;", "]", -1)
+	// text = regexp.MustCompile(`&#93;`).ReplaceAllString(text, "")
 	return text
 }
 
