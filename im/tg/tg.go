@@ -1,7 +1,6 @@
 package tg
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -91,6 +90,7 @@ func init() {
 							// 	is = append(is, i)
 							// }
 							i := &tb.Photo{File: tb.FromURL(url)}
+
 							if index == 0 {
 								i.Caption = s
 							}
@@ -104,18 +104,20 @@ func init() {
 			b.Send(ct, s)
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
-			data, _ := json.Marshal(m.Photo)
+			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+			filepath := core.ExecPath + "/data/images/" + filename
+			if b.Download(&m.Photo.File, filepath) == nil {
+
+			}
+			// data, _ := json.Marshal(m.Photo)
 			// b.Send(m.Chat, )
-			fmt.Println(string(data))
+			// fmt.Println(string(data))
 			// m.
 			// 	b.Send(m.Chat, m.Caption+" "+m.AlbumID)
 			// b.Download()
-
-			// b.Download(&m.Photo.File,"")
-			// 	m.Text = fmt.Sprintf(`[CQ:image,url=%s]`, m.Photo.FileURL) + m.Caption
-			// 	m.Photo.FileReader.
-			// 	core.NotifyMasters(fmt.Sprintf(`[CQ:image,url=%s]`, m.Photo.FileURL) + m.Caption)
-			// Handler(m)
+			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+			core.NotifyMasters(m.Text)
+			Handler(m)
 			// b.Forward(m.Chat, m)
 		})
 		b.Handle(tb.OnText, Handler)
