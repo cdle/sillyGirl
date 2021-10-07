@@ -109,15 +109,17 @@ func init() {
 			if b.Download(&m.Photo.File, filepath) == nil {
 
 			}
-			// data, _ := json.Marshal(m.Photo)
-			// b.Send(m.Chat, )
-			// fmt.Println(string(data))
-			// m.
-			// 	b.Send(m.Chat, m.Caption+" "+m.AlbumID)
-			// b.Download()
 			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
 			Handler(m)
-			// b.Forward(m.Chat, m)
+		})
+		b.Handle(tb.OnSticker, func(m *tb.Message) {
+			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+			filepath := core.ExecPath + "/data/images/" + filename
+			if b.Download(&m.Sticker.File, filepath) == nil {
+
+			}
+			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+			Handler(m)
 		})
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
