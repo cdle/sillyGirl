@@ -1,7 +1,10 @@
 package tg
 
 import (
+	"bytes"
 	"fmt"
+	"image/png"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -10,6 +13,7 @@ import (
 	"github.com/astaxie/beego/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
+	"golang.org/x/image/webp"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -107,20 +111,35 @@ func init() {
 			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
 			filepath := core.ExecPath + "/data/images/" + filename
 			if b.Download(&m.Photo.File, filepath) == nil {
-
+				m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+				Handler(m)
 			}
-			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-			Handler(m)
 		})
-		// b.Handle(tb.OnSticker, func(m *tb.Message) {
-		// 	filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-		// 	filepath := core.ExecPath + "/data/images/" + filename
-		// 	if b.Download(&m.Sticker.File, filepath) == nil {
+		b.Handle(tb.OnSticker, func(m *tb.Message) {
 
-		// 	}
-		// 	m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-		// 	Handler(m)
-		// })
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(m.Sticker.FileReader)
+			img, err := webp.Decode(buf)
+			if err != nil {
+				log.Printf("error while decoding sticker: %v\n", err)
+				return
+			}
+			buf.Reset()
+			imgBuf := buf
+			err = png.Encode(imgBuf, img)
+			if err == nil {
+
+				filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+				filepath := core.ExecPath + "/data/images/" + filename
+				f, err := os.Create(filepath)
+				if err == nil {
+					f.Write(imgBuf.Bytes())
+					f.Close()
+					m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+					Handler(m)
+				}
+			}
+		})
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
 		b.Start()
