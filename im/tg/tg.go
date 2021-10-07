@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -103,6 +104,8 @@ func init() {
 			b.Send(ct, s)
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
+			data, _ := json.Marshal(m.Photo)
+			b.Send(m.Chat, data)
 			// m.
 			// 	b.Send(m.Chat, m.Caption+" "+m.AlbumID)
 			// b.Download()
