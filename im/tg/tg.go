@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -116,29 +115,28 @@ func init() {
 			}
 		})
 		b.Handle(tb.OnSticker, func(m *tb.Message) {
-
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(m.Sticker.FileReader)
 			img, err := webp.Decode(buf)
 			if err != nil {
-				log.Printf("error while decoding sticker: %v\n", err)
 				return
 			}
 			buf.Reset()
 			imgBuf := buf
 			err = png.Encode(imgBuf, img)
-			if err == nil {
-
-				filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-				filepath := core.ExecPath + "/data/images/" + filename
-				f, err := os.Create(filepath)
-				if err == nil {
-					f.Write(imgBuf.Bytes())
-					f.Close()
-					m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-					Handler(m)
-				}
+			if err != nil {
+				return
 			}
+			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+			filepath := core.ExecPath + "/data/images/" + filename
+			f, err := os.Create(filepath)
+			if err != nil {
+				return
+			}
+			f.Write(imgBuf.Bytes())
+			f.Close()
+			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+			Handler(m)
 		})
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
