@@ -115,7 +115,7 @@ func init() {
 			// 	m.Photo.FileReader.
 			// 	core.NotifyMasters(fmt.Sprintf(`[CQ:image,url=%s]`, m.Photo.FileURL) + m.Caption)
 			// Handler(m)
-			b.Forward(m.Chat, m)
+			// b.Forward(m.Chat, m)
 		})
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
