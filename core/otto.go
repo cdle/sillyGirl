@@ -161,7 +161,11 @@ func init123() {
 			Continue := func() {
 				s.Continue()
 			}
+			Delete := func() {
+				s.Delete()
+			}
 			vm := otto.New()
+			vm.Set("Delete", Delete)
 			vm.Set("Continue", Continue)
 			vm.Set("GetUsername", GetUsername)
 			vm.Set("set", set)
