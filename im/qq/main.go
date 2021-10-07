@@ -1,7 +1,6 @@
 package qq
 
 import (
-	"bytes"
 	"crypto/md5"
 	"fmt"
 	"os"
@@ -283,7 +282,7 @@ func start() {
 		}
 		imgs := []message.IMessageElement{}
 		for _, path := range paths {
-			imgs = append(imgs, &coolq.LocalImageElement{Stream: bytes.NewReader([]byte(path))})
+			imgs = append(imgs, &coolq.LocalImageElement{File: path})
 		}
 		//
 		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}

@@ -116,7 +116,6 @@ func init() {
 			// 	b.Send(m.Chat, m.Caption+" "+m.AlbumID)
 			// b.Download()
 			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-			core.NotifyMasters(m.Text)
 			Handler(m)
 			// b.Forward(m.Chat, m)
 		})
