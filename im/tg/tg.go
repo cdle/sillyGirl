@@ -1,9 +1,7 @@
 package tg
 
 import (
-	"bytes"
 	"fmt"
-	"image/png"
 	"os"
 	"regexp"
 	"strings"
@@ -12,7 +10,6 @@ import (
 	"github.com/astaxie/beego/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
-	"golang.org/x/image/webp"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
@@ -114,30 +111,31 @@ func init() {
 				Handler(m)
 			}
 		})
-		b.Handle(tb.OnSticker, func(m *tb.Message) {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(m.Sticker.FileReader)
-			img, err := webp.Decode(buf)
-			if err != nil {
-				return
-			}
-			buf.Reset()
-			imgBuf := buf
-			err = png.Encode(imgBuf, img)
-			if err != nil {
-				return
-			}
-			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-			filepath := core.ExecPath + "/data/images/" + filename
-			f, err := os.Create(filepath)
-			if err != nil {
-				return
-			}
-			f.Write(imgBuf.Bytes())
-			f.Close()
-			m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-			Handler(m)
-		})
+		// b.Handle(tb.OnSticker, func(m *tb.Message) {
+		// 	buf := new(bytes.Buffer)
+		// 	buf.ReadFrom(m.Sticker.FileReader)
+		// 	img, err := webp.Decode(buf)
+		// 	if err != nil {
+
+		// 		return
+		// 	}
+		// 	buf.Reset()
+		// 	imgBuf := buf
+		// 	err = png.Encode(imgBuf, img)
+		// 	if err != nil {
+		// 		return
+		// 	}
+		// 	filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+		// 	filepath := core.ExecPath + "/data/images/" + filename
+		// 	f, err := os.Create(filepath)
+		// 	if err != nil {
+		// 		return
+		// 	}
+		// 	f.Write(imgBuf.Bytes())
+		// 	f.Close()
+		// 	m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+		// 	Handler(m)
+		// })
 		b.Handle(tb.OnText, Handler)
 		logs.Info("监听telegram机器人")
 		b.Start()
