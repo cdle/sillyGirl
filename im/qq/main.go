@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -274,6 +275,16 @@ func start() {
 		bot.SendPrivateMessage(int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 	}
 	core.GroupPushs["qq"] = func(i, j int, s string) {
-		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, true)}) //&message.AtElement{Target: int64(j)}
+		paths := []string{}
+		for _, v := range regexp.MustCompile(`\[TG:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
+			paths = append(paths, core.ExecPath+"/data/images/"+v[1])
+			s = strings.Replace(s, fmt.Sprintf(`[TG:image,file=%s]`, v[1]), "", -1)
+		}
+		imgs := []message.IMessageElement{}
+		for _, path := range paths {
+			imgs = append(imgs, &coolq.LocalImageElement{File: path})
+		}
+		//
+		bot.SendGroupMessage(int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
 	}
 }
