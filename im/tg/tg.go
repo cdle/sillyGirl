@@ -98,6 +98,7 @@ func init() {
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
 			b.Send(m.Chat, m.Caption+" "+m.AlbumID)
+			// b.Download()
 
 			// b.Download(&m.Photo.File,"")
 			// 	m.Text = fmt.Sprintf(`[CQ:image,url=%s]`, m.Photo.FileURL) + m.Caption
