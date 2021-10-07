@@ -3,7 +3,6 @@ package qq
 import (
 	"bytes"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -33,7 +32,7 @@ func (sender *Sender) GetContent() string {
 		text = coolq.ToStringMessage(m.Elements, m.GroupCode, true)
 	}
 	text = strings.Replace(text, "amp;", "", -1)
-	text = regexp.MustCompile(`&#\d+;`).ReplaceAllString(text, "")
+	// text = regexp.MustCompile(`&#\d+;`).ReplaceAllString(text, "")
 	return text
 }
 
