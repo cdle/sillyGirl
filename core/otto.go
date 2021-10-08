@@ -154,20 +154,21 @@ func init123() {
 				v, _ := otto.ToValue(s.Get(int(i - 1)))
 				return v
 			}
-			GetUsername := func() otto.Value {
+			vm := otto.New()
+			vm.Set("Delete", func() {
+				s.Delete()
+			})
+			vm.Set("Continue", func() {
+				s.Continue()
+			})
+			vm.Set("GetUsername", func() otto.Value {
 				v, _ := otto.ToValue(s.GetUsername())
 				return v
-			}
-			Continue := func() {
-				s.Continue()
-			}
-			Delete := func() {
-				s.Delete()
-			}
-			vm := otto.New()
-			vm.Set("Delete", Delete)
-			vm.Set("Continue", Continue)
-			vm.Set("GetUsername", GetUsername)
+			})
+			vm.Set("GetUserID", func() otto.Value {
+				v, _ := otto.ToValue(s.GetUserID())
+				return v
+			})
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
