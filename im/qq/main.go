@@ -106,7 +106,7 @@ func start() {
 	mkCacheDir(global.VideoPath, "视频")
 	mkCacheDir(global.CachePath, "发送图片")
 
-	if device := qq.Get("device.json"); device == "" {
+	if device := qq.Get("device.json"); device == "" || device == "{}" {
 		client.GenRandomDevice()
 		qq.Set("device.json", string(client.SystemDeviceInfo.ToJson()))
 	} else {
