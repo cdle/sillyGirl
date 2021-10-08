@@ -3,7 +3,6 @@ package core
 import (
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/beego/beego/v2/adapter/httplib"
 )
@@ -36,18 +35,9 @@ func (ct *Chat) Push(content interface{}) {
 	}
 }
 
-var notLock sync.Locker
-var msgs = map[string]string{}
-
 func NotifyMasters(content string) {
 	go func() {
 		content = strings.Trim(content, " ")
-		notLock.Lock()
-		defer notLock.Unlock()
-		if _, ok := msgs[content]; ok {
-			return
-		}
-		msgs[content] = ""
 		if sillyGirl.GetBool("ignore_notify", false) == true {
 			return
 		}
