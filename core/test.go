@@ -134,6 +134,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^命令$"},
+			Admin: true,
 			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				ss := []string{}
