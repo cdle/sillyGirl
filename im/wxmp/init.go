@@ -117,11 +117,11 @@ func (sender *Sender) GetContent() string {
 	return sender.Message
 }
 
-func (sender *Sender) GetUserID() int {
+func (sender *Sender) GetUserID() interface{} {
 	return sender.uid
 }
 
-func (sender *Sender) GetChatID() int {
+func (sender *Sender) GetChatID() interface{} {
 	return 0
 }
 

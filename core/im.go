@@ -5,8 +5,8 @@ import (
 )
 
 type Sender interface {
-	GetUserID() int
-	GetChatID() int
+	GetUserID() interface{}
+	GetChatID() interface{}
 	GetImType() string
 	GetMessageID() int
 	GetUsername() string
@@ -45,18 +45,18 @@ type Faker struct {
 	Message string
 	matches [][]string
 	Type    string
-	UserID  int
+	UserID  interface{}
 }
 
 func (sender *Faker) GetContent() string {
 	return sender.Message
 }
 
-func (sender *Faker) GetUserID() int {
+func (sender *Faker) GetUserID() interface{} {
 	return sender.UserID
 }
 
-func (sender *Faker) GetChatID() int {
+func (sender *Faker) GetChatID() interface{} {
 	return 0
 }
 
