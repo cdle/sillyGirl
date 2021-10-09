@@ -102,7 +102,7 @@ func handleMessage(sender Sender) {
 				if function.Admin && !sender.IsAdmin() {
 					sender.Delete()
 					sender.Disappear()
-					if sender.GetImType() != "wx" || sender.GetImType() != "qq" {
+					if sender.GetImType() != "wx" && sender.GetImType() != "qq" {
 						sender.Reply("没有权限操作")
 					}
 					sender.Finish()
