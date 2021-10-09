@@ -7,8 +7,8 @@ import (
 	"github.com/beego/beego/v2/adapter/httplib"
 )
 
-var Pushs = map[string]func(int, string){}
-var GroupPushs = map[string]func(int, int, string){}
+var Pushs = map[string]func(interface{}, string){}
+var GroupPushs = map[string]func(interface{}, interface{}, string){}
 
 func Push(class string, uid int, content string) {
 	if push, ok := Pushs[class]; ok {

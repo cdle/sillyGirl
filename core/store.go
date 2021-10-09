@@ -116,9 +116,14 @@ func (bucket Bucket) Foreach(f func(k, v []byte) error) {
 	})
 }
 
-var Int = func(s string) int {
-	i, _ := strconv.Atoi(s)
+var Int = func(s interface{}) int {
+	i, _ := strconv.Atoi(fmt.Sprint(s))
 	return i
+}
+
+var Int64 = func(s interface{}) int64 {
+	i, _ := strconv.Atoi(fmt.Sprint(s))
+	return int64(i)
 }
 
 func (bucket Bucket) Create(i interface{}) error {
