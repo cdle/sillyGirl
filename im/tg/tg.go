@@ -146,11 +146,11 @@ func (sender *Sender) GetContent() string {
 	return sender.Message.Text
 }
 
-func (sender *Sender) GetUserID() int {
+func (sender *Sender) GetUserID() interface{} {
 	return sender.Message.Sender.ID
 }
 
-func (sender *Sender) GetChatID() int {
+func (sender *Sender) GetChatID() interface{} {
 	return int(sender.Message.Chat.ID)
 }
 

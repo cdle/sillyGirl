@@ -38,7 +38,7 @@ func (sender *Sender) GetContent() string {
 	return text
 }
 
-func (sender *Sender) GetUserID() int {
+func (sender *Sender) GetUserID() interface{} {
 	id := 0
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
@@ -51,7 +51,7 @@ func (sender *Sender) GetUserID() int {
 	return id
 }
 
-func (sender *Sender) GetChatID() int {
+func (sender *Sender) GetChatID() interface{} {
 	id := 0
 	switch sender.Message.(type) {
 	case *message.GroupMessage:
