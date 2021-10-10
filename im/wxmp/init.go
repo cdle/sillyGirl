@@ -106,11 +106,10 @@ func init() {
 
 type Sender struct {
 	Message   string
-	matches   [][]string
 	Responses []interface{}
 	Wait      chan []interface{}
 	uid       int
-	goon      bool
+	core.BaseSender
 }
 
 func (sender *Sender) GetContent() string {
@@ -149,35 +148,6 @@ func (sender *Sender) GetRawMessage() interface{} {
 	return sender.Message
 }
 
-func (sender *Sender) SetMatch(ss []string) {
-	sender.matches = [][]string{ss}
-}
-func (sender *Sender) SetAllMatch(ss [][]string) {
-	sender.matches = ss
-}
-
-func (sender *Sender) GetMatch() []string {
-	return sender.matches[0]
-}
-
-func (sender *Sender) GetAllMatch() [][]string {
-	return sender.matches
-}
-
-func (sender *Sender) Get(index ...int) string {
-	i := 0
-	if len(index) != 0 {
-		i = index[0]
-	}
-	if len(sender.matches) == 0 {
-		return ""
-	}
-	if len(sender.matches[0]) < i+1 {
-		return ""
-	}
-	return sender.matches[0][i]
-}
-
 func (sender *Sender) IsAdmin() bool {
 	return strings.Contains(wxmp.Get("masters"), fmt.Sprint(sender.uid))
 }
@@ -204,12 +174,4 @@ func (sender *Sender) Finish() {
 		sender.Responses = []interface{}{}
 	}
 	sender.Wait <- sender.Responses
-}
-
-func (sender *Sender) Continue() {
-	sender.goon = true
-}
-
-func (sender *Sender) IsContinue() bool {
-	return sender.goon
 }
