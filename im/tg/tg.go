@@ -15,11 +15,10 @@ import (
 
 type Sender struct {
 	Message  *tb.Message
-	matches  [][]string
 	Duration *time.Duration
 	deleted  bool
 	reply    *tb.Message
-	goon     bool
+	core.BaseSender
 }
 
 var tg = core.NewBucket("tg")
@@ -185,36 +184,6 @@ func (sender *Sender) GetRawMessage() interface{} {
 	return sender.Message
 }
 
-func (sender *Sender) SetMatch(ss []string) {
-	sender.matches = [][]string{ss}
-}
-func (sender *Sender) SetAllMatch(ss [][]string) {
-	sender.matches = ss
-}
-
-func (sender *Sender) GetMatch() []string {
-	return sender.matches[0]
-}
-
-func (sender *Sender) GetAllMatch() [][]string {
-	return sender.matches
-}
-
-func (sender *Sender) Get(index ...int) string {
-
-	i := 0
-	if len(index) != 0 {
-		i = index[0]
-	}
-	if len(sender.matches) == 0 {
-		return ""
-	}
-	if len(sender.matches[0]) < i+1 {
-		return ""
-	}
-	return sender.matches[0][i]
-}
-
 func (sender *Sender) IsAdmin() bool {
 
 	return strings.Contains(tg.Get("masters"), fmt.Sprint(sender.Message.Sender.ID))
@@ -346,12 +315,4 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 
 func (sender *Sender) Finish() {
 
-}
-
-func (sender *Sender) Continue() {
-	sender.goon = true
-}
-
-func (sender *Sender) IsContinue() bool {
-	return sender.goon
 }

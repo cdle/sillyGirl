@@ -43,9 +43,9 @@ type ImagePath string
 
 type Faker struct {
 	Message string
-	matches [][]string
 	Type    string
 	UserID  interface{}
+	BaseSender
 }
 
 func (sender *Faker) GetContent() string {
@@ -85,35 +85,6 @@ func (sender *Faker) GetReplySenderUserID() int {
 
 func (sender *Faker) GetRawMessage() interface{} {
 	return sender.Message
-}
-
-func (sender *Faker) SetMatch(ss []string) {
-	sender.matches = [][]string{ss}
-}
-func (sender *Faker) SetAllMatch(ss [][]string) {
-	sender.matches = ss
-}
-
-func (sender *Faker) GetMatch() []string {
-	return sender.matches[0]
-}
-
-func (sender *Faker) GetAllMatch() [][]string {
-	return sender.matches
-}
-
-func (sender *Faker) Get(index ...int) string {
-	i := 0
-	if len(index) != 0 {
-		i = index[0]
-	}
-	if len(sender.matches) == 0 {
-		return ""
-	}
-	if len(sender.matches[0]) < i+1 {
-		return ""
-	}
-	return sender.matches[0][i]
 }
 
 func (sender *Faker) IsAdmin() bool {
@@ -156,10 +127,72 @@ func (sender *Faker) Finish() {
 
 }
 
-func (sender *Faker) Continue() {
+type BaseSender struct {
+	matches [][]string
+	goon    bool
+}
+
+func (sender *BaseSender) SetMatch(ss []string) {
+	sender.matches = [][]string{ss}
+}
+func (sender *BaseSender) SetAllMatch(ss [][]string) {
+	sender.matches = ss
+}
+
+func (sender *BaseSender) GetMatch() []string {
+	return sender.matches[0]
+}
+
+func (sender *BaseSender) GetAllMatch() [][]string {
+	return sender.matches
+}
+
+func (sender *BaseSender) Continue() {
+	sender.goon = true
+}
+
+func (sender *BaseSender) IsContinue() bool {
+	return sender.goon
+}
+
+func (sender *BaseSender) Get(index ...int) string {
+	i := 0
+	if len(index) != 0 {
+		i = index[0]
+	}
+	if len(sender.matches) == 0 {
+		return ""
+	}
+	if len(sender.matches[0]) < i+1 {
+		return ""
+	}
+	return sender.matches[0][i]
+}
+
+func (sender *BaseSender) Delete() error {
+	return nil
+}
+
+func (sender *BaseSender) Disappear(lifetime ...time.Duration) {
 
 }
 
-func (sender *Faker) IsContinue() bool {
-	return true
+func (sender *BaseSender) Finish() {
+
+}
+
+func (sender *BaseSender) IsMedia() bool {
+	return false
+}
+
+func (sender *BaseSender) GetRawMessage() interface{} {
+	return nil
+}
+
+func (sender *BaseSender) IsReply() bool {
+	return false
+}
+
+func (sender *BaseSender) GetMessageID() int {
+	return 0
 }
