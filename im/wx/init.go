@@ -121,7 +121,7 @@ func init() {
 							Name: name(add),
 						},
 					}
-					sendOtherMsg(&pmsg)
+					defer sendOtherMsg(&pmsg)
 				}
 			}
 		}
