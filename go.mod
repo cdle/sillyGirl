@@ -9,6 +9,7 @@ require (
 	github.com/Mrs4s/MiraiGo v0.0.0-20210810070836-6614d2383adb
 	github.com/Mrs4s/go-cqhttp v1.0.0-beta6
 	github.com/astaxie/beego v1.12.3
+	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/beego/beego/v2 v2.0.1
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
@@ -25,7 +26,6 @@ require (
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.9.1 // indirect
 	github.com/tuotoo/qrcode v0.0.0-20190222102259-ac9c44189bf2
-	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
