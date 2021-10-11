@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
@@ -56,7 +57,6 @@ func AddCommand(prefix string, cmds []Function) {
 			if prefix != "" {
 				cmds[j].Rules[i] = prefix + `\s+` + cmds[j].Rules[i]
 			}
-
 			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "(", `[(]`, -1)
 			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], ")", `[)]`, -1)
 			cmds[j].Rules[i] = regexp.MustCompile(`\?$`).ReplaceAllString(cmds[j].Rules[i], `(.+)`)
@@ -80,6 +80,15 @@ func AddCommand(prefix string, cmds []Function) {
 
 func handleMessage(sender Sender) {
 	defer sender.Finish()
+	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
+	if v, ok := waits.Load(key); ok {
+		c := v.(Carry)
+		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
+			c.Chan <- m
+			sender.Reply(<-c.Result)
+			return
+		}
+	}
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool

@@ -1,6 +1,9 @@
 package core
 
 import (
+	"errors"
+	"fmt"
+	"sync"
 	"time"
 )
 
@@ -27,6 +30,7 @@ type Sender interface {
 	Finish()
 	Continue()
 	IsContinue() bool
+	Await(func(string, error) interface{}, ...interface{})
 }
 
 type Edit int
@@ -195,4 +199,66 @@ func (sender *BaseSender) IsReply() bool {
 
 func (sender *BaseSender) GetMessageID() int {
 	return 0
+}
+
+func (sender *BaseSender) GetUserID() interface{} {
+	return nil
+}
+func (sender *BaseSender) GetChatID() interface{} {
+	return nil
+}
+func (sender *BaseSender) GetImType() string {
+	return ""
+}
+
+var TimeOutError = errors.New("指令超时")
+var InterruptError = errors.New("被其他指令中断")
+
+var waits sync.Map
+
+type Carry struct {
+	Chan    chan interface{}
+	Pattern string
+	Result  chan interface{}
+}
+
+func (sender *BaseSender) Await(callback func(string, error) interface{}, params ...interface{}) {
+	c := Carry{}
+	timeout := time.Second * 20
+	for _, param := range params {
+		switch param.(type) {
+		case string:
+			c.Pattern = param.(string)
+		case time.Duration:
+			timeout = param.(time.Duration)
+		case func() string:
+			callback = param.(func(string, error) interface{})
+		}
+	}
+	if callback == nil {
+		return
+	}
+	if c.Pattern == "" {
+		return
+	}
+	c.Chan = make(chan interface{}, 1)
+	c.Result = make(chan interface{}, 1)
+	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
+	if oc, ok := waits.LoadOrStore(key, c); ok {
+		oc.(Carry).Chan <- InterruptError
+	}
+	defer waits.Delete(key)
+	select {
+	case result := <-c.Chan:
+		switch result.(type) {
+		case string:
+			c.Result <- callback(result.(string), nil)
+			return
+		case error:
+			c.Result <- callback("", result.(error))
+		}
+		return
+	case <-time.After(timeout):
+		c.Result <- callback("", TimeOutError)
+	}
 }
