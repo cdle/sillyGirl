@@ -165,41 +165,41 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUsername())
 				return v
 			})
-			vm.Set("Await", func(call otto.Value) interface{} {
-				patternV, _ := call.Object().Get("pattern")
-				timeoutV, _ := call.Object().Get("timeout")
-				timeout, _ := timeoutV.ToInteger()
-				pattern, _ := patternV.ToString()
-				s.Await(s, func(s1 string, s2 Sender, e error) interface{} {
-					s.Reply("-----")
-					if e != nil {
-						s.Reply(e)
-						return nil
-					}
-					v, err := call.Object().Call("callback", s1)
-					s.Reply("-+-+-+")
-					if err != nil {
-						s.Reply(err)
-						return nil
-					}
-					deleteV, _ := v.Object().Get("delete")
-					delete, _ := deleteV.ToBoolean()
-					if delete {
-						s2.Delete()
-					}
-					disappearV, _ := call.Object().Get("disappear")
-					disappear, _ := disappearV.ToInteger()
-					fmt.Println(disappear, "====")
-					s2.Disappear(time.Millisecond * time.Duration(disappear))
-					replyV, _ := v.Object().Get("reply")
-					reply, _ := replyV.ToString()
-					if reply != "" {
-						return reply
-					}
-					return nil
-				}, pattern, time.Millisecond*time.Duration(timeout))
-				return otto.Value{}
-			})
+			// vm.Set("Await", func(call otto.Value) interface{} {
+			// 	patternV, _ := call.Object().Get("pattern")
+			// 	timeoutV, _ := call.Object().Get("timeout")
+			// 	timeout, _ := timeoutV.ToInteger()
+			// 	pattern, _ := patternV.ToString()
+			// 	s.Await(s, func(s1 string, s2 Sender, e error) interface{} {
+			// 		s.Reply("-----")
+			// 		if e != nil {
+			// 			s.Reply(e)
+			// 			return nil
+			// 		}
+			// 		v, err := call.Object().Call("callback", s1)
+			// 		s.Reply("-+-+-+")
+			// 		if err != nil {
+			// 			s.Reply(err)
+			// 			return nil
+			// 		}
+			// 		deleteV, _ := v.Object().Get("delete")
+			// 		delete, _ := deleteV.ToBoolean()
+			// 		if delete {
+			// 			s2.Delete()
+			// 		}
+			// 		disappearV, _ := call.Object().Get("disappear")
+			// 		disappear, _ := disappearV.ToInteger()
+			// 		fmt.Println(disappear, "====")
+			// 		s2.Disappear(time.Millisecond * time.Duration(disappear))
+			// 		replyV, _ := v.Object().Get("reply")
+			// 		reply, _ := replyV.ToString()
+			// 		if reply != "" {
+			// 			return reply
+			// 		}
+			// 		return nil
+			// 	}, pattern, time.Millisecond*time.Duration(timeout))
+			// 	return otto.Value{}
+			// })
 			vm.Set("GetUserID", func() otto.Value {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
