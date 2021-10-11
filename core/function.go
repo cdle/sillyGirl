@@ -81,7 +81,7 @@ func AddCommand(prefix string, cmds []Function) {
 func handleMessage(sender Sender) {
 	defer sender.Finish()
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
-	fmt.Println(key)
+	fmt.Println(key,sender.GetContent()
 	fmt.Println(waits.Load(key))
 	if v, ok := waits.Load(key); ok {
 		c := v.(Carry)
