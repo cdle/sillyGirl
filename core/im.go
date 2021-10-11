@@ -30,7 +30,7 @@ type Sender interface {
 	Finish()
 	Continue()
 	IsContinue() bool
-	Await(func(string, error) interface{}, ...interface{})
+	Await(Sender, func(string, error) interface{}, ...interface{})
 }
 
 type Edit int
@@ -134,6 +134,7 @@ func (sender *Faker) Finish() {
 type BaseSender struct {
 	matches [][]string
 	goon    bool
+	child   Sender
 }
 
 func (sender *BaseSender) SetMatch(ss []string) {
@@ -222,7 +223,7 @@ type Carry struct {
 	Result  chan interface{}
 }
 
-func (sender *BaseSender) Await(callback func(string, error) interface{}, params ...interface{}) {
+func (_ *BaseSender) Await(sender Sender, callback func(string, error) interface{}, params ...interface{}) {
 	c := Carry{}
 	timeout := time.Second * 20
 	for _, param := range params {
