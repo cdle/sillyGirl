@@ -271,7 +271,7 @@ Alias=sillyGirl.service`
 		{
 			Rules: []string{"raw ^成语接龙$"},
 			Handle: func(s Sender) interface{} {
-				id := fmt.Sprintf("%v", s.GetChatID())
+				id := fmt.Sprintf("%v", s.GetUserID())
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
 				if err != nil {
 					s.Reply(err)
