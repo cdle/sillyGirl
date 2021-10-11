@@ -280,7 +280,7 @@ Alias=sillyGirl.service`
 				for {
 					s.Await(s, func(s2 Sender, err error) interface{} {
 						if err != nil {
-							s2.Reply(err)
+							s.Reply(err)
 						}
 						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s2.GetContent())
 						if cy == "" {
