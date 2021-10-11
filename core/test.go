@@ -285,7 +285,7 @@ Alias=sillyGirl.service`
 						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s2.GetContent())
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
-							return "请认真接龙，一站到底！。"
+							return "请认真接龙，一站到底！"
 						}
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
