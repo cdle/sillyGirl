@@ -254,7 +254,6 @@ Alias=sillyGirl.service`
 			},
 		},
 		{
-			Admin: true,
 			Rules: []string{"raw .*pornhub.*"},
 			Handle: func(s Sender) interface{} {
 				s.Reply("你已涉黄永久禁言。")
