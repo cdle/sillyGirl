@@ -250,7 +250,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(string, Sender, error) i
 	c.Result = make(chan interface{}, 1)
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
 	if oc, ok := waits.LoadOrStore(key, c); ok {
-		oc.(Carry).Chan <- InterruptError
+		oc.(*Carry).Chan <- InterruptError
 	}
 	fmt.Println(key)
 	fmt.Println(waits.Load(key))
