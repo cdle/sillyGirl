@@ -257,12 +257,13 @@ Alias=sillyGirl.service`
 			Admin: true,
 			Rules: []string{"raw .*pornhub.*"},
 			Handle: func(s Sender) interface{} {
-				s.Reply("你已涉黄将被禁言300秒。")
-				s.Await(s, func(_ string, s2 Sender, _ error) interface{} {
-					s2.Disappear(time.Millisecond * 50)
-					return "你已被禁言。"
-				}, `[\s\S]*`, time.Duration(time.Second*300))
-				return "发送成功呢"
+				s.Reply("你已涉黄永久禁言。")
+				for {
+					s.Await(s, func(_ string, s2 Sender, _ error) interface{} {
+						s2.Disappear(time.Millisecond * 50)
+						return "你已被禁言。"
+					}, `[\s\S]*`, time.Duration(time.Second*300))
+				}
 			},
 		},
 	})
