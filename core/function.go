@@ -81,12 +81,10 @@ func AddCommand(prefix string, cmds []Function) {
 func handleMessage(sender Sender) {
 	defer sender.Finish()
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
-	// fmt.Println(key, sender.GetContent())
-	// fmt.Println(waits.Load(key))
 	if v, ok := waits.Load(key); ok {
-		c := v.(Carry)
-
+		c := v.(*Carry)
 		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
+			c.Sender = sender
 			c.Chan <- m
 			sender.Reply(<-c.Result)
 			return
