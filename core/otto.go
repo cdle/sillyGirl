@@ -171,6 +171,7 @@ func init123() {
 				timeout, _ := timeoutV.ToInteger()
 				pattern, _ := patternV.ToString()
 				s.Await(s, func(s1 string, s2 Sender, e error) interface{} {
+					s.Reply("-----")
 					if e != nil {
 						return nil
 					}
