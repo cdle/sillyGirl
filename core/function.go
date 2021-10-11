@@ -82,9 +82,10 @@ func handleMessage(sender Sender) {
 	defer sender.Finish()
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
 	fmt.Println(key)
+	fmt.Println(waits.Load(key))
 	if v, ok := waits.Load(key); ok {
 		c := v.(Carry)
-		fmt.Println(c, "-----")
+
 		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
 			c.Chan <- m
 			sender.Reply(<-c.Result)
