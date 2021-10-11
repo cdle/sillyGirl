@@ -164,7 +164,7 @@ func initSys() {
 				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
 				go func() {
-					s.Await(func(_ string, e error) interface{} {
+					s.Await(s, func(_ string, e error) interface{} {
 						if e != nil {
 							return nil
 						}
