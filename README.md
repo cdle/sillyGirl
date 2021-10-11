@@ -120,4 +120,24 @@ set wxmp encoding_aes_key ?
 
 set wxmp masters w1&w2&w3...
 
+##### 傻妞内置微信插件，依赖于[可爱猫](https://www.keaimao.com/)和[http-sdk](https://www.vwzx.com/keaimao-http-sdk)
+
+##### 傻妞远程处理接口 /wx/receive
+
+##### 设置插件调用地址，确保傻妞可以访问可爱猫端口
+
+#set wx api_url ?
+
+##### 设置图片转发模式，否则可能会出现此图片来自xx未经允许不得使用的提示
+
+#set wx relay_mode true
+
+##### 设置指定转发地址，格式为 https://域名/reply?url=%s
+
+#set wx relaier ?
+
+##### 设置动态网络地址，适用于傻妞家庭宽带而可爱猫在云服务器的情况下
+
+set wx dynamic_ip true
+
 ![Image text](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)
