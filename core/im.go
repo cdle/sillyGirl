@@ -247,18 +247,19 @@ func (sender *BaseSender) Await(callback func(string, error) interface{}, params
 	if oc, ok := waits.LoadOrStore(key, c); ok {
 		oc.(Carry).Chan <- InterruptError
 	}
-	defer waits.Delete(key)
 	select {
 	case result := <-c.Chan:
 		switch result.(type) {
 		case string:
+			waits.Delete(key)
 			c.Result <- callback(result.(string), nil)
 			return
 		case error:
+			waits.Delete(key)
 			c.Result <- callback("", result.(error))
 		}
-		return
 	case <-time.After(timeout):
+		waits.Delete(key)
 		c.Result <- callback("", TimeOutError)
 	}
 }

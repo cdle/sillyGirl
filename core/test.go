@@ -156,7 +156,7 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"set ? ? ?"},
 			Handle: func(s Sender) interface{} {
-				s.Disappear()
+				// s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
 					return errors.New("不存在的存储桶")
