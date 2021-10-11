@@ -84,8 +84,7 @@ func handleMessage(sender Sender) {
 	if v, ok := waits.Load(key); ok {
 		c := v.(*Carry)
 		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
-			c.Sender = sender
-			c.Chan <- m
+			c.Chan <- sender
 			sender.Reply(<-c.Result)
 			return
 		}

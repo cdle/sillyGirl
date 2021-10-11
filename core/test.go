@@ -166,7 +166,7 @@ func initSys() {
 				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
 				go func() {
-					s.Await(s, func(_ string, _ Sender, e error) interface{} {
+					s.Await(s, func(_ Sender, e error) interface{} {
 						if e != nil {
 							return nil
 						}
@@ -261,7 +261,7 @@ Alias=sillyGirl.service`
 			Handle: func(s Sender) interface{} {
 				s.Reply("你已涉黄永久禁言。")
 				for {
-					s.Await(s, func(_ string, s2 Sender, _ error) interface{} {
+					s.Await(s, func(s2 Sender, _ error) interface{} {
 						s2.Disappear(time.Millisecond * 50)
 						return "你已被禁言。"
 					}, `[\s\S]*`, time.Duration(time.Second*300))
@@ -278,8 +278,11 @@ Alias=sillyGirl.service`
 				}
 				s.Reply(data)
 				for {
-					s.Await(s, func(s1 string, s2 Sender, _ error) interface{} {
-						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s1)
+					s.Await(s, func(s2 Sender, err error) interface{} {
+						if err != nil {
+							s2.Reply(err)
+						}
+						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s2.GetContent())
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
 							return "请认真接龙，一站到底！。"
