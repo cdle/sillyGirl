@@ -185,7 +185,7 @@ func initSys() {
 				}
 				v := b.Get(s.Get(1))
 				if v == "" {
-					return errors.New("空值")
+					return errors.New("无值")
 				}
 				return v
 			},
