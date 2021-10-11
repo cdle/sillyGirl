@@ -245,8 +245,10 @@ func (sender *BaseSender) Await(callback func(string, error) interface{}, params
 	c.Result = make(chan interface{}, 1)
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
 	if oc, ok := waits.LoadOrStore(key, c); ok {
+		fmt.Println(waits.LoadOrStore(key, c))
 		oc.(Carry).Chan <- InterruptError
 	}
+	fmt.Println(waits.LoadOrStore(key, c))
 	select {
 	case result := <-c.Chan:
 		switch result.(type) {
