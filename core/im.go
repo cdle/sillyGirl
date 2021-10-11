@@ -252,8 +252,6 @@ func (_ *BaseSender) Await(sender Sender, callback func(string, Sender, error) i
 	if oc, ok := waits.LoadOrStore(key, c); ok {
 		oc.(*Carry).Chan <- InterruptError
 	}
-	fmt.Println(key)
-	fmt.Println(waits.Load(key))
 	select {
 	case result := <-c.Chan:
 		switch result.(type) {
