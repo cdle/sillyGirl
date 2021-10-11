@@ -45,6 +45,7 @@ func init() {
 				sender.uid = int(time.Now().UnixNano())
 				u2i.Set(msg.FromUserName, sender.uid)
 			}
+
 			core.Senders <- sender
 			end := <-sender.Wait
 			ss := []string{}

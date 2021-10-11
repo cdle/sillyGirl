@@ -156,13 +156,23 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"set ? ? ?"},
 			Handle: func(s Sender) interface{} {
-				s.Disappear()
+				// s.Disappear()
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
 					return errors.New("不存在的存储桶")
 				}
+				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
-				return "设置成功"
+				go func() {
+					s.Await(func(_ string, e error) interface{} {
+						if e != nil {
+							return nil
+						}
+						b.Set(s.Get(1), old)
+						return "已撤回。"
+					}, "^撤回$", time.Second*60)
+				}()
+				return "操作成功，如果你后悔了，请在60s内对我说\"撤回\"，即可撤销本次操作。"
 			},
 		},
 		{
