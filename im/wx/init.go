@@ -161,13 +161,23 @@ func init() {
 }
 
 var myip = ""
+var relaier = wx.Get("relaier")
 
 func relay(url string) string {
-	ip, _ := httplib.Get("https://imdraw.com/ip").String()
-	if ip != "" {
-		myip = ip
+	if wx.GetBool("relay_mode", false) == false {
+		return url
 	}
-	return fmt.Sprintf("http://%s:%s/relay?url=%s", myip, wx.Get("relay_port", "8002"), url)
+	if relaier != "" {
+		return fmt.Sprintf(relaier, url)
+	} else {
+		if myip == "" || wx.GetBool("dynamic_ip", false) == true {
+			ip, _ := httplib.Get("https://imdraw.com/ip").String()
+			if ip != "" {
+				myip = ip
+			}
+		}
+		return fmt.Sprintf("http://%s:%s/relay?url=%s", myip, wx.Get("relay_port", core.Bucket("sillyGirl").Get("port")), url) //"8002"
+	}
 }
 
 type Sender struct {
