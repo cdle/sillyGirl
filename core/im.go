@@ -257,7 +257,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender, error) interface
 		switch result.(type) {
 		case Sender:
 			waits.Delete(key)
-			c.Result <- callback(c.Sender, nil)
+			c.Result <- callback(result.(Sender), nil)
 			return
 		case error:
 			waits.Delete(key)
