@@ -173,9 +173,11 @@ func init123() {
 				s.Await(s, func(s1 string, s2 Sender, e error) interface{} {
 					s.Reply("-----")
 					if e != nil {
+						s.Reply(e)
 						return nil
 					}
 					v, err := call.Object().Call("callback", s1)
+					s.Reply("-+-+-+")
 					if err != nil {
 						s.Reply(err)
 						return nil
@@ -187,6 +189,7 @@ func init123() {
 					}
 					disappearV, _ := call.Object().Get("disappear")
 					disappear, _ := disappearV.ToInteger()
+					fmt.Println(disappear, "====")
 					s2.Disappear(time.Millisecond * time.Duration(disappear))
 					replyV, _ := v.Object().Get("reply")
 					reply, _ := replyV.ToString()
