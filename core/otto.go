@@ -177,6 +177,7 @@ func init123() {
 					}
 					v, err := call.Object().Call("callback", s1)
 					if err != nil {
+						s.Reply(err)
 						return nil
 					}
 					deleteV, _ := v.Object().Get("delete")
