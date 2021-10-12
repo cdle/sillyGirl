@@ -301,6 +301,10 @@ Alias=sillyGirl.service`
 							s2.Reply(err)
 							return nil
 						}
+						if strings.Contains(data, "file_get_contents") {
+							ss := strings.Split(data, "\n")
+							return ss[len(ss)-1]
+						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
 					if stop == true {
