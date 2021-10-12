@@ -166,10 +166,7 @@ func initSys() {
 				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
 				go func() {
-					s.Await(s, func(_ Sender, e error) interface{} {
-						if e != nil {
-							return nil
-						}
+					s.Await(s, func(_ Sender) interface{} {
 						b.Set(s.Get(1), old)
 						return "已撤回。"
 					}, "^撤回$", time.Second*60)
@@ -279,11 +276,7 @@ Alias=sillyGirl.service`
 				s.Reply(data)
 				stop := false
 				for {
-					s.Await(s, func(s2 Sender, err error) interface{} {
-						if err != nil {
-							s.Reply(err)
-							return nil
-						}
+					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
 						if ct == "退出接龙" {
 							stop = true
