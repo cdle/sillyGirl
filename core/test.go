@@ -277,24 +277,46 @@ Alias=sillyGirl.service`
 					s.Reply(err)
 				}
 				s.Reply(data)
+				stop := false
 				for {
 					s.Await(s, func(s2 Sender, err error) interface{} {
 						if err != nil {
 							s.Reply(err)
 						}
-						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s2.GetContent())
+						ct := s2.GetContent()
+						if ct == "退出接龙" {
+							stop = true
+							return "不要走决战到天亮，啊哦～"
+						}
+						if strings.Contains(ct, "我认输") {
+							stop = true
+							return "菜*，见一次虐一次！"
+						}
+						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(ct)
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
 							return "请认真接龙，一站到底！"
 						}
+
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
 							return nil
 						}
+						if strings.Contains(data, "file_get_contents") {
+							ss := strings.Split(data, "\n")
+							return ss[len(ss)-1]
+						}
+						if strings.Contains(data, "你赢了") {
+							stop = true
+						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
+					if stop == true {
+						break
+					}
 				}
+				return nil
 			},
 		},
 	})
