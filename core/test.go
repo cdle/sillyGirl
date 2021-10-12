@@ -292,7 +292,7 @@ Alias=sillyGirl.service`
 							stop = true
 							return "不要走决战到天亮，啊哦～"
 						}
-						if strings.Contains(cy, "我认输") {
+						if strings.Contains(cy, "认输") {
 							stop = true
 							return "菜*，见一次虐一次！"
 						}
