@@ -292,6 +292,10 @@ Alias=sillyGirl.service`
 							stop = true
 							return "不要走决战到天亮，啊哦～"
 						}
+						if cy == "我认输" {
+							stop = true
+							return "菜*，见一次虐一次！"
+						}
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
