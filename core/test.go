@@ -283,19 +283,21 @@ Alias=sillyGirl.service`
 						if err != nil {
 							s.Reply(err)
 						}
-						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(s2.GetContent())
+						ct := s2.GetContent()
+						if ct == "退出接龙" {
+							stop = true
+							return "不要走决战到天亮，啊哦～"
+						}
+						if strings.Contains(ct, "我认输") {
+							stop = true
+							return "菜*，见一次虐一次！"
+						}
+						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(ct)
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
 							return "请认真接龙，一站到底！"
 						}
-						if cy == "退出接龙" {
-							stop = true
-							return "不要走决战到天亮，啊哦～"
-						}
-						if strings.Contains(cy, "认输") {
-							stop = true
-							return "菜*，见一次虐一次！"
-						}
+
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
