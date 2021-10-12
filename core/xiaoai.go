@@ -20,6 +20,9 @@ func init() {
 					return "未设置小同学api"
 				}
 				reply := func(str string) string {
+					s.Reply(api)
+					s.Reply(str)
+					s.Reply(fmt.Sprintf(api, str))
 					str, _ = httplib.Get(fmt.Sprintf(api, str)).String()
 					if str == "" {
 						str = "暂时无法回复。"
@@ -35,11 +38,11 @@ func init() {
 						}
 						s.Await(s, func(s2 Sender) interface{} {
 							msg := s2.Get()
-							if msg == "闭嘴" {
+							if strings.Contains(msg, "闭嘴") {
 								stop = true
 							}
 							return reply(msg)
-						}, `[\s\S]*`, time.Duration(time.Second*300))
+						}, `[\s\S]*`, time.Duration(time.Second*5000))
 					}
 				}
 				if msg == "" {
