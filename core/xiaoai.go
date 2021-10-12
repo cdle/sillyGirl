@@ -11,7 +11,7 @@ func init() {
 	AddCommand("", []Function{
 		{
 			Rules: []string{
-				"^小爱(.*)$",
+				"^小爱同学$",
 			},
 			Handle: func(s Sender) interface{} {
 				api := sillyGirl.Get("小爱同学")
@@ -44,7 +44,7 @@ func init() {
 				if msg == "" {
 					msg = "小爱"
 				}
-				return reply(api)
+				return reply(msg)
 			},
 		},
 	})
