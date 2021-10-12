@@ -309,11 +309,7 @@ Alias=sillyGirl.service`
 						if strings.Contains(data, "你赢了") {
 							stop = true
 						} else {
-							defer func() {
-								if regexp.MustCompile("^[一-龥]{4}$").FindString(ct) == "" {
-									s2.Reply("玩不过就认输呗。", time.Duration(time.Second))
-								}
-							}()
+							data += "玩不过就认输呗。"
 						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
