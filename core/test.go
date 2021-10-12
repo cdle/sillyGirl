@@ -288,16 +288,15 @@ Alias=sillyGirl.service`
 							stop = true
 							return "不要走决战到天亮，啊哦～"
 						}
-						if strings.Contains(ct, "我认输") {
+						if strings.Contains(ct, "认输") {
 							stop = true
 							return "菜*，见一次虐一次！"
 						}
-						cy := regexp.MustCompile("^[一-龥]{4}$").FindString(ct)
+						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
 							return "请认真接龙，一站到底！"
 						}
-
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
@@ -309,6 +308,12 @@ Alias=sillyGirl.service`
 						}
 						if strings.Contains(data, "你赢了") {
 							stop = true
+						} else {
+							defer func() {
+								if regexp.MustCompile("^[一-龥]{4}$").FindString(ct) == "" {
+									s2.Reply("玩不过就认输呗。", time.Duration(time.Second))
+								}
+							}()
 						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
