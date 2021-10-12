@@ -29,7 +29,7 @@ func init() {
 				msg := s.Get()
 				if strings.Contains(msg, "对话模式") {
 					stop := false
-					s.Reply(s.Reply("小爱"))
+					s.Reply(reply("小爱"))
 					for {
 						if stop {
 							return nil
