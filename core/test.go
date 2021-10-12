@@ -277,6 +277,7 @@ Alias=sillyGirl.service`
 					s.Reply(err)
 				}
 				s.Reply(data)
+				stop := false
 				for {
 					s.Await(s, func(s2 Sender, err error) interface{} {
 						if err != nil {
@@ -287,6 +288,10 @@ Alias=sillyGirl.service`
 							s2.Disappear(time.Millisecond * 500)
 							return "请认真接龙，一站到底！"
 						}
+						if cy == "退出接龙" {
+							stop = true
+							return "不要走决战到天亮，啊哦～"
+						}
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
@@ -294,7 +299,11 @@ Alias=sillyGirl.service`
 						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
+					if stop == true {
+						break
+					}
 				}
+				return nil
 			},
 		},
 	})
