@@ -35,7 +35,7 @@ func init() {
 							break
 						}
 						s.Await(s, func(s2 Sender) interface{} {
-							msg := s2.Get()
+							msg := s2.GetContent()
 							if strings.Contains(msg, "闭嘴") {
 								stop = true
 							}
