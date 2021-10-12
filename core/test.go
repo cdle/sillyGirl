@@ -282,6 +282,7 @@ Alias=sillyGirl.service`
 					s.Await(s, func(s2 Sender, err error) interface{} {
 						if err != nil {
 							s.Reply(err)
+							return nil
 						}
 						ct := s2.GetContent()
 						if ct == "退出接龙" {
