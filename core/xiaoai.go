@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/client/httplib"
@@ -26,25 +27,26 @@ func init() {
 					return str
 				}
 				msg := s.Get()
-				if msg == "对话模式" {
+				if strings.Contains(msg, "对话模式") {
 					stop := false
+					s.Reply(reply("小爱"))
 					for {
 						if stop {
-							break
+							return nil
 						}
 						s.Await(s, func(s2 Sender) interface{} {
-							msg := s2.Get()
-							if msg == "闭嘴" {
+							msg := s2.GetContent()
+							if strings.Contains(msg, "闭嘴") {
 								stop = true
 							}
 							return reply(msg)
-						}, `[\s\S]*`, time.Duration(time.Second*300))
+						}, `[\s\S]*`, time.Duration(time.Second*5000))
 					}
 				}
 				if msg == "" {
 					msg = "小爱"
 				}
-				return name()
+				return reply(msg)
 			},
 		},
 	})
