@@ -30,7 +30,7 @@ type Sender interface {
 	Finish()
 	Continue()
 	IsContinue() bool
-	Await(Sender, func(Sender, error) interface{}, ...interface{})
+	Await(Sender, func(Sender) interface{}, ...interface{})
 }
 
 type Edit int
@@ -224,9 +224,10 @@ type Carry struct {
 	Sender  Sender
 }
 
-func (_ *BaseSender) Await(sender Sender, callback func(Sender, error) interface{}, params ...interface{}) {
+func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) {
 	c := &Carry{}
 	timeout := time.Second * 20
+	var handleErr func(error)
 	for _, param := range params {
 		switch param.(type) {
 		case string:
@@ -237,7 +238,10 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender, error) interface
 				timeout = du
 			}
 		case func() string:
-			callback = param.(func(Sender, error) interface{})
+			callback = param.(func(Sender) interface{})
+
+		case func(error):
+			handleErr = param.(func(error))
 		}
 	}
 	if callback == nil {
@@ -257,14 +261,20 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender, error) interface
 		switch result.(type) {
 		case Sender:
 			waits.Delete(key)
-			c.Result <- callback(result.(Sender), nil)
+			c.Result <- callback(result.(Sender)) //, nil
 			return
 		case error:
 			waits.Delete(key)
-			c.Result <- callback(nil, result.(error))
+			if handleErr != nil {
+				handleErr(result.(error))
+			}
+			c.Result <- nil //
 		}
 	case <-time.After(timeout):
 		waits.Delete(key)
-		c.Result <- callback(nil, TimeOutError)
+		if handleErr != nil {
+			handleErr(TimeOutError)
+		}
+		c.Result <- nil
 	}
 }
