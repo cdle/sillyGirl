@@ -309,6 +309,8 @@ Alias=sillyGirl.service`
 						}
 						if strings.Contains(data, "你赢了") {
 							stop = true
+						} else if strings.Contains(data, "恭喜") {
+
 						} else {
 							data += "玩不过就认输呗。"
 						}
