@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/client/httplib"
@@ -11,7 +12,7 @@ func init() {
 	AddCommand("", []Function{
 		{
 			Rules: []string{
-				"^小爱同学$",
+				"^小爱(.*)$",
 			},
 			Handle: func(s Sender) interface{} {
 				api := sillyGirl.Get("小爱同学")
@@ -26,7 +27,7 @@ func init() {
 					return str
 				}
 				msg := s.Get()
-				if msg == "对话模式" {
+				if strings.Contains(msg, "对话模式") {
 					stop := false
 					for {
 						if stop {
