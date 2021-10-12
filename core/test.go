@@ -275,7 +275,13 @@ Alias=sillyGirl.service`
 				}
 				s.Reply(data)
 				stop := false
+				if strings.Contains(data, "你赢") {
+					stop = true
+				}
 				for {
+					if stop == true {
+						break
+					}
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
 						if ct == "退出接龙" {
@@ -300,7 +306,7 @@ Alias=sillyGirl.service`
 							ss := strings.Split(data, "\n")
 							return ss[len(ss)-1]
 						}
-						if strings.Contains(data, "你赢了") {
+						if strings.Contains(data, "你赢") {
 							stop = true
 						} else if strings.Contains(data, "恭喜") {
 
@@ -309,9 +315,7 @@ Alias=sillyGirl.service`
 						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
-					if stop == true {
-						break
-					}
+
 				}
 				return nil
 			},
