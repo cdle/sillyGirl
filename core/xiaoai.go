@@ -20,9 +20,6 @@ func init() {
 					return "未设置小同学api"
 				}
 				reply := func(str string) string {
-					s.Reply(api)
-					s.Reply(str)
-					s.Reply(fmt.Sprintf(api, str))
 					str, _ = httplib.Get(fmt.Sprintf(api, str)).String()
 					if str == "" {
 						str = "暂时无法回复。"
@@ -32,6 +29,7 @@ func init() {
 				msg := s.Get()
 				if strings.Contains(msg, "对话模式") {
 					stop := false
+					s.Reply("已开启对话模式。")
 					for {
 						if stop {
 							break
