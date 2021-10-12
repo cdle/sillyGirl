@@ -307,6 +307,9 @@ Alias=sillyGirl.service`
 							ss := strings.Split(data, "\n")
 							return ss[len(ss)-1]
 						}
+						if strings.Contains(data, "你赢了") {
+							stop = true
+						}
 						return data
 					}, `[\s\S]*`, time.Duration(time.Second*300))
 					if stop == true {
