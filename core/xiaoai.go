@@ -32,7 +32,7 @@ func init() {
 					s.Reply("已开启对话模式。")
 					for {
 						if stop {
-							break
+							return nil
 						}
 						s.Await(s, func(s2 Sender) interface{} {
 							msg := s2.GetContent()
@@ -46,7 +46,7 @@ func init() {
 				if msg == "" {
 					msg = "小爱"
 				}
-				return nil
+				return reply(msg)
 			},
 		},
 	})
