@@ -17,5 +17,6 @@ func RunServer() {
 	Server.GET("/", func(c *gin.Context) {
 		c.String(200, Tail)
 	})
+	gin.SetMode(gin.ReleaseMode)
 	Server.Run(":" + sillyGirl.Get("port", "8080"))
 }
