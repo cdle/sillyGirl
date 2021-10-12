@@ -46,7 +46,7 @@ func init() {
 				if msg == "" {
 					msg = "小爱"
 				}
-				return reply(msg)
+				return nil
 			},
 		},
 	})
