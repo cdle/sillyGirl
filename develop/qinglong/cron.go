@@ -301,9 +301,9 @@ func GetCronID(keyword string) (*Cron, error) {
 	}
 	cs := []Cron{}
 	for _, cron := range crons {
-		if cron.IsDisabled != 0 {
-			continue
-		}
+		// if cron.IsDisabled != 0 {
+		// 	continue
+		// }
 		if cron.ID == keyword {
 			cs = append(cs, cron)
 			break
@@ -312,6 +312,20 @@ func GetCronID(keyword string) (*Cron, error) {
 			cs = append(cs, cron)
 		}
 		if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
+			cs = append(cs, cron)
+		}
+	}
+	tmp := cs
+	cs = []Cron{}
+	if len := len(cs); len > 1 {
+		for _, cron := range tmp {
+			if len == 1 {
+				break
+			}
+			if cron.IsDisabled != 0 {
+				len--
+				continue
+			}
 			cs = append(cs, cron)
 		}
 	}
