@@ -283,7 +283,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Reply(err)
 			return 0, nil
 		} else {
-			rts,u err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
+			rts,err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
 			if err == nil {
 				rt = &rts[0]
 			}
