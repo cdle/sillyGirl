@@ -246,7 +246,7 @@ func start() {
 		}
 	}
 	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
-		if ignore := qq.Get("offGroups", "654346133"); strings.Contains(ignore, fmt.Sprint(m.GroupCode)) {
+		if ignore := qq.Get("offGroups", "654346133&923993867"); strings.Contains(ignore, fmt.Sprint(m.GroupCode)) {
 			return
 		}
 		if listen := qq.Get("onGroups"); listen != "" && !strings.Contains(listen, fmt.Sprint(m.GroupCode)) {
@@ -259,11 +259,16 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	if qq.GetBool("onself", true) == true {
-		bot.Client.OnSelfPrivateMessage(onPrivateMessage)
-		bot.Client.OnSelfGroupMessage(OnGroupMessage)
-	}
-
+	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
+		if qq.GetBool("onself", true) == true {
+			onPrivateMessage(q, pm)
+		}
+	})
+	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+		if qq.GetBool("onself", true) == true {
+			OnGroupMessage(q, gm)
+		}
+	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
 			time.Sleep(time.Second)
