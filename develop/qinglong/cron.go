@@ -308,6 +308,8 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 			}, `[\s\S]*`, time.Duration(time.Hour))
 			if !stop {
 				s.Reply("请正确选择任务。")
+			} else {
+				break
 			}
 		}
 	} else {
