@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/client/httplib"
+	"github.com/buger/jsonparser"
 )
 
 func init() {
@@ -21,6 +22,9 @@ func init() {
 				}
 				reply := func(str string) string {
 					str, _ = httplib.Get(fmt.Sprintf(api, str)).String()
+					if gjson := sillyGirl.Get("小爱同学gjson"); gjson != "" {
+						str, _ = jsonparser.GetString([]byte(str), strings.Split(gjson, ".")...)
+					}
 					if str == "" {
 						str = "暂时无法回复。"
 					}
