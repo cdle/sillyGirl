@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/cdle/sillyGirl/core"
 )
@@ -77,7 +78,7 @@ func init() {
 			Rules: []string{`cron run ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				cron, err := GetCronID(s.Get())
+				cron, err := GetCronID(s, s.Get())
 				if err != nil {
 					return err
 				}
@@ -91,7 +92,7 @@ func init() {
 			Rules: []string{`cron stop ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				cron, err := GetCronID(s.Get())
+				cron, err := GetCronID(s, s.Get())
 				if err != nil {
 					return err
 				}
@@ -105,7 +106,7 @@ func init() {
 			Rules: []string{`cron enable ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				cron, err := GetCronID(s.Get())
+				cron, err := GetCronID(s, s.Get())
 				if err != nil {
 					return err
 				}
@@ -119,7 +120,7 @@ func init() {
 			Rules: []string{`cron disable ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				cron, err := GetCronID(s.Get())
+				cron, err := GetCronID(s, s.Get())
 				if err != nil {
 					return err
 				}
@@ -154,36 +155,7 @@ func init() {
 			Rules: []string{`cron logs ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				cron, err := GetCronID(s.Get())
-				if err != nil {
-					return err
-				}
-				data, err := GetCronLog(cron.ID)
-				if err != nil {
-					return err
-				}
-				return data
-			},
-		},
-		{
-			Rules: []string{`update`},
-			Admin: true,
-			Handle: func(_ core.Sender) interface{} {
-				cron, err := GetCronID("更新面板")
-				if err != nil {
-					return err
-				}
-				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
-					return err
-				}
-				return "操作成功"
-			},
-		},
-		{
-			Rules: []string{`update logs`},
-			Admin: true,
-			Handle: func(_ core.Sender) interface{} {
-				cron, err := GetCronID("更新面板")
+				cron, err := GetCronID(s, s.Get())
 				if err != nil {
 					return err
 				}
@@ -294,16 +266,13 @@ func formatCron(cron *Cron) string {
 	}, "\n")
 }
 
-func GetCronID(keyword string) (*Cron, error) {
+func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 	crons, err := GetCrons("")
 	if err != nil {
 		return nil, err
 	}
 	cs := []Cron{}
 	for _, cron := range crons {
-		// if cron.IsDisabled != 0 {
-		// 	continue
-		// }
 		if cron.ID == keyword {
 			cs = append(cs, cron)
 			break
@@ -315,25 +284,34 @@ func GetCronID(keyword string) (*Cron, error) {
 			cs = append(cs, cron)
 		}
 	}
-	tmp := cs
-	cs = []Cron{}
-	if len := len(cs); len > 1 {
-		for _, cron := range tmp {
-			if len == 1 {
-				break
-			}
-			if cron.IsDisabled != 0 {
-				len--
-				continue
-			}
-			cs = append(cs, cron)
-		}
-	}
 	if len(cs) == 0 {
 		return nil, errors.New("找不到任务。")
 	}
-	if len(cs) != 1 {
-		return nil, errors.New("搜索到多个任务，请再具体一些！")
+	var cron Cron
+	if len := len(crons); len > 1 {
+		var es = []string{}
+		for _, cron := range crons {
+			es = append(es, formatCron(&cron))
+		}
+		s.Reply(fmt.Sprintf("找到%d个匹配的任务，请从1~%d选择一个任务。", len) + "\n\n" + strings.Join(es, "\n\n"))
+		stop := false
+		for {
+			s.Await(s, func(s2 core.Sender) interface{} {
+				msg := s2.GetContent()
+				for i, v := range crons {
+					if msg == fmt.Sprint(i+1) {
+						cron = v
+						stop = true
+					}
+				}
+				return nil
+			}, `[\s\S]*`, time.Duration(time.Hour))
+			if !stop {
+				s.Reply("请正确选择任务。")
+			}
+		}
+	} else {
+		cron = crons[1]
 	}
-	return &cs[0], nil
+	return &cron, nil
 }
