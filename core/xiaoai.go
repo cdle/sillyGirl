@@ -22,6 +22,7 @@ func init() {
 				}
 				reply := func(str string) string {
 					str, _ = httplib.Get(fmt.Sprintf(api, str)).String()
+					// s.Reply(str)
 					if gjson := sillyGirl.Get("小爱同学gjson"); gjson != "" {
 						str, _ = jsonparser.GetString([]byte(str), strings.Split(gjson, ".")...)
 					}
@@ -31,6 +32,7 @@ func init() {
 					return str
 				}
 				msg := s.Get()
+				msg = strings.Trim(msg, " ")
 				if strings.Contains(msg, "对话模式") {
 					stop := false
 					s.Reply(reply("小爱"))
@@ -40,6 +42,7 @@ func init() {
 						}
 						s.Await(s, func(s2 Sender) interface{} {
 							msg := s2.GetContent()
+							msg = strings.Trim(msg, " ")
 							if strings.Contains(msg, "闭嘴") {
 								stop = true
 							}
