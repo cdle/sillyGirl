@@ -293,7 +293,7 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 		for _, cron := range crons {
 			es = append(es, formatCron(&cron))
 		}
-		s.Reply(fmt.Sprintf("找到%d个匹配的任务，请从1~%d选择一个任务。", len) + "\n\n" + strings.Join(es, "\n\n"))
+		s.Reply(fmt.Sprintf("找到%d个匹配的任务，请从1~%d选择一个任务。", len, len) + "\n\n" + strings.Join(es, "\n\n"))
 		stop := false
 		for {
 			s.Await(s, func(s2 core.Sender) interface{} {
