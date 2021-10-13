@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"net/http"
+	"net/url"
 
 	"github.com/astaxie/beego/httplib"
 	"github.com/beego/beego/v2/core/logs"
@@ -34,6 +36,22 @@ var Handler = func(message *tb.Message) {
 	}
 }
 
+func buildClientWithProxy(addr string) (*http.Client, error) {
+	if addr != "" {
+		u, err := url.Parse(addr)
+		if err != nil {
+			panic(err)
+		}
+		// Patch client transport
+		httpTransport := &http.Transport{Proxy: http.ProxyURL(u)}
+		hc := &http.Client{Transport: httpTransport}
+
+		return hc, nil
+	}
+
+	return nil, nil // use default
+}
+
 func init() {
 	go func() {
 		token := tg.Get("token")
@@ -41,9 +59,14 @@ func init() {
 			logs.Warn("未提供telegram机器人token")
 			return
 		}
+		client, clientErr := buildClientWithProxy(tg.Get("url"))
+		if clientErr != nil {
+			logs.Warn("监听telegram机器人失败clientErr：%v", clientErr)
+			return
+		}
 		var err error
 		b, err = tb.NewBot(tb.Settings{
-			URL:    tg.Get("url"),
+			Client: client,
 			Token:  token,
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
