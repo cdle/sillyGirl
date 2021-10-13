@@ -280,9 +280,12 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 		if strings.Contains(cron.Name, keyword) {
 			cs = append(cs, cron)
 		}
-		if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
+		if strings.Contains(cron.Command, keyword) {
 			cs = append(cs, cron)
 		}
+		// if regexp.MustCompile(keyword+"$").FindString(cron.Command) != "" {
+		// 	cs = append(cs, cron)
+		// }
 	}
 	if len(cs) == 0 {
 		return nil, errors.New("找不到任务。")
