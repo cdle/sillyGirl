@@ -34,6 +34,7 @@ func (sender *Sender) GetContent() string {
 	text = strings.Replace(text, "amp;", "", -1)
 	text = strings.Replace(text, "&#91;", "[", -1)
 	text = strings.Replace(text, "&#93;", "]", -1)
+	// sender.Reply(text)
 	// text = regexp.MustCompile(`&#93;`).ReplaceAllString(text, "")
 	return text
 }
