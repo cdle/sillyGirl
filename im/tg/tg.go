@@ -64,6 +64,7 @@ func init() {
 			Token:  token,
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
+                        URL: tg.Get("url"),
                         
 		}
 		if url := tg.Get("http_proxy"); url != "" {
