@@ -17,7 +17,9 @@ import (
 )
 
 var wx = core.NewBucket("wx")
-var api_url = wx.Get("api_url")
+var api_url = func() string {
+	return wx.Get("api_url")
+}
 var robot_wxid = wx.Get("robot_wxid")
 
 func sendTextMsg(pmsg *TextMsg) {
@@ -27,7 +29,7 @@ func sendTextMsg(pmsg *TextMsg) {
 	}
 	pmsg.Event = "SendTextMsg"
 	pmsg.RobotWxid = robot_wxid
-	req := httplib.Post(api_url)
+	req := httplib.Post(api_url())
 	req.Header("Content-Type", "application/json")
 	data, _ := json.Marshal(pmsg)
 	enc := mahonia.NewEncoder("gbk")
@@ -57,7 +59,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		pmsg.Event = "SendImageMsg"
 	}
 	pmsg.RobotWxid = robot_wxid
-	req := httplib.Post(api_url)
+	req := httplib.Post(api_url())
 	req.Header("Content-Type", "application/json")
 	data, _ := json.Marshal(pmsg)
 	req.Body(data)
