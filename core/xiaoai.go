@@ -22,7 +22,7 @@ func init() {
 				}
 				reply := func(str string) string {
 					str, _ = httplib.Get(fmt.Sprintf(api, str)).String()
-					s.Reply(str)
+					// s.Reply(str)
 					if gjson := sillyGirl.Get("小爱同学gjson"); gjson != "" {
 						str, _ = jsonparser.GetString([]byte(str), strings.Split(gjson, ".")...)
 					}
