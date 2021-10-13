@@ -65,7 +65,7 @@ func init() {
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
 		}
-		if url := tg.Get("url"); url != "" {
+		if url := tg.Get("http_proxy"); url != "" {
 			client, clientErr := buildClientWithProxy(url)
 			if clientErr != nil {
 				logs.Warn("监听telegram代理失败：%v", clientErr)
