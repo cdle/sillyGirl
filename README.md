@@ -90,7 +90,7 @@ set tg token ?
 
 ##### 设置telegram机器人代理
 
-set tg url ?
+set tg http_proxy ?
 
 ##### 设置telegram机器人管理员
 

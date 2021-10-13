@@ -68,7 +68,7 @@ func init() {
 		if url := tg.Get("http_proxy"); url != "" {
 			client, clientErr := buildClientWithProxy(url)
 			if clientErr != nil {
-				logs.Warn("监听telegram代理失败：%v", clientErr)
+				logs.Warn("telegram代理失败：%v", clientErr)
 				return
 			}
 			settings.Client = client
