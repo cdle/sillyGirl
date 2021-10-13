@@ -291,9 +291,9 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 		return nil, errors.New("找不到任务。")
 	}
 	var cron Cron
-	if len := len(crons); len > 1 {
+	if len := len(cs); len > 1 {
 		var es = []string{}
-		for _, cron := range crons {
+		for _, cron := range cs {
 			es = append(es, formatCron(&cron))
 		}
 		s.Reply(fmt.Sprintf("找到%d个匹配的任务，请从1~%d选择一个任务。", len, len) + "\n\n" + strings.Join(es, "\n\n"))
@@ -301,7 +301,7 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 		for {
 			s.Await(s, func(s2 core.Sender) interface{} {
 				msg := s2.GetContent()
-				for i, v := range crons {
+				for i, v := range cs {
 					if msg == fmt.Sprint(i+1) {
 						cron = v
 						stop = true
@@ -316,7 +316,7 @@ func GetCronID(s core.Sender, keyword string) (*Cron, error) {
 			}
 		}
 	} else {
-		cron = crons[1]
+		cron = cs[1]
 	}
 	return &cron, nil
 }
