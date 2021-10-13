@@ -141,7 +141,7 @@ func init() {
 				}
 				es := []string{}
 				for _, cron := range crons {
-					if strings.Contains(cron.Name, name) || strings.Contains(cron.Command, name) {
+					if strings.Contains(cron.Name, name) || strings.Contains(cron.Command, name) || strings.Contains(cron.ID, name) {
 						es = append(es, formatCron(&cron))
 					}
 				}
