@@ -14,6 +14,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/gin-gonic/gin v1.7.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/guonaihong/gout v0.2.7 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
