@@ -316,6 +316,9 @@ Alias=sillyGirl.service`
 						if strings.Contains(data, "你赢") {
 							stop = true
 							win = true
+						} else if strings.Contains(data, "我赢") {
+							stop = true
+							win = false
 						} else if strings.Contains(data, "恭喜") {
 
 						} else {
