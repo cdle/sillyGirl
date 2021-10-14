@@ -328,7 +328,7 @@ Alias=sillyGirl.service`
 				s.Reply("还玩吗？[Y/n]")
 				s.Await(s, func(s2 Sender) interface{} {
 					msg := s2.GetContent()
-					if strings.ToLower(msg) == "Y" || strings.ToLower(msg) == "yes" {
+					if strings.ToLower(msg) == "y" || strings.ToLower(msg) == "yes" {
 						goon = true
 					}
 					return nil
