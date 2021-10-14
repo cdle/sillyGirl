@@ -332,6 +332,10 @@ Alias=sillyGirl.service`
 						goon = true
 					}
 					return nil
+				}, func(err error) {
+					if err != nil {
+						s.Reply("不玩拉倒，给你脸了。")
+					}
 				})
 				if goon {
 					goto start
