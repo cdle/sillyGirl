@@ -217,6 +217,13 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"notify ?"},
+			Handle: func(s Sender) interface{} {
+				NotifyMasters(s.Get())
+				return "通知成功。"
+			},
+		},
+		{
 			Rules: []string{"raw ^started_at$"},
 			Handle: func(s Sender) interface{} {
 				return sillyGirl.Get("started_at")
@@ -291,10 +298,6 @@ Alias=sillyGirl.service`
 					}
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
-						if ct == "退出接龙" {
-							stop = true
-							return "不要走决战到天亮，啊哦～"
-						}
 						if strings.Contains(ct, "认输") {
 							stop = true
 							return nil
@@ -328,6 +331,7 @@ Alias=sillyGirl.service`
 					})
 
 				}
+				time.Sleep(time.Microsecond * 100)
 				s.Reply("还玩吗？[Y/n]")
 				s.Await(s, func(s2 Sender) interface{} {
 					msg := s2.GetContent()
