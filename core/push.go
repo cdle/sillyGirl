@@ -48,10 +48,9 @@ func NotifyMasters(content string) {
 			if notify == "" {
 				notify = Bucket(class).Get("masters")
 			}
-
 			for _, v := range strings.Split(notify, "&") {
 				if push, ok := Pushs[class]; ok {
-					push(v[1], content)
+					push(v, content)
 				}
 			}
 		}
