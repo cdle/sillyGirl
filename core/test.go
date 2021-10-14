@@ -269,13 +269,20 @@ Alias=sillyGirl.service`
 			Rules: []string{"raw ^成语接龙$"},
 			Handle: func(s Sender) interface{} {
 				id := fmt.Sprintf("%v", s.GetUserID())
+			start:
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
 				if err != nil {
 					s.Reply(err)
 				}
 				s.Reply(data)
 				stop := false
+				goon := false
+				win := false
 				if strings.Contains(data, "你赢") {
+					stop = true
+					win = true
+				}
+				if strings.Contains(data, "我赢") {
 					stop = true
 				}
 				for {
@@ -290,7 +297,7 @@ Alias=sillyGirl.service`
 						}
 						if strings.Contains(ct, "认输") {
 							stop = true
-							return "菜*，见一次虐一次！"
+							return nil
 						}
 						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
 						if cy == "" {
@@ -308,14 +315,31 @@ Alias=sillyGirl.service`
 						}
 						if strings.Contains(data, "你赢") {
 							stop = true
+							win = true
 						} else if strings.Contains(data, "恭喜") {
 
 						} else {
 							data += "玩不过就认输呗。"
 						}
 						return data
-					}, `[\s\S]*`, time.Duration(time.Second*300))
+					})
 
+				}
+				s.Reply("还玩吗？[Y/n]")
+				s.Await(s, func(s2 Sender) interface{} {
+					msg := s2.GetContent()
+					if strings.ToLower(msg) == "Y" || strings.ToLower(msg) == "yes" {
+						goon = true
+					}
+					return nil
+				})
+				if goon {
+					goto start
+				}
+				if !win {
+					s.Reply("菜*，见一次虐一次！")
+				} else {
+					s.Reply("大爷下次再来玩啊～")
 				}
 				return nil
 			},
