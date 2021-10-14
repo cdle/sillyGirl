@@ -248,7 +248,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 		return
 	}
 	if c.Pattern == "" {
-		return
+		c.Pattern = `[\s\S]*`
 	}
 	c.Chan = make(chan interface{}, 1)
 	c.Result = make(chan interface{}, 1)
