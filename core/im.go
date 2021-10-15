@@ -224,10 +224,15 @@ type Carry struct {
 	Sender  Sender
 }
 
+type forGroup string
+
+var ForGroup forGroup
+
 func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) {
 	c := &Carry{}
 	timeout := time.Second * 20
 	var handleErr func(error)
+	var fg *forGroup
 	for _, param := range params {
 		switch param.(type) {
 		case string:
@@ -242,6 +247,9 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 
 		case func(error):
 			handleErr = param.(func(error))
+		case forGroup:
+			a := param.(forGroup)
+			fg = &a
 		}
 	}
 	if callback == nil {
@@ -253,6 +261,9 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 	c.Chan = make(chan interface{}, 1)
 	c.Result = make(chan interface{}, 1)
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
+	if fg != nil {
+		key += fmt.Sprintf("&t=%v&f=true", time.Now().Unix())
+	}
 	if oc, ok := waits.LoadOrStore(key, c); ok {
 		oc.(*Carry).Chan <- InterruptError
 	}

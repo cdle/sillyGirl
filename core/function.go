@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -80,15 +81,47 @@ func AddCommand(prefix string, cmds []Function) {
 
 func handleMessage(sender Sender) {
 	defer sender.Finish()
-	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
-	if v, ok := waits.Load(key); ok {
+	u, g, i := fmt.Sprint(sender.GetUserID()), fmt.Sprint(sender.GetChatID()), fmt.Sprint(sender.GetImType())
+	con := true
+	mtd := false
+	waits.Range(func(k, v interface{}) bool {
 		c := v.(*Carry)
+		vs, _ := url.ParseQuery(k.(string))
+		userID := vs.Get("u")
+		chatID := vs.Get("c")
+		imType := vs.Get("i")
+		forGroup := vs.Get("f")
+		if imType != i {
+			return true
+		}
+		if chatID != g {
+			return true
+		}
+		if userID != u && forGroup == "" {
+			return true
+		}
 		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
+			mtd = true
 			c.Chan <- sender
 			sender.Reply(<-c.Result)
-			return
+			if !sender.IsContinue() {
+				con = false
+				return false
+			}
 		}
+		return true
+	})
+	if mtd && !con {
+		return
 	}
+	// if v, ok := waits.Load(key); ok {
+	// 	c := v.(*Carry)
+	// 	if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
+	// 		c.Chan <- sender
+	// 		sender.Reply(<-c.Result)
+	// 		return
+	// 	}
+	// }
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool
