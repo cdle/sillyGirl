@@ -275,6 +275,11 @@ Alias=sillyGirl.service`
 		{
 			Rules: []string{"raw ^成语接龙$"},
 			Handle: func(s Sender) interface{} {
+				begin := ""
+				fword := func(cy string) string {
+					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
+					return begin
+				}
 				id := fmt.Sprintf("%v", s.GetUserID())
 			start:
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
@@ -282,6 +287,7 @@ Alias=sillyGirl.service`
 					s.Reply(err)
 				}
 				s.Reply(data)
+				fword(data)
 				stop := false
 				goon := false
 				win := false
@@ -298,9 +304,22 @@ Alias=sillyGirl.service`
 					}
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
+						me := s2.GetUserID() == s.GetUserID()
 						if strings.Contains(ct, "认输") {
-							stop = true
-							return nil
+							if me {
+								stop = true
+								return nil
+							} else {
+								return "你认输有个屁用。"
+							}
+						}
+						if regexp.MustCompile("^"+begin).FindString(ct) == "" {
+							if me {
+								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
+							} else {
+								s2.Continue()
+								return nil
+							}
 						}
 						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
 						if cy == "" {
@@ -319,17 +338,26 @@ Alias=sillyGirl.service`
 						if strings.Contains(data, "你赢") {
 							stop = true
 							win = true
+							if !me {
+								defer s.Reply("反正不是你赢，嘿嘿。")
+							}
 						} else if strings.Contains(data, "我赢") {
 							stop = true
 							win = false
 						} else if strings.Contains(data, "恭喜") {
-
+							fword(data)
+							if !me {
+								data += "\n你很可拷，观棋不语真君子懂不懂啊。"
+							}
 						} else {
-							data += "玩不过就认输呗。"
+							if me {
+								data += "\n玩不过就认输呗。"
+							} else {
+								data += "\n你以为你会，结果出丑了吧。"
+							}
 						}
 						return data
-					})
-
+					}, ForGroup)
 				}
 				time.Sleep(time.Microsecond * 100)
 				s.Reply("还玩吗？[Y/n]")
