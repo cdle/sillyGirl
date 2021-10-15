@@ -277,7 +277,7 @@ Alias=sillyGirl.service`
 			Handle: func(s Sender) interface{} {
 				begin := ""
 				fword := func(cy string) string {
-					begin = regexp.MustCompile(`([一-龥])】`).FindString(cy)
+					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
 					return begin
 				}
 				id := fmt.Sprintf("%v", s.GetUserID())
@@ -307,7 +307,7 @@ Alias=sillyGirl.service`
 						me := s2.GetUserID() == s.GetUserID()
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" {
 							if me {
-								return fmt.Sprintf("现在是接%s】开头的成语哦。", begin)
+								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
 							} else {
 								s2.Continue()
 								return nil
