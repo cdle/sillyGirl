@@ -132,7 +132,7 @@ set wxmp masters w1&w2&w3...
 
 #set wx relay_mode true
 
-##### 设置指定转发地址，格式为 https://域名/relay?url=%s
+##### 设置指定转发地址，格式为 https://域名/relay?url=%s，不知道不用填
 
 #set wx relaier ?
 
