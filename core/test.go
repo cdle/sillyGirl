@@ -307,7 +307,7 @@ Alias=sillyGirl.service`
 						me := s2.GetUserID() == s.GetUserID()
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" {
 							if me {
-								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
+								return fmt.Sprintf("现在是接%s】开头的成语哦。", begin)
 							} else {
 								s2.Continue()
 								return nil
