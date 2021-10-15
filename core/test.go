@@ -338,7 +338,9 @@ Alias=sillyGirl.service`
 						if strings.Contains(data, "你赢") {
 							stop = true
 							win = true
-							defer s.Reply("反正不是你赢，嘿嘿。")
+							if !me {
+								defer s.Reply("反正不是你赢，嘿嘿。")
+							}
 						} else if strings.Contains(data, "我赢") {
 							stop = true
 							win = false
