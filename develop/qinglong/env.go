@@ -45,6 +45,14 @@ func GetEnvs(searchValue string) ([]Env, error) {
 	return er.Data, nil
 }
 
+func GetEnvss(searchValue string) ([]Env, error) {
+	er := EnvResponse{}
+	if err := Config.Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+		return nil, err
+	}
+	return er.Data, nil
+}
+
 func SetEnv(e Env) error {
 	envs, err := GetEnvs("")
 	if err != nil {
@@ -68,6 +76,8 @@ func SetEnv(e Env) error {
 }
 
 func UdpEnv(env Env) error {
+	env.Created = 0
+	env.Timestamp = ""
 	return Config.Req(PUT, ENVS, env)
 }
 
@@ -87,6 +97,8 @@ func ModEnv(e Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
+			env.Created = 0
+			env.Timestamp = ""
 			return Config.Req(PUT, ENVS, env)
 		}
 	}
@@ -94,6 +106,8 @@ func ModEnv(e Env) error {
 }
 
 func AddEnv(e Env) error {
+	e.Created = 0
+	e.Timestamp = ""
 	return Config.Req(POST, ENVS, []Env{e})
 }
 
