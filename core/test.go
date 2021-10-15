@@ -277,7 +277,7 @@ Alias=sillyGirl.service`
 			Handle: func(s Sender) interface{} {
 				begin := ""
 				fword := func(cy string) string {
-					begin := regexp.MustCompile(`([一-龥])】`).FindString(cy)
+					begin = regexp.MustCompile(`([一-龥])】`).FindString(cy)
 					return begin
 				}
 				id := fmt.Sprintf("%v", s.GetUserID())
