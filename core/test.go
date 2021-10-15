@@ -305,6 +305,14 @@ Alias=sillyGirl.service`
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
 						me := s2.GetUserID() == s.GetUserID()
+						if strings.Contains(ct, "认输") {
+							if me {
+								stop = true
+								return nil
+							} else {
+								return "你认输有个屁用。"
+							}
+						}
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" {
 							if me {
 								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
@@ -312,10 +320,6 @@ Alias=sillyGirl.service`
 								s2.Continue()
 								return nil
 							}
-						}
-						if strings.Contains(ct, "认输") {
-							stop = true
-							return nil
 						}
 						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
 						if cy == "" {
@@ -341,13 +345,13 @@ Alias=sillyGirl.service`
 						} else if strings.Contains(data, "恭喜") {
 							fword(data)
 							if !me {
-								defer s2.Reply("你很可拷，观棋不语真君子懂不懂啊。")
+								data += "\n你很可拷，观棋不语真君子懂不懂啊。"
 							}
 						} else {
 							if me {
-								data += "玩不过就认输呗。"
+								data += "\n玩不过就认输呗。"
 							} else {
-								data += "你以为你会，结果出丑了吧。"
+								data += "\n你以为你会，结果出丑了吧。"
 							}
 						}
 						return data
