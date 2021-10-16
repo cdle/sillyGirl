@@ -37,10 +37,8 @@ func init123() {
 		result, _ = otto.ToValue(o.Get(key, value))
 		return
 	}
-	set := func(call otto.FunctionCall) interface{} {
-		key := call.Argument(0).String()
-		value := call.Argument(1).String()
-		o.Set(key, value)
+	set := func(key otto.Value, value otto.Value) interface{} {
+		o.Set(key.String(), value.String())
 		return otto.Value{}
 	}
 	push := func(call otto.Value) interface{} {
