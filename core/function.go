@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/beego/beego/v2/adapter/logs"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -71,9 +70,9 @@ func AddCommand(prefix string, cmds []Function) {
 			if _, err := c.AddFunc(cmds[j].Cron, func() {
 				cmd.Handle(&Faker{})
 			}); err != nil {
-				logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
+				// logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
 			} else {
-				logs.Warn("任务%v添加成功", cmds[j].Rules[0])
+				// logs.Warn("任务%v添加成功", cmds[j].Rules[0])
 			}
 		}
 	}
