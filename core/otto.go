@@ -157,9 +157,9 @@ func init123() {
 				return v
 			}
 			vm := otto.New()
-			vm.Set("call", func(call otto.FunctionCall) otto.Value {
-				key := call.Argument(0).String()
-				value := call.Argument(1).String()
+			vm.Set("call", func(name otto.Value, arg otto.Value) interface{} {
+				key := name.String()
+				value := arg.String()
 				if f, ok := OttoFuncs[key]; ok {
 					v, _ := otto.ToValue(f(value))
 					return v
