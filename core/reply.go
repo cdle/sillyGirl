@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/url"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -53,13 +53,7 @@ func InitReplies() {
 			if reply.Request.Disappear {
 				s.Disappear()
 			}
-			timeUnix := strconv.FormatInt(time.Now().Unix(), 10)
 			Url := reply.Request.Url
-			if strings.Contains(Url, "?") {
-				Url = Url + "&_=" + timeUnix
-			} else {
-				Url = Url + "?_=" + timeUnix
-			}
 			body := reply.Request.Body
 			for k, v := range s.GetMatch() {
 				Url = strings.Replace(Url, fmt.Sprintf(`{{%d}}`, k+1), v, -1)
@@ -121,6 +115,12 @@ func InitReplies() {
 						s.Reply(ImageUrl(res[1]))
 					}
 					return nil
+				}
+				timeUnix := strconv.FormatInt(time.Now().Unix(), 10)
+				if strings.Contains(Url, "?") {
+					Url = Url + "&_=" + timeUnix
+				} else {
+					Url = Url + "?_=" + timeUnix
 				}
 				s.Reply(ImageUrl(Url))
 			case "json":
