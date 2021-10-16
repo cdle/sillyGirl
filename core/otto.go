@@ -22,6 +22,8 @@ func init() {
 	}()
 }
 
+var OttoFuncs = map[string]func(string) string{}
+
 func init123() {
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
@@ -141,8 +143,8 @@ func init123() {
 		if res := regexp.MustCompile(`\[admin:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			admin = strings.Trim(res[1], " ") == "true"
 		}
-		if len(rules) == 0 {
-			logs.Warn("回复：%s找不到规则", jr, err)
+		if len(rules) == 0 && cron == "" {
+			logs.Warn("回复：%s无效文件", jr, err)
 			continue
 		}
 		var handler = func(s Sender) interface{} {
@@ -155,6 +157,15 @@ func init123() {
 				return v
 			}
 			vm := otto.New()
+			vm.Set("call", func(call otto.FunctionCall) otto.Value {
+				key := call.Argument(0).String()
+				value := call.Argument(1).String()
+				if f, ok := OttoFuncs[key]; ok {
+					v, _ := otto.ToValue(f(value))
+					return v
+				}
+				return otto.Value{}
+			})
 			vm.Set("Delete", func() {
 				s.Delete()
 			})
