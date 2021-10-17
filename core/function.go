@@ -149,7 +149,6 @@ func handleMessage(sender Sender) {
 					// if sender.GetImType() != "wx" && sender.GetImType() != "qq" {
 					sender.Reply("再捣乱我就报警啦～")
 					// }
-					sender.Finish()
 					return
 				}
 				rt := function.Handle(sender)
