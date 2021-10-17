@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/beego/beego/v2/core/logs"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -141,6 +142,7 @@ func handleMessage(sender Sender) {
 				}
 			}
 			if matched {
+				logs.Info("%v ==> %v", sender.GetContent(), rule)
 				if function.Admin && !sender.IsAdmin() {
 					sender.Delete()
 					sender.Disappear()
