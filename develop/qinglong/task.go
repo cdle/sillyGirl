@@ -2,6 +2,7 @@ package qinglong
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/cdle/sillyGirl/core"
@@ -22,17 +23,11 @@ func init() {
 				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 					return err
 				}
-				i := 0
 				for {
-					i++
-					time.Sleep(time.Second)
+					time.Sleep(time.Microsecond * 300)
 					data, _ := GetCronLog(cron.Value)
-					if data != "" {
+					if strings.Contains(data, "执行结束...") {
 						s.Reply(data)
-						break
-					}
-					if i > 5 {
-						s.Reply("执行异常。")
 						break
 					}
 				}
@@ -55,17 +50,11 @@ func init() {
 				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 					return err
 				}
-				i := 0
 				for {
-					i++
-					time.Sleep(time.Second)
+					time.Sleep(time.Microsecond * 300)
 					data, _ := GetCronLog(cron.Value)
-					if data != "" {
+					if strings.Contains(data, "执行结束...") {
 						s.Reply(data)
-						break
-					}
-					if i > 5 {
-						s.Reply("执行异常。")
 						break
 					}
 				}
