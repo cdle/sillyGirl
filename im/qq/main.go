@@ -14,7 +14,7 @@ import (
 	"github.com/Mrs4s/go-cqhttp/global"
 	"github.com/Mrs4s/go-cqhttp/global/config"
 	"github.com/cdle/sillyGirl/core"
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 
 	"github.com/Mrs4s/MiraiGo/binary"
 	"github.com/Mrs4s/MiraiGo/client"
@@ -50,6 +50,7 @@ func start() {
 	conf.Account.Password = qq.Get("password")
 	conf.Message.ReportSelfMessage = true
 	conf.Account.ReLogin.MaxTimes = 30
+	// conf.Output.Debug = true
 	conf.Database = map[string]yaml.Node{
 		"leveldb": {
 			Kind: 4,
