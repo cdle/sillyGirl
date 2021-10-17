@@ -51,6 +51,7 @@ func AddCommand(prefix string, cmds []Function) {
 				cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "raw ", "", -1)
 				continue
 			}
+			cmds[j].Rules[i] = strings.ReplaceAll(cmds[j].Rules[i], `\r\a\w`, "raw")
 			if strings.Contains(cmds[j].Rules[i], "$") {
 				continue
 			}
