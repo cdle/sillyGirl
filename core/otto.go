@@ -15,6 +15,8 @@ import (
 
 type JsReply string
 
+var o = NewBucket("otto")
+
 func init() {
 	go func() {
 		time.Sleep(time.Second)
@@ -30,7 +32,7 @@ func init123() {
 		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
 		return
 	}
-	var o = NewBucket("otto")
+
 	get := func(call otto.FunctionCall) (result otto.Value) {
 		key := call.Argument(0).String()
 		value := call.Argument(1).String()
