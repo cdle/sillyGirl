@@ -36,7 +36,7 @@ func (sender *Sender) GetContent() string {
 	text = strings.Replace(text, "&#93;", "]", -1)
 	// sender.Reply(text)
 	// text = regexp.MustCompile(`&#93;`).ReplaceAllString(text, "")
-	return text
+	return strings.Trim(text, " ")
 }
 
 func (sender *Sender) GetUserID() interface{} {
