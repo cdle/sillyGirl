@@ -10,7 +10,7 @@ import (
 func init() {
 	core.AddCommand("ql", []core.Function{
 		{
-			Rules: []string{`a ?`},
+			Rules: []string{`\r\a\w ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
 				cron := &Carrier{
