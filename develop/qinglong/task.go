@@ -51,7 +51,7 @@ func init() {
 					return err
 				}
 				for {
-					time.Sleep(time.Microsecond * 300)
+					time.Sleep(time.Second)
 					data, _ := GetCronLog(cron.Value)
 					if strings.Contains(data, "执行结束...") {
 						s.Reply(data)
@@ -78,7 +78,7 @@ func init() {
 					return err
 				}
 				for {
-					time.Sleep(time.Microsecond * 300)
+					time.Sleep(time.Second)
 					data, _ := GetCronLog(cron.Value)
 					if strings.Contains(data, "执行结束...") {
 						s.Reply(data)
