@@ -8,7 +8,7 @@ func init() {
 	Server = gin.New()
 }
 
-var Tail = "--来自sillyGirl，傻妞技术交流群654346133。"
+var Tail = "--来自sillyGirl，傻妞技术交流QQ群882314490，电报交流群https://t.me/kczz2021。"
 
 func RunServer() {
 	if sillyGirl.GetBool("enable_http_server", false) == false {
