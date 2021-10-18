@@ -82,6 +82,9 @@ func AddCommand(prefix string, cmds []Function) {
 
 func handleMessage(sender Sender) {
 	defer sender.Finish()
+	defer func() {
+		logs.Info("%v ==> %v", sender.GetContent(), "finished")
+	}()
 	u, g, i := fmt.Sprint(sender.GetUserID()), fmt.Sprint(sender.GetChatID()), fmt.Sprint(sender.GetImType())
 	con := true
 	mtd := false
