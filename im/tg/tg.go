@@ -64,8 +64,7 @@ func init() {
 			Token:  token,
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
-                        URL: tg.Get("url"),
-                        
+			URL: tg.Get("url"),
 		}
 		if url := tg.Get("http_proxy"); url != "" {
 			client, clientErr := buildClientWithProxy(url)
@@ -89,7 +88,7 @@ func init() {
 			paths := []string{}
 			ct := &tb.Chat{ID: core.Int64(i)}
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
-				paths = append(paths, core.ExecPath+"/data/images/"+v[1])
+				paths = append(paths, "data/images/"+v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			}
 			s = regexp.MustCompile(`\[CQ:([^\[\]]+)\]`).ReplaceAllString(s, "")
@@ -133,7 +132,7 @@ func init() {
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
 			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-			filepath := core.ExecPath + "/data/images/" + filename
+			filepath := "data/images/" + filename
 			if b.Download(&m.Photo.File, filepath) == nil {
 				m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
 				Handler(m)
@@ -154,7 +153,7 @@ func init() {
 		// 		return
 		// 	}
 		// 	filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-		// 	filepath := core.ExecPath + "/data/images/" + filename
+		// 	filepath := "data/images/" + filename
 		// 	f, err := os.Create(filepath)
 		// 	if err != nil {
 		// 		return
@@ -179,7 +178,11 @@ func (sender *Sender) GetUserID() interface{} {
 }
 
 func (sender *Sender) GetChatID() interface{} {
-	return int(sender.Message.Chat.ID)
+	if sender.Message.Private() {
+		return 0
+	} else {
+		return int(sender.Message.Chat.ID)
+	}
 }
 
 func (sender *Sender) GetImType() string {
@@ -284,7 +287,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Reply(err)
 			return 0, nil
 		} else {
-			rts,err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
+			rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
 			if err == nil {
 				rt = &rts[0]
 			}

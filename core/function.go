@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -14,6 +15,9 @@ import (
 var c *cron.Cron
 
 func init() {
+	if runtime.GOOS != "windows" {
+		pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+	}
 	c = cron.New()
 	c.Start()
 }
@@ -26,7 +30,7 @@ type Function struct {
 	Cron    string
 }
 
-var pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+var pname = ""
 
 var name = func() string {
 	return sillyGirl.Get("name", "傻妞")

@@ -112,7 +112,7 @@ func init() {
 		}
 		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 			s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
-			data, err := os.ReadFile(core.ExecPath + "/data/images/" + v[1])
+			data, err := os.ReadFile("data/images/" + v[1])
 			if err == nil {
 				add := regexp.MustCompile("(https.*)").FindString(string(data))
 				if add != "" {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -58,6 +59,9 @@ func initSys() {
 			Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) {
 					return nil
 				}
