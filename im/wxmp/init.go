@@ -21,7 +21,7 @@ var u2i = core.NewBucket("wxmpu2i")
 var material = core.NewBucket("wxmpMaterial")
 
 func init() {
-	file_dir := core.ExecPath + "/logs/wxmp/"
+	file_dir := "logs/wxmp/"
 	os.MkdirAll(file_dir, os.ModePerm)
 	core.Server.Any("/wx/", func(c *gin.Context) {
 		wc := wechat.NewWechat()

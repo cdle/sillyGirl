@@ -27,9 +27,10 @@ func init() {
 var OttoFuncs = map[string]func(string) string{}
 
 func init123() {
-	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
+	files, err := ioutil.ReadDir("develop/replies")
 	if err != nil {
-		logs.Warn("打开文件夹%s错误，%v", ExecPath+"/develop/replies", err)
+		os.MkdirAll("develop/replies", os.ModePerm)
+		// logs.Warn("打开文件夹%s错误，%v", "develop/replies", err)
 		return
 	}
 
@@ -114,7 +115,7 @@ func init123() {
 		if v.IsDir() {
 			continue
 		}
-		jr := string(ExecPath + "/develop/replies/" + v.Name())
+		jr := string("develop/replies/" + v.Name())
 		data := ""
 		if strings.Contains(jr, "http") {
 			data, err = httplib.Get(jr).String()

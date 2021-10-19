@@ -22,7 +22,7 @@ func init() {
 		}
 	}
 	initStore()
-	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
+	ReadYaml("conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
 	file, err := os.Open("/etc/sillyGirl/sets.conf")

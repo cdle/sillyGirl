@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"runtime"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -23,11 +24,12 @@ func NewBucket(name string) Bucket {
 }
 
 func initStore() {
-	// if _, err := os.Stat(ExecPath + "/sillyGirl.cache"); err == nil {
-	// 	os.Rename(ExecPath+"/sillyGirl.cache", "/etc/sillyGirl/sillyGirl.cache")
-	// }
 	var err error
-	db, err = bolt.Open("/etc/sillyGirl/sillyGirl.cache", 0600, nil)
+	if runtime.GOOS != "windows" {
+		db, err = bolt.Open("/etc/sillyGirl/sillyGirl.cache", 0600, nil)
+	} else {
+		db, err = bolt.Open(`C:\ProgramData\sillyGirl.cache`, 0600, nil)
+	}
 	if err != nil {
 		panic(err)
 	}

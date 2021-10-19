@@ -283,7 +283,7 @@ func start() {
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
 		paths := []string{}
 		for _, v := range regexp.MustCompile(`\[TG:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
-			paths = append(paths, core.ExecPath+"/data/images/"+v[1])
+			paths = append(paths, "data/images/"+v[1])
 			s = strings.Replace(s, fmt.Sprintf(`[TG:image,file=%s]`, v[1]), "", -1)
 		}
 		imgs := []message.IMessageElement{}
