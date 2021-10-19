@@ -70,7 +70,7 @@ func initSys() {
 				}
 				need, err := GitPull("")
 				if err != nil {
-					return err
+					return "请使用以下命令手动升级：\n cd " + ExecPath + " && git stash && git pull && go build && ./" + pname
 				}
 				if !need {
 					s.Reply("核心功能已是最新。", E)
@@ -100,7 +100,7 @@ func initSys() {
 				}
 				s.Reply("正在编译程序...", E)
 				if err := CompileCode(); err != nil {
-					return err
+					return "请使用以下命令手动编译：\n cd " + ExecPath + " && go build && ./" + pname
 				}
 				s.Reply("编译程序完毕。", E)
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
