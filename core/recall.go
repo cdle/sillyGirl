@@ -14,7 +14,9 @@ func init() {
 				{
 					Rules: rules,
 					Handle: func(s Sender) interface{} {
-						s.Delete()
+						if !s.IsAdmin() {
+							s.Delete()
+						}
 						return nil
 					},
 				},
