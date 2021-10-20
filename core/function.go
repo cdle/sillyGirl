@@ -189,7 +189,7 @@ func handleMessage(sender Sender) {
 			reg, err := regexp.Compile(v)
 			if err == nil {
 				if reg.FindString(sender.GetContent()) != "" {
-					if sender.IsAdmin() {
+					if !sender.IsAdmin() {
 						sender.Delete()
 					}
 				}
