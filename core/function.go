@@ -170,6 +170,33 @@ func handleMessage(sender Sender) {
 		}
 	goon:
 	}
+	reply.Foreach(func(k, v []byte) error {
+		if string(v) == "" {
+			return nil
+		}
+		reg, err := regexp.Compile(string(k))
+		if err == nil {
+			if reg.FindString(sender.GetContent()) != "" {
+				sender.Reply(string(v))
+			}
+		}
+		return nil
+	})
+
+	recall := sillyGirl.Get("recall")
+	if recall != "" {
+		for _, v := range strings.Split(recall, "&") {
+			reg, err := regexp.Compile(v)
+			if err == nil {
+				if reg.FindString(sender.GetContent()) != "" {
+					if sender.IsAdmin() {
+						sender.Delete()
+					}
+				}
+			}
+		}
+	}
+
 }
 
 func FetchCookieValue(ps ...string) string {
