@@ -184,14 +184,11 @@ func init() {
 					if strings.Contains(s, "shufflewzc") {
 						return 1
 					}
-					if strings.Contains(s, "novpx") {
-						return 10
-					}
 					if strings.Contains(s, "smiek2221") {
 						return 9
 					}
 					if strings.Contains(s, "Aaron-lv") {
-						return 8
+						return -8
 					}
 					return 0
 				}
