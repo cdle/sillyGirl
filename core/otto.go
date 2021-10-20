@@ -115,6 +115,9 @@ func init123() {
 		if v.IsDir() {
 			continue
 		}
+		if !strings.Contains(v.Name(), ".js") {
+			continue
+		}
 		jr := string("develop/replies/" + v.Name())
 		data := ""
 		if strings.Contains(jr, "http") {
