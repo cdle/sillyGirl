@@ -209,7 +209,7 @@ func init() {
 				}
 				tasks := map[string]Cron{}
 				for i := range crons {
-					if strings.Contains(crons[i].Name, "傻妞") {
+					if strings.Contains(crons[i].Name, "sillyGirl") {
 						continue
 					}
 					if crons[i].IsDisabled != 0 {
