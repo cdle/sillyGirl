@@ -222,6 +222,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"notify ?"},
+			Admin: true,
 			Handle: func(s Sender) interface{} {
 				NotifyMasters(s.Get())
 				return "通知成功。"
