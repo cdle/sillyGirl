@@ -220,6 +220,7 @@ func init() {
 				tasks := map[string]Cron{}
 				for i := range crons {
 					if strings.Contains(crons[i].Name, "sillyGirl") {
+						Config.Req(CRONS, DELETE, []byte(`["`+crons[i].ID+`"]`))
 						continue
 					}
 					if crons[i].IsDisabled != 0 {
