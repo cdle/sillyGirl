@@ -31,7 +31,7 @@ func init() {
 						break
 					}
 				}
-				if err := Config.Req(cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
+				if err := Config.Req(CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 					return err
 				}
 				return nil
