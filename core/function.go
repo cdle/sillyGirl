@@ -87,8 +87,8 @@ func AddCommand(prefix string, cmds []Function) {
 func handleMessage(sender Sender) {
 	defer sender.Finish()
 	recall := sillyGirl.Get("recall")
-	recalled := false
 	if recall != "" {
+		recalled := false
 		for _, v := range strings.Split(recall, "&") {
 			reg, err := regexp.Compile(v)
 			if err == nil {
@@ -101,10 +101,11 @@ func handleMessage(sender Sender) {
 				}
 			}
 		}
+		if recalled == true {
+			return
+		}
 	}
-	if recalled == true {
-		return
-	}
+
 	defer func() {
 		logs.Info("%v ==> %v", sender.GetContent(), "finished")
 	}()
