@@ -250,7 +250,11 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	} else {
 		r = sender.Message.Chat
 		if !sender.deleted {
-			options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+			if sender.Message.ReplyTo == nil {
+				options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+			} else {
+				options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message.ReplyTo}}
+			}
 		}
 	}
 	var err error
