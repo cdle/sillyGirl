@@ -318,7 +318,7 @@ Alias=sillyGirl.service`
 								return "你认输有个屁用。"
 							}
 						}
-						if regexp.MustCompile("^"+begin).FindString(ct) == "" {
+						if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
 							if me {
 								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
 							} else {
