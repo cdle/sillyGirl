@@ -13,6 +13,7 @@ import (
 	"github.com/Mrs4s/go-cqhttp/coolq"
 	"github.com/Mrs4s/go-cqhttp/global"
 	"github.com/Mrs4s/go-cqhttp/global/config"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 	"gopkg.in/yaml.v3"
 
@@ -248,6 +249,7 @@ func start() {
 	}
 	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
 		if ignore := qq.Get("offGroups", "654346133&923993867&833022151"); len(ignore) > 4 && strings.Contains(ignore, fmt.Sprint(m.GroupCode)) {
+			logs.Warn("ignore")
 			return
 		}
 		if listen := qq.Get("onGroups"); len(listen) > 4 && !strings.Contains(listen, fmt.Sprint(m.GroupCode)) {
