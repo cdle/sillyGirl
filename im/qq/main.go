@@ -247,7 +247,7 @@ func start() {
 		}
 	}
 	OnGroupMessage := func(_ *client.QQClient, m *message.GroupMessage) {
-		if ignore := qq.Get("offGroups", "654346133&923993867"); len(ignore) > 4 && strings.Contains(ignore, fmt.Sprint(m.GroupCode)) {
+		if ignore := qq.Get("offGroups", "654346133&923993867&833022151"); len(ignore) > 4 && strings.Contains(ignore, fmt.Sprint(m.GroupCode)) {
 			return
 		}
 		if listen := qq.Get("onGroups"); len(listen) > 4 && !strings.Contains(listen, fmt.Sprint(m.GroupCode)) {
