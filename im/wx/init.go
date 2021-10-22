@@ -145,6 +145,10 @@ func init() {
 		if jms.FinalFromWxid == jms.RobotWxid {
 			return
 		}
+		listen := wx.Get("onGroups")
+		if jms.Event == "EventGroupMsg" && listen != "" && !strings.Contains(listen, strings.Replace(fmt.Sprint(jms.FromWxid), "@chatroom", "", -1)) {
+			return
+		}
 		if robot_wxid != jms.RobotWxid {
 			robot_wxid = jms.RobotWxid
 			wx.Set("robot_wxid", robot_wxid)
