@@ -284,14 +284,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		}
 		paths := []string{}
 		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(message, -1) {
-			paths = append(paths, "data/images/"+v[1])
+			paths = append(paths, v[1])
 			message = strings.Replace(message, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 		}
 		if len(paths) > 0 {
 			is := []tb.InputMedia{}
 			for index, path := range paths {
 				if strings.Contains(path, "base64") {
-
 					decodeBytes, _ := base64.StdEncoding.DecodeString(path)
 					i := &tb.Photo{File: tb.FromReader(bytes.NewReader(decodeBytes))}
 					if index == 0 {
@@ -299,7 +298,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 					}
 					is = append(is, i)
 				} else {
-					data, err := os.ReadFile(path)
+					data, err := os.ReadFile("data/images/" + path)
 					if err == nil {
 						url := regexp.MustCompile("(https.*)").FindString(string(data))
 						if url != "" {
