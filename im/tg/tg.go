@@ -292,7 +292,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			for index, path := range paths {
 				if strings.Contains(path, "base64") {
 
-					decodeBytes, err := base64.StdEncoding.DecodeString(path)
+					decodeBytes, err := base64.StdEncoding.DecodeString(strings.Replace(path, "base64://", "", -1))
 					if err != nil {
 						sender.Reply(path[len(path)-20:])
 						sender.Reply(err)
