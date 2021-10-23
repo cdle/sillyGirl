@@ -94,7 +94,7 @@ func handleMessage(sender Sender) {
 			reg, err := regexp.Compile(v)
 			if err == nil {
 				if reg.FindString(sender.GetContent()) != "" {
-					if !sender.IsAdmin() {
+					if !sender.IsAdmin() && sender.GetImType() != "wx" {
 						sender.Delete()
 						sender.Reply("本妞清除了不好的消息～", time.Duration(time.Second))
 						recalled = true
