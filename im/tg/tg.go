@@ -294,6 +294,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 					decodeBytes, err := base64.StdEncoding.DecodeString(path)
 					if err != nil {
+						sender.Reply(path[len(path)-20:])
 						sender.Reply(err)
 					}
 					i := &tb.Photo{File: tb.FromReader(bytes.NewReader(decodeBytes))}
