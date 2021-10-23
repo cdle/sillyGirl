@@ -290,7 +290,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		if len(paths) > 0 {
 			is := []tb.InputMedia{}
 			for index, path := range paths {
-				if strings.Contains(message, "base64") {
+				if strings.Contains(path, "base64") {
+
 					decodeBytes, _ := base64.StdEncoding.DecodeString(path)
 					i := &tb.Photo{File: tb.FromReader(bytes.NewReader(decodeBytes))}
 					if index == 0 {
