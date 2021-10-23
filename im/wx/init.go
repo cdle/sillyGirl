@@ -208,6 +208,9 @@ type JsonMsg struct {
 }
 
 func (sender *Sender) GetContent() string {
+	if sender.Content != "" {
+		return sender.Content
+	}
 	return sender.value.Msg
 }
 func (sender *Sender) GetUserID() interface{} {

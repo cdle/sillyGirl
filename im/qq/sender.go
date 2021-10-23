@@ -21,6 +21,9 @@ type Sender struct {
 }
 
 func (sender *Sender) GetContent() string {
+	if sender.Content != "" {
+		return sender.Content
+	}
 	text := ""
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:

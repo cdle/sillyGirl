@@ -22,6 +22,7 @@ type Sender interface {
 	GetAllMatch() [][]string
 	Get(...int) string
 	GetContent() string
+	SetContent(string)
 	IsAdmin() bool
 	IsMedia() bool
 	Reply(...interface{}) (int, error)
@@ -49,6 +50,7 @@ type Faker struct {
 	Message string
 	Type    string
 	UserID  interface{}
+	ChatID  interface{}
 	BaseSender
 }
 
@@ -61,7 +63,7 @@ func (sender *Faker) GetUserID() interface{} {
 }
 
 func (sender *Faker) GetChatID() interface{} {
-	return 0
+	return sender.ChatID
 }
 
 func (sender *Faker) GetImType() string {
@@ -135,6 +137,7 @@ type BaseSender struct {
 	matches [][]string
 	goon    bool
 	child   Sender
+	Content string
 }
 
 func (sender *BaseSender) SetMatch(ss []string) {
@@ -142,6 +145,10 @@ func (sender *BaseSender) SetMatch(ss []string) {
 }
 func (sender *BaseSender) SetAllMatch(ss [][]string) {
 	sender.matches = ss
+}
+
+func (sender *BaseSender) SetContent(content string) {
+	sender.Content = content
 }
 
 func (sender *BaseSender) GetMatch() []string {
