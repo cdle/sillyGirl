@@ -214,6 +214,8 @@ func (sender *Sender) GetContent() string {
 	switch sender.value.Msg.(type) {
 	case int, int64, int32:
 		return fmt.Sprintf("%d", sender.value.Msg)
+	case float64:
+		return fmt.Sprintf("%d", int(sender.value.Msg.(float64)))
 	}
 	return fmt.Sprint(sender.value.Msg)
 }
