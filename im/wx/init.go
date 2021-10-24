@@ -164,6 +164,9 @@ func init() {
 			io.Copy(c.Writer, rsp.Body)
 		}
 	})
+	core.Server.GET("/wximage", func(c *gin.Context) {
+		c.Writer.Write([]byte{})
+	})
 }
 
 var myip = ""
@@ -256,6 +259,12 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		switch item.(type) {
 		case string:
 			pmsg.Msg = item.(string)
+			// images := []string{}
+			// for _, v := range regexp.MustCompile(`\[CQ:image,file=base64://([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
+			// 	images = append(images, v[1])
+			// 	message = strings.Replace(message, fmt.Sprintf(`[CQ:image,file=base64://%s]`, v[1]), "", -1)
+			// }
+			// if
 		case []byte:
 			pmsg.Msg = string(item.([]byte))
 		case core.ImageUrl:
