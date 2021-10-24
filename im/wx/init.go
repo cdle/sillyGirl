@@ -211,7 +211,11 @@ func (sender *Sender) GetContent() string {
 	if sender.Content != "" {
 		return sender.Content
 	}
-	return fmt.Sprintf("%v", sender.value.Msg)
+	switch sender.value.Msg.(type) {
+	case int, int64, int32:
+		return fmt.Sprintf("%d", sender.value.Msg)
+	}
+	return fmt.Sprint(sender.value.Msg)
 }
 func (sender *Sender) GetUserID() interface{} {
 	return sender.value.FinalFromWxid
