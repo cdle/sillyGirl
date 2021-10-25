@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -169,6 +170,8 @@ func init() {
 	})
 }
 
+var wxbase sync.Map
+
 var myip = ""
 var relaier = wx.Get("relaier")
 
@@ -259,12 +262,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		switch item.(type) {
 		case string:
 			pmsg.Msg = item.(string)
-			// images := []string{}
-			// for _, v := range regexp.MustCompile(`\[CQ:image,file=base64://([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
-			// 	images = append(images, v[1])
-			// 	message = strings.Replace(message, fmt.Sprintf(`[CQ:image,file=base64://%s]`, v[1]), "", -1)
+			images := []string{}
+			for _, v := range regexp.MustCompile(`\[CQ:image,file=base64://([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
+				images = append(images, v[1])
+				pmsg.Msg = strings.Replace(pmsg.Msg, fmt.Sprintf(`[CQ:image,file=base64://%s]`, v[1]), "", -1)
+			}
+			// for _, image := range images {
+			// 	wxbase
 			// }
-			// if
 		case []byte:
 			pmsg.Msg = string(item.([]byte))
 		case core.ImageUrl:

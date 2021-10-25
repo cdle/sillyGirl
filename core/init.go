@@ -42,4 +42,9 @@ func init() {
 	initSys()
 	Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
+	api_key := sillyGirl.Get("api_key")
+	if api_key == "" {
+		api_key := time.Now().UnixNano()
+		sillyGirl.Set("api_key", api_key)
+	}
 }
