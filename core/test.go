@@ -85,6 +85,12 @@ func initSys() {
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() && f.Name() != "replies" {
+						if f.Name() == "qinglong" {
+							continue
+						}
+						if strings.HasPrefix(f.Name(), "_") {
+							continue
+						}
 						s.Reply("检查扩展"+f.Name()+"更新...", E)
 						need, err := GitPull("/develop/" + f.Name())
 						if err != nil {
