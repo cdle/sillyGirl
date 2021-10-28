@@ -25,6 +25,7 @@ func init() {
 	ReadYaml("conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
+
 	file, err := os.Open("/etc/sillyGirl/sets.conf")
 	if err == nil {
 		scanner := bufio.NewScanner(file)

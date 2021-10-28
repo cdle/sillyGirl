@@ -20,6 +20,10 @@ type JsReply string
 var o = NewBucket("otto")
 
 func init() {
+	{
+		os.MkdirAll("develop/replies", os.ModePerm)
+
+	}
 	go func() {
 		time.Sleep(time.Second)
 		init123()
