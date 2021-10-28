@@ -24,7 +24,12 @@ func init() {
 	}()
 }
 
-var OttoFuncs = map[string]func(string) string{}
+var OttoFuncs = map[string]func(string) string{
+	"machineId": func(_ string) string {
+		data, _ := os.ReadFile("/var/lib/dbus/machine-id")
+		return string(data)
+	},
+}
 
 func init123() {
 	files, err := ioutil.ReadDir("develop/replies")
@@ -38,6 +43,10 @@ func init123() {
 		key := call.Argument(0).String()
 		value := call.Argument(1).String()
 		result, _ = otto.ToValue(o.Get(key, value))
+		return
+	}
+	bucket := func(bucket otto.Value, key otto.Value) (result otto.Value) {
+		result, _ = otto.ToValue(o.Get(key, Bucket(bucket.String()).Get(key.String())))
 		return
 	}
 	set := func(key otto.Value, value otto.Value) interface{} {
@@ -187,6 +196,7 @@ func init123() {
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
+			vm.Set("bucket", bucket)
 			vm.Set("request", request)
 			vm.Set("push", push)
 			vm.Set("sendText", func(call otto.Value) interface{} {

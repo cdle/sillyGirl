@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"runtime"
@@ -136,13 +137,17 @@ func (bucket Bucket) Create(i interface{}) error {
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
-		sq, _ := b.NextSequence()
-		id.SetInt(int64(sq))
+		key := id.Int()
+		if key == 0 {
+			sq, _ := b.NextSequence()
+			key = int64(sq)
+			id.SetInt(key)
+		}
 		buf, err := json.Marshal(i)
 		if err != nil {
 			return err
 		}
-		return b.Put(itob(sq), buf)
+		return b.Put(itob(uint64(key)), buf)
 	})
 }
 
@@ -150,20 +155,24 @@ func itob(i uint64) []byte {
 	return []byte(fmt.Sprint(i))
 }
 
-func (bucket Bucket) First(i interface{}) {
+func (bucket Bucket) First(i interface{}) error {
+	var err error
 	id := reflect.ValueOf(i).Elem().FieldByName("ID").Int()
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
+			err = errors.New("bucket not find")
 			return nil
 		}
 		data := b.Get(itob(uint64(id)))
 		if len(data) == 0 {
+			err = errors.New("record not find")
 			return nil
 		}
 		json.Unmarshal(data, i)
 		return nil
 	})
+	return err
 }
 
 // func (bucket Bucket) Find(o interface{}) {

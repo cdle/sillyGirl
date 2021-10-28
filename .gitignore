@@ -15,4 +15,5 @@ qinglongs
 sets.conf
 *.exe
 yummy
-_stc
+_*
+fanli_vip
