@@ -395,7 +395,7 @@ Alias=sillyGirl.service`
 			},
 		},
 		{
-			Rules: []string{"^机器码$"},
+			Rules: []string{"^machineId$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				return OttoFuncs["machineId"]("")
