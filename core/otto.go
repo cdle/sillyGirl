@@ -174,7 +174,6 @@ func init123() {
 		var handler = func(s Sender) interface{} {
 			template := data
 			template = strings.Replace(template, "ImType()", fmt.Sprintf(`"%s"`, s.GetImType()), -1)
-			template = strings.Replace(template, "GetChatID()", fmt.Sprint(s.GetChatID()), -1)
 			param := func(call otto.Value) otto.Value {
 				i, _ := call.ToInteger()
 				v, _ := otto.ToValue(s.Get(int(i - 1)))
@@ -192,6 +191,10 @@ func init123() {
 			})
 			vm.Set("Delete", func() {
 				s.Delete()
+			})
+			vm.Set("GetChatID", func() otto.Value {
+				v, _ := otto.ToValue(s.GetChatID())
+				return v
 			})
 			vm.Set("Continue", func() {
 				s.Continue()
