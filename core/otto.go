@@ -1,7 +1,9 @@
 package core
 
 import (
+	"crypto/md5"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -28,6 +30,15 @@ var OttoFuncs = map[string]func(string) string{
 	"machineId": func(_ string) string {
 		data, _ := os.ReadFile("/var/lib/dbus/machine-id")
 		return regexp.MustCompile(`\w+`).FindString(string(data))
+	},
+	"uuid": func(_ string) string {
+		return GetUUID()
+	},
+	"md5": func(str string) string {
+		w := md5.New()
+		io.WriteString(w, str)
+		md5str := fmt.Sprintf("%x", w.Sum(nil))
+		return md5str
 	},
 }
 
