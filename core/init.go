@@ -47,4 +47,7 @@ func init() {
 		api_key := time.Now().UnixNano()
 		sillyGirl.Set("api_key", api_key)
 	}
+	if sillyGirl.Get("uuid") == "" {
+		sillyGirl.Set("uuid", GetUUID())
+	}
 }
