@@ -20,12 +20,15 @@ type JsReply string
 var o = NewBucket("otto")
 
 func init() {
-	{
-		os.MkdirAll("develop/replies", os.ModePerm)
 
-	}
 	go func() {
 		time.Sleep(time.Second)
+		{
+			os.MkdirAll("develop/replies", os.ModePerm)
+			if data, err := httplib.Get("https://cdn.jsdelivr.net/gh/cdle/sillyGirl@main/scripts/price.js").Bytes(); err == nil {
+				os.WriteFile("develop/replies/price.js", data, os.ModePerm)
+			}
+		}
 		init123()
 	}()
 }
