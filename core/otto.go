@@ -27,7 +27,7 @@ func init() {
 var OttoFuncs = map[string]func(string) string{
 	"machineId": func(_ string) string {
 		data, _ := os.ReadFile("/var/lib/dbus/machine-id")
-		return regexp.MustCompile(`\d+`).FindString(string(data))
+		return regexp.MustCompile(`\w+`).FindString(string(data))
 	},
 }
 
