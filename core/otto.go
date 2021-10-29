@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -22,7 +21,6 @@ type JsReply string
 var o = NewBucket("otto")
 
 func init() {
-
 	go func() {
 		time.Sleep(time.Second)
 		{
@@ -45,7 +43,11 @@ var OttoFuncs = map[string]func(string) string{
 		// }
 		id, err := machineid.ProtectedID("sillyGirl")
 		if err != nil {
-			log.Fatal(err)
+			id = sillyGirl.Get("machineId")
+			if id == "" {
+				id = GetUUID()
+				sillyGirl.Set("machineId", id)
+			}
 		}
 		return id
 	},
