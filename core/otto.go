@@ -25,7 +25,10 @@ func init() {
 		time.Sleep(time.Second)
 		{
 			os.MkdirAll("develop/replies", os.ModePerm)
-			if data, err := httplib.Get("https://cdn.jsdelivr.net/gh/cdle/sillyGirl@main/scripts/price.js").Bytes(); err == nil {
+			// if data, err := httplib.Get("https://cdn.jsdelivr.net/gh/cdle/sillyGirl@main/scripts/price.js").Bytes(); err == nil {
+			// 	os.WriteFile("develop/replies/price.js", data, os.ModePerm)
+			// }
+			if data, err := os.ReadFile("scripts/price.js"); err == nil {
 				os.WriteFile("develop/replies/price.js", data, os.ModePerm)
 			}
 		}
