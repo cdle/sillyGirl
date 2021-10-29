@@ -154,6 +154,10 @@ func init() {
 			robot_wxid = jms.RobotWxid
 			wx.Set("robot_wxid", robot_wxid)
 		}
+		if wx.Get("api_url") == "" {
+			ip, _ := c.RemoteIP()
+			wx.Set("api_url", fmt.Sprintf("http://%s:80", ip.String())) //
+		}
 		core.Senders <- &Sender{
 			value: jms,
 		}
