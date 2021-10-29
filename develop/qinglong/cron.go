@@ -195,9 +195,7 @@ func init() {
 				if Config.Host == "" {
 					return nil
 				}
-				// if s.GetImType() == "fake" && qinglong.GetBool("autoCronHideDuplicate", true) == false {
-				// 	return nil
-				// }
+
 				w := func(s string) int {
 					if strings.Contains(s, "cdle") {
 						return 20
@@ -232,6 +230,10 @@ func init() {
 					}
 					if (strings.Contains(crons[i].Command, "1111") || strings.Contains(strings.ToLower(crons[i].Command), "jd_red.js") || strings.Contains(strings.ToLower(crons[i].Command), "jd_hongbao.js")) && !strings.Contains(crons[i].Command, "cdle") {
 						Config.Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, crons[i].ID)))
+						continue
+					}
+					if s.GetImType() == "fake" && qinglong.GetBool("autoCronHideDuplicate", true) == false {
+						// return nil
 						continue
 					}
 					if task, ok := tasks[crons[i].Name]; ok {
