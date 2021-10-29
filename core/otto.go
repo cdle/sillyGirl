@@ -47,8 +47,6 @@ var OttoFuncs = map[string]func(string) string{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(id)
-
 		return id
 	},
 	"uuid": func(_ string) string {
