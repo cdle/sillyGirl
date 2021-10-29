@@ -215,6 +215,13 @@ func init123() {
 				}
 				return otto.Value{}
 			})
+			vm.Set("cancall", func(name otto.Value) interface{} {
+				key := name.String()
+				if _, ok := OttoFuncs[key]; ok {
+					return otto.TrueValue()
+				}
+				return otto.FalseValue()
+			})
 			vm.Set("Delete", func() {
 				s.Delete()
 			})
