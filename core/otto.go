@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/denisbrodbeck/machineid"
 	"github.com/robertkrimen/otto"
 )
 
@@ -35,12 +37,18 @@ func init() {
 
 var OttoFuncs = map[string]func(string) string{
 	"machineId": func(_ string) string {
-		data, _ := os.ReadFile("/var/lib/dbus/machine-id")
-		id := regexp.MustCompile(`\w+`).FindString(string(data))
-		if id == "" {
-			data, _ = os.ReadFile("/etc/machine-id")
-			id = regexp.MustCompile(`\w+`).FindString(string(data))
+		// data, _ := os.ReadFile("/var/lib/dbus/machine-id")
+		// id := regexp.MustCompile(`\w+`).FindString(string(data))
+		// if id == "" {
+		// 	data, _ = os.ReadFile("/etc/machine-id")
+		// 	id = regexp.MustCompile(`\w+`).FindString(string(data))
+		// }
+		id, err := machineid.ProtectedID("sillyGirl")
+		if err != nil {
+			log.Fatal(err)
 		}
+		fmt.Println(id)
+
 		return id
 	},
 	"uuid": func(_ string) string {
