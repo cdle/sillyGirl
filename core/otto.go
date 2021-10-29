@@ -63,6 +63,9 @@ var OttoFuncs = map[string]func(string) string{
 		md5str := fmt.Sprintf("%x", w.Sum(nil))
 		return md5str
 	},
+	"timeFormat": func(str string) string {
+		return time.Now().Format(str)
+	},
 }
 
 func init123() {
