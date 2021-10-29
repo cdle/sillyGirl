@@ -403,7 +403,6 @@ Alias=sillyGirl.service`
 		},
 		{
 			Rules: []string{"^time$"},
-			Admin: true,
 			Handle: func(s Sender) interface{} {
 				return OttoFuncs["timeFormat"]("2006-01-02 15:04:05")
 			},
