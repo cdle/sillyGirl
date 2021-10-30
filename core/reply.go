@@ -38,7 +38,7 @@ func InitReplies() {
 		Rules: []string{"^打赏", "^赞赏"},
 		Type:  "url",
 	}
-	recommand := "https://gitee.com/aiancandle/sillyGirl/raw/main/appreciate.jpg"
+	recommand := "https://gitee.com/sillybot/sillyGirl/raw/main/appreciate.jpg"
 	appreciate.Request.Url = sillyGirl.Get("appreciate", recommand)
 	appreciate.Request.ResponseType = "image"
 	appreciate.Request.Disappear = true
