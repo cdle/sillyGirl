@@ -136,7 +136,8 @@ func (sender *Faker) Finish() {
 }
 
 func (sender *Faker) Copy() Sender {
-	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Faker)
+	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Faker)
+	return &new
 }
 
 type BaseSender struct {

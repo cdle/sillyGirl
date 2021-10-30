@@ -249,7 +249,8 @@ func (sender *Sender) Finish() {
 }
 
 func (sender *Sender) Copy() core.Sender {
-	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Sender)
+	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Sender)
+	return &new
 }
 
 func (sender *Sender) GetUsername() string {
