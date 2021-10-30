@@ -196,7 +196,11 @@ func init123() {
 			continue
 		}
 		var handler = func(s Sender) interface{} {
-			template := data
+			data, err := os.ReadFile(jr)
+			if err != nil {
+				return nil
+			}
+			template := string(data)
 			template = strings.Replace(template, "ImType()", fmt.Sprintf(`"%s"`, s.GetImType()), -1)
 			param := func(call otto.Value) otto.Value {
 				i, _ := call.ToInteger()
