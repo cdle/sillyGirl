@@ -136,8 +136,16 @@ set wxmp masters w1&w2&w3...
 
 #set wx relaier ?
 
-##### 设置动态网络地址，适用于傻妞家庭宽带而可爱猫在云服务器的情况下
+##### 设置傻妞是否动态网络地址，适用于傻妞家庭宽带而可爱猫在云服务器的情况下
 
-set wx dynamic_ip true
+set wx sillyGirl_dynamic_ip true
+
+##### 设置可爱猫是否动态网络地址，适用于可爱猫家庭宽带而傻妞在云服务器的情况下
+
+#set wx keaimao_dynamic_ip true
+
+##### 设置可爱猫端口
+
+#set wx keaimao_port ?
 
 ![Image text](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)

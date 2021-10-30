@@ -186,7 +186,7 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"get ? ?"},
+			Rules: []string{"get ? ?", "? get ?"},
 			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				b := Bucket(s.Get(0))
