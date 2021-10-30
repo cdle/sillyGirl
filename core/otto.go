@@ -238,6 +238,10 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUsername())
 				return v
 			})
+			vm.Set("Debug", func(str otto.Value) otto.Value {
+				logs.Debug(str)
+				return otto.Value{}
+			})
 			vm.Set("GetUserID", func() otto.Value {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
