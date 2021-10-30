@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -32,6 +33,7 @@ type Sender interface {
 	Continue()
 	IsContinue() bool
 	Await(Sender, func(Sender) interface{}, ...interface{})
+	Copy(Sender) Sender
 }
 
 type Edit int
@@ -217,6 +219,10 @@ func (sender *BaseSender) GetChatID() interface{} {
 }
 func (sender *BaseSender) GetImType() string {
 	return ""
+}
+
+func (sender *BaseSender) Copy(s Sender) Sender {
+	return reflect.Indirect(reflect.ValueOf(interface{}(s))).Interface().(Sender)
 }
 
 var TimeOutError = errors.New("指令超时")
