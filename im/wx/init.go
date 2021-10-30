@@ -155,7 +155,7 @@ func init() {
 			robot_wxid = jms.RobotWxid
 			wx.Set("robot_wxid", robot_wxid)
 		}
-		if wx.GetBool("keaimao_dynamic_ip", true) {
+		if wx.GetBool("keaimao_dynamic_ip", false) {
 			ip, _ := c.RemoteIP()
 			wx.Set("api_url", fmt.Sprintf("http://%s:%s", ip.String(), wx.Get("keaimao_port", "8080"))) //
 		}
