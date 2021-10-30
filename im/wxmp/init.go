@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
@@ -178,4 +179,8 @@ func (sender *Sender) Finish() {
 		sender.Responses = []interface{}{}
 	}
 	sender.Wait <- sender.Responses
+}
+
+func (sender *Sender) Copy() core.Sender {
+	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Sender)
 }

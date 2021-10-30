@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -309,4 +310,8 @@ func md5V(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (sender *Sender) Copy() core.Sender {
+	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Sender)
 }

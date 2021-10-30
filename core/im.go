@@ -33,7 +33,7 @@ type Sender interface {
 	Continue()
 	IsContinue() bool
 	Await(Sender, func(Sender) interface{}, ...interface{})
-	Copy(Sender) Sender
+	Copy() Sender
 }
 
 type Edit int
@@ -135,6 +135,10 @@ func (sender *Faker) Finish() {
 
 }
 
+func (sender *Faker) Copy() Sender {
+	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Faker)
+}
+
 type BaseSender struct {
 	matches [][]string
 	goon    bool
@@ -219,10 +223,6 @@ func (sender *BaseSender) GetChatID() interface{} {
 }
 func (sender *BaseSender) GetImType() string {
 	return ""
-}
-
-func (sender *BaseSender) Copy(s Sender) Sender {
-	return reflect.Indirect(reflect.ValueOf(interface{}(s))).Interface().(Sender)
 }
 
 var TimeOutError = errors.New("指令超时")

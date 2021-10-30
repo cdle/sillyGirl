@@ -3,6 +3,7 @@ package qq
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -245,6 +246,10 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 
 func (sender *Sender) Finish() {
 
+}
+
+func (sender *Sender) Copy() core.Sender {
+	return reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(*Sender)
 }
 
 func (sender *Sender) GetUsername() string {
