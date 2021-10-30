@@ -25,9 +25,10 @@ func init() {
 		time.Sleep(time.Second)
 		if sillyGirl.GetBool("enable_price", true) {
 			os.MkdirAll("develop/replies", os.ModePerm)
-			if data, err := os.ReadFile("scripts/price.js"); err == nil {
-				os.WriteFile("develop/replies/price.js", data, os.ModePerm)
+			if data, err := os.ReadFile("scripts/jd_price.js"); err == nil {
+				os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
 			}
+			os.Remove("develop/replies/price.js")
 		}
 		init123()
 	}()
