@@ -7,7 +7,7 @@ dev.go
 develop/jd_cookie
 jd_wskey
 logs/*
-jd_*
+develop/jd_*
 data
 dwz
 replies
