@@ -167,7 +167,7 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"set ? ? ?", "delete ? ?"},
+			Rules: []string{"set ? ? ?", "delete ? ?", "? set ? ?", "? delete ?"},
 			Handle: func(s Sender) interface{} {
 				b := Bucket(s.Get(0))
 				if !IsBucket(b) {
