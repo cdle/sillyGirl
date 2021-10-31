@@ -164,10 +164,14 @@ func initSys() {
 				for j := range ruless {
 					for i := range ruless[j] {
 						ruless[j][i] = strings.Trim(ruless[j][i], "^$")
-						ruless[j][i] = strings.Replace(ruless[j][i], `\s+`, " ", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `(\S+)`, "?", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `(\S*)`, "?", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `(.+)`, "?", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `(.*)`, "?", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `\s+`, " ", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `\s*`, " ", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `.+`, "?", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `.*`, "?", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `[(]`, "(", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `[)]`, ")", -1)
 					}
