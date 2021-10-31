@@ -167,6 +167,7 @@ func initSys() {
 						ruless[j][i] = strings.Replace(ruless[j][i], `\s+`, " ", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `(\S+)`, "?", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `(.+)`, "?", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `(.*)`, "?", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `[(]`, "(", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `[)]`, ")", -1)
 					}
