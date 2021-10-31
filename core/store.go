@@ -175,6 +175,28 @@ func (bucket Bucket) First(i interface{}) error {
 	return err
 }
 
+func (bucket Bucket) Find(is []interface{}) error {
+	var err error
+	// is = append(is, interface{})
+	// reflect.ValueOf(is).
+	// id := reflect.ValueOf(i).Elem().FieldByName("ID").Int()
+	// db.View(func(tx *bolt.Tx) error {
+	// 	b := tx.Bucket([]byte(bucket))
+	// 	if b == nil {
+	// 		err = errors.New("bucket not find")
+	// 		return nil
+	// 	}
+	// 	data := b.Get(itob(uint64(id)))
+	// 	if len(data) == 0 {
+	// 		err = errors.New("record not find")
+	// 		return nil
+	// 	}
+	// 	json.Unmarshal(data, i)
+	// 	return nil
+	// })
+	return err
+}
+
 // func (bucket Bucket) Find(o interface{}) {
 
 // }
