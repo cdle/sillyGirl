@@ -151,17 +151,27 @@ func initSys() {
 			Handle: func(s Sender) interface{} {
 				s.Disappear()
 				ss := []string{}
+				ruless := [][]string{}
 				for _, f := range functions {
-					// f := f
-					// for i := range f.Rules {
-					// 	f.Rules[i] = strings.Trim(f.Rules[i], "^$")
-					// 	f.Rules[i] = strings.Replace(f.Rules[i], `\s+`, " ", -1)
-					// 	f.Rules[i] = strings.Replace(f.Rules[i], `(\S+)`, "?", -1)
-					// 	f.Rules[i] = strings.Replace(f.Rules[i], `[(]`, "(", -1)
-					// 	f.Rules[i] = strings.Replace(f.Rules[i], `[)]`, ")", -1)
-					// }
-					ss = append(ss, strings.Join(f.Rules, " "))
+					if len(f.Rules) > 0 {
+						rules := []string{}
+						for i := range f.Rules {
+							rules = append(rules, f.Rules[i])
+						}
+						ruless = append(ruless, rules)
+					}
 				}
+				for j := range ruless {
+					for i := range ruless[j] {
+						ruless[j][i] = strings.Trim(ruless[j][i], "^$")
+						ruless[j][i] = strings.Replace(ruless[j][i], `\s+`, " ", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `(\S+)`, "?", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `[(]`, "(", -1)
+						ruless[j][i] = strings.Replace(ruless[j][i], `[)]`, ")", -1)
+					}
+					ss = append(ss, strings.Join(ruless[j], " "))
+				}
+
 				return strings.Join(ss, "\n")
 			},
 		},
