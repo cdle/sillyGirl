@@ -175,7 +175,9 @@ func initSys() {
 				}
 				b := Bucket(name)
 				if !IsBucket(b) {
-					return errors.New("不存在的存储桶")
+					s.Continue()
+					return nil
+					// return errors.New("不存在的存储桶")
 				}
 				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
@@ -192,15 +194,16 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"get ? ?", "? get ?"},
 			Handle: func(s Sender) interface{} {
-				s.Disappear()
 				name := s.Get(0)
 				if name == "silly" {
 					name = "sillyGirl"
 				}
 				b := Bucket(name)
 				if !IsBucket(b) {
-					return errors.New("不存在的存储桶")
+					s.Continue()
+					return nil
 				}
+				s.Disappear()
 				v := b.Get(s.Get(1))
 				if v == "" {
 					return errors.New("无值")
