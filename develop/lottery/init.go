@@ -103,7 +103,6 @@ func init() {
 						//其他命令
 						case cancel:
 							stop = true
-							s.Reply("已退出")
 						case "/help":
 							s.Reply(help)
 						default:
