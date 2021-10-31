@@ -194,6 +194,7 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"get ? ?", "? get ?"},
 			Handle: func(s Sender) interface{} {
+
 				name := s.Get(0)
 				if name == "silly" {
 					name = "sillyGirl"
