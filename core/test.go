@@ -170,7 +170,7 @@ func initSys() {
 						ruless[j][i] = strings.Replace(ruless[j][i], `[(]`, "(", -1)
 						ruless[j][i] = strings.Replace(ruless[j][i], `[)]`, ")", -1)
 					}
-					ss = append(ss, strings.Join(ruless[j], " "))
+					ss = append(ss, strings.Join(ruless[j], "\n"))
 				}
 
 				return strings.Join(ss, "\n")
