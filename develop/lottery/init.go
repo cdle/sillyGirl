@@ -61,6 +61,7 @@ func init() {
 		{
 			Rules: []string{`raw [\s\S]+`},
 			Handle: func(s core.Sender) interface{} {
+				s.Continue()
 				return nil
 			},
 		},
