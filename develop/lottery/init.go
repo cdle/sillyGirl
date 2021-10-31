@@ -135,26 +135,29 @@ func Create(s core.Sender, c func(string) bool) {
 	if cancal {
 		return
 	}
-	s.Reply("请设置奖品数量：")
+
 	var prizeNumber = 0
 	for {
+		s.Reply("请设置奖品数量：")
 		s.Await(s, func(s core.Sender) interface{} {
 			rt := s.GetContent()
 			if c(rt) {
 				cancal = true
-				return nil
 			}
-			l.Name = rt
-			show += fmt.Sprintf("奖品数量：%d\n", prizeNumber)
-			return show
+			prizeNumber = core.Int(rt)
+			return nil
 		})
+
 		if prizeNumber != 0 {
+			show += fmt.Sprintf("奖品数量：%d\n", prizeNumber)
+			s.Reply(show)
 			break
 		}
 		if cancal {
 			return
 		}
 	}
+
 	s.Reply(`请设置奖品内容 ( 1. 可以直接填写 APP 兑换码、支付宝口令红包等奖品让机器人自动发奖；也可留下你的联系方式，让中奖者主动联系你领奖。2. 有多少奖品数就回复多少次。 )：`)
 	for i := 0; i < prizeNumber; i++ {
 		s.Await(s, func(s core.Sender) interface{} {
