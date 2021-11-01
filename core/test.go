@@ -183,7 +183,7 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"set ? ? ?", "delete ? ?", "? set ? ?", "? delete ?"},
+			Rules: []string{"set ? ? ?", "delete ? ?", "? set ? ?", "? delete ?", "set ? ?", "? set ?"},
 			Handle: func(s Sender) interface{} {
 				name := s.Get(0)
 				if name == "silly" {
@@ -193,7 +193,6 @@ func initSys() {
 				if !IsBucket(b) {
 					s.Continue()
 					return nil
-					// return errors.New("不存在的存储桶")
 				}
 				old := b.Get(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))

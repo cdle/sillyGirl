@@ -37,12 +37,19 @@ func initStore() {
 }
 
 func (bucket Bucket) Set(key interface{}, value interface{}) {
+
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
-		b.Put([]byte(fmt.Sprint(key)), []byte(fmt.Sprint(value)))
+		k := fmt.Sprint(key)
+		v := fmt.Sprint(value)
+		if v == "" {
+			b.Delete([]byte(k))
+		} else {
+			b.Put([]byte(k), []byte(v))
+		}
 		return nil
 	})
 }
