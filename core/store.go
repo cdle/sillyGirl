@@ -145,7 +145,7 @@ func (bucket Bucket) Create(i interface{}) error {
 				key = int64(sq)
 				id.SetInt(key)
 			}
-			if !sequence.IsZero() {
+			if sequence != reflect.ValueOf(nil) {
 				sequence.SetInt(int64(sq))
 			}
 			buf, err := json.Marshal(i)
@@ -160,7 +160,7 @@ func (bucket Bucket) Create(i interface{}) error {
 				key = fmt.Sprint(sq)
 				id.SetString(key)
 			}
-			if !sequence.IsZero() {
+			if sequence != reflect.ValueOf(nil) {
 				sequence.SetInt(int64(sq))
 			}
 			buf, err := json.Marshal(i)
