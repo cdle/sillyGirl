@@ -132,16 +132,20 @@ var Int64 = func(s interface{}) int64 {
 func (bucket Bucket) Create(i interface{}) error {
 	s := reflect.ValueOf(i).Elem()
 	id := s.FieldByName("ID")
+	sequence := s.FieldByName("Sequence")
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
 		key := id.Int()
+		sq, _ := b.NextSequence()
 		if key == 0 {
-			sq, _ := b.NextSequence()
 			key = int64(sq)
 			id.SetInt(key)
+		}
+		if sequence.IsZero() {
+			sequence.SetInt(int64(sq))
 		}
 		buf, err := json.Marshal(i)
 		if err != nil {
