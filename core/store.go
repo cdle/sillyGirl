@@ -144,7 +144,7 @@ func (bucket Bucket) Create(i interface{}) error {
 			key = int64(sq)
 			id.SetInt(key)
 		}
-		if sequence.IsZero() {
+		if !sequence.IsZero() {
 			sequence.SetInt(int64(sq))
 		}
 		buf, err := json.Marshal(i)

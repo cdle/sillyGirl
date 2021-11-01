@@ -46,6 +46,9 @@ func init() {
 }
 
 func start() {
+	if qq.Get("session.token") == "{}" {
+		qq.Set("session.token", "")
+	}
 	conf = &config.Config{}
 	conf.Account.Uin = int64(qq.GetInt("uin", 0))
 	conf.Account.Password = qq.Get("password")
