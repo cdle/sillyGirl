@@ -138,20 +138,37 @@ func (bucket Bucket) Create(i interface{}) error {
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
-		key := id.Int()
-		sq, _ := b.NextSequence()
-		if key == 0 {
-			key = int64(sq)
-			id.SetInt(key)
+		if _, ok := id.Interface().(int); ok {
+			key := id.Int()
+			sq, _ := b.NextSequence()
+			if key == 0 {
+				key = int64(sq)
+				id.SetInt(key)
+			}
+			if !sequence.IsZero() {
+				sequence.SetInt(int64(sq))
+			}
+			buf, err := json.Marshal(i)
+			if err != nil {
+				return err
+			}
+			return b.Put(itob(uint64(key)), buf)
+		} else {
+			key := id.String()
+			sq, _ := b.NextSequence()
+			if key == "" {
+				key = fmt.Sprint(sq)
+				id.SetString(key)
+			}
+			if !sequence.IsZero() {
+				sequence.SetInt(int64(sq))
+			}
+			buf, err := json.Marshal(i)
+			if err != nil {
+				return err
+			}
+			return b.Put([]byte(key), buf)
 		}
-		if !sequence.IsZero() {
-			sequence.SetInt(int64(sq))
-		}
-		buf, err := json.Marshal(i)
-		if err != nil {
-			return err
-		}
-		return b.Put(itob(uint64(key)), buf)
 	})
 }
 
