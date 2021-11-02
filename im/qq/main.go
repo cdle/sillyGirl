@@ -315,6 +315,21 @@ func start() {
 	coolq.RemoveReplyAt = conf.Message.RemoveReplyAt
 	coolq.ExtraReplyData = conf.Message.ExtraReplyData
 	coolq.SkipMimeScan = conf.Message.SkipMimeScan
+	if http_server := qq.Get("http_server"); http_server != "" {
+		port := 80
+		host := "127.0.0.1"
+		res := strings.Split("http_server", ":")
+		if len(res) == 1 {
+			host = res[0]
+		}
+		if len(res) == 2 {
+			port = core.Int(res[1])
+		}
+		go server.RunHTTPServerAndClients(bot, &config.HTTPServer{
+			Host: host,
+			Port: port,
+		})
+	}
 	for _, m := range conf.Servers {
 		if h, ok := m["http"]; ok {
 			hc := new(config.HTTPServer)
