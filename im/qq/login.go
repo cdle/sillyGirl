@@ -88,9 +88,13 @@ func qrcodeLogin() error {
 		prevState = s.State
 		switch s.State {
 		case client.QRCodeCanceled:
-			log.Fatalf("扫码被用户取消.")
+			// log.Fatalf("扫码被用户取消.")
+			log.Warnf("扫码被用户取消.")
+			return errors.New("扫码被用户取消")
 		case client.QRCodeTimeout:
-			log.Fatalf("二维码过期")
+			// log.Fatalf("二维码过期")
+			log.Warnf("二维码过期")
+			return errors.New("二维码过期")
 		case client.QRCodeWaitingForConfirm:
 			log.Infof("扫码成功, 请在手机端确认登录.")
 		case client.QRCodeConfirmed:
@@ -183,7 +187,8 @@ func loginResponseProcessor(res *client.LoginResponse) error {
 				msg = "密码错误或账号被冻结"
 			}
 			if strings.Contains(msg, "冻结") {
-				log.Fatalf("账号被冻结")
+				// log.Fatalf("账号被冻结")
+				log.Warnf("账号被冻结")
 			}
 			log.Warnf("登录失败: %v", msg)
 			log.Infof("按 Enter 或等待 5s 后继续....")
