@@ -244,7 +244,7 @@ func initSys() {
 		{
 			Rules: []string{"raw ^groupCode$"},
 			Handle: func(s Sender) interface{} {
-				return fmt.Sprintf("%d", s.GetChatID())
+				return fmt.Sprint(s.GetChatID())
 			},
 		},
 		{

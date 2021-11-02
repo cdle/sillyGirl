@@ -49,6 +49,9 @@ func start() {
 	if qq.Get("session.token") == "{}" {
 		qq.Set("session.token", "")
 	}
+	if strings.HasPrefix(qq.Get("device.json"), "{") {
+		qq.Set("device.json", "")
+	}
 	conf = &config.Config{}
 	conf.Account.Uin = int64(qq.GetInt("uin", 0))
 	conf.Account.Password = qq.Get("password")
