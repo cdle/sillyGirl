@@ -9,8 +9,8 @@ import (
 )
 
 type Sender interface {
-	GetUserID() interface{}
-	GetChatID() interface{}
+	GetUserID() string
+	GetChatID() int
 	GetImType() string
 	GetMessageID() int
 	GetUsername() string
@@ -51,8 +51,8 @@ type ImagePath string
 type Faker struct {
 	Message string
 	Type    string
-	UserID  interface{}
-	ChatID  interface{}
+	UserID  string
+	ChatID  int
 	BaseSender
 }
 
@@ -60,11 +60,11 @@ func (sender *Faker) GetContent() string {
 	return sender.Message
 }
 
-func (sender *Faker) GetUserID() interface{} {
+func (sender *Faker) GetUserID() string {
 	return sender.UserID
 }
 
-func (sender *Faker) GetChatID() interface{} {
+func (sender *Faker) GetChatID() int {
 	return sender.ChatID
 }
 
@@ -216,11 +216,11 @@ func (sender *BaseSender) GetMessageID() int {
 	return 0
 }
 
-func (sender *BaseSender) GetUserID() interface{} {
-	return nil
+func (sender *BaseSender) GetUserID() string {
+	return ""
 }
-func (sender *BaseSender) GetChatID() interface{} {
-	return nil
+func (sender *BaseSender) GetChatID() int {
+	return 0
 }
 func (sender *BaseSender) GetImType() string {
 	return ""

@@ -179,11 +179,11 @@ func (sender *Sender) GetContent() string {
 	return sender.Message.Text
 }
 
-func (sender *Sender) GetUserID() interface{} {
-	return sender.Message.Sender.ID
+func (sender *Sender) GetUserID() string {
+	return fmt.Sprint(sender.Message.Sender.ID)
 }
 
-func (sender *Sender) GetChatID() interface{} {
+func (sender *Sender) GetChatID() int {
 	if sender.Message.Private() {
 		return 0
 	} else {

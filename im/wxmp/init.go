@@ -18,7 +18,6 @@ import (
 )
 
 var wxmp = core.NewBucket("wxmp")
-var u2i = core.NewBucket("wxmpu2i")
 var material = core.NewBucket("wxmpMaterial")
 
 func init() {
@@ -41,12 +40,7 @@ func init() {
 			sender := &Sender{}
 			sender.Message = msg.Content
 			sender.Wait = make(chan []interface{}, 1)
-			sender.uid = u2i.GetInt(msg.FromUserName)
-			if sender.uid == 0 {
-				sender.uid = int(time.Now().UnixNano())
-				u2i.Set(msg.FromUserName, sender.uid)
-			}
-
+			sender.uid = fmt.Sprint(msg.FromUserName)
 			core.Senders <- sender
 			end := <-sender.Wait
 			ss := []string{}
@@ -110,7 +104,7 @@ type Sender struct {
 	Message   string
 	Responses []interface{}
 	Wait      chan []interface{}
-	uid       int
+	uid       string
 	core.BaseSender
 }
 
@@ -121,11 +115,11 @@ func (sender *Sender) GetContent() string {
 	return sender.Message
 }
 
-func (sender *Sender) GetUserID() interface{} {
+func (sender *Sender) GetUserID() string {
 	return sender.uid
 }
 
-func (sender *Sender) GetChatID() interface{} {
+func (sender *Sender) GetChatID() int {
 	return 0
 }
 

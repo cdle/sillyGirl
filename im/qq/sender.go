@@ -43,7 +43,7 @@ func (sender *Sender) GetContent() string {
 	return strings.Trim(text, " ")
 }
 
-func (sender *Sender) GetUserID() interface{} {
+func (sender *Sender) GetUserID() string {
 	id := 0
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
@@ -53,10 +53,13 @@ func (sender *Sender) GetUserID() interface{} {
 	case *message.GroupMessage:
 		id = int(sender.Message.(*message.GroupMessage).Sender.Uin)
 	}
-	return id
+	if id != 0 {
+		return fmt.Sprint(id)
+	}
+	return ""
 }
 
-func (sender *Sender) GetChatID() interface{} {
+func (sender *Sender) GetChatID() int {
 	id := 0
 	switch sender.Message.(type) {
 	case *message.GroupMessage:

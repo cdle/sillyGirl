@@ -230,11 +230,15 @@ func (sender *Sender) GetContent() string {
 	}
 	return fmt.Sprint(sender.value.Msg)
 }
-func (sender *Sender) GetUserID() interface{} {
+func (sender *Sender) GetUserID() string {
 	return sender.value.FinalFromWxid
 }
-func (sender *Sender) GetChatID() interface{} {
-	return strings.Replace(sender.value.FromWxid, "@chatroom", "", -1)
+func (sender *Sender) GetChatID() int {
+	if strings.Contains(sender.value.FromWxid, "@chatroom") {
+		return core.Int(strings.Replace(sender.value.FromWxid, "@chatroom", "", -1))
+	} else {
+		return 0
+	}
 }
 func (sender *Sender) GetImType() string {
 	return "wx"
