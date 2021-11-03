@@ -23,3 +23,12 @@ jobs:
 
     - name: Build
       run: gox -osarch "linux/amd64 linux/arm64"
+      
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          sillyGirl_linux_amd64
+          sillyGirl_linux_arm64
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
