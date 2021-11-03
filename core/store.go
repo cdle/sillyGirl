@@ -16,6 +16,10 @@ var db *bolt.DB
 
 type Bucket string
 
+func (b Bucket) String() string {
+	return string(b)
+}
+
 var Buckets = []Bucket{}
 
 func NewBucket(name string) Bucket {

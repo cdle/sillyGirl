@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 )
@@ -32,7 +33,7 @@ type Sender interface {
 	Finish()
 	Continue()
 	IsContinue() bool
-	Await(Sender, func(Sender) interface{}, ...interface{})
+	Await(Sender, func(Sender) interface{}, ...interface{}) interface{}
 	Copy() Sender
 }
 
@@ -240,11 +241,21 @@ type Carry struct {
 
 type forGroup string
 
+type again string
+
+var Again again = "again"
+
+type YesOrNo string
+
+var YesNo YesOrNo = "yeson"
+var Yes YesOrNo = "yes"
+var No YesOrNo = "no"
+
 var ForGroup forGroup
 
-func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) {
+func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) interface{} {
 	c := &Carry{}
-	timeout := time.Second * 20
+	timeout := time.Second * 864000
 	var handleErr func(error)
 	var fg *forGroup
 	for _, param := range params {
@@ -258,7 +269,6 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 			}
 		case func() string:
 			callback = param.(func(Sender) interface{})
-
 		case func(error):
 			handleErr = param.(func(error))
 		case forGroup:
@@ -267,13 +277,14 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 		}
 	}
 	if callback == nil {
-		return
+		return nil
 	}
 	if c.Pattern == "" {
 		c.Pattern = `[\s\S]*`
 	}
 	c.Chan = make(chan interface{}, 1)
 	c.Result = make(chan interface{}, 1)
+
 	key := fmt.Sprintf("u=%v&c=%v&i=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType())
 	if fg != nil {
 		key += fmt.Sprintf("&t=%v&f=true", time.Now().Unix())
@@ -281,25 +292,43 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 	if oc, ok := waits.LoadOrStore(key, c); ok {
 		oc.(*Carry).Chan <- InterruptError
 	}
-	select {
-	case result := <-c.Chan:
-		switch result.(type) {
-		case Sender:
-			waits.Delete(key)
-			c.Result <- callback(result.(Sender)) //, nil
-			return
-		case error:
-			waits.Delete(key)
-			if handleErr != nil {
-				handleErr(result.(error))
-			}
-			c.Result <- nil //
-		}
-	case <-time.After(timeout):
+	defer func() {
 		waits.Delete(key)
-		if handleErr != nil {
-			handleErr(TimeOutError)
+	}()
+	for {
+		select {
+		case result := <-c.Chan:
+			switch result.(type) {
+			case Sender:
+				s := result.(Sender)
+				result := callback(s)
+				if _, ok := result.(again); ok {
+					c.Result <- nil
+				} else if _, ok := result.(YesOrNo); ok {
+					if "y" == strings.ToLower(s.GetContent()) {
+						return Yes
+					}
+
+					if "n" == strings.ToLower(s.GetContent()) {
+						return No
+					}
+					c.Result <- result
+				} else {
+					return nil
+				}
+			case error:
+				if handleErr != nil {
+					handleErr(result.(error))
+				}
+				c.Result <- nil
+				return nil
+			}
+		case <-time.After(timeout):
+			if handleErr != nil {
+				handleErr(TimeOutError)
+			}
+			c.Result <- nil
+			return nil
 		}
-		c.Result <- nil
 	}
 }
