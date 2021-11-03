@@ -24,13 +24,10 @@ jobs:
     - name: Build arm64
       run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
       
-    - name: Create GitHub release
-      uses: marvinpinto/action-automatic-releases@latest
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: ${{ env.ReleaseVersion }}
-        title: ${{ env.ReleaseVersion }}
-        prerelease: false
-        files: |
-          sillyGirl_linux_amd64
-          sillyGirl_linux_arm64
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: sillyGirl_linux_*
+        asset_name: sillyGirl
+        tag: ${{ github.ref }}
