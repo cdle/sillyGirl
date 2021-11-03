@@ -20,7 +20,7 @@ jobs:
 
     - name: Git clone cable
       run:
-        cd develop && git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/cdle/cable.git
+        cd develop && git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/cable.git
         
     - name: Git clone jd_cookie
       run:
