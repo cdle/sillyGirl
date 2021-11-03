@@ -17,18 +17,20 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.17
-        
-    - name: Get gox
-      run: go get github.com/mitchellh/gox
 
-    - name: Build
-      run: gox -osarch "linux/amd64 linux/arm64"
+    - name: Build amd64
+      run: GOOS=linux GOARCH=amd64 go build main.go -o sillyGirl_linux_amd64
       
-    - name: Release
-      uses: softprops/action-gh-release@v1
+    - name: Build arm64
+      run: GOOS=linux GOARCH=arm64 go build main.go -o sillyGirl_linux_arm64
+      
+    - name: Create GitHub release
+      uses: marvinpinto/action-automatic-releases@latest
       with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: ${{ env.ReleaseVersion }}
+        title: ${{ env.ReleaseVersion }}
+        prerelease: false
         files: |
           sillyGirl_linux_amd64
           sillyGirl_linux_arm64
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
