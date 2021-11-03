@@ -21,6 +21,6 @@ func RunServer() {
 		c.String(200, Tail)
 	})
 	gin.SetMode(gin.ReleaseMode)
-	logs.Info("0.0.0.0:" + sillyGirl.Get("port", "8080"))
+	logs.Info("开启httpserver----0.0.0.0:" + sillyGirl.Get("port", "8080"))
 	Server.Run("0.0.0.0:" + sillyGirl.Get("port", "8080"))
 }
