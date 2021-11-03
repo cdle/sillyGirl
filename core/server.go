@@ -1,6 +1,9 @@
 package core
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/gin-gonic/gin"
+)
 
 var Server *gin.Engine
 
@@ -18,5 +21,6 @@ func RunServer() {
 		c.String(200, Tail)
 	})
 	gin.SetMode(gin.ReleaseMode)
+	logs.Info("0.0.0.0:" + sillyGirl.Get("port", "8080"))
 	Server.Run("0.0.0.0:" + sillyGirl.Get("port", "8080"))
 }
