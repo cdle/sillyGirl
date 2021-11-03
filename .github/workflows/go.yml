@@ -19,10 +19,10 @@ jobs:
         go-version: 1.17
 
     - name: Build amd64
-      run: GOOS=linux GOARCH=amd64 go build main.go -o sillyGirl_linux_amd64
+      run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
       
     - name: Build arm64
-      run: GOOS=linux GOARCH=arm64 go build main.go -o sillyGirl_linux_arm64
+      run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
       
     - name: Create GitHub release
       uses: marvinpinto/action-automatic-releases@latest
