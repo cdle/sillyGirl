@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -43,6 +44,8 @@ var bot *coolq.CQBot
 var qq = core.NewBucket("qq")
 
 func init() {
+	type Empty struct{}
+	fmt.Println(reflect.TypeOf(Empty{}).PkgPath(), "+++++")
 	go start()
 }
 
