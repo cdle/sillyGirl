@@ -18,10 +18,22 @@ jobs:
       with:
         go-version: 1.17
 
+    - name: Git clone cable
+      run:
+        cd develop && git clone https://${{ secrets.GITHUB_TOKEN }}@github.com/cdle/cable.git
+        
+    - name: Git clone jd_cookie
+      run:
+        cd develop && https://github.com/ufuckee/jd_cookie.git
+        
+    - name: Create dev.go
+      run:
+        mv dev.go.demo dev.go
+
     - name: Build amd64
       run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
       
-    - name: Upload binaries to release
+    - name: Upload amd64
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -32,7 +44,7 @@ jobs:
     - name: Build arm64
       run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
       
-    - name: Upload binaries to release
+    - name: Upload arm64
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
