@@ -69,6 +69,21 @@ func CompileCode() error {
 	return nil
 }
 
+func Download() error {
+	url := "https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_"
+	if sillyGirl.GetBool("downlod_use_ghproxy", true) {
+		url = "https://mirror.ghproxy.com/" + url
+	}
+	url += runtime.GOARCH
+	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && wget "+url+" -o temp && mv temp "+pname+" ")
+	_, err := cmd.Output()
+	if err != nil {
+		return errors.New("失败：" + err.Error() + "。")
+	}
+	// sillyGirl.Set("compiled_at", time.Now().Format("2006-01-02 15:04:05"))
+	return nil
+}
+
 func killp() {
 	// data, _ := os.ReadFile(pidf)
 	// pid := Int(string(data))

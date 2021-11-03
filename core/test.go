@@ -62,6 +62,18 @@ func initSys() {
 				if runtime.GOOS == "windows" {
 					return "windows系统不支持此命令"
 				}
+				if sillyGirl.Get("compiled_at") == "" {
+					s.Reply("开始下载文件...")
+					err := Download()
+					if err != nil {
+						return err
+					}
+					s.Reply("更新完成，即将重启！", E)
+					go func() {
+						time.Sleep(time.Second)
+						Daemon()
+					}()
+				}
 				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) {
 					return nil
 				}
