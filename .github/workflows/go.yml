@@ -44,6 +44,7 @@ jobs:
         file: sillyGirl_linux_amd64
         asset_name: sillyGirl_linux_amd64
         tag: ${{ github.ref }}
+        overwrite: true
       
     - name: Build arm64
       run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
@@ -55,5 +56,6 @@ jobs:
         file: sillyGirl_linux_arm64
         asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
+        overwrite: true
       
 
