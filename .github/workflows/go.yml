@@ -21,6 +21,14 @@ jobs:
     - name: Build amd64
       run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
       
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: sillyGirl_linux_amd64
+        asset_name: sillyGirl_linux_amd64
+        tag: ${{ github.ref }}
+      
     - name: Build arm64
       run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
       
@@ -28,6 +36,8 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: sillyGirl_linux_*
-        asset_name: sillyGirl
+        file: sillyGirl_linux_arm64
+        asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
+      
+
