@@ -10,6 +10,13 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+          - arch: arm64
+
     steps:
     - uses: actions/checkout@v2
 
@@ -34,28 +41,16 @@ jobs:
       run:
         mv dev.go.demo dev.go
 
-    - name: Build amd64
-      run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
-      
-    - name: Upload amd64
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: sillyGirl_linux_amd64
-        asset_name: sillyGirl_linux_amd64
-        tag: ${{ github.ref }}
-        overwrite: true
-      
-    - name: Build arm64
-      run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
-      
-    - name: Upload arm64
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: sillyGirl_linux_arm64
-        asset_name: sillyGirl_linux_arm64
-        tag: ${{ github.ref }}
-        overwrite: true
-      
-
+    - name: Build
+      run: |
+        GOOS=linux GOARCH=${{ matrix.arch }} go build -o sillyGirl_linux_${{ matrix.arch }}
+        sha256sum sillyGirl-linux-${{ matrix.arch }} > skopeo-linux-${{ matrix.arch }}.sha256sum.txt
+     
+      - name: Release and upload binary file
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            sillyGirl-linux-${{ matrix.arch }}
+            sillyGirl-linux-${{ matrix.arch }}.sha256sum.txt 
