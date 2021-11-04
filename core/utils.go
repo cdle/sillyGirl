@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//随机生成uuid
 func GetUUID() string {
 	u2, _ := uuid.NewUUID()
 	return u2.String()
