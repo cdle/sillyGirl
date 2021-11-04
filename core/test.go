@@ -47,14 +47,13 @@ func init() {
 
 func initSys() {
 	AddCommand("", []Function{
-		{
-			Rules: []string{"unintsall sillyGirl"},
-			Admin: true,
-			Handle: func(s Sender) interface{} {
-
-				return nil
-			},
-		},
+		// {
+		// 	Rules: []string{"unintsall sillyGirl"},
+		// 	Admin: true,
+		// 	Handle: func(s Sender) interface{} {
+		// 		return ""
+		// 	},
+		// },
 		{
 			Rules: []string{"raw ^name$"},
 			Handle: func(s Sender) interface{} {
