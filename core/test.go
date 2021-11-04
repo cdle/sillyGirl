@@ -75,16 +75,17 @@ func initSys() {
 				}
 				if s.GetImType() != "fake" {
 					if sillyGirl.Get("compiled_at") == "" {
-						s.Reply("开始下载文件...")
-						err := Download()
-						if err != nil {
-							return err
-						}
-						s.Reply("更新完成，即将重启！", E)
-						go func() {
-							time.Sleep(time.Second)
-							Daemon()
-						}()
+						// s.Reply("开始下载文件...")
+						// err := Download()
+						// if err != nil {
+						// 	return err
+						// }
+						// s.Reply("更新完成，即将重启！", E)
+						// go func() {
+						// 	time.Sleep(time.Second)
+						// 	Daemon()
+						// }()
+						return "暂不支持升级，请手动升级(cdn可能会有缓存)" + `a=arm64;if [[ $(uname -a | grep "x86_64") != "" ]];then a=amd64;fi ;s=sillyGirl;cd;if [ ! -d $s ];then mkdir $s;fi ;cd $s;wget https://mirror.ghproxy.com/https://github.com/cdle/${s}/releases/download/main/${s}_linux_$a -O $s && chmod 777 $s &&pkill -9 $s ; $(pwd)/$s`
 					}
 				}
 
