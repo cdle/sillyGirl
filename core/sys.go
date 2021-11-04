@@ -71,11 +71,11 @@ func CompileCode() error {
 
 func Download() error {
 	url := "https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_"
-	if sillyGirl.GetBool("downlod_use_ghproxy", true) {
+	if sillyGirl.GetBool("downlod_use_ghproxy", false) {
 		url = "https://mirror.ghproxy.com/" + url
 	}
 	url += runtime.GOARCH
-	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && wget "+url+" -o temp && mv temp "+pname+"  && chmod 777 "+pname)
+	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && wget "+url+" -O temp && mv temp "+pname+"  && chmod 777 "+pname)
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New("失败：" + err.Error() + "。")
