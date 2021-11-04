@@ -44,7 +44,7 @@ jobs:
     - name: Build
       run: |
         GOOS=linux GOARCH=${{ matrix.arch }} go build -o sillyGirl_linux_${{ matrix.arch }}
-        sha256sum sillyGirl-linux-${{ matrix.arch }} > skopeo-linux-${{ matrix.arch }}.sha256sum.txt
+        sha256sum sillyGirl-linux-${{ matrix.arch }} > sillyGirl-linux-${{ matrix.arch }}.sha256sum.txt
      
       - name: Release and upload binary file
         uses: softprops/action-gh-release@v1
