@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -14,8 +15,8 @@ func GetUUID() string {
 	return u2.String()
 }
 
-func Float64(str string) float64 {
-	f, _ := strconv.ParseFloat(str, 64)
+func Float64(str interface{}) float64 {
+	f, _ := strconv.ParseFloat(fmt.Sprint(str), 64)
 	return f
 }
 
