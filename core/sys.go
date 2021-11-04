@@ -75,7 +75,7 @@ func Download() error {
 		url = "https://mirror.ghproxy.com/" + url
 	}
 	url += runtime.GOARCH
-	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && wget "+url+" -o temp && mv temp "+pname+" ")
+	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && wget "+url+" -o temp && mv temp "+pname+"  && chmod 777 "+pname)
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New("失败：" + err.Error() + "。")
