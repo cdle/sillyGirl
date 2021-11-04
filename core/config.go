@@ -17,7 +17,7 @@ var ExecPath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 
 var Config Yaml
 
-func ReadYaml(confDir string, conf interface{}, url string) {
+func ReadYaml(confDir string, conf interface{}, _ string) {
 	path := confDir + "config.yaml"
 	if _, err := os.Stat(confDir); err != nil {
 		os.MkdirAll(confDir, os.ModePerm)
