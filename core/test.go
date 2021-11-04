@@ -149,6 +149,9 @@ func initSys() {
 			Rules: []string{"raw ^编译$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if sillyGirl.Get("compiled_at") == "" {
+					return "编译个🐔8。"
+				}
 				s.Reply("正在编译程序...", E)
 				if err := CompileCode(); err != nil {
 					return err

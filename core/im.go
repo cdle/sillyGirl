@@ -255,7 +255,7 @@ var ForGroup forGroup
 
 func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) interface{} {
 	c := &Carry{}
-	timeout := time.Second * 864000
+	timeout := time.Second * 86400000
 	var handleErr func(error)
 	var fg *forGroup
 	for _, param := range params {
