@@ -71,7 +71,7 @@ func CompileCode() error {
 
 func Download() error {
 	url := "https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_"
-	if sillyGirl.GetBool("downlod_use_ghproxy", false) {
+	if sillyGirl.GetBool("downlod_use_ghproxy", false) { //
 		url = "https://mirror.ghproxy.com/" + url
 	}
 	url += runtime.GOARCH
