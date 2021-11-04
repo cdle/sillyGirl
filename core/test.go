@@ -47,7 +47,7 @@ func init() {
 
 func initSys() {
 	AddCommand("", []Function{
-		// {
+		// {//
 		// 	Rules: []string{"unintsall sillyGirl"},
 		// 	Admin: true,
 		// 	Handle: func(s Sender) interface{} {
