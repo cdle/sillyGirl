@@ -29,6 +29,8 @@ func init() {
 				os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
 			}
 			os.Remove("develop/replies/price.js")
+		} else {
+			os.Remove("develop/replies/jd_price.js")
 		}
 		init123()
 	}()
