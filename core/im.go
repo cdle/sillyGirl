@@ -243,7 +243,11 @@ type forGroup string
 
 type again string
 
-var Again again = "again"
+var Again again = ""
+
+var GoAgain = func(str string) again {
+	return again(str)
+}
 
 type YesOrNo string
 
@@ -302,8 +306,12 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 			case Sender:
 				s := result.(Sender)
 				result := callback(s)
-				if _, ok := result.(again); ok {
-					c.Result <- nil
+				if v, ok := result.(again); ok {
+					if v == "" {
+						c.Result <- nil
+					} else {
+						c.Result <- string(v)
+					}
 				} else if _, ok := result.(YesOrNo); ok {
 					if "y" == strings.ToLower(s.GetContent()) {
 						return Yes

@@ -363,10 +363,7 @@ Alias=sillyGirl.service`
 				if strings.Contains(data, "我赢") {
 					stop = true
 				}
-				for {
-					if stop == true {
-						break
-					}
+				if !stop {
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
 						me := s2.GetUserID() == s.GetUserID()
@@ -375,30 +372,30 @@ Alias=sillyGirl.service`
 								stop = true
 								return nil
 							} else {
-								return "你认输有个屁用。"
+								return GoAgain("你认输有个屁用。")
 							}
 						}
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
 							if me {
-								return fmt.Sprintf("现在是接【%s】开头的成语哦。", begin)
+								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
 							} else {
 								s2.Continue()
-								return nil
+								return Again
 							}
 						}
 						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
 						if cy == "" {
 							s2.Disappear(time.Millisecond * 500)
-							return "请认真接龙，一站到底！"
+							return GoAgain("请认真接龙，一站到底！")
 						}
 						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
 						if err != nil {
 							s2.Reply(err)
-							return nil
+							return Again
 						}
 						if strings.Contains(data, "file_get_contents") {
 							ss := strings.Split(data, "\n")
-							return ss[len(ss)-1]
+							return GoAgain(ss[len(ss)-1])
 						}
 						if strings.Contains(data, "你赢") {
 							stop = true
@@ -420,6 +417,9 @@ Alias=sillyGirl.service`
 							} else {
 								data += "\n你以为你会，结果出丑了吧。"
 							}
+						}
+						if !stop {
+							return GoAgain(data)
 						}
 						return data
 					}, ForGroup)
