@@ -301,7 +301,7 @@ func initSys() {
 [Service]
 Type=forking
 ExecStart=` + ExecPath + "/" + pname + ` -d
-PIDFile="/var/run/sillyGirl.pid"
+PIDFile=/var/run/sillyGirl.pid
 Restart=always
 User=root
 Group=root
