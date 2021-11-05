@@ -17,7 +17,7 @@ var reply = NewBucket("reply")
 
 type Reply struct {
 	Rules   []string
-	Type    string //text url
+	Type    string //text  url
 	Content string
 	Request struct {
 		Url          string
