@@ -63,11 +63,13 @@ func GitPull(filename string) (bool, error) {
 }
 
 func CompileCode() error {
-	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname)
+	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+"sillyBaby")
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New("编译失败：" + err.Error() + "。")
 	}
+	os.RemoveAll(ExecPath + "/" + pname)
+	os.Rename(ExecPath+"/sillyBaby", ExecPath+"/"+pname)
 	sillyGirl.Set("compiled_at", time.Now().Format("2006-01-02 15:04:05"))
 	return nil
 }
