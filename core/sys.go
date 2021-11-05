@@ -15,7 +15,7 @@ import (
 
 var BeforeStop = []func(){}
 
-var pidf = "/var/run/" + pname + ".pid"
+var pidf = "/var/run/sillyGirl.pid"
 
 func Daemon() {
 	for _, bs := range BeforeStop {
@@ -36,7 +36,6 @@ func Daemon() {
 		panic(err)
 	}
 	logs.Info(sillyGirl.Get("name", "傻妞") + "以静默形式运行")
-	logs.Info("pid file", pidf)
 	err = os.WriteFile(pidf, []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 	if err != nil {
 		logs.Warn(err)
