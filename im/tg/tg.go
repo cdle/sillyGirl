@@ -59,7 +59,15 @@ func buildClientWithProxy(addr string) (*http.Client, error) {
 }
 
 func buildClientWithSock5Proxy(addr string) (*http.Client, error) {
-	dialer, err := proxy.SOCKS5("tcp", addr, nil, proxy.Direct)
+	var auth *proxy.Auth
+	v := strings.Split(addr, "@")
+	if len(v) == 3 {
+		auth = &proxy.Auth{
+			User:     v[1],
+			Password: v[2],
+		}
+	}
+	dialer, err := proxy.SOCKS5("tcp", addr, auth, proxy.Direct)
 	if err != nil {
 		logs.Warn("can't connect to the sock5 proxy:", err)
 		return nil, nil
