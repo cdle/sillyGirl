@@ -295,13 +295,13 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"^守护傻妞"},
+			Rules: []string{"守护傻妞"},
 			Handle: func(s Sender) interface{} {
 				service := `
 [Service]
 Type=forking
 ExecStart=` + ExecPath + "/" + pname + ` -d
-PIDFile=/var/run/` + pname + `.pid
+PIDFile=` + ExecPath + "/" + pname + `.pid
 Restart=always
 User=root
 Group=root

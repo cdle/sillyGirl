@@ -15,7 +15,7 @@ import (
 
 var BeforeStop = []func(){}
 
-var pidf = "/var/run/" + pname + ".pid"
+var pidf = pname + ".pid"
 
 func Daemon() {
 	for _, bs := range BeforeStop {
