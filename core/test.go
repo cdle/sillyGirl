@@ -355,7 +355,6 @@ Alias=sillyGirl.service`
 				s.Reply(data)
 				fword(data)
 				stop := false
-				goon := false
 				win := false
 				if strings.Contains(data, "你赢") {
 					stop = true
@@ -427,18 +426,9 @@ Alias=sillyGirl.service`
 				}
 				time.Sleep(time.Microsecond * 100)
 				s.Reply("还玩吗？[Y/n]")
-				s.Await(s, func(s2 Sender) interface{} {
-					msg := s2.GetContent()
-					if strings.ToLower(msg) == "y" || strings.ToLower(msg) == "yes" {
-						goon = true
-					}
-					return nil
-				}, func(err error) {
-					if err != nil {
-						s.Reply("不玩拉倒，给你脸了。")
-					}
-				})
-				if goon {
+				if s.Await(s, func(s2 Sender) interface{} {
+					return YesNo
+				}) == Yes {
 					goto start
 				}
 				if !win {
