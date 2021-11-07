@@ -70,6 +70,8 @@ jobs:
         mv sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64
         mv core/compile_time.go  binary/compile_time.go
         cd binary
+        git config --global user.email "cdle@example.com"
+        git config --global user.name "cdle"
         git add . && git commit -m "update" && git push
 
     
