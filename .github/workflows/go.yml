@@ -34,6 +34,11 @@ jobs:
       run:
         mv dev.go.demo dev.go
 
+    - name: Create compile_time.go
+      run: |
+        echo "package core" > core/compile_time.go
+        echo "var compiled_at = \"$(date +%s%3N)\"" >> core/compile_time.go
+
     - name: Build amd64
       run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
       
@@ -57,5 +62,16 @@ jobs:
         asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
         overwrite: true
+
+    - name: Push to gitee
+      run: |
+        git clone https://${{ secrets.GITEE_TOKEN }}@gitee.com/sillybot/binary.git 
+        mv sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64 
+        mv sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64
+        mv core/compile_time.go  binary/compile_time.go
+        cd binary
+        git add . && git commit -m "update" && git push
+
+    
       
 
