@@ -270,6 +270,9 @@ func initSys() {
 					s.Continue()
 					return nil
 				}
+				if s.GetChatID() != 0 {
+					s.Disappear()
+				}
 				b := Bucket(name)
 				if !IsBucket(b) {
 					s.Continue()
