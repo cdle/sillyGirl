@@ -277,10 +277,10 @@ func initSys() {
 				}
 				rt := ""
 				b.Foreach(func(k, v []byte) error {
-					rt += fmt.Sprintf("%s === %s", k, v)
+					rt += fmt.Sprintf("%s === %s\n", k, v)
 					return nil
 				})
-				return rt
+				return strings.Trim(rt, "\n")
 			},
 		},
 		{
