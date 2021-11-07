@@ -257,6 +257,34 @@ func initSys() {
 		},
 		{
 			Admin: true,
+			Rules: []string{"list ?"},
+			Handle: func(s Sender) interface{} {
+				name := s.Get(0)
+				if name == "silly" {
+					name = "sillyGirl"
+				}
+				if s.GetChatID() != 0 {
+					return "请私聊我。"
+				}
+				if name != "otto" && name != "reply" && name != "sillyGirl" && name != "qinglong" {
+					s.Continue()
+					return nil
+				}
+				b := Bucket(name)
+				if !IsBucket(b) {
+					s.Continue()
+					return nil
+				}
+				rt := ""
+				b.Foreach(func(k, v []byte) error {
+					rt += fmt.Sprintf("%s === %s", k, v)
+					return nil
+				})
+				return rt
+			},
+		},
+		{
+			Admin: true,
 			Rules: []string{"send ? ? ?"},
 			Handle: func(s Sender) interface{} {
 				Push(s.Get(0), Int(s.Get(1)), s.Get(2))
