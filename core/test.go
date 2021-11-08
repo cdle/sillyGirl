@@ -347,6 +347,9 @@ func initSys() {
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				service := `
+[Unit]
+Description=silly silly girl bot
+After=network.target mysql.service mariadb.service mysqld.service
 [Service]
 Type=forking
 ExecStart=` + ExecPath + "/" + pname + ` -d
