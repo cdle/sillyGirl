@@ -80,7 +80,7 @@ func initSys() {
 						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
 							if str > compiled_at {
 								s.Reply("正在下载更新...")
-								data, _ := httplib.Get(prefix + "https://github.com/cdle/binary/blob/master/sillyGirl_linux_amd64_" + compiled_at).Bytes()
+								data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_amd64_" + compiled_at).Bytes()
 								filename := ExecPath + "/" + pname
 								if err := os.RemoveAll(filename); err != nil {
 									return "删除旧程序错误：" + err.Error()
