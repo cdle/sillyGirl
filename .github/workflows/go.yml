@@ -9,15 +9,20 @@ on:
 jobs:
 
   build:
+    env:
+      dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+      dst_token: ${{ secrets.GITEE_TOKEN }}
+      gitee_user: sillybot    
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
-    - name: repo-sync
-      uses: guojuna/git-repo-sync@master
+    - name: sync github -> gitee
+      uses: Yikun/hub-mirror-action@master
+      if: env.dst_key && env.dst_token && env.gitee_user
       with:
-        source_repo_url: git@github.com:cdle/binary.git
-        source_branch: master
-        dest_repo_url: git@gitee.com:sillybot/sillyGirl.git
-        dest_branch: master
-        ssh_private_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+        src: 'github/cdle/binary'
+        dst: 'github/sillybot/binary'
+        dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
+        dst_token:  ${{ secrets.GITEE_TOKEN }}
+        static_list: ${{ github.event.repository.name }}
