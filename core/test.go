@@ -75,17 +75,24 @@ func initSys() {
 				}
 				if s.GetImType() != "fake" {
 					if compiled_at != "" {
-						// s.Reply("开始下载文件...")
-						// err := Download()
-						// if err != nil {
-						// 	return err
-						// }
-						// s.Reply("更新完成，即将重启！", E)
-						// go func() {
-						// 	time.Sleep(time.Second)
-						// 	Daemon()
-						// }()
-						return "暂不支持升级"
+						data, _ := httplib.Get("https://gitee.com/sillybot/binary/raw/master/compile_time.go").String()
+						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
+							if str > compiled_at {
+								s.Reply("正在下载更新...")
+								data, _ := httplib.Get("https://gitee.com/sillybot/binary/raw/master/sillyGirl_linux_amd64").Bytes()
+								filename := ExecPath + "/" + pname
+								if err := os.RemoveAll(filename); err != nil {
+									return "删除旧程序错误：" + err.Error()
+								}
+								if err := os.WriteFile(filename, data, 777); err != nil {
+									return "写入程序错误：" + err.Error()
+								}
+								return "下载完成，请对我说\"重启\"。"
+							} else {
+								return "当前版本最新，无需升级。"
+							}
+						}
+						return "无法升级：" + data
 					}
 				}
 
