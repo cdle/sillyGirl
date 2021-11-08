@@ -75,11 +75,12 @@ func initSys() {
 				}
 				if s.GetImType() != "fake" {
 					if compiled_at != "" {
-						data, _ := httplib.Get("https://gitee.com/sillybot/binary/raw/master/compile_time.go").String()
+						prefix := "https://ghproxy.com/"
+						data, _ := httplib.Get(prefix + "https://github.com/cdle/binary/blob/master/compile_time.go").String()
 						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
 							if str > compiled_at {
 								s.Reply("正在下载更新...")
-								data, _ := httplib.Get("https://gitee.com/sillybot/binary/raw/master/sillyGirl_linux_amd64").Bytes()
+								data, _ := httplib.Get(prefix + "https://github.com/cdle/binary/blob/master/sillyGirl_linux_amd64_" + compiled_at).Bytes()
 								filename := ExecPath + "/" + pname
 								if err := os.RemoveAll(filename); err != nil {
 									return "删除旧程序错误：" + err.Error()
