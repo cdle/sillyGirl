@@ -344,6 +344,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"守护傻妞"},
+			Admin: true,
 			Handle: func(s Sender) interface{} {
 				service := `
 [Service]
@@ -415,7 +416,6 @@ Alias=sillyGirl.service`
 						ct := s2.GetContent()
 						me := s2.GetUserID() == s.GetUserID()
 						if strings.Contains(ct, "小爱提示") {
-							s = s.Copy()
 							s.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
 							s.Continue()
 							return Again
