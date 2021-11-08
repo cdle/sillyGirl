@@ -90,7 +90,7 @@ func initSys() {
 								}
 								return "下载完成，请对我说\"重启\"。"
 							} else {
-								return "当前版本最新，无需升级。"
+								return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 							}
 						}
 						return "无法升级：" + data
