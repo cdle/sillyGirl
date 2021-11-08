@@ -9,20 +9,67 @@ on:
 jobs:
 
   build:
-    env:
-      dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
-      dst_token: ${{ secrets.GITEE_TOKEN }}
-      gitee_user: sillybot    
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
-    - name: sync github -> gitee
-      uses: Yikun/hub-mirror-action@master
-      if: env.dst_key && env.dst_token && env.gitee_user
+    - name: Set up Go
+      uses: actions/setup-go@v2
       with:
-        src: 'github/cdle/binary'
-        dst: 'github/sillybot/binary'
-        dst_key: ${{ secrets.GITEE_RSA_PRIVATE_KEY }}
-        dst_token:  ${{ secrets.GITEE_TOKEN }}
-        static_list: ${{ github.event.repository.name }}
+        go-version: 1.17
+
+    - name: Git clone cable
+      run:
+        cd develop && git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/cable.git
+        
+    - name: Git clone jd_price
+      run:
+        cd develop && git clone https://github.com/cdle/jd_price.git
+        
+    - name: Git clone jd_cookie
+      run:
+        cd develop && git clone https://github.com/ufuckee/jd_cookie.git
+        
+    - name: Create dev.go
+      run:
+        mv dev.go.demo dev.go
+
+    - name: Create compile_time.go
+      run: |
+        echo "package core" > core/compile_time.go
+        echo "var compiled_at = \"$(date +%s%3N)\"" >> core/compile_time.go
+
+    - name: Build amd64
+      run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
+      
+    - name: Upload amd64
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: sillyGirl_linux_amd64
+        asset_name: sillyGirl_linux_amd64
+        tag: ${{ github.ref }}
+        overwrite: true
+      
+    - name: Build arm64
+      run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
+      
+    - name: Upload arm64
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: sillyGirl_linux_arm64
+        asset_name: sillyGirl_linux_arm64
+        tag: ${{ github.ref }}
+        overwrite: true
+
+    - name: Push to binary
+      run: |
+        git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        mv sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64 
+        mv sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64
+        mv core/compile_time.go  binary/compile_time.go
+        cd binary
+        git add . && git commit -m "update" && git push
