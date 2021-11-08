@@ -90,7 +90,7 @@ func initSys() {
 								if err := os.WriteFile(filename, data, 777); err != nil {
 									return "写入程序错误：" + err.Error()
 								}
-								return "下载完成，请对我说\"重启\"。" //
+								return "下载完成，请对我说\"重启\"。"
 							} else {
 								return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 							}
