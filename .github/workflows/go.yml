@@ -34,35 +34,6 @@ jobs:
       run:
         mv dev.go.demo dev.go
 
-    # - name: Create compile_time.go
-    #   run: |
-    #     echo "package core" > core/compile_time.go
-    #     echo "var compiled_at = \"$(date +%s%3N)\"" >> core/compile_time.go
-
-    # - name: Build amd64
-    #   run: GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
-      
-    # - name: Upload amd64
-    #   uses: svenstaro/upload-release-action@v2
-    #   with:
-    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #     file: sillyGirl_linux_amd64
-    #     asset_name: sillyGirl_linux_amd64
-    #     tag: ${{ github.ref }}
-    #     overwrite: true
-      
-    # - name: Build arm64
-    #   run: GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
-      
-    # - name: Upload arm64
-    #   uses: svenstaro/upload-release-action@v2
-    #   with:
-    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #     file: sillyGirl_linux_arm64
-    #     asset_name: sillyGirl_linux_arm64
-    #     tag: ${{ github.ref }}
-    #     overwrite: true
-
     - name: Push to binary
       run: |
         n=$(date +%s%3N)
@@ -79,3 +50,22 @@ jobs:
         mv core/compile_time.go  binary/compile_time.go
         cd binary
         git add . && git commit -m "update" && git push
+
+    - name: Upload to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: binary/sillyGirl_linux_amd64_$n
+        asset_name: sillyGirl_linux_amd64
+        tag: ${{ github.ref }}
+        overwrite: true
+
+    - name: Upload to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: binary/sillyGirl_linux_arm64_$n
+        asset_name: sillyGirl_linux_arm64
+        tag: ${{ github.ref }}
+        overwrite: true
+    
