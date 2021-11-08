@@ -30,7 +30,7 @@ func ReadYaml(confDir string, conf interface{}, _ string) {
 	s, _ := ioutil.ReadAll(f)
 	if len(s) == 0 {
 		// logs.Info("下载配置%s", url)
-		// r, err := httplib.Get("https://ghproxy.com/" + url).Response()
+		// r, err := httplib.Get("https://ghproxy.com/" + url).Response()//
 		// if err == nil {
 		// 	io.Copy(f, r.Body)
 		// }
