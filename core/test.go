@@ -78,7 +78,6 @@ func initSys() {
 						// prefix := "https://ghproxy.com/"
 						//
 						// prefix := sillyGirl.Get("download_prefix")
-
 						for _, prefix := range []string{"https://ghproxy.com/", ""} {
 							data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
 							if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
