@@ -45,9 +45,9 @@ jobs:
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         rm -rf binary/*
-        mv sillyGirl_linux_amd64_$n binary/sillyGirl_linux_amd64_$n 
-        mv sillyGirl_linux_arm64_$n binary/sillyGirl_linux_arm64_$n
-        mv core/compile_time.go  binary/compile_time.go
+        cp sillyGirl_linux_amd64_$n binary/sillyGirl_linux_amd64_$n 
+        cp sillyGirl_linux_arm64_$n binary/sillyGirl_linux_arm64_$n
+        cp core/compile_time.go  binary/compile_time.go
         cd binary
         git add . && git commit -m "update" && git push
 
@@ -55,7 +55,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_amd64_*
+        file: sillyGirl_linux_amd64
         asset_name: sillyGirl_linux_amd64
         tag: ${{ github.ref }}
         overwrite: true
@@ -64,7 +64,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_arm64_*
+        file: sillyGirl_linux_arm64
         asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
         overwrite: true
