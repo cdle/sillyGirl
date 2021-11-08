@@ -67,7 +67,7 @@ jobs:
       run: |
         n=$(date +%s%3N)
         echo "package core" > core/compile_time.go
-        echo "var compiled_at = \"$(echo n)\"" >> core/compile_time.go
+        echo "var compiled_at = \"$(echo $n)\"" >> core/compile_time.go
         GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64_$n
         GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64_$n
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
