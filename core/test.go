@@ -75,8 +75,9 @@ func initSys() {
 				}
 				if s.GetImType() != "fake" {
 					if compiled_at != "" {
-						prefix := "https://ghproxy.com/"
-						data, _ := httplib.Get(prefix + "https://github.com/cdle/binary/blob/master/compile_time.go").String()
+						// prefix := "https://ghproxy.com/"
+						prefix := sillyGirl.Get("download_prefix")
+						data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
 						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
 							if str > compiled_at {
 								s.Reply("正在下载更新...")
