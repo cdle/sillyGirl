@@ -73,7 +73,7 @@ jobs:
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
-        rm -rf /binary/*
+        rm -rf binary/*
         mv sillyGirl_linux_amd64_$n binary/sillyGirl_linux_amd64_$n 
         mv sillyGirl_linux_arm64_$n binary/sillyGirl_linux_arm64_$n
         mv core/compile_time.go  binary/compile_time.go
