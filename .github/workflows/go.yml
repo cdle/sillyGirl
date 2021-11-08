@@ -39,15 +39,15 @@ jobs:
         n=$(date +%s%3N)
         echo "package core" > core/compile_time.go
         echo "var compiled_at = \"$n\"" >> core/compile_time.go
-        GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64_$n
-        GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64_$n
+        GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
+        GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
         rm -rf binary/*
-        mv sillyGirl_linux_amd64_$n binary/sillyGirl_linux_amd64_$n 
-        mv sillyGirl_linux_arm64_$n binary/sillyGirl_linux_arm64_$n
-        mv core/compile_time.go  binary/compile_time.go
+        cp sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64_$n 
+        cp sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64_$n
+        cp core/compile_time.go  binary/compile_time.go
         cd binary
         git add . && git commit -m "update" && git push
 
@@ -55,7 +55,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_amd64_$n
+        file: sillyGirl_linux_amd64
         asset_name: sillyGirl_linux_amd64
         tag: ${{ github.ref }}
         overwrite: true
@@ -64,7 +64,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_arm64_$n
+        file: sillyGirl_linux_arm64
         asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
         overwrite: true
