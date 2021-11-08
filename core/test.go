@@ -76,6 +76,7 @@ func initSys() {
 				if s.GetImType() != "fake" {
 					if compiled_at != "" {
 						// prefix := "https://ghproxy.com/"
+						//
 						prefix := sillyGirl.Get("download_prefix")
 						data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
 						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
