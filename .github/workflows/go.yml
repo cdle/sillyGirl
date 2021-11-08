@@ -55,7 +55,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_amd64_$n
+        file: binary/sillyGirl_linux_amd64_*
         asset_name: sillyGirl_linux_amd64
         tag: ${{ github.ref }}
         overwrite: true
@@ -64,7 +64,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: binary/sillyGirl_linux_arm64_$n
+        file: binary/sillyGirl_linux_arm64_*
         asset_name: sillyGirl_linux_arm64
         tag: ${{ github.ref }}
         overwrite: true
