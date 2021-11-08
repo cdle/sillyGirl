@@ -80,26 +80,26 @@ func initSys() {
 						prefix := sillyGirl.Get("download_prefix")
 						data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
 						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
-							// if str > compiled_at {
-							s.Reply("正在下载更新...")
-							data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_amd64_" + str).Bytes()
-							if err != nil {
-								return "下载程序错误：" + err.Error()
+							if str > compiled_at {
+								s.Reply("正在下载更新...")
+								data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_amd64_" + str).Bytes()
+								if err != nil {
+									return "下载程序错误：" + err.Error()
+								}
+								if len(data) < 2646147 {
+									return "下载失败。"
+								}
+								filename := ExecPath + "/" + pname
+								if err := os.RemoveAll(filename); err != nil {
+									return "删除旧程序错误：" + err.Error()
+								}
+								if err := os.WriteFile(filename, data, 777); err != nil {
+									return "写入程序错误：" + err.Error()
+								}
+								return "下载完成，请对我说\"重启\"。"
+							} else {
+								return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 							}
-							if len(data) < 2646147 {
-								return "下载失败。"
-							}
-							filename := ExecPath + "/" + pname
-							if err := os.RemoveAll(filename); err != nil {
-								return "删除旧程序错误：" + err.Error()
-							}
-							if err := os.WriteFile(filename, data, 777); err != nil {
-								return "写入程序错误：" + err.Error()
-							}
-							return "下载完成，请对我说\"重启\"。"
-							// } else {
-							// return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
-							// }
 						}
 						return "无法升级：" + data
 					}
@@ -416,8 +416,8 @@ Alias=sillyGirl.service`
 						ct := s2.GetContent()
 						me := s2.GetUserID() == s.GetUserID()
 						if strings.Contains(ct, "小爱提示") {
-							s.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
-							s.Continue()
+							s2.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
+							s2.Continue()
 							return Again
 						}
 						if strings.Contains(ct, "认输") {

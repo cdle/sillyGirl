@@ -120,7 +120,7 @@ func handleMessage(sender Sender) {
 	if mtd && !con {
 		return
 	}
-	logs.Info("%v ==> %v", sender.GetContent(), "passed")
+	// logs.Info("%v ==> %v", sender.GetContent(), "passed")
 	// if v, ok := waits.Load(key); ok {
 	// 	c := v.(*Carry)
 	// 	if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
