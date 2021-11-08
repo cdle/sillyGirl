@@ -66,6 +66,8 @@ jobs:
     - name: Push to gitee
       run: |
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
         mv sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64 
         mv sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64
         mv core/compile_time.go  binary/compile_time.go
