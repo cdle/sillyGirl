@@ -83,7 +83,7 @@ func initSys() {
 							if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
 								if str > compiled_at {
 									s.Reply("正在下载更新...")
-									data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_amd64_" + str).Bytes()
+									data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
 									if err != nil {
 										return "下载程序错误：" + err.Error()
 									}
