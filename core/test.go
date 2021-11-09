@@ -286,7 +286,7 @@ func initSys() {
 				if s.GetChatID() != 0 && name != "reply" {
 					return "请私聊我。"
 				}
-				if name != "otto" && name != "reply" && name != "sillyGirl" && name != "qinglong" {
+				if name != "otto" && name != "reply" && name != "sillyGirl" && name != "qinglong" && name != "wx" && name != "tg" && name != "qq" {
 					s.Continue()
 					return nil
 				}
