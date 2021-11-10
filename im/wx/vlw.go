@@ -77,8 +77,12 @@ func enableVLW() {
 					robot_wxid = ag.Content.RobotWxid
 					wx.Set("robot_wxid", ag.Content.RobotWxid)
 				}
-				go c.WriteMessage(websocket.TextMessage,
-					[]byte(``))
+				c.WriteJSON(map[string]interface{}{
+					"wsMCBreqID": ag.WsMCBreqID,
+					"Code":       -1,
+				})
+				// go c.WriteMessage(websocket.TextMessage,
+				// 	[]byte(fmt.Sprintf(`{"wsMCBreqID": %d,"Code": -1}`, ag.wsMCBreqID)))
 				core.Senders <- &Sender{
 					value: wm,
 				}
