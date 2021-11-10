@@ -66,7 +66,7 @@ func init() {
 		go func() {
 			tosend = make(chan []byte, 10)
 			for {
-				time.Sleep(time.Microsecond * 50)
+				time.Sleep(time.Microsecond * 200)
 				m := <-tosend
 				if c != nil {
 					c.WriteMessage(websocket.TextMessage, m)
