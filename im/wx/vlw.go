@@ -1,40 +1,27 @@
 package wx
 
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
+// var c *websocket.Conn
 
-	"github.com/astaxie/beego/logs"
-	"github.com/cdle/sillyGirl/core"
-	"github.com/gorilla/websocket"
-)
+// var tosend chan []byte
 
-var c *websocket.Conn
-
-var tosend chan []byte
-
-func enableVLW() {
-	addr := wx.Get("vlw_addr")
-	if addr == "" {
-		return
-	}
-	defer func() {
-		time.Sleep(time.Second * 2)
-		enableVLW()
-	}()
-	u := url.URL{Scheme: "ws", Host: addr, Path: "/"}
-	logs.Info("连接vlw %s", u.String())
-	var err error
-	c, _, err = websocket.DefaultDialer.Dial(u.String(), http.Header{})
-	if err != nil {
-		logs.Warn("连接vlw错误:", err)
-		return
-	}
-	defer c.Close()
+// func enableVLW() {
+// 	addr := wx.Get("vlw_addr")
+// 	if addr == "" {
+// 		return
+// 	}
+// 	defer func() {
+// 		time.Sleep(time.Second * 2)
+// 		enableVLW()
+// 	}()
+// 	u := url.URL{Scheme: "ws", Host: addr, Path: "/"}
+// 	logs.Info("连接vlw %s", u.String())
+// 	var err error
+// 	c, _, err = websocket.DefaultDialer.Dial(u.String(), http.Header{})
+// 	if err != nil {
+// 		logs.Warn("连接vlw错误:", err)
+// 		return
+// 	}
+// 	defer c.Close()
 	go func() {
 		for {
 			_, message, err := c.ReadMessage()
