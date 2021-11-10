@@ -490,7 +490,7 @@ Alias=sillyGirl.service`
 				s.Reply("还玩吗？[Y/n]")
 				if s.Await(s, func(s2 Sender) interface{} {
 					return YesNo
-				}, ForGroup) == Yes {
+				}, time.Second*6) == Yes {
 					goto start
 				}
 				if !win {
