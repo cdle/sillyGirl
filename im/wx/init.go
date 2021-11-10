@@ -379,6 +379,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		vlw_addr := wx.Get("vlw_addr")
 		req := httplib.Post(vlw_addr)
 		req.Body(data)
+		req.Response()
 		// go func() {
 		// 	tosend <- data
 		// }()
