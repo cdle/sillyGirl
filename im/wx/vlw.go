@@ -81,6 +81,7 @@ func enableVLW() {
 					"wsMCBreqID": ag.WsMCBreqID,
 					"Code":       -1,
 				})
+				// c.NextWriter(1)
 				// go c.WriteMessage(websocket.TextMessage,
 				// 	[]byte(fmt.Sprintf(`{"wsMCBreqID": %d,"Code": -1}`, ag.wsMCBreqID)))
 				core.Senders <- &Sender{
