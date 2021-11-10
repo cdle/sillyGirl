@@ -74,6 +74,7 @@ func enableVLW() {
 					tosend <- []byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1}`, ag.WsMCBreqID))
 				}()
 			}
+
 			// c.WriteJSON(map[string]interface{}{
 			// 	"wsMCBreqID": ag.WsMCBreqID,
 			// 	"Code":       -1,
@@ -81,6 +82,9 @@ func enableVLW() {
 			if ag.Event == "EventPrivateChat" || ag.Event == "EventGroupChat" {
 				wm := wxmsg{}
 				wm.content = ag.Content.Msg
+				if strings.Contains(wm.content, "<type>57</type>") {
+					return
+				}
 				wm.user_id = ag.Content.FromWxid
 				wm.user_name = ag.Content.FromName
 				if ag.Content.FromGroup != "" {
