@@ -10,7 +10,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"sync"
 
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -18,81 +17,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var wx = core.NewBucket("wx")
-var api_url = func() string {
-	return wx.Get("api_url")
-}
-var robot_wxid = wx.Get("robot_wxid")
-
-func sendTextMsg(pmsg *TextMsg) {
-	pmsg.Msg = TrimHiddenCharacter(pmsg.Msg)
-	if pmsg.Msg == "" {
-		return
-	}
-	pmsg.Event = "SendTextMsg"
-	pmsg.RobotWxid = robot_wxid
-	req := httplib.Post(api_url())
-	req.Header("Content-Type", "application/json")
-	data, _ := json.Marshal(pmsg)
-	enc := mahonia.NewEncoder("gbk")
-	d := enc.ConvertString(string(data))
-	d = regexp.MustCompile(`[\n\s]*\n[\s\n]*`).ReplaceAllString(d, "\n")
-	req.Body(d)
-	req.Response()
-}
-
-func TrimHiddenCharacter(originStr string) string {
-	srcRunes := []rune(originStr)
-	dstRunes := make([]rune, 0, len(srcRunes))
-	for _, c := range srcRunes {
-		if c >= 0 && c <= 31 && c != 10 {
-			continue
-		}
-		if c == 127 {
-			continue
-		}
-		dstRunes = append(dstRunes, c)
-	}
-	return string(dstRunes)
-}
-
-func sendOtherMsg(pmsg *OtherMsg) {
-	if pmsg.Event == "" {
-		pmsg.Event = "SendImageMsg"
-	}
-	pmsg.RobotWxid = robot_wxid
-	req := httplib.Post(api_url())
-	req.Header("Content-Type", "application/json")
-	data, _ := json.Marshal(pmsg)
-	req.Body(data)
-	req.Response()
-}
-
-type TextMsg struct {
-	Event      string `json:"event"`
-	ToWxid     string `json:"to_wxid"`
-	Msg        string `json:"msg"`
-	RobotWxid  string `json:"robot_wxid"`
-	GroupWxid  string `json:"group_wxid"`
-	MemberWxid string `json:"member_wxid"`
-}
-
-type OtherMsg struct {
-	Success    bool   `json:"success"`
-	Message    string `json:"message"`
-	Event      string `json:"event"`
-	RobotWxid  string `json:"robot_wxid"`
-	ToWxid     string `json:"to_wxid"`
-	MemberWxid string `json:"member_wxid"`
-	MemberName string `json:"member_name"`
-	GroupWxid  string `json:"group_wxid"`
-	Msg        Msg    `json:"msg"`
-}
-
-type Msg struct {
-	URL  string `json:"url"`
-	Name string `json:"name"`
-}
+var myip = ""
+var relaier = wx.Get("relaier")
+var mode = "bgm"
 
 func init() {
 	core.Pushs["wx"] = func(i interface{}, s string) {
@@ -133,42 +60,12 @@ func init() {
 		pmsg.Msg = s
 		sendTextMsg(&pmsg)
 	}
-	core.Server.POST("/wx/receive", func(c *gin.Context) {
-		data, _ := c.GetRawData()
-		jms := JsonMsg{}
-		json.Unmarshal(data, &jms)
-		c.JSON(200, map[string]string{"code": "-1"})
-		fmt.Println(jms.Type, jms.Msg)
-		if jms.Event != "EventFriendMsg" && jms.Event != "EventGroupMsg" {
-			return
-		}
-
-		if jms.Type == 0 { //|| jms.Type == 49
-			// if jms.Type != 1 && jms.Type != 3 && jms.Type != 5 {
-			return
-		}
-		if strings.Contains(fmt.Sprint(jms.Msg), `<type>57</type>`) {
-			return
-		}
-		if jms.FinalFromWxid == jms.RobotWxid {
-			return
-		}
-		listen := wx.Get("onGroups")
-		if jms.Event == "EventGroupMsg" && listen != "" && !strings.Contains(listen, strings.Replace(fmt.Sprint(jms.FromWxid), "@chatroom", "", -1)) {
-			return
-		}
-		if robot_wxid != jms.RobotWxid {
-			robot_wxid = jms.RobotWxid
-			wx.Set("robot_wxid", robot_wxid)
-		}
-		if wx.GetBool("keaimao_dynamic_ip", false) {
-			ip, _ := c.RemoteIP()
-			wx.Set("api_url", fmt.Sprintf("http://%s:%s", ip.String(), wx.Get("keaimao_port", "8080"))) //
-		}
-		core.Senders <- &Sender{
-			value: jms,
-		}
-	})
+	if wx.Get("vlw_addr") != "" {
+		go enableVLW()
+		mode = "vlw"
+	} else {
+		enableBGM()
+	}
 	core.Server.GET("/relay", func(c *gin.Context) {
 		url := c.Query("url")
 		rsp, err := httplib.Get(url).Response()
@@ -180,11 +77,6 @@ func init() {
 		c.Writer.Write([]byte{})
 	})
 }
-
-var wxbase sync.Map
-
-var myip = ""
-var relaier = wx.Get("relaier")
 
 func relay(url string) string {
 	if wx.GetBool("relay_mode", false) == false {
@@ -203,54 +95,25 @@ func relay(url string) string {
 	}
 }
 
-type Sender struct {
-	leixing int
-	mtype   int
-	deleted bool
-	value   JsonMsg
-	core.BaseSender
-}
-
-type JsonMsg struct {
-	Event         string      `json:"event"`
-	RobotWxid     string      `json:"robot_wxid"`
-	RobotName     string      `json:"robot_name"`
-	Type          int         `json:"type"`
-	FromWxid      string      `json:"from_wxid"`
-	FromName      string      `json:"from_name"`
-	FinalFromWxid string      `json:"final_from_wxid"`
-	FinalFromName string      `json:"final_from_name"`
-	ToWxid        string      `json:"to_wxid"`
-	Msg           interface{} `json:"msg"`
-}
-
 func (sender *Sender) GetContent() string {
 	if sender.Content != "" {
 		return sender.Content
 	}
-	switch sender.value.Msg.(type) {
-	case int, int64, int32:
-		return fmt.Sprintf("%d", sender.value.Msg)
-	case float64:
-		return fmt.Sprintf("%d", int(sender.value.Msg.(float64)))
-	}
-	return fmt.Sprint(sender.value.Msg)
+
+	return sender.value.content
 }
 func (sender *Sender) GetUserID() string {
-	return sender.value.FinalFromWxid
+	return sender.value.user_id
 }
 func (sender *Sender) GetChatID() int {
-	if strings.Contains(sender.value.FromWxid, "@chatroom") {
-		return core.Int(strings.Replace(sender.value.FromWxid, "@chatroom", "", -1))
-	} else {
-		return 0
-	}
+	return sender.value.chat_id
 }
+
 func (sender *Sender) GetImType() string {
 	return "wx"
 }
 func (sender *Sender) GetUsername() string {
-	return sender.value.FinalFromName
+	return sender.value.user_name
 }
 func (sender *Sender) GetReplySenderUserID() int {
 	if !sender.IsReply() {
@@ -262,12 +125,15 @@ func (sender *Sender) IsAdmin() bool {
 	return strings.Contains(wx.Get("masters"), fmt.Sprint(sender.GetUserID()))
 }
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
-	to := sender.value.FromWxid
+	to := ""
+	if sender.value.chat_id != 0 {
+		to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+	}
 	at := ""
 	if to == "" {
-		to = sender.value.FinalFromWxid
+		to = sender.value.user_id
 	} else {
-		at = sender.value.FinalFromWxid
+		at = sender.value.user_id
 	}
 	pmsg := TextMsg{
 		ToWxid:     to,
@@ -325,4 +191,70 @@ func md5V(str string) string {
 func (sender *Sender) Copy() core.Sender {
 	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Sender)
 	return &new
+}
+
+func sendTextMsg(pmsg *TextMsg) {
+	if mode == "vlw" {
+		type AutoGenerated struct {
+			Token      string `json:"token"`
+			API        string `json:"api"`
+			RobotWxid  string `json:"robot_wxid"`
+			ToWxid     string `json:"to_wxid"`
+			Msg        string `json:"msg"`
+			WsAPIreqID int    `json:"wsAPIreqID"`
+		}
+		a := AutoGenerated{}
+		a.Token = wx.Get("vlw_token")
+		a.API = "SendTextMsg"
+		a.RobotWxid = robot_wxid
+		a.ToWxid = pmsg.ToWxid
+		a.Msg = pmsg.Msg
+		c.WriteJSON(a)
+	} else {
+		pmsg.Msg = TrimHiddenCharacter(pmsg.Msg)
+		if pmsg.Msg == "" {
+			return
+		}
+		pmsg.Event = "SendTextMsg"
+		pmsg.RobotWxid = robot_wxid
+		req := httplib.Post(api_url())
+		req.Header("Content-Type", "application/json")
+		data, _ := json.Marshal(pmsg)
+		enc := mahonia.NewEncoder("gbk")
+		d := enc.ConvertString(string(data))
+		d = regexp.MustCompile(`[\n\s]*\n[\s\n]*`).ReplaceAllString(d, "\n")
+		req.Body(d)
+		req.Response()
+	}
+}
+
+func sendOtherMsg(pmsg *OtherMsg) {
+	if pmsg.Event == "" {
+		pmsg.Event = "SendImageMsg"
+	}
+	if mode == "vlw" {
+		type AutoGenerated struct {
+			Token      string `json:"token"`
+			API        string `json:"api"`
+			RobotWxid  string `json:"robot_wxid"`
+			ToWxid     string `json:"to_wxid"`
+			Msg        string `json:"msg"`
+			WsAPIreqID int    `json:"wsAPIreqID"`
+			Path       string `json:"path"`
+		}
+		a := AutoGenerated{}
+		a.Token = wx.Get("vlw_token")
+		a.API = "SendTextMsg"
+		a.RobotWxid = robot_wxid
+		a.ToWxid = pmsg.ToWxid
+		a.Path = pmsg.Msg.URL
+		c.WriteJSON(a)
+	} else {
+		pmsg.RobotWxid = robot_wxid
+		req := httplib.Post(api_url())
+		req.Header("Content-Type", "application/json")
+		data, _ := json.Marshal(pmsg)
+		req.Body(data)
+		req.Response()
+	}
 }
