@@ -85,10 +85,12 @@ func initSys() {
 									s.Reply("正在下载更新...")
 									data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
 									if err != nil {
-										return "下载程序错误：" + err.Error()
+										// return "下载程序错误：" + err.Error()
+										continue
 									}
 									if len(data) < 2646147 {
-										return "下载失败。"
+										// return "下载失败。"
+										continue
 									}
 									filename := ExecPath + "/" + pname
 									if err = os.RemoveAll(filename); err != nil {
