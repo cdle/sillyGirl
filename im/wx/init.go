@@ -329,6 +329,7 @@ func sendTextMsg(pmsg *TextMsg) {
 		data, _ := json.Marshal(a)
 		req := httplib.Post(vlw_addr)
 		req.Body(data)
+		req.Response()
 		// go func() {
 		// 	tosend <- data
 		// }()
