@@ -398,6 +398,10 @@ Alias=sillyGirl.service`
 		{
 			Rules: []string{"raw ^成语接龙$"},
 			Handle: func(s Sender) interface{} {
+				if sillyGirl.GetBool("disable_成语接龙", false) {
+					s.Continue()
+					return nil
+				}
 				begin := ""
 				fword := func(cy string) string {
 					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
@@ -430,7 +434,7 @@ Alias=sillyGirl.service`
 							return Again
 						}
 						if strings.Contains(ct, "认输") {
-							if me {
+							if me || s.IsAdmin() {
 								stop = true
 								return nil
 							} else {
