@@ -114,7 +114,13 @@ func (sender *Sender) IsAdmin() bool {
 		m := sender.Message.(*message.GroupMessage)
 		sid = m.Sender.Uin
 	}
-	return strings.Contains(qq.Get("masters"), fmt.Sprint(sid))
+	id := fmt.Sprint(sid)
+	for _, v := range strings.Split(qq.Get("masters"), "&") {
+		if id == v {
+			return true
+		}
+	}
+	return false
 }
 
 func (sender *Sender) IsMedia() bool {
