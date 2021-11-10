@@ -92,7 +92,7 @@ func enableVLW() {
 	for {
 		select {
 		case <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(`{}`))
+			err := c.WriteMessage(websocket.TextMessage, []byte(`{"token": "`+wx.Get("vlw_token")+`"}`))
 			if err != nil {
 				logs.Info("vlw:", err)
 				c = nil
