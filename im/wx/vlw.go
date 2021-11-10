@@ -73,7 +73,7 @@ func enableVLW() {
 			// w.Write([]byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1}`, ag.WsMCBreqID)))
 			// w.Close()
 			if ag.WsMCBreqID != 0 {
-				c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1, "cao": "sbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsb"}`, ag.WsMCBreqID)))
+				c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1, "cao": "sbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsb"}`, ag.WsMCBreqID)))
 			}
 
 			// c.WriteJSON(map[string]interface{}{
