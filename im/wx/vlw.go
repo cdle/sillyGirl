@@ -2,7 +2,6 @@ package wx
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -79,7 +78,7 @@ func enableVLW() {
 					wx.Set("robot_wxid", ag.Content.RobotWxid)
 				}
 				go c.WriteMessage(websocket.TextMessage,
-					[]byte(fmt.Sprintf(`{"wsMCBreqID": %d,"Code": -1}`, ag.WsMCBreqID)))
+					[]byte(``))
 				core.Senders <- &Sender{
 					value: wm,
 				}
