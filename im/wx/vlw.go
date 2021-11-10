@@ -110,7 +110,7 @@ func enableVLW() {
 				return
 			}
 			if err != nil {
-				logs.Info("vlw:", err)
+				// logs.Info("vlw:", err)
 				c = nil
 				return
 			}
