@@ -15,7 +15,6 @@ import (
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 )
 
 var myip = ""
@@ -213,12 +212,8 @@ func sendTextMsg(pmsg *TextMsg) {
 		a.RobotWxid = robot_wxid
 		a.ToWxid = pmsg.ToWxid
 		a.Msg = pmsg.Msg
-		w, err := c.NextWriter(websocket.TextMessage)
-		if err != nil {
-			return
-		}
-		data, _ := json.Marshal(a)
-		w.Write(data)
+		c.WriteJSON(a)
+
 	} else {
 		pmsg.Msg = TrimHiddenCharacter(pmsg.Msg)
 		if pmsg.Msg == "" {
@@ -260,12 +255,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		a.RobotWxid = robot_wxid
 		a.ToWxid = pmsg.ToWxid
 		a.Path = pmsg.Msg.URL
-		w, err := c.NextWriter(websocket.TextMessage)
-		if err != nil {
-			return
-		}
-		data, _ := json.Marshal(a)
-		w.Write(data)
+		c.WriteJSON(a)
 	} else {
 		pmsg.RobotWxid = robot_wxid
 		req := httplib.Post(api_url())
