@@ -10,11 +10,13 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 var myip = ""
@@ -61,6 +63,19 @@ func init() {
 		sendTextMsg(&pmsg)
 	}
 	if wx.Get("vlw_addr") != "" {
+		go func() {
+			tosend = make(chan []byte, 10)
+			for {
+				time.Sleep(time.Microsecond * 50)
+				m := <-tosend
+				if c != nil {
+					c.WriteMessage(websocket.TextMessage, m)
+				} else {
+					time.Sleep(time.Second)
+					tosend <- m
+				}
+			}
+		}()
 		go enableVLW()
 		mode = "vlw"
 	} else {
@@ -212,8 +227,11 @@ func sendTextMsg(pmsg *TextMsg) {
 		a.RobotWxid = robot_wxid
 		a.ToWxid = pmsg.ToWxid
 		a.Msg = pmsg.Msg
-		c.WriteJSON(a)
-
+		data, _ := json.Marshal(a)
+		go func() {
+			tosend <- data
+		}()
+		// c.WriteJSON(a)
 	} else {
 		pmsg.Msg = TrimHiddenCharacter(pmsg.Msg)
 		if pmsg.Msg == "" {
@@ -255,7 +273,10 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		a.RobotWxid = robot_wxid
 		a.ToWxid = pmsg.ToWxid
 		a.Path = pmsg.Msg.URL
-		c.WriteJSON(a)
+		data, _ := json.Marshal(a)
+		go func() {
+			tosend <- data
+		}()
 	} else {
 		pmsg.RobotWxid = robot_wxid
 		req := httplib.Post(api_url())
