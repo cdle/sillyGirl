@@ -73,7 +73,8 @@ func enableVLW() {
 			// w.Write([]byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1}`, ag.WsMCBreqID)))
 			// w.Close()
 			if ag.WsMCBreqID != 0 {
-				c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1, "cao": "sbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbsbbsbsbsbssbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsbbsbsbsbsbsbsb"}`, ag.WsMCBreqID)))
+				c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf(`{"wsMCBreqID": %d, "Code": -1}`, ag.WsMCBreqID)))
+				time.Sleep(time.Microsecond * 50)
 			}
 
 			// c.WriteJSON(map[string]interface{}{
