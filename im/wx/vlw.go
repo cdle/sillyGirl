@@ -77,10 +77,15 @@ func enableVLW() {
 					robot_wxid = ag.Content.RobotWxid
 					wx.Set("robot_wxid", ag.Content.RobotWxid)
 				}
-				c.WriteJSON(map[string]interface{}{
+				w, err := c.NextWriter(websocket.TextMessage)
+				if err != nil {
+					return
+				}
+				data, _ := json.Marshal(map[string]interface{}{
 					"wsMCBreqID": ag.WsMCBreqID,
 					"Code":       -1,
 				})
+				w.Write(data)
 				// c.NextWriter(1)
 				// go c.WriteMessage(websocket.TextMessage,
 				// 	[]byte(fmt.Sprintf(`{"wsMCBreqID": %d,"Code": -1}`, ag.wsMCBreqID)))
@@ -96,7 +101,9 @@ func enableVLW() {
 	for {
 		select {
 		case <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(`{"token": "`+wx.Get("vlw_token")+`"}`))
+			if err := c.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
 			if err != nil {
 				logs.Info("vlw:", err)
 				c = nil
