@@ -1,0 +1,14 @@
+version: '3'
+services:
+ sillygirl:
+    container_name: sillygirl
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sillygirl:latest
+    restart: always
+    tty: true
+    volumes:
+      - './conf/config.yaml:/app/conf/config.yaml'
+      - './develop/replies:/app/develop/replies'
+      - './data:/app/data'
