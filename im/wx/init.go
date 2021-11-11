@@ -195,6 +195,9 @@ func relay(url string) string {
 	if wx.GetBool("relay_mode", false) == false {
 		return url
 	}
+	if mode == "vlw" {
+		return url
+	}
 	if relaier != "" {
 		return fmt.Sprintf(relaier, url)
 	} else {

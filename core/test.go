@@ -99,7 +99,17 @@ func initSys() {
 									if err = os.WriteFile(filename, data, 777); err != nil {
 										return "写入程序错误：" + err.Error()
 									}
-									return "下载完成，请对我说\"重启\"。"
+									s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
+									if s.Await(s, func(s Sender) interface{} {
+										return YesNo
+									}, time.Second*3) == No {
+										return "好的，下次重启生效。。"
+									}
+									go func() {
+										time.Sleep(time.Second)
+										Daemon()
+									}()
+									return "正在重启。"
 								} else {
 									return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 								}
