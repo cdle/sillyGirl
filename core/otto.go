@@ -69,9 +69,9 @@ var OttoFuncs = map[string]func(string) string{
 }
 
 func init123() {
-	files, err := ioutil.ReadDir("develop/replies")
+	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
-		os.MkdirAll("develop/replies", os.ModePerm)
+		os.MkdirAll(ExecPath+"/develop/replies", os.ModePerm)
 		// logs.Warn("打开文件夹%s错误，%v", "develop/replies", err)
 		return
 	}
@@ -172,7 +172,7 @@ func init123() {
 		if !strings.Contains(v.Name(), ".js") {
 			continue
 		}
-		jr := string("develop/replies/" + v.Name())
+		jr := ExecPath + "/develop/replies/" + v.Name()
 		data := ""
 		if strings.Contains(jr, "http") {
 			data, err = httplib.Get(jr).String()

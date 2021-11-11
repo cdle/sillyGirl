@@ -109,6 +109,7 @@ func initSys() {
 										time.Sleep(time.Second)
 										Daemon()
 									}()
+									sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 									return "正在重启。"
 								} else {
 									return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
