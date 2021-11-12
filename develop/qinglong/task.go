@@ -1,6 +1,7 @@
 package qinglong
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -71,7 +72,11 @@ func init() {
 				cron := &Carrier{
 					Get: "data._id",
 				}
-				if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql repo `+s.Get()+`","schedule":" 1 1 1 1 1"}`)); err != nil {
+				data, _ := json.Marshal(map[string]string{
+					"name":    "sillyGirl临时创建任务",
+					"command": `ql repo ` + s.Get() + `","schedule":" 1 1 1 1 1`,
+				})
+				if err := Config.Req(cron, CRONS, POST, data); err != nil {
 					return err
 				}
 				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
