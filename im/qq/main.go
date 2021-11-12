@@ -214,15 +214,15 @@ func start() {
 		log.Warnf("Bot已离线: %v", e.Message)
 		time.Sleep(time.Second * time.Duration(conf.Account.ReLogin.Delay))
 		for {
-			if conf.Account.ReLogin.Disabled {
-				// os.Exit(1)
-				return
-			}
-			if times > conf.Account.ReLogin.MaxTimes && conf.Account.ReLogin.MaxTimes != 0 {
-				log.Warnf("Bot重连次数超过限制, 停止")
-				// log.Fatalf("Bot重连次数超过限制, 停止")
-				return
-			}
+			// if conf.Account.ReLogin.Disabled {
+			// 	// os.Exit(1)
+			// 	return
+			// }
+			// if times > conf.Account.ReLogin.MaxTimes && conf.Account.ReLogin.MaxTimes != 0 {
+			// 	log.Warnf("Bot重连次数超过限制, 停止")
+			// 	// log.Fatalf("Bot重连次数超过限制, 停止")
+			// 	return
+			// }
 			times++
 			if conf.Account.ReLogin.Interval > 0 {
 				log.Warnf("将在 %v 秒后尝试重连. 重连次数：%v/%v", conf.Account.ReLogin.Interval, times, conf.Account.ReLogin.MaxTimes)
