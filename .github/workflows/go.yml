@@ -57,7 +57,8 @@ jobs:
         cp sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64_$n
         cp core/compile_time.go  binary/compile_time.go
         cd binary
-        git add . && git commit -m "update" && git push
+        git add . && git commit -m "update"
+        git push --set-upstream origin main
 
     - name: Upload to release
       uses: svenstaro/upload-release-action@v2
