@@ -73,8 +73,9 @@ func init() {
 					Get: "data._id",
 				}
 				data, _ := json.Marshal(map[string]string{
-					"name":    "sillyGirl临时创建任务",
-					"command": `ql repo ` + s.Get() + `","schedule":" 1 1 1 1 1`,
+					"name":     "sillyGirl临时创建任务",
+					"command":  `ql repo ` + s.Get(),
+					"schedule": "1 1 1 1 1",
 				})
 				if err := Config.Req(cron, CRONS, POST, data); err != nil {
 					return err
