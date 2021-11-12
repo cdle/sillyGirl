@@ -310,9 +310,15 @@ func start() {
 		}
 	})
 	core.Pushs["qq"] = func(i interface{}, s string) {
+		if !cli.Online {
+			return
+		}
 		bot.SendPrivateMessage(core.Int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 	}
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
+		if !cli.Online {
+			return
+		}
 		paths := []string{}
 		for _, v := range regexp.MustCompile(`\[TG:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 			paths = append(paths, "data/images/"+v[1])
