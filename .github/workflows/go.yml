@@ -42,6 +42,8 @@ jobs:
         GOOS=linux GOARCH=arm64 go build -o sillyGirl_linux_arm64
         GOOS=linux GOARCH=amd64 go build -o sillyGirl_linux_amd64
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
         cd binary
         git checkout --orphan latest_branch
         git add -A
@@ -50,8 +52,6 @@ jobs:
         git branch -m master
         git push -f origin master
         cd ..
-        git config --global user.email "you@example.com"
-        git config --global user.name "Your Name"
         rm -rf binary/*
         cp sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64_$n 
         cp sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64_$n
