@@ -48,9 +48,9 @@ jobs:
         git checkout --orphan latest_branch
         git add -A
         git commit -am "commit message"
-        git branch -D master
-        git branch -m master
-        git push -f origin master
+        git branch -D main
+        git branch -m main
+        git push -f origin main
         cd ..
         rm -rf binary/*
         cp sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64_$n 
