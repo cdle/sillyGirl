@@ -255,6 +255,8 @@ var YesNo YesOrNo = "yeson"
 var Yes YesOrNo = "yes"
 var No YesOrNo = "no"
 
+type Switch []string
+
 var ForGroup forGroup
 
 func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) interface{} {
@@ -321,6 +323,14 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 						return No
 					}
 					c.Result <- "Y or n ?"
+				} else if vv, ok := result.(Switch); ok {
+					ct := s.GetContent()
+					for _, v := range vv {
+						if ct == v {
+							return v
+						}
+					}
+					c.Result <- fmt.Sprintf("请从%s中选择一个。", strings.Join(vv, "、"))
 				} else {
 					c.Result <- result
 					return nil
