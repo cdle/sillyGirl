@@ -44,12 +44,21 @@ jobs:
         git clone https://${{ secrets.CABLE_TOKEN }}@github.com/cdle/binary.git
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
+        cd binary
+        git checkout --orphan latest_branch
+        git add -A
+        git commit -am "commit message"
+        git branch -D main
+        git branch -m main
+        git push -f origin main
+        cd ..
         rm -rf binary/*
         cp sillyGirl_linux_amd64 binary/sillyGirl_linux_amd64_$n 
         cp sillyGirl_linux_arm64 binary/sillyGirl_linux_arm64_$n
         cp core/compile_time.go  binary/compile_time.go
         cd binary
-        git add . && git commit -m "update" && git push
+        git add . && git commit -m "update"
+        git push --set-upstream origin main
 
     - name: Upload to release
       uses: svenstaro/upload-release-action@v2
