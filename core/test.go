@@ -78,11 +78,15 @@ func initSys() {
 						// prefix := "https://ghproxy.com/"
 						//
 						// prefix := sillyGirl.Get("download_prefix")
-						for _, prefix := range []string{"https://ghproxy.com/", ""} {
+						for i, prefix := range []string{"https://ghproxy.com/", ""} {
 							data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
 							if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
 								if str > compiled_at {
-									s.Reply("正在下载更新...")
+									if i == 0 {
+										s.Reply("正在从ghproxy.com下载更新...")
+									} else {
+										s.Reply("尝试从github.com下载更新...")
+									}
 									data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
 									if err != nil {
 										// return "下载程序错误：" + err.Error()
@@ -118,7 +122,7 @@ func initSys() {
 								continue
 							}
 						}
-						return "无法升级."
+						return `无法升级，你网不好。建议您手动于linux执行一键升级命令： s=sillyGirl;a=arm64;if [[ $(uname -a | grep "x86_64") != "" ]];then a=amd64;fi ;if [ ! -d $s ];then mkdir $s;fi ;cd $s;wget https://mirror.ghproxy.com/https://github.com/cdle/${s}/releases/download/main/${s}_linux_$a -O $s && chmod 777 $s;pkill -9 $s;$(pwd)/$s`
 					}
 				}
 
