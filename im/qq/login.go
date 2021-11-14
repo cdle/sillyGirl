@@ -189,6 +189,9 @@ func loginResponseProcessor(res *client.LoginResponse) error {
 			if strings.Contains(msg, "冻结") {
 				// log.Fatalf("账号被冻结")
 				log.Warnf("账号被冻结")
+				qq.Set("uin", "")
+				qq.Set("password", "")
+				qq.Set("session.token", "")
 			}
 			log.Warnf("登录失败: %v", msg)
 			log.Infof("按 Enter 或等待 5s 后继续....")

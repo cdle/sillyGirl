@@ -45,7 +45,6 @@ func init() {
 	}
 	initConfig()
 	initTask()
-
 	initEnv()
 	Config = &QingLong{}
 	Config.Host = qinglong.Get("host", "http://127.0.0.1:5700")
