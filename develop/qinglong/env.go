@@ -115,7 +115,7 @@ func RemEnv(e *Env) error {
 	return Config.Req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
 }
 
-func init() {
+func initEnv() {
 	core.AddCommand("ql", []core.Function{
 		{
 			Rules: []string{`cookie status`},

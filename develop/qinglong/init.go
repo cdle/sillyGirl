@@ -40,6 +40,9 @@ type Carrier struct {
 }
 
 func init() {
+	if qinglong.GetBool("enable_qinglong", true) {
+		return
+	}
 	Config = &QingLong{}
 	Config.Host = qinglong.Get("host", "http://127.0.0.1:5700")
 	Config.ClientID = qinglong.Get("client_id")
@@ -54,6 +57,10 @@ func init() {
 	if err == nil {
 		logs.Info("青龙已连接")
 	}
+	initConfig()
+	initTask()
+	initCron()
+	initEnv()
 }
 
 func (ql *QingLong) GetToken() (string, error) {

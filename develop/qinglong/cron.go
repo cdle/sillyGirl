@@ -29,7 +29,7 @@ type Cron struct {
 	Pid        interface{} `json:"pid"`
 }
 
-func init() {
+func initCron() {
 	core.AddCommand("ql", []core.Function{
 		// {
 		// 	Rules: []string{`fuck_xxs`},

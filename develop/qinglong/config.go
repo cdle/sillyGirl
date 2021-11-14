@@ -8,7 +8,7 @@ import (
 	"github.com/cdle/sillyGirl/core"
 )
 
-func init() {
+func initConfig() {
 	core.AddCommand("ql", []core.Function{
 		{
 			Rules: []string{`config`},
@@ -22,9 +22,6 @@ func init() {
 			},
 		},
 	})
-}
-
-func init() {
 	core.AddCommand("ql", []core.Function{
 		{
 			Rules: []string{`envs`},
