@@ -284,9 +284,9 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 			fg = &a
 		}
 	}
-	if callback == nil {
-		return nil
-	}
+	// if callback == nil {
+	// 	return nil
+	// }
 	if c.Pattern == "" {
 		c.Pattern = `[\s\S]*`
 	}
@@ -309,6 +309,9 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 			switch result.(type) {
 			case Sender:
 				s := result.(Sender)
+				if callback == nil {
+					return s.GetContent()
+				}
 				result := callback(s)
 				if v, ok := result.(again); ok {
 					if v == "" {
