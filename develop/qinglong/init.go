@@ -46,7 +46,7 @@ func init() {
 	}
 	initConfig()
 	initTask()
-	initCron()
+
 	initEnv()
 	Config = &QingLong{}
 	Config.Host = qinglong.Get("host", "http://127.0.0.1:5700")
@@ -62,6 +62,7 @@ func init() {
 	if err == nil {
 		logs.Info("青龙已连接")
 	}
+	initCron()
 
 }
 
