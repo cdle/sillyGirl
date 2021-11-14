@@ -40,8 +40,7 @@ type Carrier struct {
 }
 
 func init() {
-
-	if qinglong.GetBool("enable_qinglong", true) {
+	if !qinglong.GetBool("enable_qinglong", true) {
 		return
 	}
 	initConfig()
