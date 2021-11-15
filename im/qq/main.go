@@ -298,17 +298,17 @@ func start() {
 			return
 		}
 
-		// if qq.GetBool("onself", true) == true {
-		// onPrivateMessage(q, pm)
-		// }
+		if qq.GetBool("onself", true) == true {
+			onPrivateMessage(q, pm)
+		}
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
 		if _, ok := dd.Load(gm.InternalId); ok {
 			return
 		}
-		// if qq.GetBool("onself", true) == true {
-		// OnGroupMessage(q, gm)
-		// }
+		if qq.GetBool("onself", true) == true {
+			OnGroupMessage(q, gm)
+		}
 	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {

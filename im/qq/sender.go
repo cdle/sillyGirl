@@ -218,7 +218,6 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 		}
-		// dd.Store(, true)
 
 	}
 	MSG := bot.GetMessage(id)
@@ -239,7 +238,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 		}
 	}
-
+	dd.Store(MSG["internal-id"].(int32), true)
 	logs.Debug("send message-id=%d internal-id=%d", MSG["message-id"].(int32), MSG["internal-id"].(int32))
 	return 0, nil
 }
