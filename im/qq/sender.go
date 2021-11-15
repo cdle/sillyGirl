@@ -12,6 +12,7 @@ import (
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
 	"github.com/beego/beego/v2/adapter/httplib"
+	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -216,8 +217,9 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 		}
+		// dd.Store(, true)
 		MSG := bot.GetMessage(id)
-		dd.Store(MSG["internal-id"].(int32), true)
+		logs.Debug("send message-id=%d internal-id=%d", MSG["message-id"].(int32), MSG["internal-id"].(int32))
 		if id > 0 && sender.Duration != nil {
 			if *sender.Duration != 0 {
 				go func() {
