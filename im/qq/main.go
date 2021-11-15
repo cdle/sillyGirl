@@ -293,8 +293,8 @@ func start() {
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
 	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-		logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
-		if _, ok := dd.Load(pm.InternalId); ok {
+		// logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
+		if _, ok := dd.Load(pm.Id); ok {
 			return
 		}
 
@@ -303,7 +303,7 @@ func start() {
 		// }
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-		if _, ok := dd.Load(gm.InternalId); ok {
+		if _, ok := dd.Load(gm.Id); ok {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
