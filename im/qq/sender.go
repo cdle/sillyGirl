@@ -134,6 +134,7 @@ func (sender *Sender) IsMedia() bool {
 var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	var id int32
 	if spy_on := qq.Get("spy_on"); spy_on != "" && strings.Contains(spy_on, fmt.Sprint(sender.GetChatID())) {
 		return 0, nil
 	}
@@ -162,11 +163,11 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				// sender.Reply(err)
 				return 0, nil
 			} else {
-				bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				id = bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
 		}
 		if content != "" {
-			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			id = bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 		}
 	case *message.TempMessage:
 		m := sender.Message.(*message.TempMessage)
@@ -184,14 +185,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
 		}
 		if content != "" {
-			bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 		}
 	case *message.GroupMessage:
-		var id int32
+
 		m := sender.Message.(*message.GroupMessage)
 		content := ""
 		switch msg.(type) {
@@ -218,8 +219,10 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 		}
 		// dd.Store(, true)
-		MSG := bot.GetMessage(id)
-		logs.Debug("send message-id=%d internal-id=%d", MSG["message-id"].(int32), MSG["internal-id"].(int32))
+
+	}
+	MSG := bot.GetMessage(id)
+	if m, ok := sender.Message.(*message.GroupMessage); ok {
 		if id > 0 && sender.Duration != nil {
 			if *sender.Duration != 0 {
 				go func() {
@@ -236,6 +239,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 		}
 	}
+
+	logs.Debug("send message-id=%d internal-id=%d", MSG["message-id"].(int32), MSG["internal-id"].(int32))
 	return 0, nil
 }
 
