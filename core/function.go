@@ -121,18 +121,18 @@ func handleMessage(sender Sender) {
 		return
 	}
 
-	reply.Foreach(func(k, v []byte) error {
-		if string(v) == "" {
-			return nil
-		}
-		reg, err := regexp.Compile(string(k))
-		if err == nil {
-			if reg.FindString(sender.GetContent()) != "" {
-				sender.Reply(string(v))
-			}
-		}
-		return nil
-	})
+	// reply.Foreach(func(k, v []byte) error {
+	// 	if string(v) == "" {
+	// 		return nil
+	// 	}
+	// 	reg, err := regexp.Compile(string(k))
+	// 	if err == nil {
+	// 		if reg.FindString(sender.GetContent()) != "" {
+	// 			sender.Reply(string(v))
+	// 		}
+	// 	}
+	// 	return nil
+	// })
 
 	// logs.Info("%v ==> %v", sender.GetContent(), "passed")
 	// if v, ok := waits.Load(key); ok {
