@@ -304,7 +304,7 @@ func start() {
 		// }
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-		logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
+		logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", gm.Id, gm.InternalId)
 		if _, ok := dd.Load(gm.Id); ok {
 			return
 		}
