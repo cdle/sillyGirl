@@ -342,10 +342,10 @@ func start() {
 	if http_server := qq.Get("http_server"); http_server != "" {
 		port := 80
 		host := "127.0.0.1"
-		res := strings.Split("http_server", ":")
-		if len(res) == 1 {
-			host = res[0]
-		}
+		res := strings.Split(http_server, ":")
+
+		host = res[0]
+
 		if len(res) == 2 {
 			port = core.Int(res[1])
 		}
