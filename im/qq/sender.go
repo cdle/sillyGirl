@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/message"
@@ -129,6 +130,8 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
+var dd sync.Map
+
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	if spy_on := qq.Get("spy_on"); spy_on != "" && strings.Contains(spy_on, fmt.Sprint(sender.GetChatID())) {
 		return 0, nil
@@ -155,7 +158,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		case core.ImageUrl:
 			data, err := httplib.Get(string(msg.(core.ImageUrl))).Bytes()
 			if err != nil {
-				sender.Reply(err)
+				// sender.Reply(err)
 				return 0, nil
 			} else {
 				bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
@@ -213,6 +216,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 		}
+		dd.Store(id, true)
 		if id > 0 && sender.Duration != nil {
 			if *sender.Duration != 0 {
 				go func() {

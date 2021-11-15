@@ -292,16 +292,22 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	// bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-	// 	if qq.GetBool("onself", true) == true {
-	// 		onPrivateMessage(q, pm)
-	// 	}
-	// })
-	// bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-	// 	if qq.GetBool("onself", true) == true {
-	// 		OnGroupMessage(q, gm)
-	// 	}
-	// })
+	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
+		if _, ok := dd.Load(pm.Id); ok {
+			return
+		}
+		// if qq.GetBool("onself", true) == true {
+		onPrivateMessage(q, pm)
+		// }
+	})
+	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+		if _, ok := dd.Load(gm.Id); ok {
+			return
+		}
+		// if qq.GetBool("onself", true) == true {
+		OnGroupMessage(q, gm)
+		// }
+	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
 			time.Sleep(time.Second)
@@ -313,7 +319,8 @@ func start() {
 		if !cli.Online {
 			return
 		}
-		bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		id := bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		dd.Store(id, true)
 		// bot.SendPrivateMessage(core.Int64(i), int64(qq.GetInt("tempMessageGroupCode")), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 	}
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
@@ -330,7 +337,8 @@ func start() {
 			imgs = append(imgs, &coolq.LocalImageElement{File: path})
 		}
 		//
-		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
+		id := bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
+		dd.Store(id, true)
 	}
 
 	coolq.IgnoreInvalidCQCode = conf.Message.IgnoreInvalidCQCode
