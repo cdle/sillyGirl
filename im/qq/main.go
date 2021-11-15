@@ -295,17 +295,17 @@ func start() {
 	bot.Client.OnTempMessage(onTempMessage)
 	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
 		logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
-		if _, ok := dd.Load(pm.Id); ok {
+		if _, ok := dd.Load(pm.InternalId); ok {
 			return
 		}
-
 		// if qq.GetBool("onself", true) == true {
 		onPrivateMessage(q, pm)
 		// }
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+
 		logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
-		if _, ok := dd.Load(gm.Id); ok {
+		if _, ok := dd.Load(gm.InternalId); ok {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
@@ -326,7 +326,7 @@ func start() {
 		id := bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 
 		MSG := bot.GetMessage(id)
-		dd.Store(MSG["message-id"].(int32), true)
+		dd.Store(MSG["internal-id"].(int32), true)
 	}
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
 		if !cli.Online {
@@ -345,7 +345,7 @@ func start() {
 		id := bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
 
 		MSG := bot.GetMessage(id)
-		dd.Store(MSG["message-id"].(int32), true)
+		dd.Store(MSG["internal-id"].(int32), true)
 	}
 
 	coolq.IgnoreInvalidCQCode = conf.Message.IgnoreInvalidCQCode
