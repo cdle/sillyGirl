@@ -207,7 +207,7 @@ func initCron() {
 						return 9
 					}
 					if strings.Contains(s, "Aaron-lv") {
-						return -8
+						return 2
 					}
 					return 0
 				}
