@@ -106,15 +106,15 @@ func initSys() {
 										return "创建程序错误：" + err.Error()
 									} else {
 										_, err := f.Write(data)
-										if err != nil {
-											f.Close()
-											return "写入程序错误：" + err.Error()
-										}
 										f.Close()
+										if err != nil {
+											des := err.Error()
+											if err = os.WriteFile(filename, data, 777); err != nil {
+												return "写入程序错误：" + des + "\n" + err.Error()
+											}
+										}
 									}
-									// if err = os.WriteFile(filename, data, 777); err != nil {
-									// 	return "写入程序错误：" + err.Error()
-									// }
+
 									s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
 									if s.Await(s, func(s Sender) interface{} {
 										return YesNo
