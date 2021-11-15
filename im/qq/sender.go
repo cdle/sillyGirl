@@ -228,7 +228,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 	}
 	MSG := bot.GetMessage(id)
-	dd.Store(id, true)
+	dd.Store(MSG["message-id"].(int32), true)
 	logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 	if m, ok := sender.Message.(*message.GroupMessage); ok {
 		if id > 0 && sender.Duration != nil {
