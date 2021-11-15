@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -100,9 +101,18 @@ func initSys() {
 									if err = os.RemoveAll(filename); err != nil {
 										return "删除旧程序错误：" + err.Error()
 									}
-									if err = os.WriteFile(filename, data, 777); err != nil {
-										return "写入程序错误：" + err.Error()
+
+									if f, err := os.OpenFile(filename, syscall.O_CREAT, 0777); err != nil {
+										return "创建程序错误：" + err.Error()
+									} else {
+										_, err := f.Write(data)
+										if err != nil {
+											return "写入程序错误：" + err.Error()
+										}
 									}
+									// if err = os.WriteFile(filename, data, 777); err != nil {
+									// 	return "写入程序错误：" + err.Error()
+									// }
 									s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
 									if s.Await(s, func(s Sender) interface{} {
 										return YesNo
