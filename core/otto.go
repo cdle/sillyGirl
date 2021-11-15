@@ -94,6 +94,11 @@ func init123() {
 		o.Set(key.String(), value.String())
 		return otto.Value{}
 	}
+	sleep := func(value otto.Value) interface{} {
+		i, _ := value.ToInteger()
+		time.Sleep(time.Duration(i) * time.Microsecond)
+		return otto.Value{}
+	}
 	push := func(call otto.Value) interface{} {
 		imType, _ := call.Object().Get("imType")
 		groupCode, _ := call.Object().Get("groupCode")
@@ -256,6 +261,8 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
 			})
+
+			vm.Set("sleep", sleep)
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
