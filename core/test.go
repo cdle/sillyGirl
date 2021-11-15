@@ -114,7 +114,6 @@ func initSys() {
 											}
 										}
 									}
-
 									s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
 									if s.Await(s, func(s Sender) interface{} {
 										return YesNo
