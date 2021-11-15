@@ -255,6 +255,7 @@ func start() {
 	saveToken()
 	cli.AllowSlider = true
 	log.Infof("登录成功 欢迎使用: %v", cli.Nickname)
+	qq.Set("bot_id", cli.Uin)
 	global.Check(cli.ReloadFriendList(), true)
 	global.Check(cli.ReloadGroupList(), true)
 	if conf.Account.Status >= int32(len(allowStatus)) || conf.Account.Status < 0 {

@@ -108,19 +108,23 @@ func (sender *Sender) IsAdmin() bool {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
 		sid = m.Sender.Uin
-		if m.Target == m.Sender.Uin {
-			return true
-		}
+		// if m.Target == m.Sender.Uin {
+		// 	return true
+		// }
 	case *message.TempMessage:
 		return false
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
 		sid = m.Sender.Uin
-		if bot.Client.Uin == m.Sender.Uin {
-			return true
-		}
+		// if bot.Client.Uin == m.Sender.Uin {
+		// 	return true
+		// }
 	}
 	id := fmt.Sprint(sid)
+
+	if id == qq.Get("bot_id") {
+		return true
+	}
 
 	for _, v := range regexp.MustCompile(`\d+`).FindAllString(qq.Get("masters"), -1) {
 		if id == v {
