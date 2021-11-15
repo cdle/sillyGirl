@@ -216,18 +216,19 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 		}
-		dd.Store(id, true)
+		MSG := bot.GetMessage(id)
+		dd.Store(MSG["internal-id"].(int32), true)
 		if id > 0 && sender.Duration != nil {
 			if *sender.Duration != 0 {
 				go func() {
 					time.Sleep(*sender.Duration)
 					sender.Delete()
-					MSG := bot.GetMessage(id)
+
 					bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 				}()
 			} else {
 				sender.Delete()
-				MSG := bot.GetMessage(id)
+
 				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 			}
 

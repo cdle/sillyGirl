@@ -293,19 +293,19 @@ func start() {
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
 	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-		if _, ok := dd.Load(pm.Id); ok {
+		if _, ok := dd.Load(pm.InternalId); ok {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
-		// onPrivateMessage(q, pm)
+		onPrivateMessage(q, pm)
 		// }
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-		if _, ok := dd.Load(gm.Id); ok {
+		if _, ok := dd.Load(gm.InternalId); ok {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
-		// OnGroupMessage(q, gm)
+		OnGroupMessage(q, gm)
 		// }
 	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
