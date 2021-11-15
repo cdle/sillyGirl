@@ -116,6 +116,9 @@ func (sender *Sender) IsAdmin() bool {
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
 		sid = m.Sender.Uin
+		if bot.Client.Uin == m.Sender.Uin {
+			return true
+		}
 	}
 	id := fmt.Sprint(sid)
 
