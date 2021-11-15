@@ -297,7 +297,7 @@ func start() {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
-		onPrivateMessage(q, pm)
+		// onPrivateMessage(q, pm)
 		// }
 	})
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
@@ -305,7 +305,7 @@ func start() {
 			return
 		}
 		// if qq.GetBool("onself", true) == true {
-		OnGroupMessage(q, gm)
+		// OnGroupMessage(q, gm)
 		// }
 	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
