@@ -71,70 +71,78 @@ func initSys() {
 				if runtime.GOOS == "windows" {
 					return "windows系统不支持此命令"
 				}
-				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) {
+
+				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) && compiled_at == "" {
 					return nil
 				}
-				if s.GetImType() != "fake" {
-					if compiled_at != "" {
-						// prefix := "https://ghproxy.com/"
-						//
-						// prefix := sillyGirl.Get("download_prefix")
-						for i, prefix := range []string{"https://ghproxy.com/", ""} {
-							data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
-							if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
-								if str > compiled_at {
-									if i == 0 {
-										s.Reply("正在从ghproxy.com下载更新...")
-									} else {
-										s.Reply("尝试从github.com下载更新...")
-									}
-									data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
-									if err != nil {
-										// return "下载程序错误：" + err.Error()
-										continue
-									}
-									if len(data) < 2646147 {
-										// return "下载失败。"
-										continue
-									}
-									filename := ExecPath + "/" + pname
-									if err = os.RemoveAll(filename); err != nil {
-										return "删除旧程序错误：" + err.Error()
-									}
 
-									if f, err := os.OpenFile(filename, syscall.O_CREAT, 0777); err != nil {
-										return "创建程序错误：" + err.Error()
-									} else {
-										_, err := f.Write(data)
-										f.Close()
-										if err != nil {
-											des := err.Error()
-											if err = os.WriteFile(filename, data, 777); err != nil {
-												return "写入程序错误：" + des + "\n" + err.Error()
-											}
+				if compiled_at != "" {
+					// prefix := "https://ghproxy.com/"
+					//
+					// prefix := sillyGirl.Get("download_prefix")
+					for i, prefix := range []string{"https://ghproxy.com/", ""} {
+						data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
+						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
+							if s.GetImType() == "fake" {
+								ver := sillyGirl.Get("compiled_at")
+								if ver < str && str > compiled_at {
+									sillyGirl.Set("compiled_at", str)
+									NotifyMasters(fmt.Sprintf("检测到更新版本(%s)。", str))
+								}
+								return nil
+							}
+							if str > compiled_at {
+								if i == 0 {
+									s.Reply("正在从ghproxy.com下载更新...")
+								} else {
+									s.Reply("尝试从github.com下载更新...")
+								}
+								data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
+								if err != nil {
+									// return "下载程序错误：" + err.Error()
+									continue
+								}
+								if len(data) < 2646147 {
+									// return "下载失败。"
+									continue
+								}
+								filename := ExecPath + "/" + pname
+								if err = os.RemoveAll(filename); err != nil {
+									return "删除旧程序错误：" + err.Error()
+								}
+
+								if f, err := os.OpenFile(filename, syscall.O_CREAT, 0777); err != nil {
+									return "创建程序错误：" + err.Error()
+								} else {
+									_, err := f.Write(data)
+									f.Close()
+									if err != nil {
+										des := err.Error()
+										if err = os.WriteFile(filename, data, 777); err != nil {
+											return "写入程序错误：" + des + "\n" + err.Error()
 										}
 									}
-									s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
-									if s.Await(s, func(s Sender) interface{} {
-										return YesNo
-									}, time.Second*3) == No {
-										return "好的，下次重启生效。。"
-									}
-									go func() {
-										time.Sleep(time.Second)
-										Daemon()
-									}()
-									sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
-									return "正在重启。"
-								} else {
-									return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 								}
+								s.Reply("更新完成，重启生效，是否立即重启？(Y/n，3秒后自动确认。)")
+								if s.Await(s, func(s Sender) interface{} {
+									return YesNo
+								}, time.Second*3) == No {
+									return "好的，下次重启生效。。"
+								}
+								go func() {
+									time.Sleep(time.Second)
+									Daemon()
+								}()
+								sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
+								return "正在重启。"
 							} else {
-								continue
+								return fmt.Sprintf("当前版本(%s)最新，无需升级。", compiled_at)
 							}
+						} else {
+							continue
 						}
-						return `无法升级，你网不好。建议您手动于linux执行一键升级命令： s=sillyGirl;a=arm64;if [[ $(uname -a | grep "x86_64") != "" ]];then a=amd64;fi ;if [ ! -d $s ];then mkdir $s;fi ;cd $s;wget https://mirror.ghproxy.com/https://github.com/cdle/${s}/releases/download/main/${s}_linux_$a -O $s && chmod 777 $s;pkill -9 $s;$(pwd)/$s`
 					}
+					return `无法升级，你网不好。建议您手动于linux执行一键升级命令： s=sillyGirl;a=arm64;if [[ $(uname -a | grep "x86_64") != "" ]];then a=amd64;fi ;if [ ! -d $s ];then mkdir $s;fi ;cd $s;wget https://mirror.ghproxy.com/https://github.com/cdle/${s}/releases/download/main/${s}_linux_$a -O $s && chmod 777 $s;pkill -9 $s;$(pwd)/$s`
 				}
 
 				s.Reply("开始检查核心更新...", E)
@@ -198,7 +206,7 @@ func initSys() {
 			Rules: []string{"raw ^编译$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				if sillyGirl.Get("compiled_at") == "" {
+				if compiled_at != "" {
 					return "编译个🐔8。"
 				}
 				s.Reply("正在编译程序...", E)
