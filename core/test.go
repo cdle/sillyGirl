@@ -107,8 +107,10 @@ func initSys() {
 									} else {
 										_, err := f.Write(data)
 										if err != nil {
+											f.Close()
 											return "写入程序错误：" + err.Error()
 										}
+										f.Close()
 									}
 									// if err = os.WriteFile(filename, data, 777); err != nil {
 									// 	return "写入程序错误：" + err.Error()
