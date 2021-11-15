@@ -87,7 +87,7 @@ func initSys() {
 								ver := sillyGirl.Get("compiled_at")
 								if ver < str && str > compiled_at {
 									sillyGirl.Set("compiled_at", str)
-									NotifyMasters(fmt.Sprintf("检测到更新版本(%s)。", str))
+									// NotifyMasters(fmt.Sprintf("检测到更新版本(%s)。", str))
 								}
 								return nil
 							}
