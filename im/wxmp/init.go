@@ -37,6 +37,9 @@ func init() {
 
 		server := officialAccount.GetServer(c.Request, c.Writer)
 		server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
+			if msg.MsgType == "subscribe" {
+				return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(wxmp.Get("subscribe_reply", "感谢关注！"))}
+			}
 			sender := &Sender{}
 			sender.Message = msg.Content
 			sender.Wait = make(chan []interface{}, 1)
@@ -46,7 +49,7 @@ func init() {
 			ss := []string{}
 			url := ""
 			if len(end) == 0 {
-				ss = append(ss, "无法回复该消息")
+				ss = append(ss, wxmp.Get("default_reply", "无法回复该消息"))
 			}
 			for _, item := range end {
 				switch item.(type) {
@@ -112,6 +115,7 @@ func (sender *Sender) GetContent() string {
 	if sender.Content != "" {
 		return sender.Content
 	}
+
 	return sender.Message
 }
 
