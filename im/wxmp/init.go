@@ -37,7 +37,7 @@ func init() {
 
 		server := officialAccount.GetServer(c.Request, c.Writer)
 		server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
-			if msg.MsgType == "subscribe" {
+			if msg.Event == "subscribe" {
 				return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(wxmp.Get("subscribe_reply", "感谢关注！"))}
 			}
 			sender := &Sender{}
