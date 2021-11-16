@@ -325,9 +325,10 @@ func start() {
 			return
 		}
 		id := bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
-
-		MSG := bot.GetMessage(id)
-		dd.Store(MSG["internal-id"].(int32), true)
+		if id != 0 {
+			MSG := bot.GetMessage(id)
+			dd.Store(MSG["internal-id"].(int32), true)
+		}
 	}
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
 		if !cli.Online {
@@ -344,9 +345,10 @@ func start() {
 		}
 		//
 		id := bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
-
-		MSG := bot.GetMessage(id)
-		dd.Store(MSG["internal-id"].(int32), true)
+		if id != 0 {
+			MSG := bot.GetMessage(id)
+			dd.Store(MSG["internal-id"].(int32), true)
+		}
 	}
 
 	coolq.IgnoreInvalidCQCode = conf.Message.IgnoreInvalidCQCode
