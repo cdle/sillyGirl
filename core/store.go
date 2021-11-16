@@ -192,21 +192,40 @@ func itob(i uint64) []byte {
 
 func (bucket Bucket) First(i interface{}) error {
 	var err error
-	id := reflect.ValueOf(i).Elem().FieldByName("ID").Int()
-	db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucket))
-		if b == nil {
-			err = errors.New("bucket not find")
+	s := reflect.ValueOf(i).Elem()
+	id := s.FieldByName("ID")
+	if v, ok := id.Interface().(int); ok {
+		db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(bucket))
+			if b == nil {
+				err = errors.New("bucket not find")
+				return nil
+			}
+			data := b.Get([]byte(fmt.Sprint(v)))
+			if len(data) == 0 {
+				err = errors.New("record not find")
+				return nil
+			}
+			json.Unmarshal(data, i)
 			return nil
-		}
-		data := b.Get(itob(uint64(id)))
-		if len(data) == 0 {
-			err = errors.New("record not find")
+		})
+	} else {
+		db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(bucket))
+			if b == nil {
+				err = errors.New("bucket not find")
+				return nil
+			}
+			data := b.Get([]byte(id.Interface().(string)))
+			if len(data) == 0 {
+				err = errors.New("record not find")
+				return nil
+			}
+			json.Unmarshal(data, i)
 			return nil
-		}
-		json.Unmarshal(data, i)
-		return nil
-	})
+		})
+	}
+
 	return err
 }
 
