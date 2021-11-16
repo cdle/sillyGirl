@@ -6,13 +6,11 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
 	"github.com/beego/beego/v2/adapter/httplib"
-	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -138,7 +136,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-var dd sync.Map
+// var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	var id int32
@@ -228,26 +226,26 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 
 	}
 	if id > 0 {
-		MSG := bot.GetMessage(id)
-		dd.Store(MSG["internal-id"].(int32), true)
-		logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-		if m, ok := sender.Message.(*message.GroupMessage); ok {
-			if sender.Duration != nil {
-				if *sender.Duration != 0 {
-					go func() {
-						time.Sleep(*sender.Duration)
-						sender.Delete()
+		// MSG := bot.GetMessage(id)
+		// dd.Store(MSG["internal-id"].(int32), true)
+		// logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+		// if m, ok := sender.Message.(*message.GroupMessage); ok {
+		// 	if sender.Duration != nil {
+		// 		if *sender.Duration != 0 {
+		// 			go func() {
+		// 				time.Sleep(*sender.Duration)
+		// 				sender.Delete()
 
-						bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-					}()
-				} else {
-					sender.Delete()
+		// 				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+		// 			}()
+		// 		} else {
+		// 			sender.Delete()
 
-					bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-				}
+		// 			bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+		// 		}
 
-			}
-		}
+		// 	}
+		// }
 	}
 	return 0, nil
 }

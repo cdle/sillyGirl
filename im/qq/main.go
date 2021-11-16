@@ -293,26 +293,26 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-		time.Sleep(time.Microsecond * 500)
-		logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
-		if _, ok := dd.Load(pm.InternalId); ok {
-			return
-		}
-		// if qq.GetBool("onself", true) == true {
-		onPrivateMessage(q, pm)
-		// }
-	})
-	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-		time.Sleep(time.Microsecond * 500)
-		logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
-		if _, ok := dd.Load(gm.InternalId); ok {
-			return
-		}
-		// if qq.GetBool("onself", true) == true {
-		OnGroupMessage(q, gm)
-		// }
-	})
+	// bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
+	// 	time.Sleep(time.Microsecond * 500)
+	// 	logs.Debug("receive message-id=%d internal-id=%d self=%d target=%d", pm.Id, pm.InternalId, pm.Self, pm.Target)
+	// 	// if _, ok := dd.Load(pm.InternalId); ok {
+	// 	// 	return
+	// 	// }
+	// 	// if qq.GetBool("onself", true) == true {
+	// 	onPrivateMessage(q, pm)
+	// 	// }
+	// })
+	// bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+	// 	time.Sleep(time.Microsecond * 500)
+	// 	logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
+	// 	// if _, ok := dd.Load(gm.InternalId); ok {
+	// 	// 	return
+	// 	// }
+	// 	// if qq.GetBool("onself", true) == true {
+	// 	OnGroupMessage(q, gm)
+	// 	// }
+	// })
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
 			time.Sleep(time.Second)
@@ -324,11 +324,12 @@ func start() {
 		if !cli.Online {
 			return
 		}
-		id := bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
-		if id != 0 {
-			MSG := bot.GetMessage(id)
-			dd.Store(MSG["internal-id"].(int32), true)
-		}
+		// id :=
+		bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		// if id != 0 {
+		// 	MSG := bot.GetMessage(id)
+		// 	dd.Store(MSG["internal-id"].(int32), true)
+		// }
 	}
 	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
 		if !cli.Online {
@@ -344,11 +345,11 @@ func start() {
 			imgs = append(imgs, &coolq.LocalImageElement{File: path})
 		}
 		//
-		id := bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
-		if id != 0 {
-			MSG := bot.GetMessage(id)
-			dd.Store(MSG["internal-id"].(int32), true)
-		}
+		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
+		// if id != 0 {
+		// 	MSG := bot.GetMessage(id)
+		// 	dd.Store(MSG["internal-id"].(int32), true)
+		// }
 	}
 
 	coolq.IgnoreInvalidCQCode = conf.Message.IgnoreInvalidCQCode
