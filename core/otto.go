@@ -145,12 +145,19 @@ func init123() {
 			req = httplib.Delete(url)
 		case "post":
 			req = httplib.Post(url)
+
 		case "put":
 			req = httplib.Put(url)
+
 		default:
 			req = httplib.Get(url)
 		}
 		if body != "" {
+			if body != "" && body != "undefined" {
+				req.Body(body)
+				// 对于JSON对象，需要加上 Content-Type
+				req.Header("Content-Type", "application/json")
+			}
 			req.Body(body)
 		}
 		data, err := req.String()

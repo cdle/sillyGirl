@@ -227,24 +227,26 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		}
 
 	}
-	MSG := bot.GetMessage(id)
-	dd.Store(MSG["internal-id"].(int32), true)
-	logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-	if m, ok := sender.Message.(*message.GroupMessage); ok {
-		if id > 0 && sender.Duration != nil {
-			if *sender.Duration != 0 {
-				go func() {
-					time.Sleep(*sender.Duration)
+	if id > 0 {
+		MSG := bot.GetMessage(id)
+		dd.Store(MSG["internal-id"].(int32), true)
+		logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+		if m, ok := sender.Message.(*message.GroupMessage); ok {
+			if sender.Duration != nil {
+				if *sender.Duration != 0 {
+					go func() {
+						time.Sleep(*sender.Duration)
+						sender.Delete()
+
+						bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
+					}()
+				} else {
 					sender.Delete()
 
 					bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-				}()
-			} else {
-				sender.Delete()
+				}
 
-				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
 			}
-
 		}
 	}
 	return 0, nil
