@@ -59,6 +59,7 @@ jobs:
         cd binary
         git add . && git commit -m "update"
         git push --set-upstream origin main
+        wget ${{ secrets.VERSION }}$n
 
     - name: Upload to release
       uses: svenstaro/upload-release-action@v2
