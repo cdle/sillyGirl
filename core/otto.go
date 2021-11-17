@@ -268,8 +268,29 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
 			})
+			vm.Set("input", func(call otto.FunctionCall) interface{} {
+				str := ""
+				i, _ := call.Argument(0).ToInteger()
+				j, _ := call.Argument(1).ToString()
+				options := []interface{}{}
+				options = append(options, time.Duration(i)*time.Microsecond)
+				if j != "" {
+					options = append(options, ForGroup)
+				}
+				if rt := s.Await(s, nil, options); rt != nil {
+					str = rt.(string)
+				}
+				v, _ := otto.ToValue(str)
+				return v
+			})
 
 			vm.Set("sleep", sleep)
+			vm.Set("admin", func() interface{} {
+				if s.IsAdmin() {
+					return otto.TrueValue()
+				}
+				return otto.FalseValue()
+			})
 			vm.Set("set", set)
 			vm.Set("param", param)
 			vm.Set("get", get)
