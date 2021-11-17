@@ -96,7 +96,7 @@ func init123() {
 	}
 	sleep := func(value otto.Value) interface{} {
 		i, _ := value.ToInteger()
-		time.Sleep(time.Duration(i) * time.Microsecond)
+		time.Sleep(time.Duration(i) * time.Millisecond)
 		return otto.Value{}
 	}
 	push := func(call otto.Value) interface{} {
@@ -279,11 +279,11 @@ func init123() {
 					j, _ = vs[1].ToString()
 				}
 				options := []interface{}{}
-				options = append(options, time.Duration(i)*time.Microsecond)
+				options = append(options, time.Duration(i)*time.Millisecond)
 				if j != "" {
 					options = append(options, ForGroup)
 				}
-				if rt := s.Await(s, nil, options); rt != nil {
+				if rt := s.Await(s, nil, options...); rt != nil {
 					str = rt.(string)
 				}
 				v, _ := otto.ToValue(str)
