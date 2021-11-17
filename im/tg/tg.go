@@ -30,6 +30,7 @@ type Sender struct {
 
 var tg = core.NewBucket("tg")
 var b *tb.Bot
+var Transport *http.Transport
 var Handler = func(message *tb.Message) {
 	if message.FromGroup() {
 		if groupCode := tg.GetInt("groupCode"); groupCode != 0 && groupCode != int(message.Chat.ID) {
@@ -41,47 +42,47 @@ var Handler = func(message *tb.Message) {
 	}
 }
 
-func buildClientWithProxy(addr string) (*http.Client, error) {
-	if addr != "" {
-		u, err := url.Parse(addr)
+func buildHttpTransportWithProxy() {
+	addr := tg.Get("http_proxy")
+	if strings.Contains(addr, "http://") {
+		if addr != "" {
+			u, err := url.Parse(addr)
+			if err != nil {
+				logs.Warn("can't connect to the http proxy:", err)
+				return
+			}
+			Transport = &http.Transport{Proxy: http.ProxyURL(u)}
+		}
+	}
+	if strings.Contains(addr, "sock5://") {
+		addr = strings.Replace(addr, "sock5://", "", -1)
+		var auth *proxy.Auth
+		v := strings.Split(addr, "@")
+		if len(v) == 3 {
+			auth = &proxy.Auth{
+				User:     v[1],
+				Password: v[2],
+			}
+			addr = v[0]
+		}
+		dialer, err := proxy.SOCKS5("tcp", addr, auth, proxy.Direct)
 		if err != nil {
-			logs.Warn("can't connect to the http proxy:", err)
-			return nil, nil
+			logs.Warn("can't connect to the sock5 proxy:", err)
+			return
 		}
-		// Patch client transport
-		httpTransport := &http.Transport{Proxy: http.ProxyURL(u)}
-		hc := &http.Client{Transport: httpTransport}
-
-		return hc, nil
-	}
-
-	return nil, nil // use default
-}
-
-func buildClientWithSock5Proxy(addr string) (*http.Client, error) {
-	var auth *proxy.Auth
-	v := strings.Split(addr, "@")
-	if len(v) == 3 {
-		auth = &proxy.Auth{
-			User:     v[1],
-			Password: v[2],
+		Transport = &http.Transport{
+			Dial: dialer.Dial,
 		}
-		addr = v[0]
 	}
-	dialer, err := proxy.SOCKS5("tcp", addr, auth, proxy.Direct)
-	if err != nil {
-		logs.Warn("can't connect to the sock5 proxy:", err)
-		return nil, nil
-	}
-	httpTransport := &http.Transport{
-		Dial: dialer.Dial,
-	}
-	httpClient := &http.Client{Transport: httpTransport}
-	return httpClient, nil
 }
 
 func init() {
 	go func() {
+		if tg.Get("sock5") != "" {
+			tg.Set("http_proxy", "sock5://"+tg.Get("sock5"))
+			tg.Set("sock5", "")
+		}
+		buildHttpTransportWithProxy()
 		token := tg.Get("token")
 		if runtime.GOOS == "darwin" {
 			token = "1972873850:AAFRySWmNYOpbidGTKxRv6oxDs3xXnsfn1U"
@@ -90,28 +91,14 @@ func init() {
 			logs.Warn("未提供telegram机器人token")
 			return
 		}
-
 		settings := tb.Settings{
 			Token:  token,
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
 			URL: tg.Get("url"),
 		}
-		if url := tg.Get("http_proxy"); url != "" {
-			client, clientErr := buildClientWithProxy(url)
-			if clientErr != nil {
-
-				return
-			}
-			settings.Client = client
-		}
-		if url := tg.Get("sock5"); url != "" {
-			client, clientErr := buildClientWithSock5Proxy(url)
-			if clientErr != nil {
-
-				return
-			}
-			settings.Client = client
+		if Transport != nil {
+			settings.Client = &http.Client{Transport: Transport}
 		}
 		var err error
 		b, err = tb.NewBot(settings)
