@@ -346,7 +346,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 					}
 				}
 			}
-			b.SendAlbum(r, is)
+			b.SendAlbum(r, is, options...)
 		} else {
 			rt, err = b.Send(r, message, options...)
 		}
