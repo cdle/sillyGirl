@@ -23,7 +23,7 @@ var o = NewBucket("otto")
 func init() {
 	go func() {
 		time.Sleep(time.Second)
-		if sillyGirl.GetBool("enable_price", true) {
+		if o.GetBool("enable_price", true) {
 			os.MkdirAll("develop/replies", os.ModePerm)
 			if data, err := os.ReadFile("scripts/jd_price.js"); err == nil {
 				os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
