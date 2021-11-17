@@ -176,6 +176,7 @@ func handleMessage(sender Sender) {
 					sender.Reply(rt)
 				}
 				if sender.IsContinue() {
+					sender.ClearContinue()
 					goto goon
 				}
 				return

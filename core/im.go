@@ -33,6 +33,7 @@ type Sender interface {
 	Finish()
 	Continue()
 	IsContinue() bool
+	ClearContinue()
 	Await(Sender, func(Sender) interface{}, ...interface{}) interface{}
 	Copy() Sender
 }
@@ -173,6 +174,10 @@ func (sender *BaseSender) Continue() {
 
 func (sender *BaseSender) IsContinue() bool {
 	return sender.goon
+}
+
+func (sender *BaseSender) ClearContinue() {
+	sender.goon = false
 }
 
 func (sender *BaseSender) Get(index ...int) string {
