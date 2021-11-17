@@ -9,7 +9,7 @@ import (
 var Pushs = map[string]func(interface{}, string){}
 var GroupPushs = map[string]func(interface{}, interface{}, string){}
 
-func Push(class string, uid int, content string) {
+func Push(class string, uid interface{}, content string) {
 	if push, ok := Pushs[class]; ok {
 		push(uid, content)
 	}
