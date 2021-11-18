@@ -65,7 +65,7 @@ func initSys() {
 		},
 		{
 			Rules: []string{"raw ^升级$"},
-			Cron:  "*/1 * * * *",
+			// Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				if runtime.GOOS == "windows" {
