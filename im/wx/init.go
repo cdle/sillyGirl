@@ -338,7 +338,6 @@ func sendTextMsg(pmsg *TextMsg) {
 		// }()
 		// c.WriteJSON(a)
 	} else {
-		pmsg.Msg = TrimHiddenCharacter(pmsg.Msg)
 		if pmsg.Msg == "" {
 			return
 		}

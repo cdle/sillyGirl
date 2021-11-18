@@ -10,21 +10,6 @@ var api_url = func() string {
 }
 var robot_wxid = wx.Get("robot_wxid")
 
-func TrimHiddenCharacter(originStr string) string {
-	srcRunes := []rune(originStr)
-	dstRunes := make([]rune, 0, len(srcRunes))
-	for _, c := range srcRunes {
-		if c >= 0 && c <= 31 && c != 10 {
-			continue
-		}
-		if c == 127 {
-			continue
-		}
-		dstRunes = append(dstRunes, c)
-	}
-	return string(dstRunes)
-}
-
 type TextMsg struct {
 	Event      string `json:"event"`
 	ToWxid     string `json:"to_wxid"`

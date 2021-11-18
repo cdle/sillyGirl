@@ -82,6 +82,7 @@ func AddCommand(prefix string, cmds []Function) {
 }
 
 func handleMessage(sender Sender) {
+	content := TrimHiddenCharacter(sender.GetContent())
 	defer sender.Finish()
 
 	defer func() {
@@ -106,7 +107,7 @@ func handleMessage(sender Sender) {
 		if userID != u && forGroup == "" {
 			return true
 		}
-		if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
+		if m := regexp.MustCompile(c.Pattern).FindString(content); m != "" {
 			mtd = true
 			c.Chan <- sender
 			sender.Reply(<-c.Result)
@@ -114,6 +115,7 @@ func handleMessage(sender Sender) {
 				con = false
 				return false
 			}
+			content = TrimHiddenCharacter(sender.GetContent())
 		}
 		return true
 	})
@@ -127,27 +129,19 @@ func handleMessage(sender Sender) {
 		}
 		reg, err := regexp.Compile(string(k))
 		if err == nil {
-			if reg.FindString(sender.GetContent()) != "" {
+			if reg.FindString(content) != "" {
 				sender.Reply(string(v))
 			}
 		}
 		return nil
 	})
 
-	// logs.Info("%v ==> %v", sender.GetContent(), "passed")
-	// if v, ok := waits.Load(key); ok {
-	// 	c := v.(*Carry)
-	// 	if m := regexp.MustCompile(c.Pattern).FindString(sender.GetContent()); m != "" {
-	// 		c.Chan <- sender
-	// 		sender.Reply(<-c.Result)
-	// 		return
-	// 	}
-	// }
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool
+
 			if function.FindAll {
-				if res := regexp.MustCompile(rule).FindAllStringSubmatch(sender.GetContent(), -1); len(res) > 0 {
+				if res := regexp.MustCompile(rule).FindAllStringSubmatch(content, -1); len(res) > 0 {
 					tmp := [][]string{}
 					for i := range res {
 						tmp = append(tmp, res[i][1:])
@@ -156,13 +150,13 @@ func handleMessage(sender Sender) {
 					matched = true
 				}
 			} else {
-				if res := regexp.MustCompile(rule).FindStringSubmatch(sender.GetContent()); len(res) > 0 {
+				if res := regexp.MustCompile(rule).FindStringSubmatch(content); len(res) > 0 {
 					sender.SetMatch(res[1:])
 					matched = true
 				}
 			}
 			if matched {
-				logs.Info("%v ==> %v", sender.GetContent(), rule)
+				logs.Info("%v ==> %v", content, rule)
 				if function.Admin && !sender.IsAdmin() {
 					sender.Delete()
 					sender.Disappear()
@@ -177,6 +171,7 @@ func handleMessage(sender Sender) {
 				}
 				if sender.IsContinue() {
 					sender.ClearContinue()
+					content = TrimHiddenCharacter(sender.GetContent())
 					goto goon
 				}
 				return
@@ -191,7 +186,7 @@ func handleMessage(sender Sender) {
 		for _, v := range strings.Split(recall, "&") {
 			reg, err := regexp.Compile(v)
 			if err == nil {
-				if reg.FindString(sender.GetContent()) != "" {
+				if reg.FindString(content) != "" {
 					if !sender.IsAdmin() && sender.GetImType() != "wx" {
 						sender.Delete()
 						sender.Reply("本妞清除了不好的消息～", time.Duration(time.Second))
