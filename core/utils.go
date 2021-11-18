@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -34,7 +35,8 @@ func TrimHiddenCharacter(originStr string) string {
 		if c == 127 {
 			continue
 		}
+
 		dstRunes = append(dstRunes, c)
 	}
-	return string(dstRunes)
+	return strings.ReplaceAll(string(dstRunes), "￼", "")
 }
