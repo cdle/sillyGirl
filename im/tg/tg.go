@@ -107,7 +107,7 @@ func init() {
 			logs.Warn("监听telegram机器人失败：%v", err)
 			return
 		}
-		core.Pushs["tg"] = func(i interface{}, s string) {
+		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}) {
 			b.Send(&tb.User{ID: core.Int(i)}, s)
 		}
 		core.GroupPushs["tg"] = func(i, _ interface{}, s string) {

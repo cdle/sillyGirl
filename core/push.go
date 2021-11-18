@@ -6,14 +6,8 @@ import (
 	"github.com/beego/beego/v2/adapter/httplib"
 )
 
-var Pushs = map[string]func(interface{}, string){}
+var Pushs = map[string]func(interface{}, string, interface{}){}
 var GroupPushs = map[string]func(interface{}, interface{}, string){}
-
-func Push(class string, uid interface{}, content string) {
-	if push, ok := Pushs[class]; ok {
-		push(uid, content)
-	}
-}
 
 type Chat struct {
 	Class  string
@@ -50,7 +44,7 @@ func NotifyMasters(content string) {
 			}
 			for _, v := range strings.Split(notify, "&") {
 				if push, ok := Pushs[class]; ok {
-					push(v, content)
+					push(v, content, nil)
 				}
 			}
 		}

@@ -31,7 +31,7 @@ func init() {
 			for i := 0; i < 10; i++ {
 				if cd == 0 {
 					if push, ok := Pushs[tp]; ok {
-						push(ud, msg)
+						push(ud, msg, nil)
 						break
 					}
 				} else {
@@ -362,7 +362,9 @@ func initSys() {
 			Admin: true,
 			Rules: []string{"send ? ? ?"},
 			Handle: func(s Sender) interface{} {
-				Push(s.Get(0), s.Get(1), s.Get(2))
+				if push, ok := Pushs[s.Get(0)]; ok {
+					push(s.Get(1), s.Get(2), nil)
+				}
 				return "发送成功呢"
 			},
 		},

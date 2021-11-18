@@ -113,7 +113,7 @@ func init123() {
 		} else {
 			if push, ok := Pushs[imType.String()]; ok {
 				uid, _ := userID.ToInteger()
-				push(int(uid), content.String())
+				push(int(uid), content.String(), nil)
 			}
 		}
 		return otto.Value{}

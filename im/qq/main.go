@@ -320,18 +320,18 @@ func start() {
 			core.NotifyMasters(fmt.Sprintf("QQ已同意%v的好友申请，验证信息为：%v", request.RequesterUin, request.Message))
 		}
 	})
-	core.Pushs["qq"] = func(i interface{}, s string) {
+	core.Pushs["qq"] = func(i interface{}, s string, j interface{}) {
 		if !cli.Online {
 			return
 		}
 		// id :=
-		bot.SendPrivateMessage(core.Int64(i), 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		bot.SendPrivateMessage(core.Int64(i), core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)
 		// }
 	}
-	core.GroupPushs["qq"] = func(i, _ interface{}, s string) {
+	core.GroupPushs["qq"] = func(i, j interface{}, s string) {
 		if !cli.Online {
 			return
 		}
@@ -344,8 +344,11 @@ func start() {
 		for _, path := range paths {
 			imgs = append(imgs, &coolq.LocalImageElement{File: path})
 		}
-		//
-		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(bot.ConvertStringMessage(s, true), imgs...)}) //&message.AtElement{Target: int64(j)}
+		var options []message.IMessageElement
+		if id := core.Int64(j); id != 0 {
+			options = append(options, &message.AtElement{Target: id})
+		}
+		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)

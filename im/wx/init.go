@@ -23,7 +23,7 @@ var relaier = wx.Get("relaier")
 var mode = "bgm"
 
 func init() {
-	core.Pushs["wx"] = func(i interface{}, s string) {
+	core.Pushs["wx"] = func(i interface{}, s string, _ interface{}) {
 		if robot_wxid != "" {
 			pmsg := TextMsg{
 				Msg:    s,
