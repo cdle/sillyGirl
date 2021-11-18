@@ -268,6 +268,12 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
 			})
+			vm.Set("breakIn", func(str otto.Value) otto.Value {
+				s := s.Copy()
+				s.SetContent(str.String())
+				Senders <- s
+				return otto.Value{}
+			})
 			vm.Set("input", func(vs ...otto.Value) interface{} {
 				str := ""
 				var i int64

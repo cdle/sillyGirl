@@ -15,6 +15,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/denisbrodbeck/machineid v1.0.1
+	github.com/eatmoreapple/openwechat v1.0.7
 	github.com/gin-gonic/gin v1.7.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.2
