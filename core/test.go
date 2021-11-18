@@ -82,13 +82,13 @@ func initSys() {
 						if str == "" && s.GetImType() != "fake" {
 							if v, ok := OttoFuncs["version"]; ok {
 								if rt := v(""); rt != "" {
-									str = regexp.MustCompile(`\d+{13}`).FindString(rt)
+									str = regexp.MustCompile(`\d{13}`).FindString(rt)
 								}
 							}
 						}
 						if str == "" {
 							data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
-							rt := regexp.MustCompile(`\d+{13}`).FindString(data)
+							rt := regexp.MustCompile(`\d{13}`).FindString(data)
 							if strings.Contains(data, "package") {
 								str = rt
 							}
@@ -105,7 +105,7 @@ func initSys() {
 								}
 								return nil
 							} else {
-								s.Reply(fmt.Sprintf("检测到更新版本(%s)。", str))
+								s.Reply(fmt.Sprintf("检测到最新版本(%s)。", str))
 							}
 							if str > compiled_at {
 								if i == 0 {
