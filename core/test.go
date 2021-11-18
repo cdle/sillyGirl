@@ -77,12 +77,23 @@ func initSys() {
 				}
 
 				if compiled_at != "" {
-					// prefix := "https://ghproxy.com/"
-					//
-					// prefix := sillyGirl.Get("download_prefix")
+					str := ""
 					for i, prefix := range []string{"https://ghproxy.com/", ""} {
-						data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
-						if str := regexp.MustCompile(`\d+`).FindString(data); str != "" && strings.Contains(data, "package") {
+						if str == "" && s.GetImType() != "fake" {
+							if v, ok := OttoFuncs["version"]; ok {
+								if rt := v(""); rt != "" {
+									str = regexp.MustCompile(`\d+{13}`).FindString(rt)
+								}
+							}
+						}
+						if str == "" {
+							data, _ := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/compile_time.go").String()
+							rt := regexp.MustCompile(`\d+{13}`).FindString(data)
+							if strings.Contains(data, "package") {
+								str = rt
+							}
+						}
+						if str != "" {
 							if s.GetImType() == "fake" {
 								ver := sillyGirl.Get("compiled_at")
 								if str > ver && ver > compiled_at {
@@ -93,6 +104,8 @@ func initSys() {
 									NotifyMasters(fmt.Sprintf("检测到更新版本(%s)。", str))
 								}
 								return nil
+							} else {
+								s.Reply(fmt.Sprintf("检测到更新版本(%s)。", str))
 							}
 							if str > compiled_at {
 								if i == 0 {
