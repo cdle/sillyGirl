@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/message"
@@ -136,7 +137,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-// var dd sync.Map
+var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	var id int32
@@ -172,7 +173,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			}
 		}
 		if content != "" {
-			id = bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			pm := cli.SendPrivateMessage(m.Sender.Uin, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			dd.Store(pm.InternalId, true)
 		}
 	case *message.TempMessage:
 		m := sender.Message.(*message.TempMessage)
@@ -197,7 +199,6 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 		}
 	case *message.GroupMessage:
-
 		m := sender.Message.(*message.GroupMessage)
 		content := ""
 		switch msg.(type) {
