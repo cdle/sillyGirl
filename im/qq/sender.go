@@ -204,6 +204,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
 		content := ""
+		var pm *message.GroupMessage
 		switch msg.(type) {
 		case error:
 			content = msg.(error).Error()
@@ -217,7 +218,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				pm := cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				pm = cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 				id = pm.InternalId
 			}
 		}
@@ -225,34 +226,25 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			if strings.Contains(content, "\n") {
 				content = " \n" + content
 			}
-			pm := cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
+			pm = cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
 			id = pm.InternalId
 		}
-
+		if sender.Duration != nil {
+			if *sender.Duration != 0 {
+				go func() {
+					time.Sleep(*sender.Duration)
+					sender.Delete()
+					cli.RecallGroupMessage(m.GroupCode, pm.Id, pm.InternalId)
+				}()
+			} else {
+				sender.Delete()
+				cli.RecallGroupMessage(m.GroupCode, pm.Id, pm.InternalId)
+			}
+		}
 	}
 	if id > 0 {
 		dd.Store(id, true)
-		// MSG := bot.GetMessage(id)
-		// dd.Store(MSG["internal-id"].(int32), true)
-		// logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-		// if m, ok := sender.Message.(*message.GroupMessage); ok {
-		// 	if sender.Duration != nil {
-		// 		if *sender.Duration != 0 {
-		// 			go func() {
-		// 				time.Sleep(*sender.Duration)
-		// 				sender.Delete()
-
-		// 				bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-		// 			}()
-		// 		} else {
-		// 			sender.Delete()
-
-		// 			bot.Client.RecallGroupMessage(m.GroupCode, MSG["message-id"].(int32), MSG["internal-id"].(int32))
-		// 		}
-
-		// 	}
-		// }
 	}
 	return 0, nil
 }
