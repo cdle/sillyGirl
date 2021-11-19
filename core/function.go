@@ -182,12 +182,6 @@ func handleMessage(sender Sender) {
 	goon:
 	}
 
-	if len(toreply) > 0 {
-		for _, v := range toreply {
-			sender.Reply(v)
-		}
-	}
-
 	recall := sillyGirl.Get("recall")
 	if recall != "" {
 		recalled := false
@@ -206,6 +200,12 @@ func handleMessage(sender Sender) {
 		}
 		if recalled == true {
 			return
+		}
+	}
+
+	if len(toreply) > 0 {
+		for _, v := range toreply {
+			sender.Reply(v)
 		}
 	}
 }
