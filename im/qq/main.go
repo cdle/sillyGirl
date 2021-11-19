@@ -300,13 +300,16 @@ func start() {
 		}
 		onPrivateMessage(q, pm)
 	})
-	cli.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
-		time.Sleep(time.Millisecond * 500)
-		if _, ok := dd.Load(gm.InternalId); ok {
-			return
-		}
-		OnGroupMessage(q, gm)
-	})
+	// bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+	// 	time.Sleep(time.Microsecond * 500)
+	// 	logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
+	// 	// if _, ok := dd.Load(gm.InternalId); ok {
+	// 	// 	return
+	// 	// }
+	// 	// if qq.GetBool("onself", true) == true {
+	// 	OnGroupMessage(q, gm)
+	// 	// }
+	// })
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
 			time.Sleep(time.Second)
@@ -327,6 +330,7 @@ func start() {
 		} else {
 			cli.SendGroupTempMessage(groupCode, core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		}
+
 		// bot.SendPrivateMessage(core.Int64(i), , &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
@@ -350,8 +354,7 @@ func start() {
 		if id := core.Int64(j); id != 0 {
 			options = append(options, &message.AtElement{Target: id})
 		}
-		pm := cli.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
-		dd.Store(pm.InternalId, true)
+		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)
