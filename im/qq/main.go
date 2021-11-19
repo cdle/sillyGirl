@@ -300,7 +300,7 @@ func start() {
 		}
 		onPrivateMessage(q, pm)
 	})
-	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+	cli.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
 		time.Sleep(time.Millisecond * 500)
 		if _, ok := dd.Load(gm.InternalId); ok {
 			return
