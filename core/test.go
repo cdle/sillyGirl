@@ -113,6 +113,7 @@ func initSys() {
 								} else {
 									s.Reply("尝试从github.com下载更新...")
 								}
+
 								data, err := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str).Bytes()
 								if err != nil {
 									// return "下载程序错误：" + err.Error()

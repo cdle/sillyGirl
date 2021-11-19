@@ -123,6 +123,8 @@ func handleMessage(sender Sender) {
 		return
 	}
 
+	toreply := []string{}
+
 	reply.Foreach(func(k, v []byte) error {
 		if string(v) == "" {
 			return nil
@@ -130,7 +132,7 @@ func handleMessage(sender Sender) {
 		reg, err := regexp.Compile(string(k))
 		if err == nil {
 			if reg.FindString(content) != "" {
-				sender.Reply(string(v))
+				toreply = append(toreply, string(v))
 			}
 		}
 		return nil
@@ -178,6 +180,12 @@ func handleMessage(sender Sender) {
 			}
 		}
 	goon:
+	}
+
+	if len(toreply) > 0 {
+		for _, v := range toreply {
+			sender.Reply(v)
+		}
 	}
 
 	recall := sillyGirl.Get("recall")
