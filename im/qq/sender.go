@@ -169,7 +169,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				// sender.Reply(err)
 				return 0, nil
 			} else {
-				id = bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				pm := cli.SendPrivateMessage(m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				dd.Store(pm.InternalId, true)
 			}
 		}
 		if content != "" {
@@ -192,11 +193,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				cli.SendGroupTempMessage(m.GroupCode, m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+
 			}
 		}
 		if content != "" {
-			id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			pm := cli.SendPrivateMessage(m.Sender.Uin, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			id = pm.Id
 		}
 	case *message.GroupMessage:
 		m := sender.Message.(*message.GroupMessage)
@@ -214,19 +217,22 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				pm := cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				id = pm.InternalId
 			}
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {
 				content = " \n" + content
 			}
-			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
+			pm := cli.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{
 				&message.AtElement{Target: m.Sender.Uin}}, bot.ConvertStringMessage(content, true)...)}) //
+			id = pm.InternalId
 		}
 
 	}
 	if id > 0 {
+		dd.Store(id, true)
 		// MSG := bot.GetMessage(id)
 		// dd.Store(MSG["internal-id"].(int32), true)
 		// logs.Debug("send id=%d message-id=%d internal-id=%d", id, MSG["message-id"].(int32), MSG["internal-id"].(int32))

@@ -353,7 +353,8 @@ func start() {
 		if id := core.Int64(j); id != 0 {
 			options = append(options, &message.AtElement{Target: id})
 		}
-		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
+		pm := cli.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
+		dd.Store(pm.InternalId, true)
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)
