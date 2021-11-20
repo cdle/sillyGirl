@@ -169,13 +169,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				// sender.Reply(err)
 				return 0, nil
 			} else {
-				pm := cli.SendPrivateMessage(m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
-				dd.Store(pm.InternalId, true)
+				bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				//pm := // dd.Store(pm.InternalId, true)
 			}
 		}
 		if content != "" {
-			pm := cli.SendPrivateMessage(m.Sender.Uin, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
-			dd.Store(pm.InternalId, true)
+			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
+			//pm := // dd.Store(pm.InternalId, true)
 		}
 	case *message.TempMessage:
 		m := sender.Message.(*message.TempMessage)

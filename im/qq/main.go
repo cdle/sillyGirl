@@ -293,13 +293,13 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	cli.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-		time.Sleep(time.Second * 1)
-		if _, ok := dd.Load(pm.InternalId); ok {
-			return
-		}
-		onPrivateMessage(q, pm)
-	})
+	// cli.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
+	// 	time.Sleep(time.Second * 1)
+	// 	if _, ok := dd.Load(pm.InternalId); ok {
+	// 		return
+	// 	}
+	// 	onPrivateMessage(q, pm)
+	// })
 	// bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
 	// 	time.Sleep(time.Microsecond * 500)
 	// 	logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
@@ -321,15 +321,17 @@ func start() {
 		if !cli.Online {
 			return
 		}
+		bot.SendPrivateMessage(core.Int64(i), core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// id :=
 		// dd.Store(pm, true)
-		groupCode := core.Int64(j)
-		if groupCode == 0 {
-			pm := cli.SendPrivateMessage(core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
-			dd.Store(pm.InternalId, true)
-		} else {
-			cli.SendGroupTempMessage(groupCode, core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
-		}
+		// groupCode := core.Int64(j)
+		// if groupCode == 0 {
+		// 	bot.Client.SendPrivateMessage(core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		// 	// pm :=
+		// 	// dd.Store(pm.InternalId, true)
+		// } else {
+		// 	bot.Client.SendGroupTempMessage(groupCode, core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		// }
 
 		// bot.SendPrivateMessage(core.Int64(i), groupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// if id != 0 {
