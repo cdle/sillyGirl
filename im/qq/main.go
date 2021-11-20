@@ -324,14 +324,14 @@ func start() {
 		// id :=
 		// dd.Store(pm, true)
 		groupCode := core.Int64(j)
-		if groupCode != 0 {
+		if groupCode == 0 {
 			pm := cli.SendPrivateMessage(core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 			dd.Store(pm.InternalId, true)
 		} else {
 			cli.SendGroupTempMessage(groupCode, core.Int64(i), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		}
 
-		// bot.SendPrivateMessage(core.Int64(i), , &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		bot.SendPrivateMessage(core.Int64(i), groupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)
@@ -354,6 +354,7 @@ func start() {
 		if id := core.Int64(j); id != 0 {
 			options = append(options, &message.AtElement{Target: id})
 		}
+
 		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
