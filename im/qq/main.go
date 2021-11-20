@@ -294,7 +294,7 @@ func start() {
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
 	cli.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-		time.Sleep(time.Millisecond * 500)
+		time.Sleep(time.Second * 1)
 		if _, ok := dd.Load(pm.InternalId); ok {
 			return
 		}
