@@ -226,7 +226,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
 		case core.ImageData:
-			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
+			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {
