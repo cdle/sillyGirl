@@ -47,6 +47,8 @@ var E Edit
 var R Replace
 var N Notify
 
+type ImageData []byte
+type ImageBase64 string
 type ImageUrl string
 type ImagePath string
 

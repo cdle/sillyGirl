@@ -152,6 +152,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Duration = &du
 		}
 	}
+
 	switch sender.Message.(type) {
 	case *message.PrivateMessage:
 		m := sender.Message.(*message.PrivateMessage)
@@ -172,11 +173,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 				//pm := // dd.Store(pm.InternalId, true)
 			}
+		case core.ImageData:
+			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
 		}
 		if content != "" {
 			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 			//pm := // dd.Store(pm.InternalId, true)
 		}
+
 	case *message.TempMessage:
 		m := sender.Message.(*message.TempMessage)
 		content := ""
@@ -193,9 +197,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				cli.SendGroupTempMessage(m.GroupCode, m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				bot.SendPrivateMessage(m.GroupCode, m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
+		case core.ImageData:
+			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
+
 		}
+
 		if content != "" {
 			id = bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 		}
@@ -217,6 +225,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			} else {
 				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
+		case core.ImageData:
+			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {

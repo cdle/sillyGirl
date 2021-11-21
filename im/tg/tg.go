@@ -378,6 +378,11 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				rt = &rts[0]
 			}
 		}
+	case core.ImageData:
+		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(bytes.NewReader(msg.(core.ImageData)))}}, options...)
+		if err == nil {
+			rt = &rts[0]
+		}
 	}
 	if err != nil {
 		sender.Reply(err)

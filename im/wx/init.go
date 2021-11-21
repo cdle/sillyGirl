@@ -2,6 +2,7 @@ package wx
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -280,6 +281,16 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				},
 			}
 			sendOtherMsg(&pmsg)
+		case core.ImageData:
+			pmsg := OtherMsg{
+				ToWxid:     to,
+				MemberWxid: at,
+				Msg: Msg{
+					URL:  base64.StdEncoding.EncodeToString(item.(core.ImageData)),
+					Name: "base64",
+				},
+			}
+			sendOtherMsg(&pmsg)
 		}
 	}
 	if pmsg.Msg != "" {
@@ -386,11 +397,13 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		// 	tosend <- data
 		// }()
 	} else {
-		pmsg.RobotWxid = robot_wxid
-		req := httplib.Post(api_url())
-		req.Header("Content-Type", "application/json")
-		data, _ := json.Marshal(pmsg)
-		req.Body(data)
-		req.Response()
+		if pmsg.Msg.URL != "base64" {
+			pmsg.RobotWxid = robot_wxid
+			req := httplib.Post(api_url())
+			req.Header("Content-Type", "application/json")
+			data, _ := json.Marshal(pmsg)
+			req.Body(data)
+			req.Response()
+		}
 	}
 }
