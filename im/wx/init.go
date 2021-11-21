@@ -291,6 +291,16 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				},
 			}
 			sendOtherMsg(&pmsg)
+		case core.ImageBase64:
+			pmsg := OtherMsg{
+				ToWxid:     to,
+				MemberWxid: at,
+				Msg: Msg{
+					URL:  string(item.(core.ImageBase64)),
+					Name: "base64",
+				},
+			}
+			sendOtherMsg(&pmsg)
 		}
 	}
 	if pmsg.Msg != "" {

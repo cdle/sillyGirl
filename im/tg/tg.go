@@ -383,6 +383,16 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		if err == nil {
 			rt = &rts[0]
 		}
+	case core.ImageBase64:
+		data, err := base64.StdEncoding.DecodeString(string(msg.(core.ImageBase64)))
+		if err != nil {
+			sender.Reply(err)
+			return 0, nil
+		}
+		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(bytes.NewReader(data))}}, options...)
+		if err == nil {
+			rt = &rts[0]
+		}
 	}
 	if err != nil {
 		sender.Reply(err)

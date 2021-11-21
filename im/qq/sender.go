@@ -2,6 +2,7 @@ package qq
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -175,6 +176,13 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			}
 		case core.ImageData:
 			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
+		case core.ImageBase64:
+			data, err := base64.StdEncoding.DecodeString(string(msg.(core.ImageBase64)))
+			if err != nil {
+				sender.Reply(err)
+				return 0, nil
+			}
+			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 		}
 		if content != "" {
 			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
@@ -197,11 +205,17 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				sender.Reply(err)
 				return 0, nil
 			} else {
-				bot.SendPrivateMessage(m.GroupCode, m.Sender.Uin, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+				bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
 		case core.ImageData:
-			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
-
+			bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
+		case core.ImageBase64:
+			data, err := base64.StdEncoding.DecodeString(string(msg.(core.ImageBase64)))
+			if err != nil {
+				sender.Reply(err)
+				return 0, nil
+			}
+			bot.SendPrivateMessage(m.Sender.Uin, m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 		}
 
 		if content != "" {
@@ -227,6 +241,12 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			}
 		case core.ImageData:
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
+		case core.ImageBase64:
+			data, err := base64.StdEncoding.DecodeString(string(msg.(core.ImageBase64)))
+			if err != nil {
+				sender.Reply(err)
+				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
+			}
 		}
 		if content != "" {
 			if strings.Contains(content, "\n") {
