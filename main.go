@@ -1,8 +1,9 @@
 package main
 
-import "github.com/cdle/sillyGirl/core"
+import (
+	"fmt"
+)
 
 func main() {
-	go core.RunServer()
-	select {}
+	fmt.Println("2006-01-02 15:04:05"[0:13])
 }
