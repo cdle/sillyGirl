@@ -327,11 +327,11 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 						c.Result <- string(v)
 					}
 				} else if _, ok := result.(YesOrNo); ok {
-					if strings.Contains(strings.ToLower(s.GetContent()), "y") {
+					if strings.ToLower(s.GetContent()) == "y" {
 						return Yes
 					}
 
-					if strings.Contains(strings.ToLower(s.GetContent()), "n") {
+					if strings.ToLower(s.GetContent()) == "n" {
 						return No
 					}
 					c.Result <- "Y or n ?"

@@ -322,7 +322,11 @@ func start() {
 		if !cli.Online {
 			return
 		}
-		bot.SendPrivateMessage(core.Int64(i), core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
+		uid := core.Int64(i)
+		if uid == 0 {
+			return
+		}
+		bot.SendPrivateMessage(uid, core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// id :=
 		// dd.Store(pm, true)
 		// groupCode := core.Int64(j)
@@ -344,6 +348,10 @@ func start() {
 		if !cli.Online {
 			return
 		}
+		gid := core.Int64(i)
+		if gid == 0 {
+			return
+		}
 		paths := []string{}
 		for _, v := range regexp.MustCompile(`\[TG:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 			paths = append(paths, "data/images/"+v[1])
@@ -358,7 +366,7 @@ func start() {
 			options = append(options, &message.AtElement{Target: id})
 		}
 
-		bot.SendGroupMessage(core.Int64(i), &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
+		bot.SendGroupMessage(gid, &message.SendingMessage{Elements: append(options, append(bot.ConvertStringMessage(s, true), imgs...)...)}) //&message.AtElement{Target: int64(j)}
 		// if id != 0 {
 		// 	MSG := bot.GetMessage(id)
 		// 	dd.Store(MSG["internal-id"].(int32), true)
