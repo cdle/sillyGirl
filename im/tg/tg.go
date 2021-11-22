@@ -155,7 +155,7 @@ func init() {
 				b.SendAlbum(ct, is)
 				return
 			}
-			s = strings.Trim(s, "\n ")
+			s = strings.Trim(s, "\n")
 			b.Send(ct, s)
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
