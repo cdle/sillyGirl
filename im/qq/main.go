@@ -315,7 +315,7 @@ func start() {
 		// 	return
 		// }
 		// if qq.GetBool("onself", true) == true {
-		OnGroupMessage(q, gm)
+		// OnGroupMessage(q, gm)
 		// }
 	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
@@ -333,7 +333,7 @@ func start() {
 		if uid == 0 {
 			return
 		}
-		logs.Warn("uid=%d,gid=%d", uid, core.Int64(j))
+		logs.Warn("uid=%d,gid=%d,msg=%s", uid, core.Int64(j))
 		bot.SendPrivateMessage(uid, core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// id :=
 		// dd.Store(pm, true)
