@@ -205,7 +205,7 @@ func init() {
 }
 
 func relay(url string) string {
-	if strings.Contains(url, "gchat.qpic.cn") {
+	if !strings.Contains(url, "gchat.qpic.cn") {
 		return url
 	}
 	if wx.GetBool("relay_mode", false) == false {

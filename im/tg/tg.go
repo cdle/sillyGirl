@@ -54,8 +54,9 @@ func buildHttpTransportWithProxy() {
 			Transport = &http.Transport{Proxy: http.ProxyURL(u)}
 		}
 	}
-	if strings.Contains(addr, "sock5://") {
+	if strings.Contains(addr, "sock5://") || strings.Contains(addr, "socks5://") {
 		addr = strings.Replace(addr, "sock5://", "", -1)
+		addr = strings.Replace(addr, "socks5://", "", -1)
 		var auth *proxy.Auth
 		v := strings.Split(addr, "@")
 		if len(v) == 3 {
