@@ -293,24 +293,31 @@ func start() {
 	bot.Client.OnPrivateMessage(onPrivateMessage)
 	bot.Client.OnGroupMessage(OnGroupMessage)
 	bot.Client.OnTempMessage(onTempMessage)
-	// bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
-	// time.Sleep(time.Second * 1)
-	// if _, ok := dd.Load(pm.InternalId); ok {
-	// 	return
-	// }
-	// onPrivateMessage(q, pm)
-	// })
-	// bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+	bot.Client.OnSelfPrivateMessage(func(q *client.QQClient, pm *message.PrivateMessage) {
+		text := coolq.ToStringMessage(pm.Elements, 0, true)
+		if strings.HasPrefix(text, "get") || strings.HasPrefix(text, "set") {
+			onPrivateMessage(q, pm)
+		}
+		// time.Sleep(time.Second * 1)
+		// if _, ok := dd.Load(pm.InternalId); ok {
+		// 	return
+		// }
 
-	// time.Sleep(time.Microsecond * 500)
-	// logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
-	// if _, ok := dd.Load(gm.InternalId); ok {
-	// 	return
-	// }
-	// if qq.GetBool("onself", true) == true {
-	// OnGroupMessage(q, gm)
-	// }
-	// })
+	})
+	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
+		text := coolq.ToStringMessage(gm.Elements, 0, true)
+		if strings.HasPrefix(text, "get") || strings.HasPrefix(text, "set") {
+			onPrivateMessage(q, gm)
+		}
+		// time.Sleep(time.Microsecond * 500)
+		// logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
+		// if _, ok := dd.Load(gm.InternalId); ok {
+		// 	return
+		// }
+		// if qq.GetBool("onself", true) == true {
+		OnGroupMessage(q, gm)
+		// }
+	})
 	bot.Client.OnNewFriendRequest(func(_ *client.QQClient, request *client.NewFriendRequest) {
 		if qq.GetBool("auto_friend", false) == true {
 			time.Sleep(time.Second)
