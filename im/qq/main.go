@@ -333,6 +333,7 @@ func start() {
 		if uid == 0 {
 			return
 		}
+		logs.Warn("uid=%d,gid=%d", uid, core.Int64(j))
 		bot.SendPrivateMessage(uid, core.Int64(j), &message.SendingMessage{Elements: bot.ConvertStringMessage(s, false)})
 		// id :=
 		// dd.Store(pm, true)

@@ -13,6 +13,7 @@ import (
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/Mrs4s/go-cqhttp/coolq"
 	"github.com/beego/beego/v2/adapter/httplib"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -183,8 +184,10 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: []message.IMessageElement{&coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 		}
 		if content != "" {
+
 			bot.SendPrivateMessage(m.Sender.Uin, 0, &message.SendingMessage{Elements: bot.ConvertStringMessage(content, false)})
 			//pm := // dd.Store(pm.InternalId, true)
+			logs.Warn("uid=%d,gid=%d,msg=%s", m.Sender.Uin, 0)
 		}
 
 	case *message.TempMessage:
