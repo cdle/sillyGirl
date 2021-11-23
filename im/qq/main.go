@@ -307,7 +307,7 @@ func start() {
 	bot.Client.OnSelfGroupMessage(func(q *client.QQClient, gm *message.GroupMessage) {
 		text := coolq.ToStringMessage(gm.Elements, 0, true)
 		if strings.HasPrefix(text, "get") || strings.HasPrefix(text, "set") {
-			onPrivateMessage(q, gm)
+			OnGroupMessage(q, gm)
 		}
 		// time.Sleep(time.Microsecond * 500)
 		// logs.Debug("receive message-id=%d internal-id=%d", gm.Id, gm.InternalId)
