@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -140,6 +141,7 @@ func init123() {
 			method = v.String()
 		}
 		var req *httplib.BeegoHTTPRequest
+
 		switch strings.ToLower(method) {
 		case "delete":
 			req = httplib.Delete(url)
@@ -155,10 +157,23 @@ func init123() {
 		if body != "" {
 			if body != "" && body != "undefined" {
 				req.Body(body)
-				// 对于JSON对象，需要加上 Content-Type
 				req.Header("Content-Type", "application/json")
 			}
 			req.Body(body)
+		}
+		if dataType == "location" {
+			req.SetCheckRedirect(func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			})
+			rsp, err := req.Response()
+			if err == nil && (rsp.StatusCode == 301 || rsp.StatusCode == 302) {
+				url = rsp.Header.Get("Location")
+			}
+			result, err := otto.ToValue(url)
+			if err != nil {
+				return otto.Value{}
+			}
+			return result
 		}
 		data, err := req.String()
 		if err != nil {
