@@ -24,15 +24,16 @@ var o = NewBucket("otto")
 func init() {
 	go func() {
 		time.Sleep(time.Second)
-		if o.GetBool("enable_price", true) {
-			os.MkdirAll("develop/replies", os.ModePerm)
-			if data, err := os.ReadFile("scripts/jd_price.js"); err == nil {
-				os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
-			}
-			os.Remove("develop/replies/price.js")
-		} else {
-			os.Remove("develop/replies/jd_price.js")
-		}
+		// if o.GetBool("enable_price", true) {
+		// 	os.MkdirAll("develop/replies", os.ModePerm)
+		// 	if data, err := os.ReadFile("scripts/jd_price.js"); err == nil {
+		// 		os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
+		// 	}
+		// 	os.Remove("develop/replies/price.js")
+		// } else {
+		// 	os.Remove("develop/replies/jd_price.js")
+		// }
+		os.Remove("develop/replies/jd_price.js")
 		init123()
 	}()
 }
@@ -334,7 +335,11 @@ func init123() {
 				return otto.Value{}
 			})
 			vm.Set("sendVideo", func(call otto.Value) interface{} {
-				s.Reply(VideoUrl(call.String()))
+				url := call.String()
+				if url == "" {
+					return otto.Value{}
+				}
+				s.Reply(VideoUrl(url))
 				return otto.Value{}
 			})
 			rt, err := vm.Run(template + `
