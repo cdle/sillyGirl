@@ -248,7 +248,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			// 	return 0, nil
 			// } else {
 
-			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}}, bot.ConvertStringMessage(`[CQ:video,file=`+string(msg.(core.VideoUrl))+`]`, true)...)})
+			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: bot.ConvertStringMessage(`[CQ:video,file=`+string(msg.(core.VideoUrl))+`]`, true)})
 			// }
 		case core.ImageData:
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
