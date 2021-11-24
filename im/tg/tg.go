@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/httplib"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 	"golang.org/x/net/proxy"
@@ -370,15 +369,21 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			}
 		}
 	case core.ImageUrl:
-		rsp, err := httplib.Get(string(msg.(core.ImageUrl))).Response()
-		if err != nil {
-			sender.Reply(err)
-			return 0, nil
-		} else {
-			rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(rsp.Body)}}, options...)
-			if err == nil {
-				rt = &rts[0]
-			}
+		// rsp, err := httplib.Get(string(msg.(core.ImageUrl))).Response()
+		// if err != nil {
+		// 	sender.Reply(err)
+		// 	return 0, nil
+		// } else {
+
+		// }
+		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromURL(string(msg.(core.ImageUrl)))}}, options...)
+		if err == nil {
+			rt = &rts[0]
+		}
+	case core.VideoUrl:
+		rts, err := b.SendAlbum(r, tb.Album{&tb.Video{File: tb.FromURL(string(msg.(core.VideoUrl)))}}, options...)
+		if err == nil {
+			rt = &rts[0]
 		}
 	case core.ImageData:
 		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(bytes.NewReader(msg.(core.ImageData)))}}, options...)

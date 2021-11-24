@@ -318,6 +318,10 @@ func init123() {
 				s.Reply(ImageUrl(call.String()))
 				return otto.Value{}
 			})
+			vm.Set("sendVideo", func(call otto.Value) interface{} {
+				s.Reply(VideoUrl(call.String()))
+				return otto.Value{}
+			})
 			rt, err := vm.Run(template + `
 ""
 `)
