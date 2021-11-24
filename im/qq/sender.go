@@ -240,6 +240,16 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			} else {
 				id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}, &coolq.LocalImageElement{Stream: bytes.NewReader(data)}}})
 			}
+		case core.VideoUrl:
+			// &message.SendingMessage{Elements: }
+			// data, err := httplib.Get(string(msg.(core.ImageUrl))).Bytes()
+			// if err != nil {
+			// 	sender.Reply(err)
+			// 	return 0, nil
+			// } else {
+
+			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: append([]message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &message.TextElement{Content: " \n"}}, bot.ConvertStringMessage(`[CQ:video,file=`+string(msg.(core.VideoUrl))+`]`, true)...)})
+			// }
 		case core.ImageData:
 			id = bot.SendGroupMessage(m.GroupCode, &message.SendingMessage{Elements: []message.IMessageElement{&message.AtElement{Target: m.Sender.Uin}, &coolq.LocalImageElement{Stream: bytes.NewReader(msg.(core.ImageData))}}})
 		case core.ImageBase64:
