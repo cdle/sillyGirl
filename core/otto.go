@@ -330,6 +330,10 @@ func init123() {
 				s.Reply(call.String())
 				return otto.Value{}
 			})
+			vm.Set("image", func(call otto.Value) interface{} {
+				v, _ := otto.ToValue(`[CQ:image,file=` + call.String() + `]`)
+				return v
+			})
 			vm.Set("sendImage", func(call otto.Value) interface{} {
 				s.Reply(ImageUrl(call.String()))
 				return otto.Value{}

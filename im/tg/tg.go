@@ -131,24 +131,32 @@ func init() {
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
-					data, err := os.ReadFile(path)
-					if err == nil {
-						url := regexp.MustCompile("(https.*)").FindString(string(data))
-						if url != "" {
-							// rsp, err := httplib.Get(url).Response()
-							// if err == nil {
-							// 	i := &tb.Photo{File: tb.FromReader(rsp.Body)}
-							// 	if index == 0 {
-							// 		i.Caption = s
-							// 	}
-							// 	is = append(is, i)
-							// }
-							i := &tb.Photo{File: tb.FromURL(url)}
+					if strings.HasPrefix(path, "http") {
+						i := &tb.Photo{File: tb.FromURL(path)}
+						if index == 0 {
+							i.Caption = s
+						}
+						is = append(is, i)
+					} else {
+						data, err := os.ReadFile(path)
+						if err == nil {
+							url := regexp.MustCompile("(https.*)").FindString(string(data))
+							if url != "" {
+								// rsp, err := httplib.Get(url).Response()
+								// if err == nil {
+								// 	i := &tb.Photo{File: tb.FromReader(rsp.Body)}
+								// 	if index == 0 {
+								// 		i.Caption = s
+								// 	}
+								// 	is = append(is, i)
+								// }
+								i := &tb.Photo{File: tb.FromURL(url)}
 
-							if index == 0 {
-								i.Caption = s
+								if index == 0 {
+									i.Caption = s
+								}
+								is = append(is, i)
 							}
-							is = append(is, i)
 						}
 					}
 				}
@@ -330,6 +338,12 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 						sender.Reply(err)
 					}
 					i := &tb.Photo{File: tb.FromReader(bytes.NewReader(decodeBytes))}
+					if index == 0 {
+						i.Caption = message
+					}
+					is = append(is, i)
+				} else if strings.HasPrefix(path, "http") {
+					i := &tb.Photo{File: tb.FromURL(path)}
 					if index == 0 {
 						i.Caption = message
 					}
