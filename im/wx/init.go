@@ -346,6 +346,7 @@ func (sender *Sender) Copy() core.Sender {
 }
 
 func sendTextMsg(pmsg *TextMsg) {
+	pmsg.Msg = strings.Trim(pmsg.Msg, "\n ")
 	if mode == "vlw" {
 		// if c == nil {
 		// 	return
