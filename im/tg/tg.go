@@ -131,6 +131,7 @@ func init() {
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
+					fmt.Println(path, s)
 					if strings.HasPrefix(path, "http") {
 						i := &tb.Photo{File: tb.FromURL(path)}
 						if index == 0 {
