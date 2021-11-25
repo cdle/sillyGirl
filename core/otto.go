@@ -159,7 +159,7 @@ func init123() {
 		}
 		{
 			v, err := call.Object().Get("headers")
-			if err == nil {
+			if err == nil && v.IsObject() {
 				headers := v.Object()
 				for _, key := range headers.Keys() {
 					v, _ := headers.Get(key)
