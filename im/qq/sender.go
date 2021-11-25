@@ -141,8 +141,10 @@ var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	var id int32
-	if spy_on := qq.Get("spy_on"); spy_on != "" && strings.Contains(spy_on, fmt.Sprint(sender.GetChatID())) {
-		return 0, nil
+	if sender.GetChatID() != 0 {
+		if spy_on := qq.Get("spy_on"); spy_on != "" && strings.Contains(spy_on, fmt.Sprint(sender.GetChatID())) {
+			return 0, nil
+		}
 	}
 	msg := msgs[0]
 	for _, item := range msgs {
