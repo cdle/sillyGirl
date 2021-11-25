@@ -134,7 +134,9 @@ func init() {
 					if strings.HasPrefix(path, "http") {
 						i := &tb.Photo{File: tb.FromURL(path)}
 						if index == 0 {
-							i.Caption = s
+							if s != "" {
+								i.Caption = s
+							}
 						}
 						is = append(is, i)
 					} else {
