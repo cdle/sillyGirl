@@ -125,6 +125,7 @@ func init123() {
 		dataType := ""
 		method := "get"
 		body := ""
+
 		{
 			v, _ := call.Object().Get("url")
 			url = v.String()
@@ -146,6 +147,7 @@ func init123() {
 		switch strings.ToLower(method) {
 		case "delete":
 			req = httplib.Delete(url)
+
 		case "post":
 			req = httplib.Post(url)
 
@@ -154,6 +156,16 @@ func init123() {
 
 		default:
 			req = httplib.Get(url)
+		}
+		{
+			v, err := call.Object().Get("headers")
+			if err == nil {
+				headers := v.Object()
+				for _, key := range headers.Keys() {
+					v, _ := headers.Get(key)
+					req.Header(key, v.String())
+				}
+			}
 		}
 		if body != "" {
 			if body != "" && body != "undefined" {
