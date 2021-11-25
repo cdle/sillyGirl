@@ -115,7 +115,7 @@ func init() {
 			paths := []string{}
 			ct := &tb.Chat{ID: core.Int64(i)}
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
-				paths = append(paths, "data/images/"+v[1])
+				paths = append(paths, v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			}
 			s = regexp.MustCompile(`\[CQ:([^\[\]]+)\]`).ReplaceAllString(s, "")
@@ -131,7 +131,7 @@ func init() {
 			if len(paths) > 0 {
 				is := []tb.InputMedia{}
 				for index, path := range paths {
-					fmt.Println(path, s)
+					// fmt.Println(path, s)
 					if strings.HasPrefix(path, "http") {
 						i := &tb.Photo{File: tb.FromURL(path)}
 						if index == 0 {
@@ -141,7 +141,7 @@ func init() {
 						}
 						is = append(is, i)
 					} else {
-						data, err := os.ReadFile(path)
+						data, err := os.ReadFile("data/images/" + path)
 						if err == nil {
 							url := regexp.MustCompile("(https.*)").FindString(string(data))
 							if url != "" {
