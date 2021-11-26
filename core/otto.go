@@ -188,6 +188,13 @@ func init123() {
 			}
 			return result
 		}
+		{
+			v, _ := call.Object().Get("useProxy")
+			useProxy, _ := v.ToBoolean()
+			if useProxy && Transport != nil {
+				req.SetTransport(Transport)
+			}
+		}
 		data, err := req.String()
 		if err != nil {
 			return otto.Value{}

@@ -213,7 +213,7 @@ func FetchCookieValue(ps ...string) string {
 	}
 	match := regexp.MustCompile(key + `=([^;]*);{0,1}`).FindStringSubmatch(cookies)
 	if len(match) == 2 {
-		return match[1]
+		return strings.Trim(match[1], " ")
 	} else {
 		return ""
 	}

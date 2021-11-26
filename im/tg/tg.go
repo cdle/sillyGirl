@@ -83,6 +83,7 @@ func init() {
 			tg.Set("sock5", "")
 		}
 		buildHttpTransportWithProxy()
+		core.Transport = Transport
 		token := tg.Get("token")
 		if runtime.GOOS == "darwin" {
 			tg.Set("http_proxy", "http://127.0.0.1:7890")
