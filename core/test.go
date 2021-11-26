@@ -78,18 +78,18 @@ func initSys() {
 				clear := true
 				switch s.Await(s, func(s Sender) interface{} {
 					return YesNo
-				}, time.Second*20) {
+				}, time.Second*5) {
 				case No:
 					clear = false
 					return name() + "将继续为您服务！"
 				}
 				s.Reply("进入冷静期，给你5秒时间思考，输入任意字符取消卸载：")
-				if s.Await(s, nil, time.Second*60) != nil {
+				if s.Await(s, nil, time.Second*5) != nil {
 					return name() + "将继续为您服务！"
 				}
 				s.Reply("你终究还是下得了狠心，不过那又怎样？")
 				time.Sleep(time.Second * 2)
-				s.Reply("请在5秒输入输入“我是🐶”完成卸载：")
+				s.Reply("请在5秒内输入“我是🐶”完成卸载：")
 				rt := s.Await(s, nil, time.Second*5)
 				switch rt.(type) {
 				case nil:
