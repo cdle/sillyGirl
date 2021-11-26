@@ -106,7 +106,13 @@ func initSys() {
 					os.RemoveAll(ExecPath)
 					os.RemoveAll("/usr/lib/systemd/system/sillyGirl.service")
 				}
-				return "卸载完成，下次重启你就再也见不到我了。"
+				s.Reply("卸载完成，下次重启你就再也见不到我了。")
+				time.Sleep(time.Second)
+				s.Reply("是否立即重启？")
+				s.Reply("正在重启...")
+				time.Sleep(time.Second)
+				os.Exit(0)
+				return nil
 			},
 		},
 		{
