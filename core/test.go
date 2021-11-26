@@ -70,7 +70,7 @@ func initSys() {
 				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
 				switch s.Await(s, func(s Sender) interface{} {
 					return YesNo
-				}, time.Second*20) {
+				}, time.Second*5) {
 				case No:
 					return name() + "将继续为您服务！"
 				}
