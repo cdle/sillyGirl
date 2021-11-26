@@ -210,9 +210,9 @@ func InitReplies() {
 					content = strings.Replace(content, v, "", -1)
 				}
 				content = strings.Replace(content, `[d]`, ",", -1)
-				if appreciate.Request.Url != recommand {
-					content += "\n" + Tail
-				}
+				// if appreciate.Request.Url != recommand {
+				// 	content += "\n" + Tail
+				// }
 				s.Reply(content)
 			default:
 				d := data()
