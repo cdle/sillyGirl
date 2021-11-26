@@ -64,6 +64,52 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"raw ^卸载$"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
+				switch s.Await(s, func(s Sender) interface{} {
+					return YesNo
+				}, time.Second*20) {
+				case No:
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("是否删除用户数据？(5秒后默认删除，Y/n)")
+				clear := true
+				switch s.Await(s, func(s Sender) interface{} {
+					return YesNo
+				}, time.Second*20) {
+				case No:
+					clear = false
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("进入冷静期，给你5秒时间思考，输入任意字符取消卸载：")
+				if s.Await(s, nil, time.Second*60) != nil {
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("你终究还是下得了狠心，不过那又怎样？")
+				time.Sleep(time.Second * 2)
+				s.Reply("请在5秒输入输入“我是🐶”完成卸载：")
+				rt := s.Await(s, nil, time.Second*5)
+				switch rt.(type) {
+				case nil:
+					return "你的打字速度不够快啊，请重新卸载～"
+				case string:
+					if rt.(string) != "我是🐶" {
+						return "输入错误，请重新卸载～"
+					}
+				}
+				if !sillyGirl.GetBool("forbid_uninstall") {
+					if clear {
+						os.RemoveAll("/etc/sillyGirl/sillyGirl.cache")
+					}
+					os.RemoveAll(ExecPath)
+					os.RemoveAll("/usr/lib/systemd/system/sillyGirl.service")
+				}
+				return "卸载完成，下次重启你就再也见不到我了。"
+			},
+		},
+		{
 			Rules: []string{"raw ^升级$"},
 			// Cron:  "*/1 * * * *",
 			Admin: true,
