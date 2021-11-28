@@ -135,9 +135,9 @@ func InitReplies() {
 					s.Reply(err)
 					return true
 				}
-				if appreciate.Request.Url != recommand {
-					f += "\n" + Tail
-				}
+				// if appreciate.Request.Url != recommand {
+				// 	f += "\n" + Tail
+				// }
 				s.Reply(f)
 			case "template":
 				data := data()
