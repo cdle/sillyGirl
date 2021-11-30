@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/astaxie/beego/logs"
 	"github.com/axgle/mahonia"
@@ -469,4 +470,5 @@ func sendOtherMsg(pmsg *OtherMsg) {
 			req.Response()
 		}
 	}
+	time.Sleep(time.Microsecond * 500)
 }
