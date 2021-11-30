@@ -251,7 +251,7 @@ func initCron() {
 						if err := Config.Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, dup.ID))); err != nil {
 							s.Reply(fmt.Sprintf("隐藏 %v %v %v", dup.Name, dup.Command, err))
 						} else {
-							s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v", dup.Name, dup.Command), core.N)
+							s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v\n\n关闭此功能对我说“qinglong set autoCronHideDuplicate false”", dup.Name, dup.Command), core.N)
 						}
 					} else {
 						tasks[crons[i].Name] = crons[i]
