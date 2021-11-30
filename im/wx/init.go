@@ -11,7 +11,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/astaxie/beego/logs"
 	"github.com/axgle/mahonia"
@@ -52,7 +51,7 @@ func init() {
 						Name: name(v[1]),
 					},
 				}
-				sendOtherMsg(&pmsg)
+				defer sendOtherMsg(&pmsg)
 			} else if strings.HasPrefix(v[1], "base64") {
 				pmsg := OtherMsg{
 					ToWxid: to,
@@ -61,7 +60,7 @@ func init() {
 						Name: "base64",
 					},
 				}
-				sendOtherMsg(&pmsg)
+				defer sendOtherMsg(&pmsg)
 			} else {
 				data, err := os.ReadFile("data/images/" + v[1])
 				if err == nil {
@@ -74,7 +73,7 @@ func init() {
 								Name: name(add),
 							},
 						}
-						sendOtherMsg(&pmsg)
+						defer sendOtherMsg(&pmsg)
 					}
 				}
 			}
@@ -294,7 +293,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 							Name: name(v[1]),
 						},
 					}
-					sendOtherMsg(&pmsg)
+					defer sendOtherMsg(&pmsg)
 				} else if strings.HasPrefix(v[1], "base64") {
 					pmsg := OtherMsg{
 						ToWxid: to,
@@ -303,7 +302,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 							Name: "base64",
 						},
 					}
-					sendOtherMsg(&pmsg)
+					defer sendOtherMsg(&pmsg)
 				} else {
 					data, err := os.ReadFile("data/images/" + v[1])
 					if err == nil {
@@ -316,7 +315,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 									Name: name(add),
 								},
 							}
-							sendOtherMsg(&pmsg)
+							defer sendOtherMsg(&pmsg)
 						}
 					}
 				}
@@ -470,5 +469,4 @@ func sendOtherMsg(pmsg *OtherMsg) {
 			req.Response()
 		}
 	}
-	time.Sleep(time.Microsecond * 500)
 }
