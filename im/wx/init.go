@@ -52,6 +52,15 @@ func init() {
 					},
 				}
 				defer sendOtherMsg(&pmsg)
+			} else if strings.HasPrefix(v[1], "base64") {
+				pmsg := OtherMsg{
+					ToWxid: to,
+					Msg: Msg{
+						URL:  strings.Replace(v[1], `base64://`, "", -1),
+						Name: "base64",
+					},
+				}
+				defer sendOtherMsg(&pmsg)
 			} else {
 				data, err := os.ReadFile("data/images/" + v[1])
 				if err == nil {
@@ -68,7 +77,6 @@ func init() {
 					}
 				}
 			}
-
 		}
 		s = regexp.MustCompile(`\[CQ:([^\[\]]+)\]`).ReplaceAllString(s, "")
 		pmsg.Msg = s
@@ -275,14 +283,43 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		switch item.(type) {
 		case string:
 			pmsg.Msg = item.(string)
-			images := []string{}
-			for _, v := range regexp.MustCompile(`\[CQ:image,file=base64://([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
-				images = append(images, v[1])
-				pmsg.Msg = strings.Replace(pmsg.Msg, fmt.Sprintf(`[CQ:image,file=base64://%s]`, v[1]), "", -1)
+			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
+				pmsg.Msg = strings.Replace(pmsg.Msg, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
+				if strings.HasPrefix(v[1], "http") {
+					pmsg := OtherMsg{
+						ToWxid: to,
+						Msg: Msg{
+							URL:  relay(v[1]),
+							Name: name(v[1]),
+						},
+					}
+					defer sendOtherMsg(&pmsg)
+				} else if strings.HasPrefix(v[1], "base64") {
+					pmsg := OtherMsg{
+						ToWxid: to,
+						Msg: Msg{
+							URL:  strings.Replace(v[1], `base64://`, "", -1),
+							Name: "base64",
+						},
+					}
+					defer sendOtherMsg(&pmsg)
+				} else {
+					data, err := os.ReadFile("data/images/" + v[1])
+					if err == nil {
+						add := regexp.MustCompile("(https.*)").FindString(string(data))
+						if add != "" {
+							pmsg := OtherMsg{
+								ToWxid: to,
+								Msg: Msg{
+									URL:  relay(add),
+									Name: name(add),
+								},
+							}
+							defer sendOtherMsg(&pmsg)
+						}
+					}
+				}
 			}
-			// for _, image := range images {
-			// 	wxbase
-			// }
 		case []byte:
 			pmsg.Msg = string(item.([]byte))
 		case core.ImageUrl:
