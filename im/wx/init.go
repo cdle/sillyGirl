@@ -51,7 +51,7 @@ func init() {
 						Name: name(v[1]),
 					},
 				}
-				defer sendOtherMsg(&pmsg)
+				sendOtherMsg(&pmsg)
 			} else if strings.HasPrefix(v[1], "base64") {
 				pmsg := OtherMsg{
 					ToWxid: to,
@@ -60,7 +60,7 @@ func init() {
 						Name: "base64",
 					},
 				}
-				defer sendOtherMsg(&pmsg)
+				sendOtherMsg(&pmsg)
 			} else {
 				data, err := os.ReadFile("data/images/" + v[1])
 				if err == nil {
@@ -73,7 +73,7 @@ func init() {
 								Name: name(add),
 							},
 						}
-						defer sendOtherMsg(&pmsg)
+						sendOtherMsg(&pmsg)
 					}
 				}
 			}
@@ -293,7 +293,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 							Name: name(v[1]),
 						},
 					}
-					defer sendOtherMsg(&pmsg)
+					sendOtherMsg(&pmsg)
 				} else if strings.HasPrefix(v[1], "base64") {
 					pmsg := OtherMsg{
 						ToWxid: to,
@@ -302,7 +302,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 							Name: "base64",
 						},
 					}
-					defer sendOtherMsg(&pmsg)
+					sendOtherMsg(&pmsg)
 				} else {
 					data, err := os.ReadFile("data/images/" + v[1])
 					if err == nil {
@@ -315,7 +315,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 									Name: name(add),
 								},
 							}
-							defer sendOtherMsg(&pmsg)
+							sendOtherMsg(&pmsg)
 						}
 					}
 				}
