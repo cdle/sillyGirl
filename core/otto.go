@@ -248,6 +248,10 @@ func init123() {
 		if res := regexp.MustCompile(`\[admin:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			admin = strings.Trim(res[1], " ") == "true"
 		}
+		disable := false
+		if res := regexp.MustCompile(`\[disable:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+			admin = strings.Trim(res[1], " ") == "true"
+		}
 		priority := 0
 		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			priority = Int(strings.Trim(res[1], " "))
@@ -394,6 +398,7 @@ func init123() {
 				Cron:     cron,
 				Admin:    admin,
 				Priority: priority,
+				Disable:  disable,
 			},
 		})
 	}

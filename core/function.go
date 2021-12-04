@@ -26,6 +26,7 @@ type Function struct {
 	Handle   func(s Sender) interface{}
 	Cron     string
 	Priority int
+	Disable  bool
 }
 
 var pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
@@ -49,6 +50,9 @@ func initToHandleMessage() {
 
 func AddCommand(prefix string, cmds []Function) {
 	for j := range cmds {
+		if cmds[j].Disable {
+			continue
+		}
 		for i := range cmds[j].Rules {
 			if strings.Contains(cmds[j].Rules[i], "raw ") {
 				cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "raw ", "", -1)
