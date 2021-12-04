@@ -72,10 +72,10 @@ func AddCommand(prefix string, cmds []Function) {
 			lf := len(functions)
 			for i := range functions {
 				f := lf - i - 1
-				logs.Warn(`functions[f].Priority %d > cmds[j].Priority %d = %t`, functions[f].Priority, cmds[j].Priority, functions[f].Priority > cmds[j].Priority)
+				// logs.Warn(`functions[f].Priority %d > cmds[j].Priority %d = %t`, functions[f].Priority, cmds[j].Priority, functions[f].Priority > cmds[j].Priority)
 				if functions[f].Priority > cmds[j].Priority {
 					functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)
-					logs.Warn(`functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)`)
+					// logs.Warn(`functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)`)
 					break
 				}
 			}
