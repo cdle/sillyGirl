@@ -81,7 +81,7 @@ func AddCommand(prefix string, cmds []Function) {
 			}
 			if len(functions) == lf {
 				if lf > 0 {
-					if functions[0].Priority < cmds[j].Priority && functions[lf-1].Priority > cmds[j].Priority {
+					if functions[0].Priority < cmds[j].Priority && functions[lf-1].Priority < cmds[j].Priority {
 						functions = append([]Function{cmds[j]}, functions...)
 					} else {
 						functions = append(functions, cmds[j])
