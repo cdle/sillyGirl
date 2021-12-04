@@ -251,7 +251,7 @@ func init123() {
 		priority := 0
 		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			priority = Int(res[1])
-			logs.Warn("priority %d", priority)
+			logs.Warn("priority %d %s", strings.Trim(res[1], " "), res[1])
 		}
 		if len(rules) == 0 && cron == "" {
 			logs.Warn("回复：%s无效文件", jr, err)
