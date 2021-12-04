@@ -250,7 +250,7 @@ func init123() {
 		}
 		priority := 0
 		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
-			priority = Int(res[1])
+			priority = Int(strings.Trim(res[1], ""))
 			logs.Warn("priority %d %s", Int(strings.Trim(res[1], " ")), res[1])
 		}
 		if len(rules) == 0 && cron == "" {
