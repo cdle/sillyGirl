@@ -67,6 +67,9 @@ func initSys() {
 			Rules: []string{"raw ^卸载$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
 				switch s.Await(s, func(s Sender) interface{} {
 					return YesNo
@@ -278,6 +281,9 @@ func initSys() {
 			Rules: []string{"raw ^编译$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				if compiled_at != "" {
 					return "编译个🐔8。"
 				}
@@ -293,6 +299,9 @@ func initSys() {
 			Rules: []string{"raw ^重启$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				s.Disappear()
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				s.Reply("即将重启！", E)
@@ -460,6 +469,9 @@ func initSys() {
 			Rules: []string{"守护傻妞"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				service := `
 [Unit]
 Description=silly silly girl bot

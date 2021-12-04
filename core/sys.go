@@ -18,6 +18,10 @@ var BeforeStop = []func(){}
 var pidf = "/var/run/sillyGirl.pid"
 
 func Daemon() {
+	if runtime.GOOS == "windows" {
+		logs.Warn("windows系统不支持守护进程。")
+		os.Exit(0)
+	}
 	for _, bs := range BeforeStop {
 		bs()
 	}

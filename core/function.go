@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -29,7 +30,14 @@ type Function struct {
 	Disable  bool
 }
 
-var pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+var getPname = func() string {
+	if runtime.GOOS == "windows" {
+		return regexp.MustCompile(`([\w\.-]*)\.exe$`).FindStringSubmatch(os.Args[0])[0]
+	}
+	return regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+}
+
+var pname = getPname()
 
 var name = func() string {
 	return sillyGirl.Get("name", "傻妞")
