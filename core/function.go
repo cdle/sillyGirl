@@ -20,11 +20,12 @@ func init() {
 }
 
 type Function struct {
-	Rules   []string
-	FindAll bool
-	Admin   bool
-	Handle  func(s Sender) interface{}
-	Cron    string
+	Rules    []string
+	FindAll  bool
+	Admin    bool
+	Handle   func(s Sender) interface{}
+	Cron     string
+	Priority int
 }
 
 var pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
@@ -67,7 +68,20 @@ func AddCommand(prefix string, cmds []Function) {
 			cmds[j].Rules[i] = strings.Replace(cmds[j].Rules[i], "?", `(\S+)`, -1)
 			cmds[j].Rules[i] = "^" + cmds[j].Rules[i] + "$"
 		}
-		functions = append(functions, cmds[j])
+		{
+			lf := len(functions)
+			for i := range functions {
+				f := lf - i - 1
+				if functions[f].Priority > cmds[j].Priority {
+					functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)
+					break
+				}
+			}
+			if len(functions) == lf {
+				functions = append(functions, cmds[j])
+			}
+		}
+
 		if cmds[j].Cron != "" {
 			cmd := cmds[j]
 			if _, err := c.AddFunc(cmds[j].Cron, func() {

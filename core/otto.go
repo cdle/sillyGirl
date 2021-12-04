@@ -248,6 +248,10 @@ func init123() {
 		if res := regexp.MustCompile(`\[admin:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			admin = strings.Trim(res[1], " ") == "true"
 		}
+		priority := 0
+		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+			priority = Int(res[1])
+		}
 		if len(rules) == 0 && cron == "" {
 			logs.Warn("回复：%s无效文件", jr, err)
 			continue
@@ -384,10 +388,11 @@ func init123() {
 		logs.Warn("回复：%s添加成功", jr)
 		AddCommand("", []Function{
 			{
-				Handle: handler,
-				Rules:  rules,
-				Cron:   cron,
-				Admin:  admin,
+				Handle:   handler,
+				Rules:    rules,
+				Cron:     cron,
+				Admin:    admin,
+				Priority: priority,
 			},
 		})
 	}
