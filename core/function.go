@@ -79,9 +79,12 @@ func AddCommand(prefix string, cmds []Function) {
 					break
 				}
 			}
-
 			if len(functions) == lf {
-				functions = append([]Function{cmds[j]}, functions...)
+				if lf > 0 {
+					functions = append([]Function{cmds[j]}, functions...)
+				} else {
+					functions = append(functions, cmds[j])
+				}
 			}
 		}
 
