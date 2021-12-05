@@ -35,13 +35,13 @@ func init() {
 		}
 		sender := &Sender{}
 		sender.Message = ctx.Msg.Content
-		sender.Wait = make(chan []interface{}, 1)
 		sender.uid = ctx.Msg.FromUserName
 		if wxmp.GetBool("isKe?", false) {
 			sender.ctx = ctx
 			core.Senders <- sender
 			return
 		}
+		sender.Wait = make(chan []interface{}, 1)
 		core.Senders <- sender
 		end := <-sender.Wait
 		ss := []string{}
