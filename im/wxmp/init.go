@@ -55,6 +55,11 @@ func init() {
 		sender.Message = ctx.Msg.Content
 		sender.Wait = make(chan []interface{}, 1)
 		sender.uid = ctx.Msg.FromUserName
+		if wxmp.GetBool("isKe?", false) {
+			sender.ctx = ctx
+			core.Senders <- sender
+			return
+		}
 		core.Senders <- sender
 		end := <-sender.Wait
 		ss := []string{}
@@ -79,6 +84,7 @@ func init() {
 }
 
 type Sender struct {
+	ctx       *wechat.Context
 	Message   string
 	Responses []interface{}
 	Wait      chan []interface{}
@@ -135,6 +141,24 @@ func (sender *Sender) IsMedia() bool {
 }
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+
+	if sender.ctx != nil {
+		rt := ""
+		for _, item := range msgs {
+			switch item.(type) {
+			case error:
+				rt = item.(error).Error()
+			case string:
+				rt = item.(string)
+			case []byte:
+				rt = string(item.([]byte))
+			case core.ImageUrl:
+
+			}
+		}
+		sender.ctx.NewText(rt).Send()
+		return 0, nil
+	}
 	sender.Responses = append(sender.Responses, msgs...)
 	return 0, nil
 }
@@ -148,6 +172,9 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
+	if sender.ctx != nil {
+		return
+	}
 	if sender.Responses == nil {
 		sender.Responses = []interface{}{}
 	}
