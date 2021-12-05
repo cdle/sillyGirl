@@ -26,7 +26,7 @@ func init() {
 		EncodingAESKey: wxmp.Get("encoding_aes_key"),
 	}
 	app := wechat.New(cfg)
-	core.Server.Any("/wx", func(c *gin.Context) {
+	core.Server.Any("/wx/", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
 		// data, _ := json.Marshal(ctx.Msg)
 		// fmt.Println(string(data))
