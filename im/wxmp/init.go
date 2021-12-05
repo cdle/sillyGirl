@@ -24,9 +24,11 @@ func init() {
 		Secret:         wxmp.Get("app_secret"),
 		Token:          wxmp.Get("token"),
 		EncodingAESKey: wxmp.Get("encoding_aes_key"),
+		DateFormat:     "XML",
 	}
 	app := wechat.New(cfg)
 	core.Server.Any("/wx/", func(c *gin.Context) {
+
 		ctx := app.VerifyURL(c.Writer, c.Request)
 
 		switch ctx.Msg.MsgType {
@@ -43,6 +45,7 @@ func init() {
 		default:
 			ctx.NewText("其他消息类型" + ctx.Msg.MsgType).Reply() // 回复模板消息
 		}
+
 		// data, _ := json.Marshal(ctx.Msg)
 		// fmt.Println(string(data))
 		// ctx.NewText(string(data)).Reply()
