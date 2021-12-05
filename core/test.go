@@ -21,7 +21,7 @@ func init() {
 		defer sillyGirl.Set("rebootInfo", "")
 		if v != "" {
 			vv := strings.Split(v, " ")
-			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
+			tp, cd, ud := vv[0], Int(vv[1]), vv[2]
 			if tp == "fake" { //&& sillyGirl.GetBool("update_notify", false) == true {
 				// time.Sleep(time.Second * 10)
 				// NotifyMasters("自动更新完成。")
@@ -281,9 +281,6 @@ func initSys() {
 			Rules: []string{"raw ^编译$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				if runtime.GOOS == "windows" {
-					return "windows系统不支持此命令"
-				}
 				if compiled_at != "" {
 					return "编译个🐔8。"
 				}
@@ -299,9 +296,6 @@ func initSys() {
 			Rules: []string{"raw ^重启$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				if runtime.GOOS == "windows" {
-					return "windows系统不支持此命令"
-				}
 				s.Disappear()
 				sillyGirl.Set("rebootInfo", fmt.Sprintf("%v %v %v", s.GetImType(), s.GetChatID(), s.GetUserID()))
 				s.Reply("即将重启！", E)

@@ -15,13 +15,16 @@ import (
 
 var BeforeStop = []func(){}
 
-var pidf = "/var/run/sillyGirl.pid"
+var getPidf = func() string {
+	if runtime.GOOS == "windows" {
+		return fmt.Sprintf("%s\\%s", ExecPath, "sillyGirl.pid")
+	}
+	return "/var/run/sillyGirl.pid"
+}
+
+var pidf = getPidf()
 
 func Daemon() {
-	if runtime.GOOS == "windows" {
-		logs.Warn("windows系统不支持守护进程。")
-		os.Exit(0)
-	}
 	for _, bs := range BeforeStop {
 		bs()
 	}
@@ -67,7 +70,13 @@ func GitPull(filename string) (bool, error) {
 }
 
 func CompileCode() error {
-	cmd := exec.Command("sh", "-c", "cd "+ExecPath+" && go build -o "+pname)
+	app := "sh"
+	param := "-c"
+	if runtime.GOOS == "windows" {
+		app = "cmd"
+		param = "/c"
+	}
+	cmd := exec.Command(app, param, "cd "+ExecPath+" && go build -o "+pname)
 	_, err := cmd.Output()
 	if err != nil {
 		return errors.New("编译失败：" + err.Error() + "。")

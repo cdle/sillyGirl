@@ -92,6 +92,20 @@ func init123() {
 		Bucket(bucket.String()).Set(key.String(), value.String())
 		return otto.Value{}
 	}
+	bucketKeys := func(bucket otto.Value) (result otto.Value) {
+		b := Bucket(bucket.String())
+		if !IsBucket(b) {
+			result, _ = otto.ToValue("")
+			return
+		}
+		rt := ""
+		b.Foreach(func(k, _ []byte) error {
+			rt += fmt.Sprintf("%s;", k)
+			return nil
+		})
+		result, _ = otto.ToValue(rt)
+		return
+	}
 	set := func(key otto.Value, value otto.Value) interface{} {
 		o.Set(key.String(), value.String())
 		return otto.Value{}
@@ -352,6 +366,7 @@ func init123() {
 			vm.Set("get", get)
 			vm.Set("bucketGet", bucketGet)
 			vm.Set("bucketSet", bucketSet)
+			vm.Set("bucketKeys", bucketKeys)
 			vm.Set("request", request)
 			vm.Set("push", push)
 			vm.Set("sendText", func(call otto.Value) interface{} {
