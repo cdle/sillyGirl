@@ -56,10 +56,9 @@ func start() {
 	if qq.Get("session.token") == "{}" {
 		qq.Set("session.token", "")
 	}
-	if strings.HasPrefix(qq.Get("device.json"), "{") {
+	if !strings.HasPrefix(qq.Get("device.json"), "{") {
 		qq.Set("device.json", "")
 	}
-
 	if custom_config := qq.Get("custom_config"); custom_config != "" {
 		config.DefaultConfigFile = custom_config
 		conf = config.Get()
