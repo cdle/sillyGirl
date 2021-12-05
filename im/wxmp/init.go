@@ -28,36 +28,51 @@ func init() {
 	app := wechat.New(cfg)
 	core.Server.Any("/wx/", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
+
+		switch ctx.Msg.MsgType {
+		case wechat.TypeText:
+			ctx.NewText(ctx.Msg.Content).Reply() // 回复文字
+		case wechat.TypeImage:
+			ctx.NewImage(ctx.Msg.MediaId).Reply() // 回复图片
+		case wechat.TypeVoice:
+			ctx.NewVoice(ctx.Msg.MediaId).Reply() // 回复语音
+		case wechat.TypeVideo:
+			ctx.NewVideo(ctx.Msg.MediaId, "video title", "video description").Reply() //回复视频
+		case wechat.TypeFile:
+			ctx.NewFile(ctx.Msg.MediaId).Reply() // 回复文件，仅企业微信可用
+		default:
+			ctx.NewText("其他消息类型" + ctx.Msg.MsgType).Reply() // 回复模板消息
+		}
 		// data, _ := json.Marshal(ctx.Msg)
 		// fmt.Println(string(data))
 		// ctx.NewText(string(data)).Reply()
-		if ctx.Msg.Event == "subscribe" {
-			ctx.NewText(wxmp.Get("subscribe_reply", "感谢关注！")).Reply()
-			return
-		}
-		sender := &Sender{}
-		sender.Message = ctx.Msg.Content
-		sender.Wait = make(chan []interface{}, 1)
-		sender.uid = ctx.Msg.FromUserName
-		core.Senders <- sender
-		end := <-sender.Wait
-		ss := []string{}
-		if len(end) == 0 {
-			ss = append(ss, wxmp.Get("default_reply", "无法回复该消息"))
-		}
-		for _, item := range end {
-			switch item.(type) {
-			case error:
-				ss = append(ss, item.(error).Error())
-			case string:
-				ss = append(ss, item.(string))
-			case []byte:
-				ss = append(ss, string(item.([]byte)))
-			case core.ImageUrl:
-				// url = string(item.(core.ImageUrl))
-			}
-		}
-		ctx.NewText(strings.Join(ss, "\n\n")).Reply()
+		// if ctx.Msg.Event == "subscribe" {
+		// 	ctx.NewText(wxmp.Get("subscribe_reply", "感谢关注！")).Reply()
+		// 	return
+		// }
+		// sender := &Sender{}
+		// sender.Message = ctx.Msg.Content
+		// sender.Wait = make(chan []interface{}, 1)
+		// sender.uid = ctx.Msg.FromUserName
+		// core.Senders <- sender
+		// end := <-sender.Wait
+		// ss := []string{}
+		// if len(end) == 0 {
+		// 	ss = append(ss, wxmp.Get("default_reply", "无法回复该消息"))
+		// }
+		// for _, item := range end {
+		// 	switch item.(type) {
+		// 	case error:
+		// 		ss = append(ss, item.(error).Error())
+		// 	case string:
+		// 		ss = append(ss, item.(string))
+		// 	case []byte:
+		// 		ss = append(ss, string(item.([]byte)))
+		// 	case core.ImageUrl:
+		// 		// url = string(item.(core.ImageUrl))
+		// 	}
+		// }
+		// ctx.NewText(strings.Join(ss, "\n\n")).Reply()
 	})
 
 }
