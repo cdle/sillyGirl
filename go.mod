@@ -20,7 +20,6 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/guonaihong/gout v0.2.7 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/mattn/go-isatty v0.0.13 // indirect
@@ -28,6 +27,7 @@ require (
 	github.com/rixingyike/wechat v1.2.2
 	github.com/robertkrimen/otto v0.0.0-20210927222213-f9375a256948
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/silenceper/wechat/v2 v2.0.9
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
 	github.com/tidwall/gjson v1.9.1 // indirect
