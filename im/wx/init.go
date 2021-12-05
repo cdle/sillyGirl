@@ -165,9 +165,9 @@ func init() {
 			// if jms.Type != 1 && jms.Type != 3 && jms.Type != 5 {
 			return
 		}
-		if strings.Contains(fmt.Sprint(jms.Msg), `<type>57</type>`) {
-			return
-		}
+		// if strings.Contains(fmt.Sprint(jms.Msg), `<type>57</type>`) {
+		// 	return
+		// }
 		if jms.FinalFromWxid == jms.RobotWxid {
 			return
 		}
@@ -190,7 +190,12 @@ func init() {
 		case float64:
 			wm.content = fmt.Sprintf("%d", int(jms.Msg.(float64)))
 		default:
-			wm.content = fmt.Sprint(jms.Msg)
+			if strings.Contains(fmt.Sprint(jms.Msg), `<type>57</type>`) {
+				matchMsg := regexp.MustCompile(`<title>(.+?)</title>`).FindAllStringSubmatch(fmt.Sprint(jms.Msg), -1)
+				wm.content = matchMsg[0][1]
+			} else {
+				wm.content = fmt.Sprint(jms.Msg)
+			}
 		}
 		wm.user_id = jms.FinalFromWxid
 		wm.user_name = jms.FinalFromName

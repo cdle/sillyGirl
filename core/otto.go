@@ -92,6 +92,20 @@ func init123() {
 		Bucket(bucket.String()).Set(key.String(), value.String())
 		return otto.Value{}
 	}
+	bucketKeys := func(bucket otto.Value) (result otto.Value) {
+		b := Bucket(bucket.String())
+		if !IsBucket(b) {
+			result, _ = otto.ToValue("")
+			return
+		}
+		rt := ""
+		b.Foreach(func(k, _ []byte) error {
+			rt += fmt.Sprintf("%s;", k)
+			return nil
+		})
+		result, _ = otto.ToValue(rt)
+		return
+	}
 	set := func(key otto.Value, value otto.Value) interface{} {
 		o.Set(key.String(), value.String())
 		return otto.Value{}
@@ -109,13 +123,11 @@ func init123() {
 		gid, _ := groupCode.ToInteger()
 		if gid != 0 {
 			if push, ok := GroupPushs[imType.String()]; ok {
-				uid, _ := userID.ToInteger()
-				push(int(gid), int(uid), content.String())
+				push(int(gid), userID, content.String())
 			}
 		} else {
 			if push, ok := Pushs[imType.String()]; ok {
-				uid, _ := userID.ToInteger()
-				push(int(uid), content.String(), nil)
+				push(userID, content.String(), nil)
 			}
 		}
 		return otto.Value{}
@@ -255,9 +267,12 @@ func init123() {
 		priority := 0
 		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
 			priority = Int(strings.Trim(res[1], " "))
-			logs.Warn("priority %d %s", priority, res[1])
 		}
-		if len(rules) == 0 && cron == "" {
+		server := ""
+		if res := regexp.MustCompile(`\[server:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+			server = strings.TrimSpace(res[1])
+		}
+		if len(rules) == 0 && cron == "" && server == "" {
 			logs.Warn("回复：%s无效文件", jr, err)
 			continue
 		}
@@ -312,6 +327,10 @@ func init123() {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
 			})
+			vm.Set("GetContent", func() otto.Value {
+				v, _ := otto.ToValue(s.GetContent())
+				return v
+			})
 			vm.Set("breakIn", func(str otto.Value) otto.Value {
 				s := s.Copy()
 				s.SetContent(str.String())
@@ -352,6 +371,7 @@ func init123() {
 			vm.Set("get", get)
 			vm.Set("bucketGet", bucketGet)
 			vm.Set("bucketSet", bucketSet)
+			vm.Set("bucketKeys", bucketKeys)
 			vm.Set("request", request)
 			vm.Set("push", push)
 			vm.Set("sendText", func(call otto.Value) interface{} {
@@ -374,9 +394,7 @@ func init123() {
 				s.Reply(VideoUrl(url))
 				return otto.Value{}
 			})
-			rt, err := vm.Run(template + `
-""
-`)
+			rt, err := vm.Run(template)
 			if err != nil {
 				return err
 			}
@@ -385,7 +403,7 @@ func init123() {
 				s.Reply(ImageUrl(v[1]))
 				result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
 			}
-			if result == "" {
+			if result == "" || result == "undefined" {
 				return nil
 			}
 			return result
@@ -399,6 +417,7 @@ func init123() {
 				Admin:    admin,
 				Priority: priority,
 				Disable:  disable,
+				Server:   server,
 			},
 		})
 	}

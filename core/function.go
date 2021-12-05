@@ -1,14 +1,18 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/gin-gonic/gin"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -27,10 +31,17 @@ type Function struct {
 	Cron     string
 	Priority int
 	Disable  bool
+	Server   string
 }
 
-var pname = regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+var getPname = func() string {
+	if runtime.GOOS == "windows" {
+		return regexp.MustCompile(`([\w\.-]*)\.exe$`).FindStringSubmatch(os.Args[0])[0]
+	}
+	return regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+}
 
+var pname = getPname()
 var name = func() string {
 	return sillyGirl.Get("name", "傻妞")
 }
@@ -104,6 +115,55 @@ func AddCommand(prefix string, cmds []Function) {
 				// logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
 			} else {
 				// logs.Warn("任务%v添加成功", cmds[j].Rules[0])
+			}
+		}
+
+		if cmds[j].Server != "" {
+			cmd := cmds[j]
+			ss := strings.Split(cmds[j].Server, " ")
+			if len(ss) > 0 {
+				method := ss[0]
+				path := ss[1]
+				switch method {
+				case "GET":
+					Server.GET(path, func(c *gin.Context) {
+						data, _ := ioutil.ReadAll(c.Request.Body)
+						result := cmd.Handle(&Faker{
+							Message: string(data),
+						})
+						response := make(map[string]string)
+						err := json.Unmarshal([]byte(result.(string)), &response)
+						if err != nil {
+							c.JSON(500, map[string]string{"code": "500", "msg": "internal error"})
+							return
+						}
+						code, ok := response["code"]
+						if ok {
+							c.JSON(Int(code), response)
+						} else {
+							c.JSON(200, map[string]string{"code": "500", "msg": "internal error"})
+						}
+					})
+				case "POST":
+					Server.POST(path, func(c *gin.Context) {
+						data, _ := ioutil.ReadAll(c.Request.Body)
+						result := cmd.Handle(&Faker{
+							Message: string(data),
+						})
+						response := make(map[string]interface{})
+						err := json.Unmarshal([]byte(result.(string)), &response)
+						if err != nil {
+							c.JSON(500, map[string]string{"code": "500", "msg": "internal error"})
+							return
+						}
+						code, ok := response["code"]
+						if ok {
+							c.JSON(Int(code), response)
+						} else {
+							c.JSON(200, map[string]string{"code": "500", "msg": "internal error"})
+						}
+					})
+				}
 			}
 		}
 	}
