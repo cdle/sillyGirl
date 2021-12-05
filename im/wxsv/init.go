@@ -24,7 +24,7 @@ func init() {
 	app := wechat.New(cfg)
 	// app.SendText("@all", "Hello,World!")
 
-	core.Server.Any("/wxsv", func(c *gin.Context) {
+	core.Server.Any("/wx/sv", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
 		data, _ := json.Marshal(ctx.Msg)
 		fmt.Println(string(data))

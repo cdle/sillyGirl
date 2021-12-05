@@ -41,7 +41,7 @@ func init() {
 		if j != nil && fmt.Sprint(j) != "" {
 			pmsg.MemberWxid = fmt.Sprint(j)
 		}
-		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
+		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]*)\]`).FindAllStringSubmatch(s, -1) {
 			s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 			if strings.HasPrefix(v[1], "http") {
 				pmsg := OtherMsg{
@@ -61,7 +61,7 @@ func init() {
 					},
 				}
 				defer sendOtherMsg(&pmsg)
-			} else {
+			} else if v[1] != "" {
 				data, err := os.ReadFile("data/images/" + v[1])
 				if err == nil {
 					add := regexp.MustCompile("(https.*)").FindString(string(data))
@@ -78,6 +78,7 @@ func init() {
 				}
 			}
 		}
+
 		s = regexp.MustCompile(`\[CQ:([^\[\]]+)\]`).ReplaceAllString(s, "")
 		pmsg.Msg = s
 		sendTextMsg(&pmsg)
@@ -283,7 +284,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		switch item.(type) {
 		case string:
 			pmsg.Msg = item.(string)
-			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
+			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]*)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
 				pmsg.Msg = strings.Replace(pmsg.Msg, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 				if strings.HasPrefix(v[1], "http") {
 					pmsg := OtherMsg{
@@ -303,7 +304,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 						},
 					}
 					defer sendOtherMsg(&pmsg)
-				} else {
+				} else if v[1] != "" {
 					data, err := os.ReadFile("data/images/" + v[1])
 					if err == nil {
 						add := regexp.MustCompile("(https.*)").FindString(string(data))
@@ -384,6 +385,8 @@ func (sender *Sender) Copy() core.Sender {
 
 func sendTextMsg(pmsg *TextMsg) {
 	pmsg.Msg = strings.Trim(pmsg.Msg, "\n ")
+	pmsg.Msg = strings.ReplaceAll(pmsg.Msg, "\\r", "")
+	pmsg.Msg = strings.ReplaceAll(pmsg.Msg, "\r", "")
 	if mode == "vlw" {
 		// if c == nil {
 		// 	return
