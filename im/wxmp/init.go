@@ -18,7 +18,7 @@ var material = core.NewBucket("wxmpMaterial")
 func init() {
 	file_dir := "logs/wxmp/"
 	os.MkdirAll(file_dir, os.ModePerm)
-
+	wechat.Debug = true
 	cfg := &wechat.WxConfig{
 		AppId:          wxmp.Get("app_id"),
 		Secret:         wxmp.Get("app_secret"),
@@ -26,7 +26,6 @@ func init() {
 		EncodingAESKey: wxmp.Get("encoding_aes_key"),
 	}
 	app := wechat.New(cfg)
-
 	core.Server.Any("/wx", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
 		// data, _ := json.Marshal(ctx.Msg)
