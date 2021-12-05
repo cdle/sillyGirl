@@ -1,7 +1,6 @@
 package wxgzh
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"reflect"
@@ -29,9 +28,7 @@ func init() {
 	}
 	app := wechat.New(cfg)
 	core.Server.Any("/wx/", func(c *gin.Context) {
-
 		ctx := app.VerifyURL(c.Writer, c.Request)
-
 		// switch ctx.Msg.MsgType {
 		// case wechat.TypeText:
 		// 	ctx.NewText(ctx.Msg.Content).Reply() // 回复文字
@@ -47,9 +44,9 @@ func init() {
 		// 	ctx.NewText("其他消息类型" + ctx.Msg.MsgType).Reply() // 回复模板消息
 		// }
 
-		data, _ := json.Marshal(ctx.Msg)
-		fmt.Println(string(data))
-		ctx.NewText(string(data)).Reply()
+		// data, _ := json.Marshal(ctx.Msg)
+		// fmt.Println(string(data))
+		// ctx.NewText(string(data)).Reply()
 		if ctx.Msg.Event == "subscribe" {
 			ctx.NewText(wxmp.Get("subscribe_reply", "感谢关注！")).Reply()
 			return
