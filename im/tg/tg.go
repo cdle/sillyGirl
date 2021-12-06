@@ -244,6 +244,10 @@ func (sender *Sender) GetUsername() string {
 	return name
 }
 
+func (sender *Sender) GetChatname() string {
+	return sender.Message.Chat.Title
+}
+
 func (sender *Sender) IsReply() bool {
 	return sender.Message.ReplyTo != nil
 }
