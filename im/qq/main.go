@@ -223,6 +223,7 @@ func start() {
 			// 	return
 			// }
 			times++
+			time.Sleep(time.Second)
 			if conf.Account.ReLogin.Interval > 0 {
 				log.Warnf("将在 %v 秒后尝试重连. 重连次数：%v/%v", conf.Account.ReLogin.Interval, times, conf.Account.ReLogin.MaxTimes)
 				time.Sleep(time.Second * time.Duration(conf.Account.ReLogin.Interval))
