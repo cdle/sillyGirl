@@ -21,7 +21,7 @@ func init() {
 		defer sillyGirl.Set("rebootInfo", "")
 		if v != "" {
 			vv := strings.Split(v, " ")
-			tp, cd, ud := vv[0], Int(vv[1]), Int(vv[2])
+			tp, cd, ud := vv[0], Int(vv[1]), vv[2]
 			if tp == "fake" { //&& sillyGirl.GetBool("update_notify", false) == true {
 				// time.Sleep(time.Second * 10)
 				// NotifyMasters("自动更新完成。")
@@ -67,6 +67,9 @@ func initSys() {
 			Rules: []string{"raw ^卸载$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
 				switch s.Await(s, func(s Sender) interface{} {
 					return YesNo
@@ -460,6 +463,9 @@ func initSys() {
 			Rules: []string{"守护傻妞"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
 				service := `
 [Unit]
 Description=silly silly girl bot
