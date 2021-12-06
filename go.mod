@@ -15,6 +15,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
 	github.com/denisbrodbeck/machineid v1.0.1
+	github.com/dop251/goja v0.0.0-20211203105952-bf6af58bbcc8
 	github.com/eatmoreapple/openwechat v1.0.7
 	github.com/gin-gonic/gin v1.7.0
 	github.com/google/uuid v1.1.1
@@ -34,7 +35,6 @@ require (
 	github.com/tuotoo/qrcode v0.0.0-20190222102259-ac9c44189bf2
 	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/tucnak/telebot.v2 v2.4.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
