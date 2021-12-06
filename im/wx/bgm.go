@@ -41,6 +41,7 @@ type wxmsg struct {
 	user_id   string
 	chat_id   int
 	user_name string
+	chat_name string
 }
 
 type Sender struct {

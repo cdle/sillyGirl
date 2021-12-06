@@ -165,6 +165,10 @@ func (sender *Sender) GetUsername() string {
 	return ""
 }
 
+func (sender *Sender) GetChatname() string {
+	return ""
+}
+
 func (sender *Sender) IsReply() bool {
 	return false
 }

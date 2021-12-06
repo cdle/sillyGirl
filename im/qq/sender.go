@@ -351,3 +351,16 @@ func (sender *Sender) GetUsername() string {
 	}
 	return ""
 }
+
+func (sender *Sender) GetChatname() string {
+
+	switch sender.Message.(type) {
+	case *message.PrivateMessage:
+		return ""
+	case *message.TempMessage:
+		return ""
+	case *message.GroupMessage:
+		return sender.Message.(*message.GroupMessage).GroupName
+	}
+	return ""
+}

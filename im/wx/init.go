@@ -142,6 +142,7 @@ func init() {
 				wm.user_name = ag.Content.FromName
 				if ag.Content.FromGroup != "" {
 					wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
+					wm.chat_name = ag.Content.FromGroupName
 				}
 				if robot_wxid != ag.Content.RobotWxid {
 					robot_wxid = ag.Content.RobotWxid
@@ -201,6 +202,7 @@ func init() {
 		wm.user_name = jms.FinalFromName
 		if strings.Contains(jms.FromWxid, "@chatroom") {
 			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "@chatroom", "", -1))
+			wm.chat_name = jms.FromName
 		}
 		core.Senders <- &Sender{
 			value: wm,
@@ -260,6 +262,9 @@ func (sender *Sender) GetImType() string {
 }
 func (sender *Sender) GetUsername() string {
 	return sender.value.user_name
+}
+func (sender *Sender) GetChatname() string {
+	return sender.value.chat_name
 }
 func (sender *Sender) GetReplySenderUserID() int {
 	if !sender.IsReply() {

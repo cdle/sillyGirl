@@ -15,6 +15,7 @@ type Sender interface {
 	GetImType() string
 	GetMessageID() int
 	GetUsername() string
+	GetChatname() string
 	IsReply() bool
 	GetReplySenderUserID() int
 	GetRawMessage() interface{}
@@ -85,6 +86,10 @@ func (sender *Faker) GetMessageID() int {
 }
 
 func (sender *Faker) GetUsername() string {
+	return ""
+}
+
+func (sender *Faker) GetChatname() string {
 	return ""
 }
 
