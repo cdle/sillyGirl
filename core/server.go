@@ -17,9 +17,7 @@ func RunServer() {
 	if sillyGirl.GetBool("enable_http_server", false) == false {
 		return
 	}
-	Server.GET("/", func(c *gin.Context) {
-		c.String(200, Tail)
-	})
+
 	gin.SetMode(gin.ReleaseMode)
 	logs.Info("开启httpserver----0.0.0.0:" + sillyGirl.Get("port", "8080"))
 	Server.Run("0.0.0.0:" + sillyGirl.Get("port", "8080"))
