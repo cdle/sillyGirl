@@ -20,6 +20,7 @@ var qq = core.NewBucket("qq")
 type Params struct {
 	UserID  interface{} `json:"user_id"`
 	Message string      `json:"message"`
+	GroupID int         `json:"group_id"`
 }
 
 type CallApi struct {
@@ -178,6 +179,15 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
 			Params: Params{
+				UserID:  sender.Message.UserID,
+				Message: fmt.Sprint(msg),
+			},
+		})
+	} else {
+		sender.Conn.WriteJSON(CallApi{
+			Action: "send_group_msg",
+			Params: Params{
+				GroupID: sender.Message.GroupID,
 				UserID:  sender.Message.UserID,
 				Message: fmt.Sprint(msg),
 			},
