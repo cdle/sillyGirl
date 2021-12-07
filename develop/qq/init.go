@@ -78,7 +78,8 @@ func init() {
 				fmt.Println(string(data))
 				msg := &Message{}
 				json.Unmarshal(data, msg)
-				if msg.PostType == "private" || msg.PostType == "group" {
+				fmt.Println(msg)
+				if msg.PostType == "message" {
 					core.Senders <- &Sender{
 						Conn:    ws,
 						Message: msg,
@@ -173,7 +174,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Duration = &du
 		}
 	}
-	if sender.Message.PostType == "private" {
+	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
 			Params: Params{
