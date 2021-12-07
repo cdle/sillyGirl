@@ -397,7 +397,7 @@ func initSys() {
 				if s.GetChatID() != 0 && name != "reply" {
 					return "请私聊我。"
 				} //fanlivip
-				if name != "fanlivip" && name != "otto" && name != "reply" && name != "wxsv" && name != "sillyGirl" && name != "qinglong" && name != "wx" && name != "wxmp" && name != "tg" && name != "qq" {
+				if name != "fanlivip" && name != "otto" && name != "reply" && name != "wxsv" && name != "sillyGirl" && name != "qinglong" && name != "wx" && name != "wxmp" && name != "tg" && name != "qq" && !strings.HasPrefix(name, "tgc_") {
 					s.Continue()
 					return nil
 				}
