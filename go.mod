@@ -31,7 +31,7 @@ require (
 	github.com/silenceper/wechat/v2 v2.0.9
 	github.com/sirupsen/logrus v1.8.1
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816
-	github.com/tidwall/gjson v1.9.1 // indirect
+	github.com/tidwall/gjson v1.11.0 // indirect
 	github.com/tuotoo/qrcode v0.0.0-20190222102259-ac9c44189bf2
 	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
