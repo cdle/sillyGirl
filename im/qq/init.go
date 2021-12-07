@@ -105,7 +105,7 @@ func init() {
 					conn = nil
 					break
 				}
-				// fmt.Println(string(data))
+				fmt.Println(string(data))
 				msg := &Message{}
 				json.Unmarshal(data, msg)
 				// fmt.Println(msg)
@@ -199,7 +199,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Duration = &du
 		}
 	}
-	fmt.Println(msg)
+	// fmt.Println(msg)
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
