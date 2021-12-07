@@ -405,10 +405,10 @@ func initSys() {
 					s.Disappear()
 				}
 				b := Bucket(name)
-				if !IsBucket(b) {
-					s.Continue()
-					return nil
-				}
+				// if !IsBucket(b) {
+				// s.Continue()
+				// return nil
+				// }
 				rt := ""
 				b.Foreach(func(k, v []byte) error {
 					rt += fmt.Sprintf("%s === %s\n", k, v)
