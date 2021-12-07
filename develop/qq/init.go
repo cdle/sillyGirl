@@ -57,6 +57,8 @@ type Message struct {
 	UserID      int         `json:"user_id"`
 }
 
+var conn *websocket.Conn
+
 func init() {
 	core.Server.GET("/qq/receive", func(c *gin.Context) {
 		var upGrader = websocket.Upgrader{
@@ -69,11 +71,37 @@ func init() {
 			c.Writer.Write([]byte(err.Error()))
 			return
 		}
+		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}) {
+			if conn == nil {
+				return
+			}
+			conn.WriteJSON(CallApi{
+				Action: "send_private_msg",
+				Params: Params{
+					UserID:  core.Int64(i),
+					Message: s,
+				},
+			})
+		}
+		core.GroupPushs["qq"] = func(i, j interface{}, s string) {
+			if conn == nil {
+				return
+			}
+			conn.WriteJSON(CallApi{
+				Action: "send_group_msg",
+				Params: Params{
+					GroupID: core.Int(i),
+					UserID:  core.Int64(j),
+					Message: s,
+				},
+			})
+		}
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
 				if err != nil {
 					ws.Close()
+					conn = nil
 					break
 				}
 				fmt.Println(string(data))
@@ -86,12 +114,6 @@ func init() {
 						Message: msg,
 					}
 				}
-				// fmt.Println("client message " + string(message))
-				// err = ws.WriteMessage(mt, []byte(time.Now().String()))
-				// if err != nil {
-				// 	break
-				// }
-				// fmt.Println("system message " + time.Now().String())
 			}
 		}()
 
