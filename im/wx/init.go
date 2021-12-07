@@ -397,8 +397,6 @@ func (sender *Sender) Copy() core.Sender {
 
 func sendTextMsg(pmsg *TextMsg) {
 	pmsg.Msg = strings.Trim(pmsg.Msg, "\n ")
-	pmsg.Msg = strings.ReplaceAll(pmsg.Msg, "\\r", "")
-	pmsg.Msg = strings.ReplaceAll(pmsg.Msg, "\r", "")
 	if mode == "vlw" {
 		// if c == nil {
 		// 	return

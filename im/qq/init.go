@@ -105,11 +105,12 @@ func init() {
 					conn = nil
 					break
 				}
-				fmt.Println(string(data))
+				// fmt.Println(string(data))
 				msg := &Message{}
 				json.Unmarshal(data, msg)
-				fmt.Println(msg)
+				// fmt.Println(msg)
 				if msg.PostType == "message" {
+					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\r", "\n")
 					core.Senders <- &Sender{
 						Conn:    ws,
 						Message: msg,
