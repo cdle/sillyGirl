@@ -115,6 +115,7 @@ func init() {
 		core.GroupPushs["tg"] = func(i, _ interface{}, s string) {
 			paths := []string{}
 			ct := &tb.Chat{ID: core.Int64(i)}
+			s = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(s, "file")
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 				paths = append(paths, v[1])
 				s = strings.Replace(s, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
@@ -331,6 +332,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			return sender.reply.ID, nil
 		}
 		paths := []string{}
+		message = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(message, "file")
 		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(message, -1) {
 			paths = append(paths, v[1])
 			message = strings.Replace(message, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)

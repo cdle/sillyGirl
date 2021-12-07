@@ -40,3 +40,7 @@ func TrimHiddenCharacter(originStr string) string {
 	}
 	return strings.ReplaceAll(string(dstRunes), "￼", "")
 }
+
+func ForCQ(content string, callback func(key string, values map[string]string)) {
+
+}
