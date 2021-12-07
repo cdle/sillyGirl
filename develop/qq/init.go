@@ -71,6 +71,7 @@ func init() {
 			c.Writer.Write([]byte(err.Error()))
 			return
 		}
+		conn = ws
 		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}) {
 			if conn == nil {
 				return
