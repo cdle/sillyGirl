@@ -178,6 +178,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
 			Params: Params{
+				UserID:  sender.Message.UserID,
 				Message: fmt.Sprint(msg),
 			},
 		})
