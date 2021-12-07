@@ -6,8 +6,8 @@ replace github.com/willf/bitset v1.2.0 => github.com/bits-and-blooms/bitset v1.2
 
 require (
 	github.com/Baozisoftware/qrcode-terminal-go v0.0.0-20170407111555-c0650d8dff0f
-	github.com/Mrs4s/MiraiGo v0.0.0-20210810070836-6614d2383adb
-	github.com/Mrs4s/go-cqhttp v1.0.0-beta6
+	github.com/Mrs4s/MiraiGo v0.0.0-20210916095246-e1502ecb48e1
+	github.com/Mrs4s/go-cqhttp v1.0.0-beta7
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/astaxie/beego v1.12.3
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
