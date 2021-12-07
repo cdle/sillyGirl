@@ -175,6 +175,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			sender.Duration = &du
 		}
 	}
+	fmt.Println(msg)
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
