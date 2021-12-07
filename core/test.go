@@ -349,7 +349,7 @@ func initSys() {
 					name = "sillyGirl"
 				}
 				b := Bucket(name)
-				if !IsBucket(b) {
+				if !IsBucket(b) && !strings.HasPrefix(name, "tgc_") {
 					s.Continue()
 					return nil
 				}
