@@ -17,16 +17,16 @@ import (
 
 var qq = core.NewBucket("qq")
 
-type Params struct {
-	UserID  interface{} `json:"user_id"`
-	Message string      `json:"message"`
-	GroupID int         `json:"group_id"`
-}
+// type Params struct {
+// 	UserID  interface{} `json:"user_id"`
+// 	Message string      `json:"message"`
+// 	GroupID int         `json:"group_id"`
+// }
 
 type CallApi struct {
-	Action string `json:"action"`
-	Echo   string `json:"echo"`
-	Params Params `json:"params"`
+	Action string                 `json:"action"`
+	Echo   string                 `json:"echo"`
+	Params map[string]interface{} `json:"params"`
 }
 
 type sender struct {
@@ -78,9 +78,9 @@ func init() {
 			}
 			conn.WriteJSON(CallApi{
 				Action: "send_private_msg",
-				Params: Params{
-					UserID:  core.Int64(i),
-					Message: s,
+				Params: map[string]interface{}{
+					"user_id": core.Int64(i),
+					"message": s,
 				},
 			})
 		}
@@ -90,10 +90,10 @@ func init() {
 			}
 			conn.WriteJSON(CallApi{
 				Action: "send_group_msg",
-				Params: Params{
-					GroupID: core.Int(i),
-					UserID:  core.Int64(j),
-					Message: s,
+				Params: map[string]interface{}{
+					"group_id": core.Int(i),
+					"user_id":  core.Int64(j),
+					"message":  s,
 				},
 			})
 		}
@@ -192,6 +192,28 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
+func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
+	sender.Conn.WriteJSON(CallApi{
+		Action: "send_group_msg",
+		Params: map[string]interface{}{
+			"group_id":           sender.Message.GroupID,
+			"user_id":            sender.Message.UserID,
+			"reject_add_request": reject_add_request,
+		},
+	})
+}
+
+func (sender *Sender) GroupBan(uid string, duration int) {
+	sender.Conn.WriteJSON(CallApi{
+		Action: "send_group_msg",
+		Params: map[string]interface{}{
+			"group_id": sender.Message.GroupID,
+			"user_id":  sender.Message.UserID,
+			"duration": duration,
+		},
+	})
+}
+
 var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
@@ -219,18 +241,18 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
-			Params: Params{
-				UserID:  sender.Message.UserID,
-				Message: rt,
+			Params: map[string]interface{}{
+				"user_id": sender.Message.UserID,
+				"message": rt,
 			},
 		})
 	} else {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_group_msg",
-			Params: Params{
-				GroupID: sender.Message.GroupID,
-				UserID:  sender.Message.UserID,
-				Message: rt,
+			Params: map[string]interface{}{
+				"group_id": sender.Message.GroupID,
+				"user_id":  sender.Message.UserID,
+				"message":  rt,
 			},
 		})
 	}

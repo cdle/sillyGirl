@@ -37,6 +37,8 @@ type Sender interface {
 	ClearContinue()
 	Await(Sender, func(Sender) interface{}, ...interface{}) interface{}
 	Copy() Sender
+	GroupKick(uid string, reject_add_request bool)
+	GroupBan(uid string, duration int)
 }
 
 type Edit int
@@ -150,6 +152,14 @@ func (sender *Faker) Copy() Sender {
 	return &new
 }
 
+func (sender *Faker) GroupKick(uid string, reject_add_request bool) {
+
+}
+
+func (sender *Faker) GroupBan(uid string, duration int) {
+
+}
+
 type BaseSender struct {
 	matches [][]string
 	goon    bool
@@ -238,6 +248,14 @@ func (sender *BaseSender) GetChatID() int {
 }
 func (sender *BaseSender) GetImType() string {
 	return ""
+}
+
+func (sender *BaseSender) GroupKick(uid string, reject_add_request bool) {
+
+}
+
+func (sender *BaseSender) GroupBan(uid string, duration int) {
+
 }
 
 var TimeOutError = errors.New("指令超时")

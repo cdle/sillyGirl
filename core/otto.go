@@ -327,6 +327,14 @@ func init123() {
 				logs.Debug(str)
 				return otto.Value{}
 			})
+			vm.Set("GroupKick", func(uid otto.Value, reject_add_request otto.Value) {
+				f, _ := reject_add_request.ToBoolean()
+				s.GroupKick(uid.String(), f)
+			})
+			vm.Set("GroupBan", func(uid otto.Value, duration otto.Value) {
+				f, _ := duration.ToInteger()
+				s.GroupBan(uid.String(), int(f))
+			})
 			vm.Set("GetUserID", func() otto.Value {
 				v, _ := otto.ToValue(s.GetUserID())
 				return v
