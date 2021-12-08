@@ -204,10 +204,14 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		case []byte:
 			rt = string(msg.([]byte))
 		case core.ImageUrl:
-			rt = fmt.Sprintf(`[CQ:image,file=%s]`, msg.(core.ImageUrl))
+			rt = `[CQ:image,file=` + string(msg.(core.ImageUrl)) + `]`
 		case core.VideoUrl:
-			rt = fmt.Sprintf(`[CQ:video,file=%s]`, msg.(core.VideoUrl))
+			rt = `[CQ:video,file=` + string(msg.(core.VideoUrl)) + `]`
+
 		}
+	}
+	if rt == "" {
+		return 0, nil
 	}
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
