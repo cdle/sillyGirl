@@ -193,20 +193,28 @@ var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	msg := msgs[0]
+	rt := ""
 	for _, item := range msgs {
 		switch item.(type) {
 		case time.Duration:
 			du := item.(time.Duration)
 			sender.Duration = &du
+		case string:
+			rt = msg.(string)
+		case []byte:
+			rt = string(msg.([]byte))
+		case core.ImageUrl:
+			rt = fmt.Sprintf(`[CQ:image,file=%s]`, msg.(core.ImageUrl))
+		case core.VideoUrl:
+			rt = fmt.Sprintf(`[CQ:video,file=%s]`, msg.(core.VideoUrl))
 		}
 	}
-	fmt.Println(msg)
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
 			Params: Params{
 				UserID:  sender.Message.UserID,
-				Message: fmt.Sprint(msg),
+				Message: rt,
 			},
 		})
 	} else {
@@ -215,7 +223,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			Params: Params{
 				GroupID: sender.Message.GroupID,
 				UserID:  sender.Message.UserID,
-				Message: fmt.Sprint(msg),
+				Message: rt,
 			},
 		})
 	}
