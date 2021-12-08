@@ -110,7 +110,7 @@ func init() {
 				json.Unmarshal(data, msg)
 				// fmt.Println(msg)
 				if msg.SelfID == msg.UserID {
-					break
+					continue
 				}
 				if msg.PostType == "message" {
 					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
