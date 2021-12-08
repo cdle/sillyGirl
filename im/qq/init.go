@@ -197,7 +197,7 @@ func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
 		Action: "set_group_kick",
 		Params: map[string]interface{}{
 			"group_id":           sender.Message.GroupID,
-			"user_id":            sender.Message.UserID,
+			"user_id":            core.Int(uid),
 			"reject_add_request": reject_add_request,
 		},
 	})
@@ -208,7 +208,7 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 		Action: "set_group_ban",
 		Params: map[string]interface{}{
 			"group_id": sender.Message.GroupID,
-			"user_id":  sender.Message.UserID,
+			"user_id":  core.Int(uid),
 			"duration": duration,
 		},
 	})
