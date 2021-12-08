@@ -194,7 +194,7 @@ func (sender *Sender) IsMedia() bool {
 
 func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
 	sender.Conn.WriteJSON(CallApi{
-		Action: "send_group_msg",
+		Action: "set_group_kick",
 		Params: map[string]interface{}{
 			"group_id":           sender.Message.GroupID,
 			"user_id":            sender.Message.UserID,
@@ -205,7 +205,7 @@ func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
 
 func (sender *Sender) GroupBan(uid string, duration int) {
 	sender.Conn.WriteJSON(CallApi{
-		Action: "send_group_msg",
+		Action: "set_group_ban",
 		Params: map[string]interface{}{
 			"group_id": sender.Message.GroupID,
 			"user_id":  sender.Message.UserID,
