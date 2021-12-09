@@ -277,6 +277,12 @@ func (sender *Sender) IsAdmin() bool {
 	return strings.Contains(wx.Get("masters"), fmt.Sprint(sender.GetUserID()))
 }
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	chatId := sender.GetChatID()
+	if chatId != 0 {
+		if onGroups := wx.Get("spy_on"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
+			return 0, nil
+		}
+	}
 	to := ""
 	if sender.value.chat_id != 0 {
 		to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
