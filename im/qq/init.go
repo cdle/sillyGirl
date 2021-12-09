@@ -260,7 +260,12 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 }
 
 func (sender *Sender) Delete() error {
-
+	sender.Conn.WriteJSON(CallApi{
+		Action: "delete_msg",
+		Params: map[string]interface{}{
+			"message_id": sender.Message.MessageID,
+		},
+	})
 	return nil
 }
 
