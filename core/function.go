@@ -211,7 +211,7 @@ func handleMessage(sender Sender) {
 		return
 	}
 
-	reply.Foreach(func(k, v []byte) error {
+	Bucket(fmt.Sprintf("reply%s%d", sender.GetImType(), sender.GetChatID())).Foreach(func(k, v []byte) error {
 		if string(v) == "" {
 			return nil
 		}

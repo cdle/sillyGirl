@@ -59,6 +59,7 @@ type Message struct {
 
 var conns = map[string]*websocket.Conn{}
 var defaultBot = ""
+var ignore = qq.Get("ignore")
 
 func init() {
 	core.OttoFuncs["qq_bots"] = func(string) string {
@@ -126,6 +127,9 @@ func init() {
 			defaultBot = botID
 		}
 		conns[botID] = ws
+		if !strings.Contains(ignore, botID) {
+			ignore += "&" + botID
+		}
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
@@ -149,6 +153,9 @@ func init() {
 				}
 				// fmt.Println(msg)
 				if msg.SelfID == msg.UserID {
+					continue
+				}
+				if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
 					continue
 				}
 				if msg.PostType == "message" {

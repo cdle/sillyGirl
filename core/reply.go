@@ -13,8 +13,6 @@ import (
 	"github.com/buger/jsonparser"
 )
 
-var reply = NewBucket("reply")
-
 type Reply struct {
 	Rules   []string
 	Type    string //text url
