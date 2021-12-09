@@ -158,6 +158,14 @@ func init() {
 				if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
 					continue
 				}
+				if msg.GroupID != 0 {
+					if onGroups := qq.Get("onGroups"); !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+						continue
+					}
+				}
+				if onGroups := qq.Get("spy_on"); strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+					continue
+				}
 				if msg.PostType == "message" {
 					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
 					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\r", "\n")
