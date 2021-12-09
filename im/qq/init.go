@@ -272,8 +272,11 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
-	if onGroups := qq.Get("spy_on", "9251251"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
-		return 0, nil
+	chatId := sender.GetChatID()
+	if chatId != 0 {
+		if onGroups := qq.Get("spy_on", "9251251"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
+			return 0, nil
+		}
 	}
 	msg := msgs[0]
 	rt := ""
