@@ -66,7 +66,7 @@ func initSys() {
 		{
 			Rules: []string{"reply ? ?"},
 			Handle: func(s Sender) interface{} {
-				Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID())).Set(s.Get(0), s.Get(0))
+				Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID())).Set(s.Get(0), s.Get(1))
 				return "设置成功。"
 			},
 		},
