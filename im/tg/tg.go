@@ -109,10 +109,10 @@ func init() {
 			logs.Warn("监听telegram机器人失败：%v", err)
 			return
 		}
-		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}) {
+		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}, _ string) {
 			b.Send(&tb.User{ID: core.Int(i)}, s)
 		}
-		core.GroupPushs["tg"] = func(i, _ interface{}, s string) {
+		core.GroupPushs["tg"] = func(i, _ interface{}, s string, _ string) {
 			paths := []string{}
 			ct := &tb.Chat{ID: core.Int64(i)}
 			s = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(s, "file")

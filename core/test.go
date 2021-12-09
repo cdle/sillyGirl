@@ -31,12 +31,12 @@ func init() {
 			for i := 0; i < 10; i++ {
 				if cd == 0 {
 					if push, ok := Pushs[tp]; ok {
-						push(ud, msg, nil)
+						push(ud, msg, nil, "")
 						break
 					}
 				} else {
 					if push, ok := GroupPushs[tp]; ok {
-						push(cd, ud, msg)
+						push(cd, ud, msg, "")
 						break
 					}
 				}
@@ -422,7 +422,7 @@ func initSys() {
 			Rules: []string{"send ? ? ?"},
 			Handle: func(s Sender) interface{} {
 				if push, ok := Pushs[s.Get(0)]; ok {
-					push(s.Get(1), s.Get(2), nil)
+					push(s.Get(1), s.Get(2), nil, "")
 				}
 				return "发送成功呢"
 			},

@@ -123,11 +123,11 @@ func init123() {
 		gid, _ := groupCode.ToInteger()
 		if gid != 0 {
 			if push, ok := GroupPushs[imType.String()]; ok {
-				push(int(gid), userID, content.String())
+				push(int(gid), userID, content.String(), "")
 			}
 		} else {
 			if push, ok := Pushs[imType.String()]; ok {
-				push(userID, content.String(), nil)
+				push(userID, content.String(), nil, "")
 			}
 		}
 		return otto.Value{}

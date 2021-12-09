@@ -24,7 +24,7 @@ var relaier = wx.Get("relaier")
 var mode = "bgm"
 
 func init() {
-	core.Pushs["wx"] = func(i interface{}, s string, _ interface{}) {
+	core.Pushs["wx"] = func(i interface{}, s string, _ interface{}, _ string) {
 		if robot_wxid != "" {
 			pmsg := TextMsg{
 				Msg:    s,
@@ -33,7 +33,7 @@ func init() {
 			sendTextMsg(&pmsg)
 		}
 	}
-	core.GroupPushs["wx"] = func(i, j interface{}, s string) {
+	core.GroupPushs["wx"] = func(i, j interface{}, s string, _ string) {
 		to := fmt.Sprint(i) + "@chatroom"
 		pmsg := TextMsg{
 			ToWxid: to,
