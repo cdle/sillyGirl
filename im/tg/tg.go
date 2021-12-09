@@ -172,12 +172,13 @@ func init() {
 			b.Send(ct, s)
 		}
 		b.Handle(tb.OnPhoto, func(m *tb.Message) {
-			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-			filepath := "data/images/" + filename
-			if b.Download(&m.Photo.File, filepath) == nil {
-				m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
-				Handler(m)
-			}
+			// filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+			// filepath := "data/images/" + filename
+			fmt.Println(m.Photo.FileURL, "++++++++++++")
+			// if b.Download(&m.Photo.File, filepath) == nil {
+			// 	m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+			// 	Handler(m)
+			// }
 		})
 		// b.Handle(tb.OnSticker, func(m *tb.Message) {
 		// 	buf := new(bytes.Buffer)
