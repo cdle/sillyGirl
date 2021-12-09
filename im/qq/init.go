@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -113,6 +114,7 @@ func init() {
 			return
 		}
 		botID := c.GetHeader("X-Self-ID")
+		logs.Info("QQ机器人%s报道。", botID)
 		if len(conns) == 0 {
 			defaultBot = botID
 		} else if qq.Get("default_bot") == botID {
