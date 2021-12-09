@@ -57,7 +57,7 @@ type Message struct {
 	UserID      int         `json:"user_id"`
 }
 
-var conns map[string]*websocket.Conn
+var conns = map[string]*websocket.Conn{}
 var defaultBot = ""
 
 func init() {
@@ -115,8 +115,7 @@ func init() {
 		botID := c.GetHeader("X-Self-ID")
 		if len(conns) == 0 {
 			defaultBot = botID
-		}
-		if qq.Get("default_bot") == botID {
+		} else if qq.Get("default_bot") == botID {
 			defaultBot = botID
 		}
 		conns[botID] = ws
