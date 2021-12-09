@@ -159,12 +159,12 @@ func init() {
 					continue
 				}
 				if msg.GroupID != 0 {
-					if onGroups := qq.Get("onGroups"); !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+					if onGroups := qq.Get("offGroups", "923993867&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
 						continue
 					}
-				}
-				if onGroups := qq.Get("spy_on"); strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
-					continue
+					if onGroups := qq.Get("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+						continue
+					}
 				}
 				if msg.PostType == "message" {
 					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
@@ -272,6 +272,9 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 var dd sync.Map
 
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+	if onGroups := qq.Get("spy_on", "9251251"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+		return 0, nil
+	}
 	msg := msgs[0]
 	rt := ""
 	for _, item := range msgs {
