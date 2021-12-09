@@ -65,9 +65,26 @@ func initSys() {
 		},
 		{
 			Rules: []string{"reply ? ?"},
+			Admin: true,
 			Handle: func(s Sender) interface{} {
-				Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID())).Set(s.Get(0), s.Get(1))
+				a := s.Get(1)
+				if a == "nil" {
+					a = ""
+				}
+				Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID())).Set(s.Get(0), a)
 				return "设置成功。"
+			},
+		},
+		{
+			Rules: []string{"replys"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				rt := ""
+				Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID())).Foreach(func(k, v []byte) error {
+					rt += fmt.Sprintf("%s === %s\n", k, v)
+					return nil
+				})
+				return strings.Trim(rt, "\n")
 			},
 		},
 		{
