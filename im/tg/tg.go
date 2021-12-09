@@ -175,9 +175,10 @@ func init() {
 			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
 			filepath := "data/images/" + filename
 
-			fmt.Println(m.Photo.FilePath, "++++++++++++")
+			// fmt.Println(m.Photo.FileLocal, "++++++++++++")
 			if b.Download(&m.Photo.File, filepath) == nil {
-				m.Text = fmt.Sprintf(`[TG:image,file=%s]`, filename) + m.Caption
+				// fmt.Sprintf(`[TG:image,file=%s]`, filename)
+				m.Text = m.Caption
 				Handler(m)
 			}
 		})
