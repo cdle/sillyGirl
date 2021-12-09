@@ -76,7 +76,7 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"replys"},
+			Rules: []string{"replies"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
 				rt := ""
