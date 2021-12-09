@@ -139,7 +139,7 @@ func init() {
 				// fmt.Println(string(data))
 				msg := &Message{}
 				json.Unmarshal(data, msg)
-				if fmt.Sprint(msg.SelfID) != defaultBot {
+				if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
 					continue
 				}
 				// fmt.Println(msg)
