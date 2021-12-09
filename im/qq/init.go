@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -62,6 +61,13 @@ var conns = map[string]*websocket.Conn{}
 var defaultBot = ""
 
 func init() {
+	core.OttoFuncs["qq_bots"] = func(string) string {
+		ss := []string{}
+		for v := range conns {
+			ss = append(ss, v)
+		}
+		return strings.Join(ss, " ")
+	}
 	core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
 		if botID == "" {
 			botID = defaultBot
@@ -114,7 +120,6 @@ func init() {
 			return
 		}
 		botID := c.GetHeader("X-Self-ID")
-		logs.Info("QQ机器人%s报道。", botID)
 		if len(conns) == 0 {
 			defaultBot = botID
 		} else if qq.Get("default_bot") == botID {
