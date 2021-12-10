@@ -166,14 +166,14 @@ func init() {
 						continue
 					}
 				}
-				if msg.PostType == "message" {
-					msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
-					msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
-					core.Senders <- &Sender{
-						Conn:    ws,
-						Message: msg,
-					}
+				// if msg.PostType == "message" {
+				msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
+				msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
+				core.Senders <- &Sender{
+					Conn:    ws,
+					Message: msg,
 				}
+				// }
 			}
 		}()
 
