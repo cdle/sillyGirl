@@ -136,7 +136,8 @@ func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
 		NotifyMasters(rt)
 	}
 	if sender.Type == "terminal" && rt != "" {
-		fmt.Println(rt)
+		fmt.Printf("%c[0;41;36m%s%c[0m\n", 0x1B, rt, 0x1B)
+		// fmt.Println(rt)
 	}
 	return 0, nil
 }
