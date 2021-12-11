@@ -11,8 +11,9 @@ func main() {
 	go core.RunServer()
 	logs.Info("傻妞用不了了？关注频道 https://t.me/kczz2021 获取最新消息。")
 	for {
-		input := ""
+		var input string
 		fmt.Scanln(&input)
+		fmt.Println(input)
 		core.Senders <- &core.Faker{
 			Type: "terminal",
 		}
