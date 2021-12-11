@@ -420,7 +420,7 @@ func init123() {
 			}
 			return result
 		}
-		logs.Warn("回复：%s添加成功", jr)
+		// logs.Warn("回复：%s添加成功", jr)
 		AddCommand("", []Function{
 			{
 				Handle:   handler,
