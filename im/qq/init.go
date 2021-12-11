@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -130,6 +131,7 @@ func init() {
 		if !strings.Contains(ignore, botID) {
 			ignore += "&" + botID
 		}
+		logs.Info("QQ机器人(%s)已连接。", botID)
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
