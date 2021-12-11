@@ -18,7 +18,7 @@ func main() {
 		data, _, _ := reader.ReadLine()
 		core.Senders <- &core.Faker{
 			Type:    "terminal",
-			Message: data,
+			Message: string(data),
 		}
 	}
 }
