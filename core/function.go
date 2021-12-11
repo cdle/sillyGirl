@@ -17,6 +17,7 @@ import (
 )
 
 var c *cron.Cron
+var reply = NewBucket("reply")
 
 func init() {
 	c = cron.New()
@@ -210,7 +211,7 @@ func handleMessage(sender Sender) {
 	if mtd && !con {
 		return
 	}
-
+	dddd := false
 	Bucket(fmt.Sprintf("reply%s%d", sender.GetImType(), sender.GetChatID())).Foreach(func(k, v []byte) error {
 		if string(v) == "" {
 			return nil
@@ -218,11 +219,28 @@ func handleMessage(sender Sender) {
 		reg, err := regexp.Compile(string(k))
 		if err == nil {
 			if reg.FindString(content) != "" {
+				dddd = true
 				sender.Reply(string(v))
 			}
 		}
 		return nil
 	})
+
+	if !dddd {
+		reply.Foreach(func(k, v []byte) error {
+			if string(v) == "" {
+				return nil
+			}
+			reg, err := regexp.Compile(string(k))
+			if err == nil {
+				if reg.FindString(content) != "" {
+					dddd = true
+					sender.Reply(string(v))
+				}
+			}
+			return nil
+		})
+	}
 
 	for _, function := range functions {
 		for _, rule := range function.Rules {
