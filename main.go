@@ -12,7 +12,7 @@ func main() {
 	core.Init123()
 	sillyGirl := core.Bucket("sillyGirl")
 	port := sillyGirl.Get("port", "8080")
-	logs.Info("http服务已运行(%s)。" + sillyGirl.Get("port", "8080"))
+	logs.Info("http服务已运行(%s)。", sillyGirl.Get("port", "8080"))
 	go core.Server.Run("0.0.0.0:" + port)
 	logs.Info("关注频道 https://t.me/kczz2021 获取最新消息。")
 	reader := bufio.NewReader(os.Stdin)
