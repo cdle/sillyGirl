@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -19,7 +18,6 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		data, _, _ := reader.ReadLine()
-		fmt.Println("--")
 		core.Senders <- &core.Faker{
 			Type:    "terminal",
 			Message: string(data),
