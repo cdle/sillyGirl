@@ -12,7 +12,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/cdle/sillyGirl/core"
@@ -153,7 +152,7 @@ func init() {
 					value: wm,
 				}
 			}
-			logs.Info("recv: %s", data)
+			// logs.Info("recv: %s", data)
 			return
 		}
 		jms := JsonMsg{}

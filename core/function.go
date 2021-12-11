@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/gin-gonic/gin"
 	cron "github.com/robfig/cron/v3"
 )
@@ -174,9 +173,9 @@ func handleMessage(sender Sender) {
 	content := TrimHiddenCharacter(sender.GetContent())
 	defer sender.Finish()
 
-	defer func() {
-		logs.Info("%v ==> %v", sender.GetContent(), "finished")
-	}()
+	// defer func() {
+	// 	logs.Info("%v ==> %v", sender.GetContent(), "finished")
+	// }()
 	u, g, i := fmt.Sprint(sender.GetUserID()), fmt.Sprint(sender.GetChatID()), fmt.Sprint(sender.GetImType())
 	con := true
 	mtd := false
@@ -262,7 +261,7 @@ func handleMessage(sender Sender) {
 				}
 			}
 			if matched {
-				logs.Info("%v ==> %v", content, rule)
+				// logs.Info("%v ==> %v", content, rule)
 				if function.Admin && !sender.IsAdmin() {
 					sender.Delete()
 					sender.Disappear()
