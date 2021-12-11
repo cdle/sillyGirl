@@ -208,7 +208,7 @@ func init() {
 		// 	Handler(m)
 		// })
 		b.Handle(tb.OnText, Handler)
-		logs.Info("Telegram机器人正在运行。")
+		logs.Info("Telegram机器人已运行。")
 		b.Start()
 	}()
 }
