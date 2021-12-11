@@ -58,7 +58,7 @@ func init() {
 	}
 	_, err := Config.GetToken()
 	if err == nil {
-		logs.Info("青龙已连接")
+		logs.Info("青龙面板连接成功。")
 	}
 	initCron()
 
