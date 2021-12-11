@@ -8,16 +8,14 @@ var Server *gin.Engine
 
 func init() {
 	Server = gin.New()
+	gin.SetMode(gin.ReleaseMode)
 }
 
 var Tail = "--来自sillyGirl，傻妞技术交流QQ群882314490，电报交流群https://t.me/kczz2021。"
 
-func RunServer() {
-	if sillyGirl.GetBool("enable_http_server", true) == false {
-		return
-	}
+// func RunServer() {
+// 	if sillyGirl.GetBool("enable_http_server", true) == false {
+// 		return
+// 	}
 
-	gin.SetMode(gin.ReleaseMode)
-	// logs.Info("开启httpserver----0.0.0.0:" + sillyGirl.Get("port", "8080"))
-	Server.Run("0.0.0.0:" + sillyGirl.Get("port", "8080"))
-}
+// }
