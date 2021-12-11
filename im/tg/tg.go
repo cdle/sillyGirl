@@ -106,7 +106,7 @@ func init() {
 		b, err = tb.NewBot(settings)
 
 		if err != nil {
-			logs.Warn("监听telegram机器人失败：%v", err)
+			logs.Warn("Telegram机器人运行失败：%v", err)
 			return
 		}
 		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}, _ string) {
@@ -208,7 +208,7 @@ func init() {
 		// 	Handler(m)
 		// })
 		b.Handle(tb.OnText, Handler)
-		logs.Info("监听telegram机器人")
+		logs.Info("Telegram机器人正在运行。")
 		b.Start()
 	}()
 }

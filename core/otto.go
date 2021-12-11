@@ -21,23 +21,6 @@ type JsReply string
 
 var o = NewBucket("otto")
 
-func init() {
-	go func() {
-		time.Sleep(time.Second)
-		// if o.GetBool("enable_price", true) {
-		// 	os.MkdirAll("develop/replies", os.ModePerm)
-		// 	if data, err := os.ReadFile("scripts/jd_price.js"); err == nil {
-		// 		os.WriteFile("develop/replies/jd_price.js", data, os.ModePerm)
-		// 	}
-		// 	os.Remove("develop/replies/price.js")
-		// } else {
-		// 	os.Remove("develop/replies/jd_price.js")
-		// }
-		os.Remove("develop/replies/jd_price.js")
-		init123()
-	}()
-}
-
 var OttoFuncs = map[string]func(string) string{
 	"machineId": func(_ string) string {
 		// data, _ := os.ReadFile("/var/lib/dbus/machine-id")
@@ -70,7 +53,7 @@ var OttoFuncs = map[string]func(string) string{
 	},
 }
 
-func init123() {
+func Init123() {
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
 		os.MkdirAll(ExecPath+"/develop/replies", os.ModePerm)
