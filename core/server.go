@@ -7,8 +7,8 @@ import (
 var Server *gin.Engine
 
 func init() {
-	Server = gin.New()
 	gin.SetMode(gin.ReleaseMode)
+	Server = gin.New()
 }
 
 var Tail = "--来自sillyGirl，傻妞技术交流QQ群882314490，电报交流群https://t.me/kczz2021。"
