@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +18,6 @@ func RunServer() {
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	logs.Info("开启httpserver----0.0.0.0:" + sillyGirl.Get("port", "8080"))
+	// logs.Info("开启httpserver----0.0.0.0:" + sillyGirl.Get("port", "8080"))
 	Server.Run("0.0.0.0:" + sillyGirl.Get("port", "8080"))
 }
