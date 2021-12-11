@@ -14,10 +14,9 @@ func main() {
 	for {
 		var input string
 		fmt.Scanln(&input)
-		sender := &core.Faker{
-			Type: "terminal",
+		core.Senders <- &core.Faker{
+			Type:    "terminal",
+			Message: input,
 		}
-		sender.SetContent(input)
-		core.Senders <- sender
 	}
 }

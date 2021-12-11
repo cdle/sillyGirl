@@ -65,6 +65,9 @@ type Faker struct {
 }
 
 func (sender *Faker) GetContent() string {
+	if sender.Content != "" {
+		return sender.Content
+	}
 	return sender.Message
 }
 
