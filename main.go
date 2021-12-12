@@ -17,7 +17,7 @@ func main() {
 	go core.Server.Run("0.0.0.0:" + port)
 	logs.Info("关注频道 https://t.me/kczz2021 获取最新消息。")
 	reader := bufio.NewReader(os.Stdin)
-	tm := 0
+	var tm int64
 	for {
 		data, _, _ := reader.ReadLine()
 		core.Senders <- &core.Faker{
