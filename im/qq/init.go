@@ -102,11 +102,12 @@ func init() {
 			return
 		}
 		userId := core.Int64(j)
-
-		if userId != 0 && strings.Contains(s, "\n") {
-			s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
-		} else {
-			s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
+		if userId != 0 {
+			if strings.Contains(s, "\n") {
+				s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
+			} else {
+				s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
+			}
 		}
 		conn.WriteJSON(CallApi{
 			Action: "send_group_msg",
