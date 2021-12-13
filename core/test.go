@@ -646,7 +646,7 @@ Alias=sillyGirl.service`
 			Rules: []string{"^machineId$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				return OttoFuncs["machineId"]("")
+				return fmt.Sprintf("你的机器码：%s", OttoFuncs["machineId"](""))
 			},
 		},
 		{
