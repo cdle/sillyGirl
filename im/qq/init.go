@@ -58,9 +58,21 @@ type Message struct {
 	UserID      int         `json:"user_id"`
 }
 
-var conns = map[string]*websocket.Conn{}
+var conns = map[string]*QQ{}
 var defaultBot = ""
 var ignore = qq.Get("ignore")
+
+type QQ struct {
+	conn *websocket.Conn
+	// id   int
+	sync.Mutex
+}
+
+func (qq *QQ) WriteJSON(i interface{}) error {
+	qq.Lock()
+	defer qq.Unlock()
+	return qq.conn.WriteJSON(i)
+}
 
 func init() {
 	core.OttoFuncs["qq_bots"] = func(string) string {
@@ -87,7 +99,10 @@ func init() {
 		} else if qq.Get("default_bot") == botID {
 			defaultBot = botID
 		}
-		conns[botID] = ws
+		qqcon := &QQ{
+			conn: ws,
+		}
+		conns[botID] = qqcon
 		if !strings.Contains(ignore, botID) {
 			ignore += "&" + botID
 		}
@@ -180,7 +195,7 @@ func init() {
 				msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
 				msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
 				core.Senders <- &Sender{
-					Conn:    ws,
+					Conn:    qqcon,
 					Message: msg,
 				}
 				// }
@@ -192,7 +207,7 @@ func init() {
 
 type Sender struct {
 	botID    string
-	Conn     *websocket.Conn
+	Conn     *QQ
 	Message  *Message
 	matches  [][]string
 	Duration *time.Duration
