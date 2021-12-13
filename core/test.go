@@ -572,7 +572,7 @@ Alias=sillyGirl.service`
 							return Again
 						}
 						if strings.Contains(ct, "认输") {
-							if me || s.IsAdmin() {
+							if me || s2.IsAdmin() {
 								stop = true
 								return nil
 							} else {
