@@ -70,54 +70,6 @@ func init() {
 		}
 		return strings.Join(ss, " ")
 	}
-	core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
-		if botID == "" {
-			botID = defaultBot
-		}
-		conn, ok := conns[botID]
-		if !ok {
-			botID = ""
-			for v := range conns {
-				botID = v
-				break
-			}
-			if botID == "" {
-				return
-			}
-		}
-		conn.WriteJSON(CallApi{
-			Action: "send_private_msg",
-			Params: map[string]interface{}{
-				"user_id": core.Int64(i),
-				"message": s,
-			},
-		})
-	}
-	core.GroupPushs["qq"] = func(i, j interface{}, s string, botID string) {
-		if botID == "" {
-			botID = defaultBot
-		}
-		conn, ok := conns[botID]
-		if !ok {
-			return
-		}
-		userId := core.Int64(j)
-		if userId != 0 {
-			if strings.Contains(s, "\n") {
-				s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
-			} else {
-				s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
-			}
-		}
-		conn.WriteJSON(CallApi{
-			Action: "send_group_msg",
-			Params: map[string]interface{}{
-				"group_id": core.Int(i),
-				"user_id":  userId,
-				"message":  s,
-			},
-		})
-	}
 	core.Server.GET("/qq/receive", func(c *gin.Context) {
 		var upGrader = websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -140,6 +92,54 @@ func init() {
 			ignore += "&" + botID
 		}
 		logs.Info("QQ机器人(%s)已连接。", botID)
+		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
+			if botID == "" {
+				botID = defaultBot
+			}
+			conn, ok := conns[botID]
+			if !ok {
+				botID = ""
+				for v := range conns {
+					botID = v
+					break
+				}
+				if botID == "" {
+					return
+				}
+			}
+			conn.WriteJSON(CallApi{
+				Action: "send_private_msg",
+				Params: map[string]interface{}{
+					"user_id": core.Int64(i),
+					"message": s,
+				},
+			})
+		}
+		core.GroupPushs["qq"] = func(i, j interface{}, s string, botID string) {
+			if botID == "" {
+				botID = defaultBot
+			}
+			conn, ok := conns[botID]
+			if !ok {
+				return
+			}
+			userId := core.Int64(j)
+			if userId != 0 {
+				if strings.Contains(s, "\n") {
+					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
+				} else {
+					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
+				}
+			}
+			conn.WriteJSON(CallApi{
+				Action: "send_group_msg",
+				Params: map[string]interface{}{
+					"group_id": core.Int(i),
+					"user_id":  userId,
+					"message":  s,
+				},
+			})
+		}
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
