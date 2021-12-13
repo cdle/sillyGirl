@@ -564,6 +564,7 @@ Alias=sillyGirl.service`
 				if !stop {
 					s.Await(s, func(s2 Sender) interface{} {
 						ct := s2.GetContent()
+
 						me := s2.GetUserID() == s.GetUserID()
 						if strings.Contains(ct, "小爱提示") || ct == "q" {
 							s2.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
@@ -582,6 +583,9 @@ Alias=sillyGirl.service`
 							if me {
 								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
 							} else {
+								if ct == "成语接龙" {
+									return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
+								}
 								s2.Continue()
 								return Again
 							}
