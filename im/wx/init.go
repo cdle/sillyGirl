@@ -14,6 +14,7 @@ import (
 
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 )
@@ -401,6 +402,7 @@ func (sender *Sender) Copy() core.Sender {
 }
 
 func sendTextMsg(pmsg *TextMsg) {
+	logs.Info(pmsg.Msg)
 	pmsg.Msg = regexp.MustCompile("[\n\r]+").ReplaceAllString(pmsg.Msg, "\n")
 	pmsg.Msg = strings.ReplaceAll(pmsg.Msg, "\\r", "\n")
 	pmsg.Msg = strings.Trim(pmsg.Msg, "\n ")
