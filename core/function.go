@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/astaxie/beego/logs"
 	"github.com/gin-gonic/gin"
 	cron "github.com/robfig/cron/v3"
 )
@@ -173,9 +174,10 @@ func handleMessage(sender Sender) {
 	content := TrimHiddenCharacter(sender.GetContent())
 	defer sender.Finish()
 
-	// defer func() {
-	// 	logs.Info("%v ==> %v", sender.GetContent(), "finished")
-	// }()
+	defer func() {
+		logs.Info("%v ==> %v", sender.GetContent())
+		// logs.Info("%v ==> %v", sender.GetContent(), "finished")
+	}()
 	u, g, i := fmt.Sprint(sender.GetUserID()), fmt.Sprint(sender.GetChatID()), fmt.Sprint(sender.GetImType())
 	con := true
 	mtd := false
