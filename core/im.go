@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -359,11 +360,11 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 						c.Result <- string(v)
 					}
 				} else if _, ok := result.(YesOrNo); ok {
-					if strings.ToLower(s.GetContent()) == "y" {
+					o := strings.ToLower(regexp.MustCompile("[yYnN]").FindString(s.GetContent()))
+					if o == "y" {
 						return Yes
 					}
-
-					if strings.ToLower(s.GetContent()) == "n" {
+					if o == "n" {
 						return No
 					}
 					c.Result <- "Y or n ?"
