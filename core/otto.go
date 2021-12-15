@@ -93,6 +93,10 @@ func Init123() {
 		o.Set(key.String(), value.String())
 		return otto.Value{}
 	}
+	notifyMasters := func(key otto.Value) interface{} {
+		NotifyMasters(key.String())
+		return otto.Value{}
+	}
 	sleep := func(value otto.Value) interface{} {
 		i, _ := value.ToInteger()
 		time.Sleep(time.Duration(i) * time.Millisecond)
@@ -326,6 +330,7 @@ func Init123() {
 				v, _ := otto.ToValue(s.GetContent())
 				return v
 			})
+			vm.Set("notifyMasters", notifyMasters)
 			vm.Set("breakIn", func(str otto.Value) otto.Value {
 				s := s.Copy()
 				s.SetContent(str.String())

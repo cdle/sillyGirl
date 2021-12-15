@@ -176,7 +176,6 @@ func init() {
 				if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
 					continue
 				}
-				// fmt.Println(msg)
 				if msg.SelfID == msg.UserID {
 					continue
 				}
