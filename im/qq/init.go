@@ -122,6 +122,7 @@ func init() {
 					return
 				}
 			}
+			s = strings.Trim(s, "\n")
 			conn.WriteJSON(CallApi{
 				Action: "send_private_msg",
 				Params: map[string]interface{}{
@@ -146,6 +147,7 @@ func init() {
 					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
 				}
 			}
+			s = strings.Trim(s, "\n")
 			conn.WriteJSON(CallApi{
 				Action: "send_group_msg",
 				Params: map[string]interface{}{
@@ -323,6 +325,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	if rt == "" {
 		return 0, nil
 	}
+	rt = strings.Trim(rt, "\n")
 	if sender.Message.MessageType == "private" {
 		sender.Conn.WriteJSON(CallApi{
 			Action: "send_private_msg",
