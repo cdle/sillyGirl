@@ -351,6 +351,17 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				},
 			}
 			sendOtherMsg(&pmsg)
+		case core.VideoUrl:
+			url := string(item.(core.VideoUrl))
+			pmsg := OtherMsg{
+				ToWxid:     to,
+				MemberWxid: at,
+				Msg: Msg{
+					URL:  url,
+					Name: name(url),
+				},
+			}
+			sendOtherMsg(&pmsg)
 		case core.ImageData:
 			pmsg := OtherMsg{
 				ToWxid:     to,
