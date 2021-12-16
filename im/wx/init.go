@@ -356,6 +356,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			pmsg := OtherMsg{
 				ToWxid:     to,
 				MemberWxid: at,
+				Event:      "SendVideoMsg",
 				Msg: Msg{
 					URL:  url,
 					Name: name(url),
