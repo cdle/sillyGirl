@@ -363,7 +363,6 @@ func Init123() {
 				Admin:    admin,
 				Priority: priority,
 				Disable:  disable,
-				Server:   server,
 			},
 		})
 	}
