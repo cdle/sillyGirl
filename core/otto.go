@@ -2,6 +2,7 @@ package core
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -246,16 +247,16 @@ func Init123() {
 					}
 					return url
 				}
-				data, err := req.String()
+				data, err := req.Bytes()
 				if err != nil {
 					return ""
 				}
 				if strings.Contains(dataType, "json") {
-					s := new(goja.Object)
-					//
-					return s
+					var x = map[string]interface{}{}
+					json.Unmarshal(data, &x)
+					return x
 				}
-				return data
+				return string(data)
 			}
 			vm.Set("call", func(key, value string) interface{} {
 				if f, ok := OttoFuncs[key]; ok {
