@@ -202,10 +202,6 @@ app.get('/lastTime', (req, res) => {
 		vm.Set("Logger", Logger)
 		vm.Set("SillyGirl", SillyGirl)
 		Render := func(path string, obj map[string]interface{}) {
-			// data, _ := os.ReadFile("/etc/sillyGirl/views/" + path)
-			// content += rpo(obj, "", string(data), vm)
-			// c.Header("Content-Type", "text/html")
-			// obj.
 			c.HTML(http.StatusOK, path, obj)
 		}
 		var res *goja.Object
@@ -265,35 +261,23 @@ app.get('/lastTime', (req, res) => {
 		}).(*goja.Object)
 		req := vm.ToValue(&Request{
 			Body: func() string {
-
 				return string(bodyData)
 			},
 			Json: func() interface{} {
-
 				var i interface{}
 				if json.Unmarshal(bodyData, &i) != nil {
 					return nil
 				}
 				return i
 			},
-			IP: func() string {
-				return c.ClientIP()
-			},
-			OriginalUrl: func() string {
-				return c.Request.URL.String()
-			},
-			Query: func(str string) string {
-				return c.Query(str)
-			},
-			PostForm: func(str string) string {
-				return c.PostForm(str)
-			},
+			IP:          c.ClientIP,
+			OriginalUrl: c.Request.URL.String,
+			Query:       c.Query,
+			PostForm:    c.PostForm,
 			Path: func() string {
 				return c.Request.URL.Path
 			},
-			Header: func(str string) string {
-				return c.GetHeader(str)
-			},
+			Header: c.GetHeader,
 			Method: func() string {
 				return c.Request.Method
 			},
@@ -313,7 +297,6 @@ app.get('/lastTime', (req, res) => {
 				return nil
 			},
 		)
-
 		_, err = vm.RunString(string(script))
 		if err != nil {
 			c.String(http.StatusBadGateway, err.Error())
