@@ -137,7 +137,14 @@ func init() {
 			}
 			conn, ok := conns[botID]
 			if !ok {
-				return
+				botID = ""
+				for v := range conns {
+					botID = v
+					break
+				}
+				if botID == "" {
+					return
+				}
 			}
 			userId := core.Int64(j)
 			if userId != 0 {
