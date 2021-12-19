@@ -305,7 +305,7 @@ app.get('/lastTime', (req, res) => {
 					mm := m
 					call.This.Set(mm, func(relativePath string, handle func(*goja.Object, *goja.Object)) {
 						if method == mm && relativePath == c.Request.URL.Path {
-							handled = true
+							handled = !handled
 							handle(
 								req,
 								res,
@@ -316,10 +316,10 @@ app.get('/lastTime', (req, res) => {
 				return nil
 			},
 		)
-		if !handled {
-			c.String(404, "page nono n ot found")
-			return
-		}
+		// if !handled {
+		// 	c.String(404, "page nono n ot found")
+		// 	return
+		// }
 		_, err = vm.RunString(string(script))
 		if err != nil {
 			c.String(http.StatusBadGateway, err.Error())
