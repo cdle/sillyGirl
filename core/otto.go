@@ -23,12 +23,6 @@ var o = NewBucket("otto")
 
 var OttoFuncs = map[string]func(string) string{
 	"machineId": func(_ string) string {
-		// data, _ := os.ReadFile("/var/lib/dbus/machine-id")
-		// id := regexp.MustCompile(`\w+`).FindString(string(data))
-		// if id == "" {
-		// 	data, _ = os.ReadFile("/etc/machine-id")
-		// 	id = regexp.MustCompile(`\w+`).FindString(string(data))
-		// }
 		id, err := machineid.ProtectedID("sillyGirl")
 		if err != nil {
 			id = sillyGirl.Get("machineId")
@@ -60,7 +54,6 @@ func Init123() {
 		// logs.Warn("打开文件夹%s错误，%v", "develop/replies", err)
 		return
 	}
-
 	get := func(key string) string {
 		return o.Get(key)
 	}
@@ -91,19 +84,33 @@ func Init123() {
 	sleep := func(i int) {
 		time.Sleep(time.Duration(i) * time.Millisecond)
 	}
-	push := func(ps map[string]interface{}) {
-		imType, _ := ps["imType"]
-		groupCode, _ := ps["groupCode"]
-		userID, _ := ps["userID"]
-		content, _ := ps["content"]
+	push := func(obj *goja.Object) {
+		imType := ""
+		groupCode := 0
+		userID := ""
+		content := ""
+		for _, key := range obj.Keys() {
+			switch key {
+			case "imType":
+				imType = obj.Get(key).String()
+			case "groupCode":
+				groupCode = int(obj.Get(key).ToInteger())
+			case "chatID":
+				groupCode = int(obj.Get(key).ToInteger())
+			case "userID":
+				userID = obj.Get(key).String()
+			case "content":
+				content = obj.Get(key).String()
+			}
+		}
 		gid := Int(groupCode)
 		if gid != 0 {
-			if push, ok := GroupPushs[fmt.Sprint(imType)]; ok {
-				push(int(gid), userID, fmt.Sprint(content), "")
+			if push, ok := GroupPushs[imType]; ok {
+				push(int(gid), userID, content, "")
 			}
 		} else {
-			if push, ok := Pushs[fmt.Sprint(imType)]; ok {
-				push(userID, fmt.Sprint(content), nil, "")
+			if push, ok := Pushs[imType]; ok {
+				push(userID, content, nil, "")
 			}
 		}
 		return
