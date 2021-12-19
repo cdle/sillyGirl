@@ -186,6 +186,9 @@ app.get('/lastTime', (req, res) => {
 	Server.Static("/assets", "/etc/sillyGirl/assets")
 	Server.LoadHTMLGlob("/etc/sillyGirl/views/**/*")
 	Server.NoRoute(func(c *gin.Context) {
+		if c.Request.Method == "POST" {
+			c.Request.ParseForm()
+		}
 		var status = http.StatusOK
 		var content = ""
 		var isJson bool
