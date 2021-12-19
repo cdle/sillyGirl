@@ -115,6 +115,7 @@ func init() {
 			if !ok {
 				botID = ""
 				for v := range conns {
+					conn = conns[v]
 					botID = v
 					break
 				}
@@ -139,6 +140,7 @@ func init() {
 			if !ok {
 				botID = ""
 				for v := range conns {
+					conn = conns[v]
 					botID = v
 					break
 				}
