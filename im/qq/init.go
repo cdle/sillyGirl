@@ -106,7 +106,7 @@ func init() {
 		if !strings.Contains(ignore, botID) {
 			ignore += "&" + botID
 		}
-		logs.Info("QQ机器人(%s)已连接。", botID)
+		logs.Info("QQ机器人(%s,"+c.ClientIP()+")已连接。", botID)
 		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
 			if botID == "" {
 				botID = defaultBot
@@ -162,6 +162,7 @@ func init() {
 				_, data, err := ws.ReadMessage()
 				if err != nil {
 					ws.Close()
+					logs.Info("QQ机器人(%s)已断开。", botID)
 					delete(conns, botID)
 					if defaultBot == botID {
 						defaultBot = ""
