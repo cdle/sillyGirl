@@ -187,7 +187,7 @@ func init() {
 					continue
 				}
 				if msg.GroupID != 0 {
-					if onGroups := qq.Get("offGroups", "923993867&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+					if onGroups := qq.Get("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
 						continue
 					}
 					if onGroups := qq.Get("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
@@ -302,7 +302,7 @@ var dd sync.Map
 func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	chatId := sender.GetChatID()
 	if chatId != 0 {
-		if onGroups := qq.Get("spy_on", "9251251"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
+		if onGroups := qq.Get("spy_on", "9251251&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
 			return 0, nil
 		}
 	}
