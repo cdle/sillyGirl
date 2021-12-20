@@ -44,29 +44,13 @@ set qinglong autoCronHideDuplicate true
 
 set qinglong host http://127.0.0.1:5700
 
-##### 设置qq登录账号
+##### 设置主qq账号
 
-set qq uin 10000
-
-##### 设置qq登录密码
-
-set qq password 123456789
-
-##### 设置qq临时消息默认群号
-
-set qq tempMessageGroupCode ?
+set qq default_bot 10000
 
 ##### 指定要监听的qq群
 
 set qq onGroups g1&g2&g3...
-
-##### 设置是否自动同意好友请求
-
-set qq auto_friend false
-
-##### 设置是否对监听自身消息
-
-set qq onself true
 
 ##### 设置qq管理员
 
@@ -75,14 +59,6 @@ set qq masters q1&q2&q3...
 ##### 设置接受通知的qq账号
 
 set qq notifier q1&q2&q3...
-
-##### 设置qq设备信息(自动生成)
-
-set qq device.json ?
-
-##### 设置qq登录令牌(自动生成)
-
-set qq session.token ?
 
 ##### 设置telegram机器人token
 
