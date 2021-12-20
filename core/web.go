@@ -186,15 +186,13 @@ app.get('/lastTime', (req, res) => {
 	Server.Static("/assets", "/etc/sillyGirl/assets")
 	Server.LoadHTMLGlob("/etc/sillyGirl/views/**/*")
 	Server.NoRoute(func(c *gin.Context) {
-		if c.Request.Method == "POST" {
-			c.Request.ParseForm()
-		}
 		var status = http.StatusOK
 		var content = ""
 		var isJson bool
 		var method = strings.ToLower(c.Request.Method)
 		var bodyData, _ = ioutil.ReadAll(c.Request.Body)
 		var isRedirect bool
+		var parseForm bool
 		vm := goja.New()
 		script, err := os.ReadFile("/etc/sillyGirl/express.js")
 		if err != nil {
@@ -276,7 +274,13 @@ app.get('/lastTime', (req, res) => {
 			IP:          c.ClientIP,
 			OriginalUrl: c.Request.URL.String,
 			Query:       c.Query,
-			PostForm:    c.PostForm,
+			PostForm: func(s string) string {
+				if !parseForm {
+					parseForm = !parseForm
+					c.Request.ParseForm()
+				}
+				return c.PostForm(s)
+			},
 			Path: func() string {
 				return c.Request.URL.Path
 			},

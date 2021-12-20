@@ -141,6 +141,7 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 	}
 	req.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header("Content-Type", "application/json;charset=UTF-8")
+	req.SetTimeout(time.Second*5, time.Second*5)
 	if method != GET {
 		req.Body(body)
 	}
