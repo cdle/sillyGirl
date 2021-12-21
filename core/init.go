@@ -5,6 +5,8 @@ import (
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/beego/beego/v2/adapter/httplib"
 )
 
 var Duration time.Duration
@@ -51,4 +53,8 @@ func init() {
 	if sillyGirl.Get("uuid") == "" {
 		sillyGirl.Set("uuid", GetUUID())
 	}
+	httplib.SetDefaultSetting(httplib.BeegoHTTPSettings{
+		ConnectTimeout:   time.Second * 5,
+		ReadWriteTimeout: time.Second * 5,
+	})
 }
