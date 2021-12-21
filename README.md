@@ -132,8 +132,4 @@ set wx sillyGirl_dynamic_ip true
 
 #set wx keaimao_port ?
 
-##### docker运行
-
-docker-compose up -d --build
-
 ![Image text](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)
