@@ -54,7 +54,7 @@ func init() {
 		sillyGirl.Set("uuid", GetUUID())
 	}
 	httplib.SetDefaultSetting(httplib.BeegoHTTPSettings{
-		ConnectTimeout:   time.Second * 5,
-		ReadWriteTimeout: time.Second * 5,
+		ConnectTimeout:   time.Second * 10,
+		ReadWriteTimeout: time.Second * 10,
 	})
 }
