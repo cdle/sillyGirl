@@ -368,3 +368,7 @@ func Init123() {
 		})
 	}
 }
+
+func ToImage(url string) string {
+	return `[CQ:image,file=` + url + `]`
+}
