@@ -409,7 +409,7 @@ func SillyGirl(call goja.ConstructorCall) *goja.Object {
 }
 
 func request() interface{} {
-	return func(wt interface{}, handle func(error, map[string]interface{}, interface{}) interface{}) interface{} {
+	return func(wt interface{}, handles ...func(error, map[string]interface{}, interface{}) interface{}) interface{} {
 		var method = "get"
 		var url = ""
 		var req *httplib.BeegoHTTPRequest
@@ -475,6 +475,10 @@ func request() interface{} {
 				bd = string(data)
 			}
 		}
-		return handle(err, rspObj, bd)
+		if len(handles) > 0 {
+			return handles[0](err, rspObj, bd)
+		} else {
+			return body
+		}
 	}
 }
