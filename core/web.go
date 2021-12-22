@@ -22,6 +22,7 @@ type Response struct {
 	Render     func(string, map[string]interface{}) `json:"render"`
 	Redirect   func(...interface{})                 `json:"redirect"`
 	Status     func(int) goja.Value                 `json:"status"`
+	SetCookie  func(string, string)                 `json:"setCookie"`
 }
 
 type Request struct {
@@ -34,6 +35,7 @@ type Request struct {
 	Path        func() string       `json:"path"`
 	Header      func(string) string `json:"header"`
 	Method      func() string       `json:"method"`
+	Cookie      func(string) string `json:"cookie"`
 }
 
 func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string {
@@ -187,13 +189,13 @@ app.get('/lastTime', (req, res) => {
 	Server.Static("/assets", "/etc/sillyGirl/assets")
 	Server.LoadHTMLGlob("/etc/sillyGirl/views/**/*")
 	Server.NoRoute(func(c *gin.Context) {
+		patchPostForm(c)
 		var status = http.StatusOK
 		var content = ""
 		var isJson bool
 		var method = strings.ToLower(c.Request.Method)
 		var bodyData, _ = ioutil.ReadAll(c.Request.Body)
 		var isRedirect bool
-		var parseForm bool
 		vm := goja.New()
 		script, err := os.ReadFile("/etc/sillyGirl/express.js")
 		if err != nil {
@@ -262,6 +264,9 @@ app.get('/lastTime', (req, res) => {
 				status = i
 				return res
 			},
+			SetCookie: func(name, value string) {
+				c.SetCookie(name, value, 1000*60, "/", "", false, true)
+			},
 		}).(*goja.Object)
 		req := vm.ToValue(&Request{
 			Body: func() string {
@@ -278,10 +283,6 @@ app.get('/lastTime', (req, res) => {
 			OriginalUrl: c.Request.URL.String,
 			Query:       c.Query,
 			PostForm: func(s string) string {
-				if !parseForm {
-					parseForm = !parseForm
-					c.Request.ParseForm()
-				}
 				return c.PostForm(s)
 			},
 			Path: func() string {
@@ -290,6 +291,10 @@ app.get('/lastTime', (req, res) => {
 			Header: c.GetHeader,
 			Method: func() string {
 				return c.Request.Method
+			},
+			Cookie: func(s string) string {
+				var cookie, _ = c.Cookie(s)
+				return cookie
 			},
 		}).(*goja.Object)
 		handled := false
@@ -325,6 +330,12 @@ app.get('/lastTime', (req, res) => {
 
 		c.String(status, content)
 	})
+}
+
+func patchPostForm(c *gin.Context) {
+	if c.Request.Method == "POST" {
+		c.Request.ParseForm()
+	}
 }
 
 func Logger(call goja.ConstructorCall) *goja.Object {
