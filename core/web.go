@@ -417,6 +417,8 @@ func request() interface{} {
 		var formData map[string]interface{}
 		var isJson bool
 		var body string
+		var location bool
+		var useproxy bool
 		switch wt.(type) {
 		case string:
 			url = wt.(string)
@@ -430,6 +432,13 @@ func request() interface{} {
 					method = strings.ToLower(props["method"].(string))
 				case "json":
 					isJson = props["json"].(bool)
+				case "dataType":
+					switch props["dataType"].(string) {
+					case "json":
+						isJson = true
+					case "location":
+						location = true
+					}
 				case "body":
 					if v, ok := props["body"].(string); !ok {
 						d, _ := json.Marshal(props["body"])
@@ -439,10 +448,12 @@ func request() interface{} {
 					}
 				case "formData":
 					formData = props["formData"].(map[string]interface{})
+				case "useproxy":
+					useproxy = props["useproxy"].(bool)
 				}
 			}
 		}
-		switch method {
+		switch strings.ToLower(method) {
 		case "post":
 			req = httplib.Post(url)
 		case "put":
@@ -460,6 +471,19 @@ func request() interface{} {
 		}
 		if body != "" {
 			req.Body(body)
+		}
+		if location {
+			req.SetCheckRedirect(func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			})
+			rsp, err := req.Response()
+			if err == nil && (rsp.StatusCode == 301 || rsp.StatusCode == 302) {
+				url = rsp.Header.Get("Location")
+			}
+			return url
+		}
+		if useproxy && Transport != nil {
+			req.SetTransport(Transport)
 		}
 		rsp, err := req.Response()
 		rspObj := map[string]interface{}{}
