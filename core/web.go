@@ -478,7 +478,7 @@ func request() interface{} {
 		if len(handles) > 0 {
 			return handles[0](err, rspObj, bd)
 		} else {
-			return body
+			return bd
 		}
 	}
 }
