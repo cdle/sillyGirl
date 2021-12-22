@@ -2,11 +2,9 @@ package core
 
 import (
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -179,92 +177,14 @@ func Init123() {
 				return s.Get(int(i - 1))
 			}
 			vm := goja.New()
-			request := func(obj *goja.Object) interface{} {
-				url := ""
-				dataType := ""
-				method := "get"
-				body := ""
-				var useProxy bool
-				var headers *goja.Object
-				var req *httplib.BeegoHTTPRequest
-
-				for _, key := range obj.Keys() {
-					switch strings.ToLower(key) {
-					case "url":
-						url = obj.Get(key).String()
-					case "datatype":
-						dataType = obj.Get(key).String()
-					case "body":
-						v := obj.Get(key).String()
-						if v == `[object Object]` {
-							d, _ := obj.Get(key).ToObject(vm).MarshalJSON()
-							body = string(d)
-						} else {
-							body = obj.Get(key).String()
-						}
-					case "method":
-						method = obj.Get(key).String()
-					case "headers":
-						headers = obj.Get(key).ToObject(vm)
-					case "useproxy":
-						if obj.Get(key).ToBoolean() {
-							useProxy = !useProxy
-						}
-					}
-				}
-				switch strings.ToLower(method) {
-				case "delete":
-					req = httplib.Delete(url)
-
-				case "post":
-					req = httplib.Post(url)
-
-				case "put":
-					req = httplib.Put(url)
-
-				default:
-					req = httplib.Get(url)
-				}
-				if headers != nil {
-					for _, key := range headers.Keys() {
-						req.Header(key, headers.Get(key).String())
-					}
-				}
-				if body != "" {
-					if body != "" && body != "undefined" {
-						req.Body(body)
-						req.Header("Content-Type", "application/json")
-					}
-					req.Body(body)
-				}
-				if dataType == "location" {
-					req.SetCheckRedirect(func(req *http.Request, via []*http.Request) error {
-						return http.ErrUseLastResponse
-					})
-					rsp, err := req.Response()
-					if err == nil && (rsp.StatusCode == 301 || rsp.StatusCode == 302) {
-						url = rsp.Header.Get("Location")
-					}
-					return url
-				}
-				data, err := req.Bytes()
-				if err != nil {
-					return ""
-				}
-				if strings.Contains(dataType, "json") {
-					var x = map[string]interface{}{}
-					json.Unmarshal(data, &x)
-					return x
-				}
-				return string(data)
-			}
 			vm.Set("call", func(key, value string) interface{} {
 				if f, ok := OttoFuncs[key]; ok {
 					return f(value)
 				}
 				return nil
 			})
-
+			vm.Set("Request", newrequest)
+			vm.Set("request", request)
 			vm.Set("cancall", func(key string) interface{} {
 				_, ok := OttoFuncs[key]
 				return ok
