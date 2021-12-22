@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/Han-Ya-Jun/qrcode2console"
 )
 
 type Sender interface {
@@ -128,11 +130,22 @@ func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
 			rt = (string(msg.([]byte)))
 		case string:
 			rt = (msg.(string))
+		case ImageUrl:
+
 		case Notify:
 			v := msg.(Notify)
 			n = &v
 		}
 	}
+	{
+
+		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(rt, -1) {
+			qr := qrcode2console.NewQRCode2ConsoleWithUrl(v[1], true)
+			qr.Output()
+			rt = strings.Replace(rt, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
+		}
+	}
+
 	if rt != "" && n != nil {
 		NotifyMasters(rt)
 	}
