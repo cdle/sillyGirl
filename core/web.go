@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/client/httplib"
 	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 )
@@ -202,6 +203,7 @@ app.get('/lastTime', (req, res) => {
 		vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
 		vm.Set("Logger", Logger)
 		vm.Set("SillyGirl", SillyGirl)
+		vm.Set("Request", request)
 		Render := func(path string, obj map[string]interface{}) {
 			c.HTML(http.StatusOK, path, obj)
 		}
@@ -404,4 +406,75 @@ func SillyGirl(call goja.ConstructorCall) *goja.Object {
 		}
 	})
 	return nil
+}
+
+func request() interface{} {
+	return func(wt interface{}, handle func(error, map[string]interface{}, interface{}) interface{}) interface{} {
+		var method = "get"
+		var url = ""
+		var req *httplib.BeegoHTTPRequest
+		var headers map[string]interface{}
+		var formData map[string]interface{}
+		var isJson bool
+		var body string
+		switch wt.(type) {
+		case string:
+			url = wt.(string)
+		default:
+			props := wt.(map[string]interface{})
+			for i := range props {
+				switch i {
+				case "headers":
+					headers = props["headers"].(map[string]interface{})
+				case "method":
+					method = strings.ToLower(props["method"].(string))
+				case "json":
+					isJson = props["json"].(bool)
+				case "body":
+					if v, ok := props["body"].(string); !ok {
+						d, _ := json.Marshal(props["body"])
+						body = string(d)
+					} else {
+						body = v
+					}
+				case "formData":
+					formData = props["formData"].(map[string]interface{})
+				}
+			}
+		}
+		switch method {
+		case "post":
+			req = httplib.Post(url)
+		case "put":
+			req = httplib.Put(url)
+		case "delete":
+			req = httplib.Delete(url)
+		default:
+			req = httplib.Get(url)
+		}
+		for i := range headers {
+			req.Header(i, fmt.Sprint(headers[i]))
+		}
+		for i := range formData {
+			req.Param(i, fmt.Sprint(headers[i]))
+		}
+		if body != "" {
+			req.Body(body)
+		}
+		rsp, err := req.Response()
+		rspObj := map[string]interface{}{}
+		var bd interface{}
+		if err == nil {
+			rspObj["statusCode"] = rsp.StatusCode
+			data, _ := ioutil.ReadAll(rsp.Body)
+			if isJson {
+				var v = map[string]string{}
+				json.Unmarshal(data, &v)
+				bd = v
+			} else {
+				bd = string(data)
+			}
+		}
+		return handle(err, rspObj, bd)
+	}
 }
