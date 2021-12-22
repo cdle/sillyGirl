@@ -435,6 +435,8 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 				headers = props["headers"].(map[string]interface{})
 			case "method":
 				method = strings.ToLower(props["method"].(string))
+			case "url":
+				url = props["url"].(string)
 			case "json":
 				isJson = props["json"].(bool)
 			case "dataType":
