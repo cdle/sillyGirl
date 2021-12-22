@@ -323,6 +323,8 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		case time.Duration:
 			du := item.(time.Duration)
 			sender.Duration = &du
+		case error:
+			rt = fmt.Sprint(msg)
 		case string:
 			rt = msg.(string)
 		case []byte:
