@@ -514,7 +514,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		rspObj["statusCode"] = rsp.StatusCode
 		data, _ := ioutil.ReadAll(rsp.Body)
 		if isJson {
-			var v = map[string]string{}
+			var v = map[string]interface{}{}
 			json.Unmarshal(data, &v)
 			bd = v
 		} else {
