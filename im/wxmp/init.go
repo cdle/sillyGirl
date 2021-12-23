@@ -157,8 +157,8 @@ func (sender *Sender) GetImType() string {
 	return "wxmp"
 }
 
-func (sender *Sender) GetMessageID() int {
-	return 0
+func (sender *Sender) GetMessageID() string {
+	return ""
 }
 
 func (sender *Sender) GetUsername() string {
@@ -189,7 +189,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	if sender.ctx != nil {
 		rt := ""
 		for _, item := range msgs {
@@ -205,10 +205,10 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			}
 		}
 		sender.ctx.NewText(rt).Send()
-		return 0, nil
+		return []string{}, nil
 	}
 	sender.Responses = append(sender.Responses, msgs...)
-	return 0, nil
+	return []string{}, nil
 }
 
 func (sender *Sender) Delete() error {

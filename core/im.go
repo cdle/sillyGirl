@@ -16,7 +16,7 @@ type Sender interface {
 	GetUserID() string
 	GetChatID() int
 	GetImType() string
-	GetMessageID() int
+	GetMessageID() string
 	GetUsername() string
 	GetChatname() string
 	IsReply() bool
@@ -31,7 +31,7 @@ type Sender interface {
 	SetContent(string)
 	IsAdmin() bool
 	IsMedia() bool
-	Reply(...interface{}) (int, error)
+	Reply(...interface{}) ([]string, error)
 	Delete() error
 	Disappear(lifetime ...time.Duration)
 	Finish()
@@ -89,8 +89,8 @@ func (sender *Faker) GetImType() string {
 	return sender.Type
 }
 
-func (sender *Faker) GetMessageID() int {
-	return 0
+func (sender *Faker) GetMessageID() string {
+	return ""
 }
 
 func (sender *Faker) GetUsername() string {
@@ -121,7 +121,7 @@ func (sender *Faker) IsMedia() bool {
 	return false
 }
 
-func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
+func (sender *Faker) Reply(msgs ...interface{}) ([]string, error) {
 	rt := ""
 	var n *Notify
 	for _, msg := range msgs {
@@ -154,7 +154,7 @@ func (sender *Faker) Reply(msgs ...interface{}) (int, error) {
 		// fmt.Printf("%c[0;41;36m%s%c[0m\n", 0x1B, rt, 0x1B)
 		// fmt.Println(rt)
 	}
-	return 0, nil
+	return []string{}, nil
 }
 
 func (sender *Faker) Delete() error {
@@ -258,8 +258,8 @@ func (sender *BaseSender) IsReply() bool {
 	return false
 }
 
-func (sender *BaseSender) GetMessageID() int {
-	return 0
+func (sender *BaseSender) GetMessageID() string {
+	return ""
 }
 
 func (sender *BaseSender) GetUserID() string {

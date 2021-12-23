@@ -275,11 +275,11 @@ func (sender *Sender) GetReplySenderUserID() int {
 func (sender *Sender) IsAdmin() bool {
 	return strings.Contains(wx.Get("masters"), fmt.Sprint(sender.GetUserID()))
 }
-func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	chatId := sender.GetChatID()
 	if chatId != 0 {
 		if onGroups := wx.Get("spy_on"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
-			return 0, nil
+			return []string{}, nil
 		}
 	}
 	to := ""
@@ -388,7 +388,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 	if pmsg.Msg != "" {
 		sendTextMsg(&pmsg)
 	}
-	return 0, nil
+	return []string{}, nil
 }
 
 func name(str string) string {

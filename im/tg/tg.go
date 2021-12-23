@@ -236,8 +236,8 @@ func (sender *Sender) GetImType() string {
 	return "tg"
 }
 
-func (sender *Sender) GetMessageID() int {
-	return sender.Message.ID
+func (sender *Sender) GetMessageID() string {
+	return fmt.Sprint(sender.Message.ID)
 }
 
 func (sender *Sender) GetUsername() string {
@@ -279,7 +279,7 @@ func (sender *Sender) IsMedia() bool {
 	return false
 }
 
-func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	msg := msgs[0]
 	var edit *core.Edit
 	var replace *core.Replace
@@ -330,9 +330,9 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 				}, msg.(string))
 			}
 			if sender.reply == nil {
-				return 0, nil
+				return []string{}, nil
 			}
-			return sender.reply.ID, nil
+			return []string{fmt.Sprint(sender.reply.ID)}, nil
 		}
 		paths := []string{}
 		message = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(message, "file")
@@ -388,7 +388,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		f, err := os.Open(string(msg.(core.ImagePath)))
 		if err != nil {
 			sender.Reply(err)
-			return 0, nil
+			return []string{}, nil
 		} else {
 			rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(f)}}, options...)
 			if err == nil {
@@ -421,7 +421,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		data, err := base64.StdEncoding.DecodeString(string(msg.(core.ImageBase64)))
 		if err != nil {
 			sender.Reply(err)
-			return 0, nil
+			return []string{}, nil
 		}
 		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromReader(bytes.NewReader(data))}}, options...)
 		if err == nil {
@@ -447,9 +447,9 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		sender.reply = rt
 	}
 	if sender.reply != nil {
-		return sender.reply.ID, err
+		return []string{fmt.Sprint(sender.reply.ID)}, err
 	}
-	return 0, nil
+	return []string{}, nil
 }
 
 func (sender *Sender) Delete() error {

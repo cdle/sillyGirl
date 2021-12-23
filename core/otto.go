@@ -253,7 +253,7 @@ func Init123() {
 			vm.Set("bucketKeys", bucketKeys)
 			vm.Set("request", request)
 			vm.Set("push", push)
-			vm.Set("sendText", func(text string)int {
+			vm.Set("sendText", func(text string) []string {
 				i, _ := s.Reply(text)
 				return i
 			})
@@ -262,13 +262,16 @@ func Init123() {
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
 			})
-			vm.Set("sendImage", func(url string)int {
+			vm.Set("sendImage", func(url string) []string {
+				if url == "" {
+					return nil
+				}
 				i, _ := s.Reply(ImageUrl(url))
 				return i
 			})
-			vm.Set("sendVideo", func(url string)int {
+			vm.Set("sendVideo", func(url string) []string {
 				if url == "" {
-					return -1
+					return nil
 				}
 				i, _ := s.Reply(VideoUrl(url))
 				return i
@@ -285,8 +288,8 @@ func Init123() {
 				}
 				file = strings.Replace(file, "./", "", -1)
 				file = strings.Replace(file, "//", "", -1)
-				if ! strings.HasSuffix(file,".js") {
-					file=file+".js"
+				if !strings.HasSuffix(file, ".js") {
+					file = file + ".js"
 				}
 				if _, ok := importedJs[file]; ok {
 					return nil

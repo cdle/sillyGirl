@@ -252,8 +252,8 @@ func (sender *Sender) GetImType() string {
 	return "qq"
 }
 
-func (sender *Sender) GetMessageID() int {
-	return sender.Message.MessageID
+func (sender *Sender) GetMessageID() string {
+	return fmt.Sprint(sender.Message.MessageID)
 }
 
 func (sender *Sender) IsReply() bool {
@@ -309,11 +309,11 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 
 var dd sync.Map
 
-func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
+func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	chatId := sender.GetChatID()
 	if chatId != 0 {
 		if onGroups := qq.Get("spy_on", "9251251&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
-			return 0, nil
+			return []string{}, nil
 		}
 	}
 	msg := msgs[0]
@@ -337,7 +337,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 		}
 	}
 	if rt == "" {
-		return 0, nil
+		return []string{}, nil
 	}
 	rt = strings.Trim(rt, "\n")
 	if sender.Message.MessageType == "private" {
@@ -358,7 +358,7 @@ func (sender *Sender) Reply(msgs ...interface{}) (int, error) {
 			},
 		})
 	}
-	return 0, nil
+	return []string{}, nil
 }
 
 func (sender *Sender) Delete() error {
