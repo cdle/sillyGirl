@@ -284,6 +284,7 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				file = strings.Replace(file, "./", "", -1)
+				file = strings.Replace(file, "//", "", -1)
 				if ! strings.HasSuffix(file,".js") {
 					file=file+".js"
 				}
@@ -309,6 +310,7 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				dir = strings.Replace(dir, "./", "", -1)
+				dir = strings.Replace(dir, "//", "", -1)
 				dir = strings.TrimPrefix(dir, "/")
 				dir = strings.TrimSuffix(dir, "/")
 				files, err := ioutil.ReadDir(basePath + dir)
