@@ -2,6 +2,7 @@ package core
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -122,7 +123,8 @@ func Init123() {
 		if !strings.Contains(v.Name(), ".js") {
 			continue
 		}
-		jr := ExecPath + "/develop/replies/" + v.Name()
+		basePath := ExecPath + "/develop/replies/"
+		jr := basePath + v.Name()
 		data := ""
 		if strings.Contains(jr, "http") {
 			data, err = httplib.Get(jr).String()
@@ -139,28 +141,34 @@ func Init123() {
 			v, _ := ioutil.ReadAll(f)
 			data = string(v)
 		}
+		//取前1000个字符应该够了,否则有些js长度太长影响正则判断性能
+		l := 1000
+		if len([]rune(data)) < 1000 {
+			l = len([]rune(data))
+		}
+		data = string([]rune(data)[:l])
 		rules := []string{}
-		for _, res := range regexp.MustCompile(`\[rule:(.+)\]`).FindAllStringSubmatch(data, -1) {
+		for _, res := range regexp.MustCompile(`\[rule:(.+)]`).FindAllStringSubmatch(data, -1) {
 			rules = append(rules, strings.Trim(res[1], " "))
 		}
 		cron := ""
-		if res := regexp.MustCompile(`\[cron:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[cron:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			cron = strings.Trim(res[1], " ")
 		}
 		admin := false
-		if res := regexp.MustCompile(`\[admin:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[admin:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			admin = strings.Trim(res[1], " ") == "true"
 		}
 		disable := false
-		if res := regexp.MustCompile(`\[disable:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[disable:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			disable = strings.Trim(res[1], " ") == "true"
 		}
 		priority := 0
-		if res := regexp.MustCompile(`\[priority:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[priority:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			priority = Int(strings.Trim(res[1], " "))
 		}
 		server := ""
-		if res := regexp.MustCompile(`\[server:([^\[\]]+)\]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[server:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			server = strings.TrimSpace(res[1])
 		}
 		if len(rules) == 0 && cron == "" && server == "" {
@@ -262,12 +270,69 @@ func Init123() {
 				}
 				s.Reply(VideoUrl(url))
 			})
+
+			importedJs := make(map[string]struct{})
+			importedJs[jr[len(basePath):]] = struct{}{}
+			importJs := func(file string) error {
+				if file == "" {
+					return errors.New("路径不能为空")
+				}
+				if strings.Contains(file, "..") {
+					return errors.New("不能使用父路径")
+				}
+				file = strings.Replace(file, "./", "", -1)
+				if ! strings.HasSuffix(file,".js") {
+					file=file+".js"
+				}
+				if _, ok := importedJs[file]; ok {
+					return nil
+				}
+				importedJs[file] = struct{}{}
+				filePath := basePath + file
+				f, err := os.Open(filePath)
+				if err != nil {
+					return err
+				}
+				v, _ := ioutil.ReadAll(f)
+				vm.RunString(string(v))
+				return nil
+			}
+			vm.Set("importJs", importJs)
+			vm.Set("importDir", func(dir string) error {
+				if dir == "" {
+					return errors.New("路径不能为空")
+				}
+				if strings.Contains(dir, "..") {
+					return errors.New("不能使用父路径")
+				}
+				dir = strings.TrimPrefix(dir, "/")
+				files, err := ioutil.ReadDir(basePath + dir)
+				if err != nil {
+					return err
+				}
+				for _, v := range files {
+					if v.IsDir() {
+						continue
+					}
+					if !strings.Contains(v.Name(), ".js") {
+						continue
+					}
+					var firstErr error = nil
+					if err := importJs(dir + "/" + v.Name()); err != nil {
+						if firstErr == nil {
+							firstErr = err
+						}
+					}
+					return firstErr
+				}
+				return nil
+			})
 			rt, err := vm.RunString(template)
 			if err != nil {
 				return err
 			}
 			result := rt.String()
-			for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*\]`).FindAllStringSubmatch(result, -1) {
+			for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*]`).FindAllStringSubmatch(result, -1) {
 				s.Reply(ImageUrl(v[1]))
 				result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
 			}
