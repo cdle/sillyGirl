@@ -253,22 +253,25 @@ func Init123() {
 			vm.Set("bucketKeys", bucketKeys)
 			vm.Set("request", request)
 			vm.Set("push", push)
-			vm.Set("sendText", func(text string) {
-				s.Reply(text)
+			vm.Set("sendText", func(text string)int {
+				i, _ := s.Reply(text)
+				return i
 			})
 			vm.Set("Logger", Logger)
 			vm.Set("SillyGirl", SillyGirl)
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
 			})
-			vm.Set("sendImage", func(url string) {
-				s.Reply(ImageUrl(url))
+			vm.Set("sendImage", func(url string)int {
+				i, _ := s.Reply(ImageUrl(url))
+				return i
 			})
-			vm.Set("sendVideo", func(url string) {
+			vm.Set("sendVideo", func(url string)int {
 				if url == "" {
-					return
+					return -1
 				}
-				s.Reply(VideoUrl(url))
+				i, _ := s.Reply(VideoUrl(url))
+				return i
 			})
 
 			importedJs := make(map[string]struct{})
