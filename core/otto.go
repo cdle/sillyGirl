@@ -247,8 +247,9 @@ func Init123() {
 			vm.Set("push", push)
 			vm.Set("sendText", func(text string) {
 				s.Reply(text)
-
 			})
+			vm.Set("Logger", Logger)
+			vm.Set("SillyGirl", SillyGirl)
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
 			})
