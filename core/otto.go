@@ -308,7 +308,9 @@ func Init123() {
 				if strings.Contains(dir, "..") {
 					return errors.New("不能使用父路径")
 				}
+				dir = strings.Replace(dir, "./", "", -1)
 				dir = strings.TrimPrefix(dir, "/")
+				dir = strings.TrimSuffix(dir, "/")
 				files, err := ioutil.ReadDir(basePath + dir)
 				if err != nil {
 					return err
