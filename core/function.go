@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	cron "github.com/robfig/cron/v3"
@@ -14,6 +15,9 @@ import (
 
 var c *cron.Cron
 var reply = NewBucket("reply")
+
+var total uint64 = 0
+var finished uint64 = 0
 
 func init() {
 	c = cron.New()
@@ -117,6 +121,8 @@ func AddCommand(prefix string, cmds []Function) {
 }
 
 func handleMessage(sender Sender) {
+	atomic.AddUint64(&total, 1)
+	defer atomic.AddUint64(&finished, 1)
 	content := TrimHiddenCharacter(sender.GetContent())
 	defer sender.Finish()
 

@@ -328,6 +328,13 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"raw ^status$"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				return fmt.Sprintf("总计：%d，运行中：%d", total, finished-total)
+			},
+		},
+		{
 			Rules: []string{"raw ^命令$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
