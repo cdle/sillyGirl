@@ -279,6 +279,8 @@ func Init123() {
 
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
+			//2个或者2个以上"/"
+			regexp1, _ := regexp.Compile("/{2,}")
 			importJs := func(file string) error {
 				if file == "" {
 					return errors.New("路径不能为空")
@@ -287,7 +289,7 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				file = strings.Replace(file, "./", "", -1)
-				file = strings.Replace(file, "//", "", -1)
+				file = regexp1.ReplaceAllString(file,  "/")
 				if !strings.HasSuffix(file, ".js") {
 					file = file + ".js"
 				}
@@ -313,7 +315,8 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				dir = strings.Replace(dir, "./", "", -1)
-				dir = strings.Replace(dir, "//", "", -1)
+				dir = regexp1.ReplaceAllString(dir,  "/")
+				//统一处理为没有前后"/"
 				dir = strings.TrimPrefix(dir, "/")
 				dir = strings.TrimSuffix(dir, "/")
 				files, err := ioutil.ReadDir(basePath + dir)
