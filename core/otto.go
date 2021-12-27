@@ -258,6 +258,7 @@ func Init123() {
 				return i
 			})
 			vm.Set("Logger", Logger)
+			vm.Set("console",console)
 			vm.Set("SillyGirl", SillyGirl)
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
@@ -289,7 +290,7 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				file = strings.Replace(file, "./", "", -1)
-				file = regexp1.ReplaceAllString(file,  "/")
+				file = regexp1.ReplaceAllString(file, "/")
 				if !strings.HasSuffix(file, ".js") {
 					file = file + ".js"
 				}
@@ -315,7 +316,7 @@ func Init123() {
 					return errors.New("不能使用父路径")
 				}
 				dir = strings.Replace(dir, "./", "", -1)
-				dir = regexp1.ReplaceAllString(dir,  "/")
+				dir = regexp1.ReplaceAllString(dir, "/")
 				//统一处理为没有前后"/"
 				dir = strings.TrimPrefix(dir, "/")
 				dir = strings.TrimSuffix(dir, "/")
