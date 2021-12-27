@@ -196,6 +196,7 @@ func initSys() {
 								if i == 1 && Transport != nil {
 									req.SetTransport(Transport)
 								}
+								req.SetTimeout(time.Minute*5, time.Minute*5)
 								data, err := req.Bytes()
 								if err != nil {
 									// return "下载程序错误：" + err.Error()

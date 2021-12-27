@@ -489,7 +489,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		req.Header("Content-Type", "application/json")
 	}
 	for i := range formData {
-		req.Param(i, fmt.Sprint(headers[i]))
+		req.Param(i, fmt.Sprint(formData[i]))
 	}
 	if body != "" {
 		req.Body(body)
