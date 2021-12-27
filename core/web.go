@@ -204,6 +204,7 @@ app.get('/lastTime', (req, res) => {
 		}
 		vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
 		vm.Set("Logger", Logger)
+		vm.Set("console", console)
 		vm.Set("SillyGirl", SillyGirl)
 		vm.Set("Request", newrequest)
 		vm.Set("request", request)
@@ -530,4 +531,57 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	} else {
 		return bd
 	}
+}
+
+var console = map[string]func(...interface{}){
+	"info":func(v ...interface{}) {
+		if len(v) == 0 {
+			return
+		}
+		if len(v) == 1 {
+			logs.Info(v[0])
+			return
+		}
+		logs.Info(v[0], v[1:]...)
+	},
+	"debug":func(v ...interface{}) {
+		if len(v) == 0 {
+			return
+		}
+		if len(v) == 1 {
+			logs.Debug(v[0])
+			return
+		}
+		logs.Debug(v[0], v[1:]...)
+	},
+	"warn": func(v ...interface{}) {
+		if len(v) == 0 {
+			return
+		}
+		if len(v) == 1 {
+			logs.Warn(v[0])
+			return
+		}
+		logs.Warn(v[0], v[1:]...)
+	},
+	"error": func(v ...interface{}) {
+		if len(v) == 0 {
+			return
+		}
+		if len(v) == 1 {
+			logs.Error(v[0])
+			return
+		}
+		logs.Error(v[0], v[1:]...)
+	},
+	"log": func(v ...interface{}) {
+		if len(v) == 0 {
+			return
+		}
+		if len(v) == 1 {
+			logs.Info(v[0])
+			return
+		}
+		logs.Info(v[0], v[1:]...)
+	},
 }
