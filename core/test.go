@@ -128,7 +128,7 @@ func initSys() {
 				}
 				if !sillyGirl.GetBool("forbid_uninstall") {
 					if clear {
-						os.RemoveAll("/etc/sillyGirl")
+						os.RemoveAll(dataHome)
 					}
 					os.RemoveAll(ExecPath)
 					os.RemoveAll("/usr/lib/systemd/system/sillyGirl.service")

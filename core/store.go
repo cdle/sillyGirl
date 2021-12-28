@@ -30,12 +30,10 @@ func NewBucket(name string) Bucket {
 
 func initStore() {
 	var err error
-	if runtime.GOOS == "windows" {
-		db, err = bolt.Open(`C:\ProgramData\sillyGirl.cache`, 0600, nil)
-	} else if runtime.GOOS == "darwin" {
+	if runtime.GOOS == "darwin" {
 		db, err = bolt.Open("./sillyGirl.cache", 0600, nil)
 	} else {
-		db, err = bolt.Open("/etc/sillyGirl/sillyGirl.cache", 0600, nil)
+		db, err = bolt.Open(dataHome+"/sillyGirl.cache", 0600, nil)
 	}
 	if err != nil {
 		panic(err)

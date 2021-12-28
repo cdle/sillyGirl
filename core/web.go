@@ -51,11 +51,11 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 }
 
 func init() {
-	_, err := os.Stat("/etc/sillyGirl/views/home/hello.html")
+	_, err := os.Stat(dataHome + "/views/home/hello.html")
 	if os.IsNotExist(err) {
-		os.MkdirAll("/etc/sillyGirl/views/home", os.ModePerm)
-		os.MkdirAll("/etc/sillyGirl/assets", os.ModePerm)
-		os.WriteFile("/etc/sillyGirl/views/home/hello.html", []byte(
+		os.MkdirAll(dataHome+"/views/home", os.ModePerm)
+		os.MkdirAll(dataHome+"/assets", os.ModePerm)
+		os.WriteFile(dataHome+"/views/home/hello.html", []byte(
 			`<!DOCTYPE html>
 <html lang="en">
 
@@ -78,10 +78,10 @@ func init() {
 </html>`), os.ModePerm)
 	}
 
-	_, err = os.Stat("/etc/sillyGirl/express.js")
+	_, err = os.Stat(dataHome + "/express.js")
 	var d = "`"
 	if os.IsNotExist(err) {
-		os.WriteFile("/etc/sillyGirl/views/home/hello.html", []byte(
+		os.WriteFile(dataHome+"/views/home/hello.html", []byte(
 			`<!DOCTYPE html>
 <html lang="en">
 
@@ -102,7 +102,7 @@ func init() {
 </body>
 
 </html>`), os.ModePerm)
-		os.WriteFile("/etc/sillyGirl/express.js", []byte(
+		os.WriteFile(dataHome+"/express.js", []byte(
 			`// 获取web服务实例
 var app = Express();
 // 获取日志实例
@@ -186,8 +186,8 @@ app.get('/lastTime', (req, res) => {
 
 `), os.ModePerm)
 	}
-	Server.Static("/assets", "/etc/sillyGirl/assets")
-	Server.LoadHTMLGlob("/etc/sillyGirl/views/**/*")
+	Server.Static("/assets", dataHome+"/assets")
+	Server.LoadHTMLGlob(dataHome + "/views/**/*")
 	Server.NoRoute(func(c *gin.Context) {
 		patchPostForm(c)
 		var status = http.StatusOK
@@ -197,7 +197,7 @@ app.get('/lastTime', (req, res) => {
 		var bodyData, _ = ioutil.ReadAll(c.Request.Body)
 		var isRedirect bool
 		vm := goja.New()
-		script, err := os.ReadFile("/etc/sillyGirl/express.js")
+		script, err := os.ReadFile(dataHome + "/express.js")
 		if err != nil {
 			c.String(404, err.Error())
 			return
@@ -534,7 +534,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 }
 
 var console = map[string]func(...interface{}){
-	"info":func(v ...interface{}) {
+	"info": func(v ...interface{}) {
 		if len(v) == 0 {
 			return
 		}
@@ -544,7 +544,7 @@ var console = map[string]func(...interface{}){
 		}
 		logs.Info(v[0], v[1:]...)
 	},
-	"debug":func(v ...interface{}) {
+	"debug": func(v ...interface{}) {
 		if len(v) == 0 {
 			return
 		}

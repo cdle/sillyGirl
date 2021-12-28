@@ -12,12 +12,24 @@ import (
 
 var Duration time.Duration
 
+var dataHome = ""
+
 func init() {
 	killp()
-	_, err := os.Stat("/etc/sillyGirl/")
-	if err != nil {
-		os.MkdirAll("/etc/sillyGirl/", os.ModePerm)
+	if runtime.GOOS == "windows" {
+		_, err := os.Stat(`C:\ProgramData\sillyGirl`)
+		if err != nil {
+			os.MkdirAll(`C:\ProgramData\sillyGirl`, os.ModePerm)
+		}
+		dataHome = `C:\ProgramData\sillyGirl`
+	} else {
+		_, err := os.Stat("/etc/sillyGirl")
+		if err != nil {
+			os.MkdirAll("/etc/sillyGirl", os.ModePerm)
+		}
+		dataHome = `/etc/sillyGirl`
 	}
+
 	for _, arg := range os.Args {
 		if arg == "-d" {
 			initStore()
@@ -29,13 +41,7 @@ func init() {
 	InitReplies()
 	initToHandleMessage()
 
-	var file *os.File
-
-	if runtime.GOOS == "windows" {
-		file, err = os.Open(`C:\ProgramData\sillyGirl.conf`)
-	} else {
-		file, err = os.Open("/etc/sillyGirl/sets.conf")
-	}
+	file, err := os.Open(dataHome + "/sets.conf")
 
 	if err == nil {
 		scanner := bufio.NewScanner(file)
