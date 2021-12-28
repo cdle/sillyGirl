@@ -113,6 +113,9 @@ func init() {
 			DateFormat:     "XML",
 		}
 		app := server.New(cfg)
+		core.Pushs["wxmp"] = func(i1 interface{}, s1 string, _ interface{}, _ string) {
+			app.SendText(fmt.Sprint(i1), s1)
+		}
 		core.Server.Any("/wx/", func(c *gin.Context) {
 			ctx := app.VerifyURL(c.Writer, c.Request)
 			if ctx.Msg.Event == "subscribe" {
