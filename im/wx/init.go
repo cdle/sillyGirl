@@ -24,6 +24,7 @@ var mode = "bgm"
 
 func init() {
 	core.Pushs["wx"] = func(i interface{}, s string, _ interface{}, _ string) {
+		s = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(s, "file")
 		if robot_wxid != "" {
 			pmsg := TextMsg{
 				Msg:    s,
