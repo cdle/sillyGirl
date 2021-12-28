@@ -258,7 +258,7 @@ func Init123() {
 				return i
 			})
 			vm.Set("Logger", Logger)
-			vm.Set("console",console)
+			vm.Set("console", console)
 			vm.Set("SillyGirl", SillyGirl)
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
@@ -341,19 +341,20 @@ func Init123() {
 				}
 				return nil
 			})
-			rt, err := vm.RunString(template)
+			_, err = vm.RunString(template)
 			if err != nil {
 				return err
 			}
-			result := rt.String()
-			for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*]`).FindAllStringSubmatch(result, -1) {
-				s.Reply(ImageUrl(v[1]))
-				result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
-			}
-			if result == "" || result == "undefined" {
-				return nil
-			}
-			return result
+			return nil
+			// result := rt.String()
+			// for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*]`).FindAllStringSubmatch(result, -1) {
+			// 	s.Reply(ImageUrl(v[1]))
+			// 	result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
+			// }
+			// if result == "" || result == "undefined" {
+			// 	return nil
+			// }
+			// return result
 		}
 		// logs.Warn("回复：%s添加成功", jr)
 		AddCommand("", []Function{
