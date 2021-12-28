@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"regexp"
+	"runtime"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -28,7 +29,14 @@ func init() {
 	InitReplies()
 	initToHandleMessage()
 
-	file, err := os.Open("/etc/sillyGirl/sets.conf")
+	var file *os.File
+
+	if runtime.GOOS == "windows" {
+		file, err = os.Open(`C:\ProgramData\sillyGirl.conf`)
+	} else {
+		file, err = os.Open("/etc/sillyGirl/sets.conf")
+	}
+
 	if err == nil {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
