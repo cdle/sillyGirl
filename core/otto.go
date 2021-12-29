@@ -191,6 +191,7 @@ func Init123() {
 				}
 				return nil
 			})
+			vm.Set("require", require)
 			vm.Set("Request", newrequest)
 			vm.Set("request", request)
 			vm.Set("cancall", func(key string) interface{} {
