@@ -208,6 +208,7 @@ app.get('/lastTime', (req, res) => {
 		vm.Set("SillyGirl", SillyGirl)
 		vm.Set("Request", newrequest)
 		vm.Set("request", request)
+		vm.Set("fetch", request)
 		vm.Set("require", require)
 		Render := func(path string, obj map[string]interface{}) {
 			c.HTML(http.StatusOK, path, obj)
