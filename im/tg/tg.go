@@ -94,10 +94,10 @@ func init() {
 			return
 		}
 		settings := tb.Settings{
-			Token:     token,
-			Poller:    &tb.LongPoller{Timeout: 10 * time.Second},
-			ParseMode: tb.ModeMarkdownV2,
-			URL:       tg.Get("url"),
+			Token:  token,
+			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
+			// ParseMode: tb.ModeMarkdownV2,
+			URL: tg.Get("url"),
 		}
 		if Transport != nil {
 			settings.Client = &http.Client{Transport: Transport}
