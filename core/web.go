@@ -434,7 +434,7 @@ func require(str string) interface{} {
 	return nil
 }
 
-func request(wt interface{}, handles ...func(error, map[string]interface{}, ...interface{}) interface{}) interface{} {
+func request(wt interface{}, handles ...func(error, map[string]interface{}, interface{}) interface{}) interface{} {
 	var method = "get"
 	var url = ""
 	var req *httplib.BeegoHTTPRequest
@@ -537,7 +537,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, ...i
 		rspObj["body"] = bd
 	}
 	if len(handles) > 0 {
-		return handles[0](err, rspObj, []interface{}{bd}...)
+		return handles[0](err, rspObj, bd)
 	} else {
 		return bd
 	}
