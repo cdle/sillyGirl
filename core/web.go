@@ -534,6 +534,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, ...i
 		} else {
 			bd = string(data)
 		}
+		rspObj["body"] = bd
 	}
 	if len(handles) > 0 {
 		return handles[0](err, rspObj, bd)
