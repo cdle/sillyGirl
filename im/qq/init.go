@@ -75,14 +75,18 @@ type QQ struct {
 
 func (qq *QQ) WriteJSON(ca CallApi) (string, error) {
 	qq.Lock()
-	defer qq.Unlock()
 	qq.id++
 	ca.Echo = fmt.Sprint(qq.id)
-	qq.chans[ca.Echo] = make(chan string, 1)
-	qq.conn.WriteJSON(ca)
+	if err := qq.conn.WriteJSON(ca); err != nil {
+		qq.Unlock()
+		return "", err
+	}
+	cy := make(chan string, 1)
+	defer close(cy)
+	qq.chans[ca.Echo] = cy
+	qq.Unlock()
 	select {
-	case v := <-qq.chans[ca.Echo]:
-		delete(qq.chans, ca.Echo)
+	case v := <-cy:
 		return v, nil
 	case <-time.After(time.Second * 60):
 	}
