@@ -477,3 +477,21 @@ func (sender *Sender) Copy() core.Sender {
 	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Sender)
 	return &new
 }
+
+func (sender *Sender) RecallMessage(ps ...interface{}) error {
+	for _, p := range ps {
+		switch p.(type) {
+		case string:
+			b.Delete(&tb.Message{
+				ID: core.Int(p),
+			})
+		case []string:
+			for _, v := range p.([]string) {
+				b.Delete(&tb.Message{
+					ID: core.Int(v),
+				})
+			}
+		}
+	}
+	return nil
+}
