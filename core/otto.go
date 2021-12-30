@@ -206,6 +206,7 @@ func Init123() {
 			vm.Set("GetUsername", s.GetUsername)
 			vm.Set("GetChatname", s.GetChatname)
 			vm.Set("GetMessageID", s.GetMessageID)
+			vm.Set("RecallMessage", s.RecallMessage)
 			vm.Set("Debug", func(str string) {
 				logs.Debug(str)
 			})
@@ -264,6 +265,7 @@ func Init123() {
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
 			})
+
 			vm.Set("sendImage", func(url string) []string {
 				if url == "" {
 					return nil

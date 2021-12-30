@@ -17,7 +17,7 @@ type Sender interface {
 	GetChatID() int
 	GetImType() string
 	GetMessageID() string
-	RecallMessage(interface{}) error
+	RecallMessage(...interface{}) error
 	GetUsername() string
 	GetChatname() string
 	IsReply() bool
@@ -263,7 +263,7 @@ func (sender *BaseSender) GetMessageID() string {
 	return ""
 }
 
-func (sender *BaseSender) RecallMessage(interface{}) error {
+func (sender *BaseSender) RecallMessage(...interface{}) error {
 	return nil
 }
 

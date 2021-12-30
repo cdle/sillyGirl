@@ -428,3 +428,27 @@ func (sender *Sender) GetUsername() string {
 func (sender *Sender) GetChatname() string {
 	return ""
 }
+
+func (sender *Sender) RecallMessage(ps ...interface{}) error {
+	for _, p := range ps {
+		switch p.(type) {
+		case string:
+			sender.Conn.WriteJSON(CallApi{
+				Action: "delete_msg",
+				Params: map[string]interface{}{
+					"message_id": p,
+				},
+			})
+		case []string:
+			for _, v := range p.([]string) {
+				sender.Conn.WriteJSON(CallApi{
+					Action: "delete_msg",
+					Params: map[string]interface{}{
+						"message_id": v,
+					},
+				})
+			}
+		}
+	}
+	return nil
+}
