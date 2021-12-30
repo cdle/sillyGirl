@@ -153,10 +153,10 @@ func handleMessage(sender Sender) {
 			mtd = true
 			c.Chan <- sender
 			sender.Reply(<-c.Result)
-			if !sender.IsContinue() {
-				con = false
-				return false
-			}
+			// if !sender.IsContinue() {
+			// 	con = false
+			// 	return false
+			// }
 			content = TrimHiddenCharacter(sender.GetContent())
 		}
 		return true
