@@ -135,6 +135,7 @@ func handleMessage(sender Sender) {
 	con := true
 	mtd := false
 	waits.Range(func(k, v interface{}) bool {
+		logs.Debug(k.(string), c, "")
 		c := v.(*Carry)
 		vs, _ := url.ParseQuery(k.(string))
 		userID := vs.Get("u")
