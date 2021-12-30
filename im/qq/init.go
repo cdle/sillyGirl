@@ -210,6 +210,7 @@ func init() {
 					if res.Echo != "" {
 						qqcon.RLock()
 						defer qqcon.RUnlock()
+						logs.Warn("收到回调，----", res)
 						if c, ok := qqcon.chans[res.Echo]; ok {
 							c <- res.Echo
 						}
