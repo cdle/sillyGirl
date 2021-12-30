@@ -351,7 +351,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 	c.Chan = make(chan interface{}, 1)
 	c.Result = make(chan interface{}, 1)
 
-	key := fmt.Sprintf("u=%v&c=%v&i=%v&t=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType(), time.Now().Unix())
+	key := fmt.Sprintf("u=%v&c=%v&i=%v&t=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType(), time.Now().UnixNano())
 	if fg != nil {
 		key += fmt.Sprintf("&f=true")
 	}
