@@ -84,7 +84,6 @@ func (qq *QQ) WriteJSON(ca CallApi) (string, error) {
 		qq.Unlock()
 		return "", err
 	}
-
 	qq.Unlock()
 	select {
 	case v := <-cy:
@@ -211,9 +210,12 @@ func init() {
 					if res.Echo != "" {
 						qqcon.RLock()
 						defer qqcon.RUnlock()
-						logs.Warn("收到回调，----", res)
+						logs.Warn("收到回调，----", res.Echo)
 						if c, ok := qqcon.chans[res.Echo]; ok {
+
 							c <- res.Echo
+						} else {
+							logs.Warn("滴滴滴，----", res.Echo)
 						}
 						return
 					}
