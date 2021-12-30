@@ -212,7 +212,7 @@ func init() {
 						defer qqcon.RUnlock()
 						logs.Warn("收到回调，----", res.Echo)
 						if c, ok := qqcon.chans[res.Echo]; ok {
-
+							logs.Warn("滴滴ccc滴，----", res.Echo)
 							c <- res.Echo
 						} else {
 							logs.Warn("滴滴滴，----", res.Echo)
