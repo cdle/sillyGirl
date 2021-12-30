@@ -169,6 +169,7 @@ func init() {
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
+				fmt.Println(string(data))
 				if err != nil {
 					ws.Close()
 					logs.Info("QQ机器人(%s)已断开。", botID)
