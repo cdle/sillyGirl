@@ -47,7 +47,7 @@ type Message struct {
 	Font        int         `json:"font"`
 	GroupID     int         `json:"group_id"`
 	Message     string      `json:"message"`
-	MessageID   int         `json:"message_id"`
+	MessageID   interface{} `json:"message_id"`
 	MessageType string      `json:"message_type"`
 	PostType    string      `json:"post_type"`
 	RawMessage  string      `json:"raw_message"`
