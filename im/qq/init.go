@@ -190,7 +190,7 @@ func init() {
 		go func() {
 			for {
 				_, data, err := ws.ReadMessage()
-				// fmt.Println(string(data))
+				fmt.Println(string(data))
 				if err != nil {
 					ws.Close()
 					logs.Info("QQ机器人(%s)已断开。", botID)
@@ -213,10 +213,6 @@ func init() {
 							c <- fmt.Sprint(res.Data.MessageID)
 						}
 						qqcon.RUnlock()
-						//{"retcode":104,"data":null,"status":"failed","error":{"code":-1,"message":"client not online"},"echo":"1"}
-						// if res.Retcode != 104 {
-
-						// }
 						continue
 					}
 				}
@@ -250,7 +246,12 @@ func init() {
 				// }
 			}
 		}()
-
+		for {
+			qqcon.WriteJSON(CallApi{
+				Action: "get_status",
+			})
+			time.Sleep(time.Second)
+		}
 	})
 }
 

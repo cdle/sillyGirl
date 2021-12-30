@@ -159,7 +159,7 @@ func init() {
 		jms := JsonMsg{}
 		json.Unmarshal(data, &jms)
 		c.JSON(200, map[string]string{"code": "-1"})
-		fmt.Println(jms.Type, jms.Msg)
+		// fmt.Println(jms.Type, jms.Msg)
 		if jms.Event != "EventFriendMsg" && jms.Event != "EventGroupMsg" {
 			return
 		}
