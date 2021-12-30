@@ -74,7 +74,9 @@ type QQ struct {
 }
 
 func (qq *QQ) WriteJSON(ca CallApi) (string, error) {
+	logs.Info("send")
 	qq.Lock()
+	logs.Info("send..")
 	qq.id++
 	ca.Echo = fmt.Sprint(qq.id)
 	cy := make(chan string, 1)
