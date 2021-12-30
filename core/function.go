@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/beego/beego/v2/core/logs"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -150,6 +151,7 @@ func handleMessage(sender Sender) {
 			return true
 		}
 		if m := regexp.MustCompile(c.Pattern).FindString(content); m != "" {
+			logs.Debug(k.(string), c)
 			mtd = true
 			c.Chan <- sender
 			sender.Reply(<-c.Result)
@@ -161,6 +163,7 @@ func handleMessage(sender Sender) {
 		}
 		return true
 	})
+	logs.Debug(mtd, con)
 	if mtd && !con {
 		return
 	}
