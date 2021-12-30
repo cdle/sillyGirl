@@ -213,6 +213,10 @@ func init() {
 							c <- fmt.Sprint(res.Data.MessageID)
 						}
 						qqcon.RUnlock()
+						//{"retcode":104,"data":null,"status":"failed","error":{"code":-1,"message":"client not online"},"echo":"1"}
+						// if res.Retcode != 104 {
+
+						// }
 						continue
 					}
 				}
