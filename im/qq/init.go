@@ -115,8 +115,10 @@ func init() {
 			defaultBot = botID
 		}
 		qqcon := &QQ{
-			conn: ws,
+			conn:  ws,
+			chans: make(map[string]chan string),
 		}
+
 		conns[botID] = qqcon
 		if !strings.Contains(ignore, botID) {
 			ignore += "&" + botID
