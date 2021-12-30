@@ -74,17 +74,17 @@ type QQ struct {
 }
 
 func (qq *QQ) WriteJSON(ca CallApi) (string, error) {
-	// qq.Lock()
+	qq.Lock()
 	qq.id++
 	ca.Echo = fmt.Sprint(qq.id)
 	cy := make(chan string, 1)
 	defer close(cy)
 	qq.chans[ca.Echo] = cy
 	if err := qq.conn.WriteJSON(ca); err != nil {
-		// qq.Unlock()
+		qq.Unlock()
 		return "", err
 	}
-	// qq.Unlock()
+	qq.Unlock()
 	select {
 	case v := <-cy:
 		return v, nil
@@ -208,14 +208,14 @@ func init() {
 					res := &Result{}
 					json.Unmarshal(data, res)
 					if res.Echo != "" {
-						// qqcon.RLock()
-						// defer qqcon.RUnlock()
+						qqcon.RLock()
+						defer qqcon.RUnlock()
 						logs.Warn("收到回调，----", res.Echo)
 						if c, ok := qqcon.chans[res.Echo]; ok {
 							logs.Warn("滴滴ccc滴，----", res.Echo)
 							c <- res.Echo
 						}
-						return
+						continue
 					}
 				}
 				msg := &Message{}
