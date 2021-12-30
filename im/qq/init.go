@@ -187,71 +187,76 @@ func init() {
 				},
 			})
 		}
-		go func() {
-			for {
-				_, data, err := ws.ReadMessage()
-				fmt.Println(string(data))
-				if err != nil {
-					ws.Close()
-					logs.Info("QQ机器人(%s)已断开。", botID)
-					delete(conns, botID)
-					if defaultBot == botID {
-						defaultBot = ""
-						for v := range conns {
-							defaultBot = v
-							break
-						}
-					}
-					break
-				}
-				{
-					res := &Result{}
-					json.Unmarshal(data, res)
-					if res.Echo != "" {
-						qqcon.RLock()
-						if c, ok := qqcon.chans[res.Echo]; ok {
-							c <- fmt.Sprint(res.Data.MessageID)
-						}
-						qqcon.RUnlock()
-						continue
-					}
-				}
-				msg := &Message{}
-				json.Unmarshal(data, msg)
-				if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
-					continue
-				}
-				// fmt.Println(msg)
-				if msg.SelfID == msg.UserID {
-					continue
-				}
-				if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
-					continue
-				}
-				if msg.GroupID != 0 {
-					if onGroups := qq.Get("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
-						continue
-					}
-					if onGroups := qq.Get("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
-						continue
-					}
-				}
-				// if msg.PostType == "message" {
-				msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
-				msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
-				core.Senders <- &Sender{
-					Conn:    qqcon,
-					Message: msg,
-				}
-				// }
-			}
-		}()
+		// var closed bool
+		// go func() {
 		for {
-			qqcon.WriteJSON(CallApi{
-				Action: "get_status",
-			})
-			time.Sleep(time.Second)
+			_, data, err := ws.ReadMessage()
+			// fmt.Println(string(data))
+			if err != nil {
+				ws.Close()
+				logs.Info("QQ机器人(%s)已断开。", botID)
+				delete(conns, botID)
+				if defaultBot == botID {
+					defaultBot = ""
+					for v := range conns {
+						defaultBot = v
+						break
+					}
+				}
+				break
+			}
+			{
+				res := &Result{}
+				json.Unmarshal(data, res)
+				if res.Echo != "" {
+					qqcon.RLock()
+					if c, ok := qqcon.chans[res.Echo]; ok {
+						c <- fmt.Sprint(res.Data.MessageID)
+					}
+					qqcon.RUnlock()
+					continue
+				}
+			}
+			msg := &Message{}
+			json.Unmarshal(data, msg)
+			if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
+				continue
+			}
+			// fmt.Println(msg)
+			if msg.SelfID == msg.UserID {
+				continue
+			}
+			if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
+				continue
+			}
+			if msg.GroupID != 0 {
+				if onGroups := qq.Get("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+					continue
+				}
+				if onGroups := qq.Get("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+					continue
+				}
+			}
+			// if msg.PostType == "message" {
+			msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
+			msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
+			core.Senders <- &Sender{
+				Conn:    qqcon,
+				Message: msg,
+			}
+			// }
 		}
+		// closed = true
+		// }()
+		// for {
+		// 	if closed {
+		// 		break
+		// 	}
+		// 	qqcon.WriteJSON(CallApi{
+		// 		Action: "get_status",
+		// 	})
+		// 	time.Sleep(time.Second)
+		// }
 	})
 }
 
