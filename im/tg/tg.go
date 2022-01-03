@@ -507,8 +507,9 @@ func (sender *Sender) RecallMessage(ps ...interface{}) error {
 		case string:
 			if p.(string) == "-1" {
 				b.Delete(sender.Message)
+			} else {
+				b.Delete(&sender.replied[core.Int(p.(string))])
 			}
-			b.Delete(&sender.replied[core.Int(p.(string))])
 		case []string:
 			for _, v := range p.([]string) {
 				b.Delete(&sender.replied[core.Int(v)])
