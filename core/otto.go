@@ -199,6 +199,9 @@ func Init123() {
 				return ok
 			})
 			vm.Set("Delete", s.Delete)
+			vm.Set("timeFmt", func(str string) string {
+				return time.Now().Format(str)
+			})
 			vm.Set("GetChatID", s.GetChatID)
 			vm.Set("GetImType", s.GetImType)
 			vm.Set("ImType", s.GetImType)
