@@ -309,7 +309,9 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 		r = sender.Message.Chat
 		if !sender.deleted {
 			if sender.Message.ReplyTo == nil {
-				options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+				if !sender.deleted {
+					options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message}}
+				}
 			} else {
 				options = []interface{}{&tb.SendOptions{ReplyTo: sender.Message.ReplyTo}}
 			}
@@ -506,6 +508,9 @@ func (sender *Sender) RecallMessage(ps ...interface{}) error {
 		switch p.(type) {
 		case string:
 			if p.(string) == "-1" {
+				if !sender.deleted {
+					sender.deleted = true
+				}
 				b.Delete(sender.Message)
 			} else {
 				b.Delete(&sender.replied[core.Int(p.(string))])
