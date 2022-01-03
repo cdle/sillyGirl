@@ -26,7 +26,7 @@ type Sender struct {
 	deleted  bool
 	reply    *tb.Message
 	core.BaseSender
-	sync.Mutex
+	sync.RWMutex
 	replied []tb.Message
 }
 
@@ -240,7 +240,7 @@ func (sender *Sender) GetImType() string {
 }
 
 func (sender *Sender) GetMessageID() string {
-	return fmt.Sprint(sender.Message.ID)
+	return "-1"
 }
 
 func (sender *Sender) GetUsername() string {
@@ -319,10 +319,15 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	switch msg.(type) {
 	case error:
 		rt, err = b.Send(r, fmt.Sprintf("%v", msg), options...)
-		ids = append(ids, sender.addReplied(*rt)...)
+		if err == nil {
+			ids = append(ids, sender.addReplied(*rt)...)
+		}
 	case []byte:
 		rt, err = b.Send(r, string(msg.([]byte)), options...)
-		ids = append(ids, sender.addReplied(*rt)...)
+		if err == nil {
+			ids = append(ids, sender.addReplied(*rt)...)
+		}
+
 	case string:
 		message := msg.(string)
 		if edit != nil && sender.reply != nil {
@@ -419,7 +424,6 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 		rts, err := b.SendAlbum(r, tb.Album{&tb.Photo{File: tb.FromURL(string(msg.(core.ImageUrl)))}}, options...)
 		if err == nil {
 			ids = append(ids, sender.addReplied(rts...)...)
-
 		}
 	case core.VideoUrl:
 		rts, err := b.SendAlbum(r, tb.Album{&tb.Video{File: tb.FromURL(string(msg.(core.VideoUrl)))}}, options...)
@@ -496,20 +500,21 @@ func (sender *Sender) Copy() core.Sender {
 }
 
 func (sender *Sender) RecallMessage(ps ...interface{}) error {
-	// for _, p := range ps {
-	// 	switch p.(type) {
-	// 	case string:
-	// 		b.Delete(&tb.Message{
-	// 			ID: core.Int(p),
-	// 		})
-	// 	case []string:
-	// 		for _, v := range p.([]string) {
-	// 			b.Delete(&tb.Message{
-	// 				ID: core.Int(v),
-	// 			})
-	// 		}
-	// 	}
-	// }
+	sender.RLock()
+	defer sender.RUnlock()
+	for _, p := range ps {
+		switch p.(type) {
+		case string:
+			if p.(string) == "-1" {
+				b.Delete(sender.Message)
+			}
+			b.Delete(&sender.replied[core.Int(p.(string))])
+		case []string:
+			for _, v := range p.([]string) {
+				b.Delete(&sender.replied[core.Int(v)])
+			}
+		}
+	}
 	return nil
 }
 
