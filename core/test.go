@@ -528,18 +528,6 @@ Alias=sillyGirl.service`
 				return "电脑重启后生效。"
 			},
 		},
-		// {
-		// 	Rules: []string{"raw .*pornhub.*"},
-		// 	Handle: func(s Sender) interface{} {
-		// 		s.Reply("你已涉黄永久禁言。")
-		// 		for {
-		// 			s.Await(s, func(s2 Sender, _ error) interface{} {
-		// 				s2.Disappear(time.Millisecond * 50)
-		// 				return "你已被禁言。"
-		// 			}, `[\s\S]*`, time.Duration(time.Second*300))
-		// 		}
-		// 	},
-		// },
 		{
 			Rules: []string{"raw ^成语接龙$"},
 			Handle: func(s Sender) interface{} {

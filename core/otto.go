@@ -259,6 +259,9 @@ func Init123() {
 			vm.Set("request", request)
 			vm.Set("push", push)
 			vm.Set("sendText", func(text string) []string {
+				if text == "" {
+					return []string{}
+				}
 				i, _ := s.Reply(text)
 				return i
 			})

@@ -123,6 +123,7 @@ func init() {
 				return
 			}
 			sender := &Sender{}
+			sender.tp = "wxmp"
 			sender.Message = ctx.Msg.Content
 			sender.uid = ctx.Msg.FromUserName
 			sender.ctx = ctx
@@ -137,6 +138,7 @@ type Sender struct {
 	Responses []interface{}
 	Wait      chan []interface{}
 	uid       string
+	tp        string
 	core.BaseSender
 }
 
@@ -157,7 +159,7 @@ func (sender *Sender) GetChatID() int {
 }
 
 func (sender *Sender) GetImType() string {
-	return "wxmp"
+	return sender.tp
 }
 
 func (sender *Sender) GetMessageID() string {
@@ -209,8 +211,9 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 		}
 		sender.ctx.NewText(rt).Send()
 		return []string{}, nil
+	} else {
+		sender.Responses = append(sender.Responses, msgs...)
 	}
-	sender.Responses = append(sender.Responses, msgs...)
 	return []string{}, nil
 }
 
