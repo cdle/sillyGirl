@@ -25,7 +25,7 @@ func init() {
 	core.Server.Any("/wxsv/", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
 		if ctx.Msg.Event == "subscribe" {
-			ctx.NewText(wxmp.Get("subscribe_reply", "感谢关注！")).Reply()
+			ctx.NewText(wxsv.Get("subscribe_reply", "感谢关注！")).Reply()
 			return
 		}
 		sender := &Sender{}
