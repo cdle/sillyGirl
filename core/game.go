@@ -52,7 +52,7 @@ func init() {
 				if msg == "" || msg == "同学" {
 					msg = "小爱"
 					go func() {
-						s.Reply(s.Await(s, nil))
+						s.Reply(reply(s.Await(s, nil).(string)))
 					}()
 				}
 				return reply(msg)
