@@ -26,7 +26,7 @@ func init() {
 						str, _ = jsonparser.GetString([]byte(str), strings.Split(gjson, ".")...)
 					}
 					if str == "" {
-						str = "暂时无法回复。"
+						str = "小爱暂时无法答复您。"
 					}
 					return str
 				}
@@ -49,8 +49,11 @@ func init() {
 						}, `[\s\S]*`, time.Duration(time.Second*5000))
 					}
 				}
-				if msg == "" {
+				if msg == "" || msg == "同学" {
 					msg = "小爱"
+					go func() {
+						s.Reply(s.Await(s, nil))
+					}()
 				}
 				return reply(msg)
 			},
