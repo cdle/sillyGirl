@@ -540,7 +540,7 @@ Alias=sillyGirl.service`
 					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
 					return begin
 				}
-				id := fmt.Sprintf("%v", s.GetUserID())
+				id := fmt.Sprintf("%v", time.Now().UnixNano())
 			start:
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
 				if err != nil {
@@ -572,12 +572,12 @@ Alias=sillyGirl.service`
 								stop = true
 								return nil
 							} else {
-								return GoAgain("你认输有个屁用。")
+								return GoAgain("你不可以认输哦～")
 							}
 						}
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
 							if me {
-								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
+								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦，退出请对我说“认输”。", begin))
 							} else {
 								if ct == "成语接龙" {
 									return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
@@ -635,9 +635,9 @@ Alias=sillyGirl.service`
 					goto start
 				}
 				if !win {
-					s.Reply("菜*，见一次虐一次！")
+					s.Reply("别灰心，下次再来比试一番！")
 				} else {
-					s.Reply("大爷下次再来玩啊～")
+					s.Reply("下次我一定可以打败你～")
 				}
 				return nil
 			},
