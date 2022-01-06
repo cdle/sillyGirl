@@ -250,8 +250,8 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 
 					}
 				}
-				rt = strings.Trim(rt, "\n")
 				rt = strings.Replace(rt, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
+				rt = regexp.MustCompile(`^\s`).ReplaceAllString(rt, "")
 			}
 		}
 		sender.ctx.NewText(rt).Send()
