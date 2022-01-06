@@ -47,6 +47,51 @@ var OttoFuncs = map[string]func(string) string{
 	},
 }
 
+type JsSender struct {
+	Sender Sender
+}
+
+func (sender *JsSender) GetUserID() string {
+	return sender.Sender.GetUserID()
+}
+func (sender *JsSender) GetImType() string {
+	return sender.Sender.GetImType()
+}
+func (sender *JsSender) GetGroupCode() int {
+	return sender.Sender.GetChatID()
+}
+func (sender *JsSender) IsAdmin() bool {
+	return sender.Sender.IsAdmin()
+}
+func (sender *JsSender) Reply(text string) []string {
+	if text == "" {
+		return []string{}
+	}
+	i, _ := sender.Sender.Reply(text)
+	return i
+}
+func (sender *JsSender) Await(vs ...interface{}) *JsSender {
+	var i int64
+	j := ""
+	if len(vs) > 0 {
+		i = Int64(vs[0])
+	}
+	if len(vs) > 1 {
+		j = ""
+	}
+	options := []interface{}{}
+	options = append(options, time.Duration(i)*time.Millisecond)
+	if j != "" {
+		options = append(options, ForGroup)
+	}
+	var newJsSender *JsSender
+	sender.Sender.Await(sender.Sender, func(sender Sender) interface{} {
+		newJsSender.Sender = sender
+		return nil
+	}, options...)
+	return newJsSender
+}
+
 func Init123() {
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
@@ -287,6 +332,10 @@ func Init123() {
 				return i
 			})
 
+			sender := &JsSender{
+				Sender: s,
+			}
+			vm.Set("sender", sender)
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
 			//2个或者2个以上"/"

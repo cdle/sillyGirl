@@ -65,7 +65,12 @@ type Faker struct {
 	Type    string
 	UserID  string
 	ChatID  int
+	Carry   chan string
 	BaseSender
+}
+
+func (sender *Faker) Listen() chan string {
+	return sender.Carry
 }
 
 func (sender *Faker) GetContent() string {
@@ -150,11 +155,17 @@ func (sender *Faker) Reply(msgs ...interface{}) ([]string, error) {
 	if rt != "" && n != nil {
 		NotifyMasters(rt)
 	}
-	if sender.Type == "terminal" && rt != "" {
-		fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, rt)
-		// fmt.Printf("%c[0;41;36m%s%c[0m\n", 0x1B, rt, 0x1B)
-		// fmt.Println(rt)
+
+	if rt != "" {
+		if sender.Type == "carry" {
+			if sender.Carry != nil {
+				sender.Carry <- rt
+			}
+		} else if sender.Type == "terminal" {
+			fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, rt)
+		}
 	}
+
 	return []string{}, nil
 }
 
@@ -167,7 +178,9 @@ func (sender *Faker) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Faker) Finish() {
-
+	if sender.Carry != nil {
+		close(sender.Carry)
+	}
 }
 
 func (sender *Faker) Copy() Sender {

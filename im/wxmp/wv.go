@@ -19,6 +19,19 @@ func init() {
 		DateFormat:     "XML",
 	}
 	app := server.New(cfg)
+	// app.AddMenu(&server.Menu{
+	// 	Button: []server.Button{
+	// 		{
+	// 			Name: "购物功能",
+	// 		},
+	// 		{
+	// 			Name: "好玩功能",
+	// 		},
+	// 		{
+	// 			Name: "其他功能",
+	// 		},
+	// 	},
+	// })
 	core.Pushs["wxsv"] = func(i1 interface{}, s1 string, _ interface{}, _ string) {
 		app.SendText(fmt.Sprint(i1), s1)
 	}
@@ -34,5 +47,29 @@ func init() {
 		sender.uid = ctx.Msg.FromUserName
 		sender.ctx = ctx
 		core.Senders <- sender
+	})
+
+	core.AddCommand("", []core.Function{
+		{
+			Admin: true,
+			Rules: []string{"init wxsv menu"},
+			Cron:  "1 1 * * *",
+			Handle: func(_ core.Sender) interface{} {
+				c := &core.Faker{
+					Type:    "carry",
+					Message: wxsv.Get("app_id"),
+				}
+				core.Senders <- c
+				f := ""
+				for {
+					v, ok := <-c.Listen()
+					if !ok {
+						break
+					}
+					f = v
+				}
+				return f
+			},
+		},
 	})
 }
