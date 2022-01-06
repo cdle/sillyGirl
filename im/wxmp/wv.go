@@ -9,29 +9,16 @@ import (
 )
 
 var wxsv = core.NewBucket("wxsv")
+var app = server.New(&server.WxConfig{
+	AppId:          wxsv.Get("app_id"),
+	Secret:         wxsv.Get("app_secret"),
+	Token:          wxsv.Get("token"),
+	EncodingAESKey: wxsv.Get("encoding_aes_key"),
+	DateFormat:     "XML",
+})
 
 func init() {
-	cfg := &server.WxConfig{
-		AppId:          wxsv.Get("app_id"),
-		Secret:         wxsv.Get("app_secret"),
-		Token:          wxsv.Get("token"),
-		EncodingAESKey: wxsv.Get("encoding_aes_key"),
-		DateFormat:     "XML",
-	}
-	app := server.New(cfg)
-	// app.AddMenu(&server.Menu{
-	// 	Button: []server.Button{
-	// 		{
-	// 			Name: "购物功能",
-	// 		},
-	// 		{
-	// 			Name: "好玩功能",
-	// 		},
-	// 		{
-	// 			Name: "其他功能",
-	// 		},
-	// 	},
-	// })
+
 	core.Pushs["wxsv"] = func(i1 interface{}, s1 string, _ interface{}, _ string) {
 		app.SendText(fmt.Sprint(i1), s1)
 	}
@@ -41,6 +28,7 @@ func init() {
 			ctx.NewText(wxsv.Get("subscribe_reply", "感谢关注！")).Reply()
 			return
 		}
+
 		sender := &Sender{}
 		sender.tp = "wxsv"
 		sender.Message = ctx.Msg.Content
