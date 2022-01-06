@@ -64,6 +64,10 @@ func (sender *JsSender) GetContent() string {
 func (sender *JsSender) GetImType() string {
 	return sender.Sender.GetImType()
 }
+func (sender *JsSender) GetUsername() string {
+	return sender.Sender.GetUsername()
+}
+
 func (sender *JsSender) GetGroupCode() int {
 	return sender.Sender.GetChatID()
 }
