@@ -253,7 +253,7 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 				//
 			}
 		}
-		rt = regexp.MustCompile(`[CQ:[^\[\]]+\]`).ReplaceAllString(rt, "")
+		rt = regexp.MustCompile(`\[CQ:([^\[\]]+)\]`).ReplaceAllString(rt, "")
 		rt = regexp.MustCompile(`^\s`).ReplaceAllString(rt, "")
 		sender.ctx.NewText(rt).Send()
 		return []string{}, nil
