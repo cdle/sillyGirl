@@ -89,7 +89,7 @@ func (sender *JsSender) Await(vs ...interface{}) *JsSender {
 	}
 	var newJsSender *JsSender
 	sender.Sender.Await(sender.Sender, func(sender Sender) interface{} {
-		logs.Warn(newJsSender.Sender, sender)
+		newJsSender = &JsSender{}
 		newJsSender.Sender = sender
 		return nil
 	}, options...)
