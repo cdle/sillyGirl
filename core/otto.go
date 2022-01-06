@@ -407,6 +407,9 @@ func Init123() {
 			})
 			_, err = vm.RunString(template)
 			if err != nil {
+				if strings.Contains(err.Error(), "window") {
+					return nil
+				}
 				return err
 			}
 			return nil
