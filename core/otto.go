@@ -80,7 +80,7 @@ func (sender *JsSender) Await(vs ...interface{}) *JsSender {
 		i = Int64(vs[0])
 	}
 	if len(vs) > 1 {
-		j = ""
+		j = "123"
 	}
 	options := []interface{}{}
 	options = append(options, time.Duration(i)*time.Millisecond)
