@@ -54,6 +54,9 @@ type JsSender struct {
 func (sender *JsSender) GetUserID() string {
 	return sender.Sender.GetUserID()
 }
+func (sender *JsSender) GetContent() string {
+	return sender.Sender.GetContent()
+}
 func (sender *JsSender) GetImType() string {
 	return sender.Sender.GetImType()
 }
@@ -335,7 +338,7 @@ func Init123() {
 			sender := &JsSender{
 				Sender: s,
 			}
-			vm.Set("sender", sender)
+			vm.Set("Sender", sender)
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
 			//2个或者2个以上"/"
