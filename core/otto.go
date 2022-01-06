@@ -73,18 +73,12 @@ func (sender *JsSender) Reply(text string) []string {
 	i, _ := sender.Sender.Reply(text)
 	return i
 }
-func (sender *JsSender) Await(vs ...interface{}) *JsSender {
-	var i int64
-	j := ""
-	if len(vs) > 0 {
-		i = Int64(vs[0])
-	}
-	if len(vs) > 1 {
-		j = "123"
-	}
+func (sender *JsSender) Await(timeout int, fg bool) *JsSender {
 	options := []interface{}{}
-	options = append(options, time.Duration(i)*time.Millisecond)
-	if j != "" {
+	if timeout != 0 {
+		options = append(options, time.Duration(timeout)*time.Millisecond)
+	}
+	if fg {
 		options = append(options, ForGroup)
 	}
 	var newJsSender *JsSender
