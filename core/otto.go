@@ -51,6 +51,10 @@ type JsSender struct {
 	Sender Sender
 }
 
+func (sender *JsSender) Continue() {
+	sender.Sender.Continue()
+}
+
 func (sender *JsSender) GetUserID() string {
 	return sender.Sender.GetUserID()
 }
