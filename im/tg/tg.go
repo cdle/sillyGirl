@@ -534,3 +534,17 @@ func (sender *Sender) addReplied(toadd ...tb.Message) []string {
 	}
 	return rt
 }
+
+func (sender *Sender) GroupBan(uid string, duration int) {
+	if duration < 60 {
+		duration = 60
+	}
+	b.Ban(sender.Message.Chat, &tb.ChatMember{
+		User:            &tb.User{ID: core.Int(uid)},
+		RestrictedUntil: time.Now().Unix() + int64(duration),
+	})
+}
+
+func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
+
+}
