@@ -36,7 +36,7 @@ func init() {
 		}
 
 		logs.Info(ctx.Msg.Event)
-		logs.Info(ctx.Msg.Content)
+		logs.Info(ctx.Msg.EventKey)
 
 		sender := &Sender{}
 		sender.tp = "wxsv"
