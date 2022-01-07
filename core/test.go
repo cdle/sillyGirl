@@ -160,7 +160,7 @@ func initSys() {
 					for i, prefix := range []string{"https://ghproxy.com/", ""} {
 						if str == "" && s.GetImType() != "fake" {
 							if v, ok := OttoFuncs["version"]; ok {
-								if rt := v(""); rt != "" {
+								if rt := v.(func(string) string)(""); rt != "" {
 									str = regexp.MustCompile(`\d{13}`).FindString(rt)
 								}
 							}
@@ -646,13 +646,13 @@ Alias=sillyGirl.service`
 			Rules: []string{"^machineId$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				return fmt.Sprintf("你的机器码：%s", OttoFuncs["machineId"](""))
+				return fmt.Sprintf("你的机器码：%s", OttoFuncs["machineId"].(func(string) string)(""))
 			},
 		},
 		{
 			Rules: []string{"^time$"},
 			Handle: func(s Sender) interface{} {
-				return OttoFuncs["timeFormat"]("2006-01-02 15:04:05")
+				return OttoFuncs["timeFormat"].(func(string) string)("2006-01-02 15:04:05")
 			},
 		},
 	})

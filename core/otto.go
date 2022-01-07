@@ -21,7 +21,7 @@ type JsReply string
 
 var o = NewBucket("otto")
 
-var OttoFuncs = map[string]func(string) string{
+var OttoFuncs = map[string]interface{}{
 	"machineId": func(_ string) string {
 		id, err := machineid.ProtectedID("sillyGirl")
 		if err != nil {
@@ -236,9 +236,9 @@ func Init123() {
 				return s.Get(int(i - 1))
 			}
 			vm := goja.New()
-			vm.Set("call", func(key, value string) interface{} {
+			vm.Set("call", func(key string) interface{} {
 				if f, ok := OttoFuncs[key]; ok {
-					return f(value)
+					return f
 				}
 				return nil
 			})

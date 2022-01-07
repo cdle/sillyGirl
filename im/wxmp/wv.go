@@ -27,6 +27,7 @@ func init() {
 	core.Pushs["wxsv"] = func(i1 interface{}, s1 string, _ interface{}, _ string) {
 		app.SendText(fmt.Sprint(i1), s1)
 	}
+	core.OttoFuncs["GetWxmpAccessToken"] = app.GetAccessToken
 	core.Server.Any("/wxsv/", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
 		sender := &Sender{}
