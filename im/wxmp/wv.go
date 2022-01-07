@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 	server "github.com/rixingyike/wechat"
@@ -35,9 +34,9 @@ func init() {
 			return
 		}
 
-		logs.Info(ctx.Msg.Event)
-		logs.Info(ctx.Msg.EventKey)
-
+		if ctx.Msg.Event == "CLICK" {
+			ctx.Msg.Content = "wxsv " + ctx.Msg.EventKey
+		}
 		sender := &Sender{}
 		sender.tp = "wxsv"
 		sender.Message = ctx.Msg.Content
