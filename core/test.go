@@ -616,7 +616,7 @@ Alias=sillyGirl.service`
 							}
 						} else {
 							if me {
-								data += "\n玩不过就认输呗。"
+								data += "\n玩不过就“认输”呗。"
 							} else {
 								data += "\n你以为你会，结果出丑了吧。"
 							}

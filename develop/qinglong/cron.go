@@ -19,7 +19,7 @@ type Cron struct {
 	Command    string      `json:"command"`
 	Schedule   string      `json:"schedule"`
 	Saved      bool        `json:"saved"`
-	ID         string      `json:"_id"`
+	ID         string      `json:"id"`
 	Created    int64       `json:"created"`
 	Status     int         `json:"status"`
 	Timestamp  string      `json:"timestamp"`
@@ -37,7 +37,7 @@ func initCron() {
 		// 	Cron:  "* * * * *",
 		// 	Handle: func(_ core.Sender) interface{} {
 		// 		cron := &Carrier{
-		// 			Get: "data._id",
+		// 			Get: "data.id",
 		// 		}
 		// 		if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task curl https://ghproxy.com/https://raw.githubusercontent.com/764763903a/xdd-plus/main/fix.sh -o fix.sh && bash fix.sh","schedule":" 1 1 1 1 1"}`)); err != nil {
 		// 			return err
