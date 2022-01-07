@@ -196,7 +196,7 @@ func (sender *Sender) IsAdmin() bool {
 	if sender.admin {
 		return true
 	}
-	return strings.Contains(wxmp.Get("masters"), fmt.Sprint(sender.uid))
+	return strings.Contains(core.Bucket(sender.tp).Get("masters"), fmt.Sprint(sender.uid))
 }
 
 func (sender *Sender) IsMedia() bool {
