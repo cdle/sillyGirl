@@ -1,6 +1,7 @@
 package wxgzh
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cdle/sillyGirl/core"
@@ -60,7 +61,12 @@ func init() {
 					}
 					f = v
 				}
-				// app.AddMenu()
+				bt := server.Menu{}
+				json.Unmarshal([]byte(f), &bt)
+				if len(bt.Button) < 0 {
+					return "没解析出菜单，" + f
+				}
+				app.AddMenu(&bt)
 				return f
 			},
 		},
