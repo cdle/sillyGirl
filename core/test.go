@@ -540,7 +540,7 @@ Alias=sillyGirl.service`
 					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
 					return begin
 				}
-				id := fmt.Sprintf("%v", time.Now().UnixMilli())
+				id := fmt.Sprintf("%v", time.Now().UnixMicro())
 			start:
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
 				if err != nil {
