@@ -29,15 +29,18 @@ func init() {
 	}
 	core.Server.Any("/wxsv/", func(c *gin.Context) {
 		ctx := app.VerifyURL(c.Writer, c.Request)
+		sender := &Sender{}
+
 		if ctx.Msg.Event == "subscribe" {
-			ctx.NewText(wxsv.Get("subscribe_reply", "感谢关注！")).Reply()
-			return
+			sender.admin = true
+			ctx.Msg.Content = "wxsv subscribe"
 		}
 
 		if ctx.Msg.Event == "CLICK" {
+			sender.admin = true
 			ctx.Msg.Content = "wxsv " + ctx.Msg.EventKey
 		}
-		sender := &Sender{}
+
 		sender.tp = "wxsv"
 		sender.Message = ctx.Msg.Content
 		sender.uid = ctx.Msg.FromUserName

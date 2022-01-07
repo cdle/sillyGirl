@@ -143,6 +143,7 @@ type Sender struct {
 	Wait      chan []interface{}
 	uid       string
 	tp        string
+	admin     bool
 	core.BaseSender
 }
 
@@ -191,6 +192,9 @@ func (sender *Sender) GetRawMessage() interface{} {
 }
 
 func (sender *Sender) IsAdmin() bool {
+	if sender.admin {
+		return true
+	}
 	return strings.Contains(wxmp.Get("masters"), fmt.Sprint(sender.uid))
 }
 
