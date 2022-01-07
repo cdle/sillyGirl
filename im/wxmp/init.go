@@ -49,6 +49,7 @@ func init() {
 				sender.Message = msg.Content
 				sender.Wait = make(chan []interface{}, 1)
 				sender.uid = fmt.Sprint(msg.FromUserName)
+				sender.tp = "wxmp"
 				core.Senders <- sender
 				end := <-sender.Wait
 				ss := []string{}
