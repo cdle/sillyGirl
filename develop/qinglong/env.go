@@ -16,7 +16,7 @@ type EnvResponse struct {
 
 type Env struct {
 	Value     string `json:"value,omitempty"`
-	ID        string `json:"id,omitempty"`
+	ID        string `json:"_id,omitempty"`
 	Status    int    `json:"status,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Remarks   string `json:"remarks,omitempty"`

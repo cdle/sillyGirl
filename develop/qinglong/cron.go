@@ -19,7 +19,7 @@ type Cron struct {
 	Command    string      `json:"command"`
 	Schedule   string      `json:"schedule"`
 	Saved      bool        `json:"saved"`
-	ID         string      `json:"id"`
+	ID         string      `json:"_id"`
 	Created    int64       `json:"created"`
 	Status     int         `json:"status"`
 	Timestamp  string      `json:"timestamp"`
