@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
 	"github.com/gin-gonic/gin"
 	server "github.com/rixingyike/wechat"
@@ -33,6 +34,9 @@ func init() {
 			ctx.NewText(wxsv.Get("subscribe_reply", "感谢关注！")).Reply()
 			return
 		}
+
+		logs.Info(ctx.Msg.Event)
+		logs.Info(ctx.Msg.Content)
 
 		sender := &Sender{}
 		sender.tp = "wxsv"
