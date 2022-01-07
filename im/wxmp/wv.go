@@ -1,6 +1,7 @@
 package wxgzh
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cdle/sillyGirl/core"
@@ -46,5 +47,36 @@ func init() {
 		sender.uid = ctx.Msg.FromUserName
 		sender.ctx = ctx
 		core.Senders <- sender
+	})
+
+	core.AddCommand("", []core.Function{
+		{
+			Admin: true,
+			Rules: []string{"init wxsv"},
+			// Cron:  "1 1 * * *",
+			Handle: func(_ core.Sender) interface{} {
+				c := &core.Faker{
+					Type:    "carry",
+					Message: "wxsv init",
+					Carry:   make(chan string),
+				}
+				core.Senders <- c
+				f := ""
+				for {
+					v, ok := <-c.Listen()
+					if !ok {
+						break
+					}
+					f = v
+				}
+				bt := server.Menu{}
+				json.Unmarshal([]byte(f), &bt)
+				if len(bt.Button) < 0 {
+					return "没解析出菜单，" + f
+				}
+				app.AddMenu(&bt)
+				return f
+			},
+		},
 	})
 }
