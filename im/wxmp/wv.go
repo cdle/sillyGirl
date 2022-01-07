@@ -51,6 +51,7 @@ func init() {
 				c := &core.Faker{
 					Type:    "carry",
 					Message: "wxsv init",
+					Carry:   make(chan string),
 				}
 				core.Senders <- c
 				f := ""
