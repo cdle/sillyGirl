@@ -540,7 +540,7 @@ Alias=sillyGirl.service`
 					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
 					return begin
 				}
-				id := fmt.Sprintf("%v", time.Now().UnixNano())
+				id := fmt.Sprintf("%v", time.Now().Unix()/1000)
 			start:
 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
 				if err != nil {
@@ -548,6 +548,9 @@ Alias=sillyGirl.service`
 				}
 				s.Reply(data)
 				fword(data)
+				if begin == "" {
+					return "游戏故障。"
+				}
 				stop := false
 				win := false
 				if strings.Contains(data, "你赢") {
@@ -576,7 +579,7 @@ Alias=sillyGirl.service`
 							}
 						}
 						if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
-							if me {
+							if me && s.GetImType() != "wxsv" {
 								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦，退出请对我说“认输”。", begin))
 							} else {
 								if ct == "成语接龙" {
@@ -627,12 +630,14 @@ Alias=sillyGirl.service`
 						return data
 					}, ForGroup)
 				}
-				time.Sleep(time.Microsecond * 100)
-				s.Reply("还玩吗？[Y/n]")
-				if s.Await(s, func(s2 Sender) interface{} {
-					return YesNo
-				}, time.Second*6) == Yes {
-					goto start
+				if s.GetImType() != "wxsv" {
+					time.Sleep(time.Microsecond * 100)
+					s.Reply("还玩吗？[Y/n]")
+					if s.Await(s, func(s2 Sender) interface{} {
+						return YesNo
+					}, time.Second*6) == Yes {
+						goto start
+					}
 				}
 				if !win {
 					s.Reply("别灰心，下次再来比试一番！")
