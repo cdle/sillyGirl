@@ -306,11 +306,11 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	}
 	to := ""
 	if sender.value.chat_id != 0 {
-		if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
-			to = fmt.Sprintf("R:%d", sender.value.chat_id)
-		} else {
-			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
-		}
+		// if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
+		to = fmt.Sprintf("R:%d", sender.value.chat_id)
+		// } else {
+		// 	to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+		// }
 	}
 	at := ""
 	if to == "" {
