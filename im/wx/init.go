@@ -157,6 +157,7 @@ func init() {
 				if ag.Content.FromGroup != "" {
 					if qy == 2 {
 						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "R:", "", -1))
+						logs.Info(ag.Content.FromGroup, wm.chat_id)
 					} else {
 						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
 					}
@@ -221,9 +222,6 @@ func init() {
 		wm.user_name = jms.FinalFromName
 		if strings.Contains(jms.FromWxid, "@chatroom") {
 			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "@chatroom", "", -1))
-			wm.chat_name = jms.FromName
-		} else if strings.Contains(jms.FromWxid, "R:") {
-			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "R:", "", -1))
 			wm.chat_name = jms.FromName
 		}
 		core.Senders <- &Sender{
@@ -306,11 +304,11 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	}
 	to := ""
 	if sender.value.chat_id != 0 {
-		// if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
-		to = fmt.Sprintf("R:%d", sender.value.chat_id)
-		// } else {
-		// 	to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
-		// }
+		if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
+			to = fmt.Sprintf("R:%d", sender.value.chat_id)
+		} else {
+			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+		}
 	}
 	at := ""
 	if to == "" {
