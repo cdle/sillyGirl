@@ -138,7 +138,7 @@ func init() {
 					wx.Set("qy", false)
 				}
 			}
-			logs.Info(data, ag, err)
+			logs.Info(string(data), ag, err)
 			if ag.Event == "EventPrivateChat" || ag.Event == "EventGroupChat" {
 				wm := wxmsg{}
 				wm.content = ag.Content.Msg
