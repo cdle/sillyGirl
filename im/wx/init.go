@@ -129,13 +129,12 @@ func init() {
 
 			err := json.Unmarshal(data, ag)
 			if err == nil {
-				if ag.Content.Clientid != 0 {
+				if ag.Content.RobotType != 0 {
 					wx.Set("qy", true)
 				} else {
 					wx.Set("qy", false)
 				}
 			}
-
 			// logs.Info(data, ag, err)
 			if ag.Event == "EventPrivateChat" || ag.Event == "EventGroupChat" {
 				wm := wxmsg{}
