@@ -138,10 +138,10 @@ func init() {
 			if err == nil && qy == 0 {
 				if ag.Content.RobotType != 0 {
 					qy = 2
-					wx.Set("qy", true)
+					wx.Set("qy", 2)
 				} else {
 					qy = 1
-					wx.Set("qy", false)
+					wx.Set("qy", 1)
 				}
 			}
 			logs.Info(string(data), ag, err)
@@ -220,6 +220,9 @@ func init() {
 		wm.user_name = jms.FinalFromName
 		if strings.Contains(jms.FromWxid, "@chatroom") {
 			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "@chatroom", "", -1))
+			wm.chat_name = jms.FromName
+		} else if strings.Contains(jms.FromWxid, "R:") {
+			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "R:", "", -1))
 			wm.chat_name = jms.FromName
 		}
 		core.Senders <- &Sender{
