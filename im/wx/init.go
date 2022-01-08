@@ -120,14 +120,14 @@ func init() {
 					FromWxid      string `json:"from_wxid"`
 					FromName      string `json:"from_name"`
 					Msg           string `json:"msg"`
-					MsgSource     struct {
-						Atuserlist []struct {
-							Wxid         string `json:"wxid"`
-							Nickname     string `json:"nickname"`
-							PositionFrom int    `json:"position_from"`
-							PositionTo   int    `json:"position_to"`
-						} `json:"atuserlist"`
-					} `json:"msg_source"`
+					// MsgSource     struct {
+					// 	Atuserlist []struct {
+					// 		Wxid         string `json:"wxid"`
+					// 		Nickname     string `json:"nickname"`
+					// 		PositionFrom int    `json:"position_from"`
+					// 		PositionTo   int    `json:"position_to"`
+					// 	} `json:"atuserlist"`
+					// } `json:"msg_source"`
 					Clientid  int `json:"clientid"`
 					RobotType int `json:"robot_type"`
 				} `json:"content"`
