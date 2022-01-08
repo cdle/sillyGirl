@@ -154,10 +154,12 @@ func init() {
 				}
 				wm.user_id = ag.Content.FromWxid
 				wm.user_name = ag.Content.FromName
+				logs.Info(ag.Content.FromGroup, wm.chat_id)
 				if ag.Content.FromGroup != "" {
+					logs.Info(ag.Content.FromGroup, wm.chat_id, qy)
 					if qy == 2 {
 						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "R:", "", -1))
-						logs.Info(ag.Content.FromGroup, wm.chat_id)
+
 					} else {
 						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
 					}
