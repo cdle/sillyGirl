@@ -37,7 +37,13 @@ func init() {
 			}
 		}
 		core.GroupPushs["wx"] = func(i, j interface{}, s string, _ string) {
-			to := fmt.Sprint(i) + "@chatroom"
+			to := ""
+			if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
+				to = fmt.Sprint(i) + "@chatroom"
+			} else {
+				to = "R:" + fmt.Sprint(i)
+			}
+
 			pmsg := TextMsg{
 				ToWxid: to,
 			}
@@ -148,7 +154,12 @@ func init() {
 				wm.user_id = ag.Content.FromWxid
 				wm.user_name = ag.Content.FromName
 				if ag.Content.FromGroup != "" {
-					wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
+					if qy == 2 {
+						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "R:", "", -1))
+					} else {
+						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
+					}
+
 					wm.chat_name = ag.Content.FromGroupName
 				}
 				if robot_wxid != ag.Content.RobotWxid {
@@ -291,7 +302,11 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	}
 	to := ""
 	if sender.value.chat_id != 0 {
-		to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+		if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
+			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+		} else {
+			to = fmt.Sprintf("R:%d", sender.value.chat_id)
+		}
 	}
 	at := ""
 	if to == "" {
