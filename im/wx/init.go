@@ -474,9 +474,10 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		a.ToWxid = pmsg.ToWxid
 		a.Path = pmsg.Msg.URL
 		data, _ := json.Marshal(a)
-		vlw_addr := wx.Get("vlw_addr")
+		vlw_addr := api_url()
 		req := httplib.Post(vlw_addr)
 		req.Body(data)
+		logs.Info(string(data))
 		req.Response()
 		// go func() {
 		// 	tosend <- data
