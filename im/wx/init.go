@@ -489,6 +489,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 			req.Header("Content-Type", "application/json")
 			data, _ := json.Marshal(pmsg)
 			req.Body(data)
+			logs.Info(string(data), "---")
 			req.Response()
 		}
 	}
