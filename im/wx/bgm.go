@@ -6,7 +6,13 @@ import (
 
 var wx = core.NewBucket("wx")
 var api_url = func() string {
-	return wx.Get("api_url")
+	if v := wx.Get("vlw_addr"); v != "" {
+		return v
+	}
+	if v := wx.Get("api_url"); v != "" {
+		return v
+	}
+	return ""
 }
 var robot_wxid = wx.Get("robot_wxid")
 
