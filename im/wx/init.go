@@ -39,9 +39,10 @@ func init() {
 		core.GroupPushs["wx"] = func(i, j interface{}, s string, _ string) {
 			to := ""
 			if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
-				to = fmt.Sprint(i) + "@chatroom"
-			} else {
 				to = "R:" + fmt.Sprint(i)
+			} else {
+				to = fmt.Sprint(i) + "@chatroom"
+
 			}
 
 			pmsg := TextMsg{
@@ -138,6 +139,7 @@ func init() {
 			if err == nil && qy == 0 {
 				if ag.Content.RobotType != 0 {
 					qy = 2
+
 					wx.Set("qy", 2)
 				} else {
 					qy = 1
@@ -306,9 +308,10 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	to := ""
 	if sender.value.chat_id != 0 {
 		if qy == 2 || (qy == 0 && wx.Get("qy") == "2") {
-			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
-		} else {
 			to = fmt.Sprintf("R:%d", sender.value.chat_id)
+		} else {
+			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
+
 		}
 	}
 	at := ""
