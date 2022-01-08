@@ -42,7 +42,6 @@ func init() {
 				to = "R:" + fmt.Sprint(i)
 			} else {
 				to = fmt.Sprint(i) + "@chatroom"
-
 			}
 
 			pmsg := TextMsg{
@@ -311,7 +310,6 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			to = fmt.Sprintf("R:%d", sender.value.chat_id)
 		} else {
 			to = fmt.Sprintf("%d@chatroom", sender.value.chat_id)
-
 		}
 	}
 	at := ""
