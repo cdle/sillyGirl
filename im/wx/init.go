@@ -431,6 +431,7 @@ func sendTextMsg(pmsg *TextMsg) {
 		vlw_addr := api_url()
 		data, _ := json.Marshal(a)
 		req := httplib.Post(vlw_addr)
+		logs.Info(string(data))
 		req.Body(data)
 		req.Response()
 	} else {
@@ -445,6 +446,7 @@ func sendTextMsg(pmsg *TextMsg) {
 		enc := mahonia.NewEncoder("gbk")
 		d := enc.ConvertString(string(data))
 		d = regexp.MustCompile(`[\n\s]*\n[\s\n]*`).ReplaceAllString(d, "\n")
+
 		req.Body(d)
 		req.Response()
 	}
@@ -477,7 +479,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 		vlw_addr := api_url()
 		req := httplib.Post(vlw_addr)
 		req.Body(data)
-		logs.Info(string(data))
+		// logs.Info(string(data))
 		req.Response()
 		// go func() {
 		// 	tosend <- data
@@ -489,7 +491,7 @@ func sendOtherMsg(pmsg *OtherMsg) {
 			req.Header("Content-Type", "application/json")
 			data, _ := json.Marshal(pmsg)
 			req.Body(data)
-			logs.Info(string(data), "---")
+			// logs.Info(string(data), "---")
 			req.Response()
 		}
 	}
