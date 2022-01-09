@@ -102,7 +102,7 @@ func Init123() {
 	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
 	if err != nil {
 		os.MkdirAll(ExecPath+"/develop/replies", os.ModePerm)
-		// logs.Warn("打开文件夹%s错误，%v", "develop/replies", err)
+
 		return
 	}
 	get := func(key string) string {
