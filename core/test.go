@@ -528,125 +528,125 @@ Alias=sillyGirl.service`
 				return "电脑重启后生效。"
 			},
 		},
-		{
-			Rules: []string{"raw ^成语接龙$"},
-			Handle: func(s Sender) interface{} {
-				if sillyGirl.GetBool("disable_成语接龙", false) {
-					s.Continue()
-					return nil
-				}
-				begin := ""
-				fword := func(cy string) string {
-					begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
-					return begin
-				}
-				id := fmt.Sprintf("%v", time.Now().Unix())
-			start:
-				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
-				if err != nil {
-					s.Reply(err)
-				}
-				s.Reply(data)
-				fword(data)
-				if begin == "" {
-					return "游戏故障。"
-				}
-				stop := false
-				win := false
-				if strings.Contains(data, "你赢") {
-					stop = true
-					win = true
-				}
-				if strings.Contains(data, "我赢") {
-					stop = true
-				}
-				if !stop {
-					s.Await(s, func(s2 Sender) interface{} {
-						ct := s2.GetContent()
+		// {
+		// 	Rules: []string{"raw ^成语接龙$"},
+		// 	Handle: func(s Sender) interface{} {
+		// 		if sillyGirl.GetBool("disable_成语接龙", false) {
+		// 			s.Continue()
+		// 			return nil
+		// 		}
+		// 		begin := ""
+		// 		fword := func(cy string) string {
+		// 			begin = strings.Replace(regexp.MustCompile(`([一-龥])】`).FindString(cy), "】", "", -1)
+		// 			return begin
+		// 		}
+		// 		id := fmt.Sprintf("%v", time.Now().Unix())
+		// 	start:
+		// 		data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=开始成语接龙").String()
+		// 		if err != nil {
+		// 			s.Reply(err)
+		// 		}
+		// 		s.Reply(data)
+		// 		fword(data)
+		// 		if begin == "" {
+		// 			return "游戏故障。"
+		// 		}
+		// 		stop := false
+		// 		win := false
+		// 		if strings.Contains(data, "你赢") {
+		// 			stop = true
+		// 			win = true
+		// 		}
+		// 		if strings.Contains(data, "我赢") {
+		// 			stop = true
+		// 		}
+		// 		if !stop {
+		// 			s.Await(s, func(s2 Sender) interface{} {
+		// 				ct := s2.GetContent()
 
-						me := s2.GetUserID() == s.GetUserID()
-						if strings.Contains(ct, "小爱提示") || ct == "q" {
-							s2.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
-							s2.Continue()
-							return Again
-						}
-						if strings.Contains(ct, "认输") {
-							if me || s2.IsAdmin() {
-								stop = true
-								return nil
-							} else {
-								return GoAgain("你不可以认输哦～")
-							}
-						}
-						if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
-							if me && s.GetImType() != "wxsv" {
-								return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦，退出请对我说“认输”。", begin))
-							} else {
-								if ct == "成语接龙" {
-									return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
-								}
-								s2.Continue()
-								return Again
-							}
-						}
-						cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
-						if cy == "" {
-							s2.Disappear(time.Millisecond * 500)
-							return GoAgain("请认真接龙，一站到底！")
-						}
-						data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
-						if err != nil {
-							s2.Reply(err)
-							return Again
-						}
-						if strings.Contains(data, "file_get_contents") {
-							ss := strings.Split(data, "\n")
-							return GoAgain(ss[len(ss)-1])
-						}
-						if strings.Contains(data, "你赢") {
-							stop = true
-							win = true
-							if !me {
-								defer s.Reply("反正不是你赢，嘿嘿。")
-							}
-						} else if strings.Contains(data, "我赢") {
-							stop = true
-							win = false
-						} else if strings.Contains(data, "恭喜") {
-							fword(data)
-							if !me {
-								data += "\n你很可拷，观棋不语真君子懂不懂啊。"
-							}
-						} else {
-							if me {
-								data += "\n玩不过就“认输”呗。"
-							} else {
-								data += "\n你以为你会，结果出丑了吧。"
-							}
-						}
-						if !stop {
-							return GoAgain(data)
-						}
-						return data
-					}, ForGroup)
-				}
-				if s.GetImType() != "wxsv" {
-					time.Sleep(time.Microsecond * 100)
-					s.Reply("还玩吗？[Y/n]")
-					if s.Await(s, func(s2 Sender) interface{} {
-						return YesNo
-					}, time.Second*6) == Yes {
-						goto start
-					}
-				}
-				if !win {
-					s.Reply("别灰心，下次再来比试一番！")
-				} else {
-					s.Reply("下次我一定可以打败你～")
-				}
-				return nil
-			},
-		},
+		// 				me := s2.GetUserID() == s.GetUserID()
+		// 				if strings.Contains(ct, "小爱提示") || ct == "q" {
+		// 					s2.SetContent(fmt.Sprintf("小爱%s字开头的成语有哪些？", begin))
+		// 					s2.Continue()
+		// 					return Again
+		// 				}
+		// 				if strings.Contains(ct, "认输") {
+		// 					if me || s2.IsAdmin() {
+		// 						stop = true
+		// 						return nil
+		// 					} else {
+		// 						return GoAgain("你不可以认输哦～")
+		// 					}
+		// 				}
+		// 				if regexp.MustCompile("^"+begin).FindString(ct) == "" || strings.Contains(ct, "接龙") {
+		// 					if me && s.GetImType() != "wxsv" {
+		// 						return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦，退出请对我说“认输”。", begin))
+		// 					} else {
+		// 						if ct == "成语接龙" {
+		// 							return GoAgain(fmt.Sprintf("现在是接【%s】开头的成语哦。", begin))
+		// 						}
+		// 						s2.Continue()
+		// 						return Again
+		// 					}
+		// 				}
+		// 				cy := regexp.MustCompile("^[一-龥]+$").FindString(ct)
+		// 				if cy == "" {
+		// 					s2.Disappear(time.Millisecond * 500)
+		// 					return GoAgain("请认真接龙，一站到底！")
+		// 				}
+		// 				data, err := httplib.Get("http://hm.suol.cc/API/cyjl.php?id=" + id + "&msg=我接" + cy).String()
+		// 				if err != nil {
+		// 					s2.Reply(err)
+		// 					return Again
+		// 				}
+		// 				if strings.Contains(data, "file_get_contents") {
+		// 					ss := strings.Split(data, "\n")
+		// 					return GoAgain(ss[len(ss)-1])
+		// 				}
+		// 				if strings.Contains(data, "你赢") {
+		// 					stop = true
+		// 					win = true
+		// 					if !me {
+		// 						defer s.Reply("反正不是你赢，嘿嘿。")
+		// 					}
+		// 				} else if strings.Contains(data, "我赢") {
+		// 					stop = true
+		// 					win = false
+		// 				} else if strings.Contains(data, "恭喜") {
+		// 					fword(data)
+		// 					if !me {
+		// 						data += "\n你很可拷，观棋不语真君子懂不懂啊。"
+		// 					}
+		// 				} else {
+		// 					if me {
+		// 						data += "\n玩不过就“认输”呗。"
+		// 					} else {
+		// 						data += "\n你以为你会，结果出丑了吧。"
+		// 					}
+		// 				}
+		// 				if !stop {
+		// 					return GoAgain(data)
+		// 				}
+		// 				return data
+		// 			}, ForGroup)
+		// 		}
+		// 		if s.GetImType() != "wxsv" {
+		// 			time.Sleep(time.Microsecond * 100)
+		// 			s.Reply("还玩吗？[Y/n]")
+		// 			if s.Await(s, func(s2 Sender) interface{} {
+		// 				return YesNo
+		// 			}, time.Second*6) == Yes {
+		// 				goto start
+		// 			}
+		// 		}
+		// 		if !win {
+		// 			s.Reply("别灰心，下次再来比试一番！")
+		// 		} else {
+		// 			s.Reply("下次我一定可以打败你～")
+		// 		}
+		// 		return nil
+		// 	},
+		// },
 		{
 			Rules: []string{"^machineId$"},
 			Admin: true,
