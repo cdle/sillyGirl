@@ -60,6 +60,10 @@ func (sender *JsSender) GetUserID() string {
 	return sender.Sender.GetUserID()
 }
 
+func (sender *JsSender) SetContent(s string) {
+	sender.Sender.SetContent(s)
+}
+
 func (sender *JsSender) GetContent() string {
 	return sender.Sender.GetContent()
 }
