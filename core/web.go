@@ -51,6 +51,7 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 }
 
 func initWeb() {
+	return
 	_, err := os.Stat(dataHome + "/views/home/hello.html")
 	if os.IsNotExist(err) {
 		os.MkdirAll(dataHome+"/views/home", os.ModePerm)
