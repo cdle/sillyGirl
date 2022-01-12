@@ -49,6 +49,7 @@ var OttoFuncs = map[string]interface{}{
 
 type JsSender struct {
 	Sender Sender
+	again  string
 }
 
 func (sender *JsSender) Continue() {
@@ -58,6 +59,7 @@ func (sender *JsSender) Continue() {
 func (sender *JsSender) GetUserID() string {
 	return sender.Sender.GetUserID()
 }
+
 func (sender *JsSender) GetContent() string {
 	return sender.Sender.GetContent()
 }
@@ -81,7 +83,7 @@ func (sender *JsSender) Reply(text string) []string {
 	i, _ := sender.Sender.Reply(text)
 	return i
 }
-func (sender *JsSender) Await(timeout int, fg bool) *JsSender {
+func (sender *JsSender) Await(timeout int, fg bool, hd func(*JsSender) string) *JsSender {
 	options := []interface{}{}
 	if timeout != 0 {
 		options = append(options, time.Duration(timeout)*time.Millisecond)
@@ -93,6 +95,18 @@ func (sender *JsSender) Await(timeout int, fg bool) *JsSender {
 	sender.Sender.Await(sender.Sender, func(sender Sender) interface{} {
 		newJsSender = &JsSender{}
 		newJsSender.Sender = sender
+		if hd != nil {
+			var rt = hd(newJsSender)
+			if strings.HasPrefix(rt, "go_again_") {
+				rt = strings.Replace(rt, "go_again_", "", 1)
+				return GoAgain(rt)
+			} else {
+				if rt == "" {
+					return nil
+				}
+				return rt
+			}
+		}
 		return nil
 	}, options...)
 	return newJsSender
@@ -254,6 +268,9 @@ func Init123() {
 				return time.Now().Format(str)
 			})
 			vm.Set("GetChatID", s.GetChatID)
+			vm.Set("GoAgain", func(s string) string {
+				return "go_again_" + s
+			})
 			vm.Set("GetImType", s.GetImType)
 			vm.Set("ImType", s.GetImType)
 			vm.Set("Continue", s.Continue)
