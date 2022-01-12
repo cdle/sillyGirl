@@ -32,6 +32,6 @@ func main() {
 				break
 			}
 		}
-	} //
+	}
 	select {}
 }
