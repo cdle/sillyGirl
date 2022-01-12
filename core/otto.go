@@ -47,6 +47,13 @@ var OttoFuncs = map[string]interface{}{
 	},
 }
 
+type Fmt struct {
+}
+
+func (sender *Fmt) Sprintf(format string, a ...interface{}) string {
+	return fmt.Sprintf(format, a...)
+}
+
 type JsSender struct {
 	Sender Sender
 	again  string
@@ -359,10 +366,13 @@ func Init123() {
 				return i
 			})
 
-			sender := &JsSender{
+			vm.Set("Sender", &JsSender{
 				Sender: s,
-			}
-			vm.Set("Sender", sender)
+			})
+
+			vm.Set("fmt", &Fmt{})
+
+			// vm.Set("fmt", fmt)
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
 			//2个或者2个以上"/"
