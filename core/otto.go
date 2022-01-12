@@ -110,6 +110,9 @@ func (sender *JsSender) RecallMessage(p ...interface{}) {
 func (sender *JsSender) GetUsername() string {
 	return sender.Sender.GetUsername()
 }
+func (sender *JsSender) GetMessageID() string {
+	return sender.Sender.GetMessageID()
+}
 
 func (sender *JsSender) GetGroupCode() int {
 	return sender.Sender.GetChatID()
