@@ -398,6 +398,7 @@ func Init123() {
 			})
 
 			vm.Set("fmt", &Fmt{})
+			vm.Set("strings", &Strings{})
 
 			// vm.Set("fmt", fmt)
 			importedJs := make(map[string]struct{})
