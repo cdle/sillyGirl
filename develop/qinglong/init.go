@@ -160,7 +160,7 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 		return err
 	}
 	if strings.Contains(string(data), `"id"`) {
-		body = []byte(strings.ReplaceAll(string(body), `"id"`, `"_id"`))
+		data = []byte(strings.ReplaceAll(string(data), `"id"`, `"_id"`))
 		if !ql.idSqlite {
 			go func() {
 				ql.Lock()
