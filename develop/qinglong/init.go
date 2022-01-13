@@ -151,8 +151,10 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 		if ql.idSqlite {
 			body = []byte(strings.ReplaceAll(string(body), `"_id"`, `"id"`))
 		}
+
 		req.Body(body)
 	}
+	logs.Info(ql.idSqlite, string(body))
 	data, err := req.Bytes()
 	if err != nil {
 		return err
@@ -167,6 +169,7 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 			}()
 		}
 	}
+	logs.Info(ql.idSqlite, string(body))
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
 		return errors.New(string(data))
