@@ -72,6 +72,6 @@ func init() {
 		ReadWriteTimeout: time.Second * 10,
 	})
 
-	initWeb()
+	// initWeb()
 
 }
