@@ -133,7 +133,7 @@ func Req(p interface{}, ps ...interface{}) error {
 		return nil
 	}
 
-	if ql != nil {
+	if ql == nil {
 		if len(QLS) > 1 {
 			if s != nil {
 				s.Reply("请选择容器：")
