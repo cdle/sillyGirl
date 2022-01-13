@@ -135,6 +135,7 @@ func Req(p interface{}, ps ...interface{}) error {
 
 	if ql == nil {
 		if len(QLS) > 1 {
+			logs.Info(s)
 			if s != nil {
 				s.Reply("请选择容器：")
 				ls := []string{}
