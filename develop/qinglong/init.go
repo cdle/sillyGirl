@@ -64,7 +64,7 @@ func init() {
 		logs.Info("青龙面板连接成功。")
 	}
 	initCron()
-	go GetCrons("ql")
+	go GetCrons("")
 }
 
 func (ql *QingLong) GetToken() (string, error) {
