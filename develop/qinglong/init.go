@@ -20,8 +20,8 @@ type QingLong struct {
 	Host         string `json:"host"`
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	Token        string `json:"token"`
-	Error        error  `json:"error"`
+	Token        string `json:"-"`
+	Error        error  `json:"-"`
 	Default      bool   `json:"default"`
 	sync.RWMutex
 	idSqlite bool
@@ -132,35 +132,35 @@ func Req(p interface{}, ps ...interface{}) error {
 		}
 		return nil
 	}
-	if ql == nil {
-		if s != nil {
-			if len(QLS) > 1 {
-				if s != nil {
-					s.Reply("请选择容器：")
-					ls := []string{}
-					for i := range QLS {
-						ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
-					}
-					r := s.Await(s, func(s core.Sender) interface{} {
-						return core.Range([]int{1, len(QLS)})
-					})
-					switch r {
-					case nil:
 
-					}
-					ql = QLS[r.(int)-1]
+	if ql != nil {
+		if len(QLS) > 1 {
+			if s != nil {
+				s.Reply("请选择容器：")
+				ls := []string{}
+				for i := range QLS {
+					ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
 				}
-			} else {
-				ql = QLS[0]
+				r := s.Await(s, func(s core.Sender) interface{} {
+					return core.Range([]int{1, len(QLS)})
+				})
+				switch r {
+				case nil:
+
+				}
+				ql = QLS[r.(int)-1]
 			}
+		} else {
+			ql = QLS[0]
 		}
-		if ql == nil {
-			for i := range QLS {
-				if QLS[i].Default {
-					ql = QLS[i]
-					s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
-					break
-				}
+	}
+
+	if ql == nil {
+		for i := range QLS {
+			if QLS[i].Default {
+				ql = QLS[i]
+				s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
+				break
 			}
 		}
 	}
