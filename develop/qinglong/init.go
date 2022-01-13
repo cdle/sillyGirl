@@ -149,7 +149,6 @@ func Req(p interface{}, ps ...interface{}) error {
 				default:
 					ql = QLS[r.(int)-1]
 				}
-
 			}
 		} else {
 			ql = QLS[0]
