@@ -106,7 +106,7 @@ func initCron() {
 				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return fmt.Sprintf("已运行 %v", cron.Name)
+				return fmt.Sprintf("已运行，%v。", cron.Name)
 			},
 		},
 		{
@@ -120,7 +120,7 @@ func initCron() {
 				if err := Config.Req(CRONS, PUT, "/stop", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return "操作成功"
+				return fmt.Sprintf("已停止，%s。", cron.Name)
 			},
 		},
 		{
@@ -134,7 +134,7 @@ func initCron() {
 				if err := Config.Req(CRONS, PUT, "/enable", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return "操作成功"
+				return fmt.Sprintf("已启用，%s。", cron.Name)
 			},
 		},
 		{
@@ -148,7 +148,7 @@ func initCron() {
 				if err := Config.Req(CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
 					return err
 				}
-				return "操作成功"
+				return fmt.Sprintf("已禁用，%s。", cron.Name)
 			},
 		},
 		{
