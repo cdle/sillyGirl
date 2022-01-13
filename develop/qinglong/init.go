@@ -160,7 +160,9 @@ func Req(p interface{}, ps ...interface{}) error {
 		for i := range QLS {
 			if QLS[i].Default {
 				ql = QLS[i]
-				s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
+				if s != nil {
+					s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
+				}
 				break
 			}
 		}
