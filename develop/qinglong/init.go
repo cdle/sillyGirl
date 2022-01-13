@@ -78,7 +78,7 @@ func initqls() {
 			ql.Name = ql.Host
 		}
 		if ql.Host == "" {
-			return
+
 		}
 		_, err := ql.GetToken()
 		if err == nil {
@@ -112,6 +112,9 @@ func (ql *QingLong) GetToken() (string, error) {
 }
 
 func Req(p interface{}, ps ...interface{}) error {
+	if len(QLS) == 0 {
+		return errors.New("未配置容器。")
+	}
 	var s core.Sender
 	var ql *QingLong
 	var qls []*QingLong
@@ -131,9 +134,7 @@ func Req(p interface{}, ps ...interface{}) error {
 	}
 	if ql == nil {
 		if s != nil {
-			if len(QLS) == 0 {
-				return errors.New("未配置容器。")
-			} else if len(QLS) > 1 {
+			if len(QLS) > 1 {
 				if s != nil {
 					s.Reply("请选择容器：")
 					ls := []string{}
