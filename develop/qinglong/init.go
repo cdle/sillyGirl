@@ -169,7 +169,7 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 			}()
 		}
 	}
-	logs.Info(ql.idSqlite, string(body))
+	logs.Info(ql.idSqlite, string(data))
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
 		return errors.New(string(data))
