@@ -70,7 +70,7 @@ func initqls() {
 		if Config.Host != "" {
 			QLS = append(QLS, Config)
 			d, _ := json.Marshal(QLS)
-			qinglong.Get("QLS", string(d))
+			qinglong.Set("QLS", string(d))
 		}
 	}
 	for _, ql := range QLS {
