@@ -39,7 +39,7 @@ func GetEnv(id string) (*Env, error) {
 
 func GetEnvs(searchValue string) ([]Env, error) {
 	er := EnvResponse{}
-	if err := Config.Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+	if err := Req(nil, ENVS, &er, "?searchValue="+searchValue); err != nil {
 		return nil, err
 	}
 	return er.Data, nil
@@ -47,7 +47,7 @@ func GetEnvs(searchValue string) ([]Env, error) {
 
 func GetEnvss(searchValue string) ([]Env, error) {
 	er := EnvResponse{}
-	if err := Config.Req(ENVS, &er, "?searchValue="+searchValue); err != nil {
+	if err := Req(nil, ENVS, &er, "?searchValue="+searchValue); err != nil {
 		return nil, err
 	}
 	return er.Data, nil
@@ -69,7 +69,7 @@ func SetEnv(e Env) error {
 			if e.Name != "" {
 				env.Name = e.Name
 			}
-			return Config.Req(PUT, ENVS, env)
+			return Req(nil, PUT, ENVS, env)
 		}
 	}
 	return AddEnv(e)
@@ -78,7 +78,7 @@ func SetEnv(e Env) error {
 func UdpEnv(env Env) error {
 	env.Created = 0
 	env.Timestamp = ""
-	return Config.Req(PUT, ENVS, env)
+	return Req(nil, PUT, ENVS, env)
 }
 
 func ModEnv(e Env) error {
@@ -99,7 +99,7 @@ func ModEnv(e Env) error {
 			}
 			env.Created = 0
 			env.Timestamp = ""
-			return Config.Req(PUT, ENVS, env)
+			return Req(nil, PUT, ENVS, env)
 		}
 	}
 	return errors.New("找不到环境变量")
@@ -108,11 +108,11 @@ func ModEnv(e Env) error {
 func AddEnv(e Env) error {
 	e.Created = 0
 	e.Timestamp = ""
-	return Config.Req(POST, ENVS, []Env{e})
+	return Req(nil, POST, ENVS, []Env{e})
 }
 
 func RemEnv(e *Env) error {
-	return Config.Req(DELETE, ENVS, []byte(`["`+e.ID+`"]`))
+	return Req(nil, DELETE, ENVS, []byte(`["`+e.ID+`"]`))
 }
 
 func initEnv() {

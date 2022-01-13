@@ -20,13 +20,17 @@ type QingLong struct {
 	Host         string `json:"host"`
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	Token        string
+	Token        string `json:"token"`
+	Error        error  `json:"error"`
+	Default      bool   `json:"default"`
 	sync.RWMutex
 	idSqlite bool
+	Name     string `json:"name"`
 }
 
-var Config *QingLong
+// var Config *QingLong
 var qinglong = core.NewBucket("qinglong")
+var QLS = []*QingLong{}
 
 var expiration int64
 var GET = "GET"
@@ -43,28 +47,46 @@ type Carrier struct {
 }
 
 func init() {
-	if !qinglong.GetBool("enable_qinglong", true) {
-		return
+	go func() {
+		if !qinglong.GetBool("enable_qinglong", true) {
+			return
+		}
+		initConfig()
+		initTask()
+		initEnv()
+		initqls()
+		initCron()
+	}()
+}
+
+func initqls() {
+	s := qinglong.Get("QLS")
+	json.Unmarshal([]byte(s), &QLS)
+	if len(QLS) == 0 {
+		Config := &QingLong{}
+		Config.Host = regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindString(qinglong.Get("host"))
+		Config.ClientID = qinglong.Get("client_id")
+		Config.ClientSecret = qinglong.Get("client_secret")
+		if Config.Host != "" {
+			QLS = append(QLS, Config)
+			d, _ := json.Marshal(QLS)
+			qinglong.Get("QLS", string(d))
+		}
 	}
-	initConfig()
-	initTask()
-	initEnv()
-	Config = &QingLong{}
-	Config.Host = qinglong.Get("host", "http://127.0.0.1:5700")
-	Config.ClientID = qinglong.Get("client_id")
-	Config.ClientSecret = qinglong.Get("client_secret")
-	if Config.Host == "" {
-		return
+	for _, ql := range QLS {
+		if ql.Name == "" {
+			ql.Name = ql.Host
+		}
+		if ql.Host == "" {
+			return
+		}
+		_, err := ql.GetToken()
+		if err == nil {
+			logs.Info("青龙面板(%s)连接成功。", ql.Name)
+		} else {
+			logs.Warn("青龙面板(%s)连接错误，%v", ql.Name, err)
+		}
 	}
-	if v := regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindStringSubmatch(Config.Host); len(v) == 2 {
-		Config.Host = v[1]
-	}
-	_, err := Config.GetToken()
-	if err == nil {
-		logs.Info("青龙面板连接成功。")
-	}
-	initCron()
-	go GetCrons("")
 }
 
 func (ql *QingLong) GetToken() (string, error) {
@@ -89,7 +111,63 @@ func (ql *QingLong) GetToken() (string, error) {
 	return ql.Token, nil
 }
 
-func (ql *QingLong) Req(ps ...interface{}) error {
+func Req(p interface{}, ps ...interface{}) error {
+	var s core.Sender
+	var ql *QingLong
+	var qls []*QingLong
+	switch p.(type) {
+	case core.Sender:
+		s = p.(core.Sender)
+	case *QingLong:
+		ql = p.(*QingLong)
+	case []*QingLong:
+		qls = p.([]*QingLong)
+	}
+	if qls != nil {
+		for i := range qls {
+			Req(qls[i], ps...)
+		}
+		return nil
+	}
+	if ql == nil {
+		if s != nil {
+			if len(QLS) == 0 {
+				return errors.New("未配置容器。")
+			} else if len(QLS) > 1 {
+				if s != nil {
+					s.Reply("请选择容器：")
+					ls := []string{}
+					for i := range QLS {
+						ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
+					}
+					r := s.Await(s, func(s core.Sender) interface{} {
+						return core.Range([]int{1, len(QLS)})
+					})
+					switch r {
+					case nil:
+
+					}
+					ql = QLS[r.(int)-1]
+				}
+			} else {
+				ql = QLS[0]
+			}
+		}
+		if ql == nil {
+			for i := range QLS {
+				if QLS[i].Default {
+					ql = QLS[i]
+					s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
+					break
+				}
+			}
+		}
+	}
+
+	if ql == nil {
+		return errors.New("未选择容器。")
+	}
+
 	ql.RLock()
 	defer ql.RUnlock()
 	if ql.Host == "" {

@@ -141,14 +141,14 @@ func initConfig() {
 
 func GetConfig() (string, error) {
 	config := "data"
-	if err := Config.Req(CONFIG, &config, "/config.sh"); err != nil {
+	if err := Req(nil, CONFIG, &config, "/config.sh"); err != nil {
 		return "", err
 	}
 	return config, nil
 }
 
 func SvaeConfig(content string) error {
-	if err := Config.Req(POST, CONFIG, map[string]interface{}{
+	if err := Req(nil, POST, CONFIG, map[string]interface{}{
 		"name":    "config.sh",
 		"content": content,
 	}, "/save"); err != nil {

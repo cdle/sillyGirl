@@ -18,10 +18,10 @@ func initTask() {
 				cron := &Carrier{
 					Get: "data._id",
 				}
-				if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql raw `+s.Get()+`","schedule":" 1 1 1 1 1"}`)); err != nil {
+				if err := Req(s, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql raw `+s.Get()+`","schedule":" 1 1 1 1 1"}`)); err != nil {
 					return err
 				}
-				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
+				if err := Req(s, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 					return err
 				}
 				for {
@@ -32,7 +32,7 @@ func initTask() {
 						break
 					}
 				}
-				if err := Config.Req(CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
+				if err := Req(s, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 					return err
 				}
 				return nil
@@ -45,10 +45,10 @@ func initTask() {
 				cron := &Carrier{
 					Get: "data._id",
 				}
-				if err := Config.Req(cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task `+s.Get()+`","schedule":" 1 1 1 1 1"}`)); err != nil {
+				if err := Req(s, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task `+s.Get()+`","schedule":" 1 1 1 1 1"}`)); err != nil {
 					return err
 				}
-				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
+				if err := Req(s, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 					return err
 				}
 				for {
@@ -59,7 +59,7 @@ func initTask() {
 						break
 					}
 				}
-				if err := Config.Req(cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
+				if err := Req(s, cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 					return err
 				}
 				return nil
@@ -77,10 +77,10 @@ func initTask() {
 					"command":  `ql repo ` + s.Get(),
 					"schedule": "1 1 1 1 1",
 				})
-				if err := Config.Req(cron, CRONS, POST, data); err != nil {
+				if err := Req(s, cron, CRONS, POST, data); err != nil {
 					return err
 				}
-				if err := Config.Req(CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
+				if err := Req(s, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 					return err
 				}
 				for {
@@ -91,7 +91,7 @@ func initTask() {
 						break
 					}
 				}
-				if err := Config.Req(cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
+				if err := Req(s, cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 					return err
 				}
 				return nil
