@@ -87,7 +87,7 @@ func initqls() {
 			logs.Warn("青龙面板(%s)连接错误，%v", ql.Name, err)
 		}
 	}
-	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切除了我以外的流氓脚本！")
+	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切流氓脚本！")
 }
 
 func (ql *QingLong) GetToken() (string, error) {
@@ -137,11 +137,12 @@ func Req(p interface{}, ps ...interface{}) error {
 	if ql == nil {
 		if len(QLS) > 1 {
 			if s != nil {
-				s.Reply("请选择容器：")
+
 				ls := []string{}
 				for i := range QLS {
 					ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
 				}
+				s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
 				r := s.Await(s, func(s core.Sender) interface{} {
 					return core.Range([]int{1, len(QLS)})
 				})
