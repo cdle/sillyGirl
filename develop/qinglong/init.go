@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -20,6 +21,8 @@ type QingLong struct {
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	Token        string
+	sync.RWMutex
+	idSqlite bool
 }
 
 var Config *QingLong
@@ -87,6 +90,8 @@ func (ql *QingLong) GetToken() (string, error) {
 }
 
 func (ql *QingLong) Req(ps ...interface{}) error {
+	ql.RLock()
+	defer ql.RUnlock()
 	if ql.Host == "" {
 		return nil
 	}
@@ -143,11 +148,24 @@ func (ql *QingLong) Req(ps ...interface{}) error {
 	req.Header("Content-Type", "application/json;charset=UTF-8")
 	req.SetTimeout(time.Second*5, time.Second*5)
 	if method != GET {
+		if ql.idSqlite {
+			body = []byte(strings.ReplaceAll(string(body), `"_id"`, `"id"`))
+		}
 		req.Body(body)
 	}
 	data, err := req.Bytes()
 	if err != nil {
 		return err
+	}
+	if strings.Contains(string(data), `"id"`) {
+		body = []byte(strings.ReplaceAll(string(body), `"id"`, `"_id"`))
+		if !ql.idSqlite {
+			go func() {
+				ql.Lock()
+				ql.idSqlite = true
+				ql.Unlock()
+			}()
+		}
 	}
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
