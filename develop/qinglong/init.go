@@ -87,7 +87,7 @@ func initqls() {
 			logs.Warn("青龙面板(%s)连接错误，%v", ql.Name, err)
 		}
 	}
-	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切流氓脚本！")
+	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切除了我以外的流氓脚本！")
 }
 
 func (ql *QingLong) GetToken() (string, error) {
