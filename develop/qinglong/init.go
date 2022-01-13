@@ -55,6 +55,31 @@ func init() {
 		initTask()
 		initEnv()
 		initqls()
+		core.AddCommand("", []core.Function{
+			{
+				Rules: []string{"青龙管理"},
+				Admin: true,
+				Handle: func(s core.Sender) interface{} {
+					// var ql *QingLong
+					// ls := []string{}
+					// nn := QLS
+					// for i := range nn {
+					// 	ls = append(ls, fmt.Sprintf("%d. %s", i+1, nn[i].Name))
+					// }
+					// ls = append(ls, fmt.Sprintf("%d. %s", len(nn)+1, "所有容器"))
+					// s.Reply("请选择容器进行编辑：(带-删除，0增加)\n" + strings.Join(ls, "\n"))
+					// r := s.Await(s, func(s core.Sender) interface{} {
+					// 	return core.Range([]int{-len(nn), len(nn)})
+					// })
+					// if r.(int) == 0 {
+					// 	ql = &QingLong{}
+					// 	nn
+					// }
+					// ql = nn[r.(int)-1]
+					return nil
+				},
+			},
+		})
 		initCron()
 	}()
 }
@@ -133,7 +158,17 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		}
 		return nil, nil
 	}
-
+	if s != nil && !s.IsAdmin() { //普通用户自动分配
+		for i := range QLS {
+			if QLS[i].Default {
+				ql = QLS[i]
+				break
+			}
+		}
+		if ql == nil {
+			ql = QLS[0]
+		}
+	}
 	if ql == nil {
 		if len(QLS) > 1 {
 			if s != nil {
@@ -142,9 +177,10 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 				for i := range QLS {
 					ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
 				}
+				ls = append(ls, fmt.Sprintf("%d. %s", len(QLS)+1, "所有容器"))
 				s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
 				r := s.Await(s, func(s core.Sender) interface{} {
-					return core.Range([]int{1, len(QLS)})
+					return core.Range([]int{1, len(QLS) + 1})
 				}, time.Second*10)
 				switch r {
 				case nil:
