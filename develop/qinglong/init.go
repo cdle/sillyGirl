@@ -112,9 +112,9 @@ func (ql *QingLong) GetToken() (string, error) {
 	return ql.Token, nil
 }
 
-func Req(p interface{}, ps ...interface{}) error {
+func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if len(QLS) == 0 {
-		return errors.New("未配置容器。")
+		return nil, errors.New("未配置容器。")
 	}
 	var s core.Sender
 	var ql *QingLong
@@ -131,7 +131,7 @@ func Req(p interface{}, ps ...interface{}) error {
 		for i := range qls {
 			Req(qls[i], ps...)
 		}
-		return nil
+		return nil, nil
 	}
 
 	if ql == nil {
@@ -145,7 +145,7 @@ func Req(p interface{}, ps ...interface{}) error {
 				s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
 				r := s.Await(s, func(s core.Sender) interface{} {
 					return core.Range([]int{1, len(QLS)})
-				})
+				}, time.Second*10)
 				switch r {
 				case nil:
 				default:
@@ -170,17 +170,14 @@ func Req(p interface{}, ps ...interface{}) error {
 	}
 
 	if ql == nil {
-		return errors.New("未选择容器。")
+		return nil, errors.New("未选择容器。")
 	}
 
 	ql.RLock()
 	defer ql.RUnlock()
-	if ql.Host == "" {
-		return nil
-	}
 	token, err := ql.GetToken()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	method := GET
 	body := []byte{}
@@ -244,7 +241,7 @@ func Req(p interface{}, ps ...interface{}) error {
 	// logs.Info(ql.idSqlite, string(body))
 	data, err := req.Bytes()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if strings.Contains(string(data), `"id"`) {
 		s := string(data)
@@ -263,20 +260,46 @@ func Req(p interface{}, ps ...interface{}) error {
 	// logs.Info(ql.idSqlite, string(data))
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
-		return errors.New(string(data))
+		return nil, errors.New(string(data))
 	}
 	if toParse != nil {
 		if err := json.Unmarshal(data, toParse); err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if get != nil {
 		if *get, err = jsonparser.GetString(data, *get); err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if c != nil {
 		c.Value, _ = jsonparser.GetString(data, strings.Split(c.Get, ".")...)
 	}
-	return nil
+	return ql, nil
+}
+
+func QinglongSC(s core.Sender) (error, []*QingLong) {
+	if len(QLS) == 0 {
+		return errors.New("未配置容器。"), nil
+	}
+	ls := []string{}
+	for i := range QLS {
+		ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
+	}
+	s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
+	r := s.Await(s, func(s core.Sender) interface{} {
+		return core.Range([]int{1, len(QLS)})
+	}, time.Second*10)
+	switch r {
+	case nil:
+		s.Reply()
+		return errors.New("你没有选择容器。"), []*QingLong{}
+	default:
+		index := r.(int) - 1
+		if index != len(QLS) {
+			return nil, []*QingLong{QLS[index]}
+		} else {
+			return nil, QLS
+		}
+	}
 }

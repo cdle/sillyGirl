@@ -9,91 +9,128 @@ import (
 )
 
 func initConfig() {
-	core.AddCommand("ql", []core.Function{
-		{
-			Rules: []string{`config`},
-			Admin: true,
-			Handle: func(_ core.Sender) interface{} {
-				config, err := GetConfig()
-				if err != nil {
-					return err
-				}
-				return config
-			},
-		},
-	})
+	// core.AddCommand("ql", []core.Function{
+	// 	{
+	// 		Rules: []string{`config`},
+	// 		Admin: true,
+	// 		Handle: func(_ core.Sender) interface{} {
+	// 			config, err := GetConfig()
+	// 			if err != nil {
+	// 				return err
+	// 			}
+	// 			return config
+	// 		},
+	// 	},
+	// })
 	core.AddCommand("ql", []core.Function{
 		{
 			Rules: []string{`envs`},
 			Admin: true,
-			Handle: func(_ core.Sender) interface{} {
-				envs, err := GetConfigEnvs("")
+			Handle: func(s core.Sender) interface{} {
+				err, qls := QinglongSC(s)
 				if err != nil {
 					return err
 				}
-				if len(envs) == 0 {
-					return "未设置任何环境变量"
+				for _, ql := range qls {
+					envs, err := GetConfigEnvs(ql, "")
+					if err != nil {
+						s.Reply(err)
+						continue
+					}
+					if len(envs) == 0 {
+						s.Reply("未设置任何环境变量。")
+						continue
+					}
+					es := []string{}
+					for _, env := range envs {
+						es = append(es, formatEnv(&env))
+					}
+					s.Reply(strings.Join(es, "\n\n"))
 				}
-				es := []string{}
-				for _, env := range envs {
-					es = append(es, formatEnv(&env))
-				}
-				return strings.Join(es, "\n\n")
+				return nil
 			},
 		},
 		{
 			Rules: []string{`env get ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				name := s.Get()
-				envs, err := GetConfigEnvs(name)
+				err, qls := QinglongSC(s)
 				if err != nil {
 					return err
 				}
-				if len(envs) == 0 {
-					return "未设置该环境变量"
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						name := s.Get()
+						envs, err := GetConfigEnvs(ql, name)
+						if err != nil {
+							return err
+						}
+						if len(envs) == 0 {
+							return "未设置该环境变量。"
+						}
+						es := []string{}
+						for _, env := range envs {
+							if env.Name == name {
+								es = append(es, formatEnv(&env))
+							}
+						}
+						return strings.Join(es, "\n\n")
+					}())
 				}
-				es := []string{}
-				for _, env := range envs {
-					if env.Name == name {
-						es = append(es, formatEnv(&env))
-					}
-				}
-				return strings.Join(es, "\n\n")
+				return nil
 			},
 		},
 		{
 			Rules: []string{`env find ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				m := s.Get()
-				envs, err := GetConfigEnvs(m)
+				err, qls := QinglongSC(s)
 				if err != nil {
 					return err
 				}
-				if len(envs) == 0 {
-					return "找不到环境变量"
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						m := s.Get()
+						envs, err := GetConfigEnvs(ql, m)
+						if err != nil {
+							return err
+						}
+						if len(envs) == 0 {
+							return "找不到环境变量。"
+						}
+						es := []string{}
+						for _, env := range envs {
+							es = append(es, formatEnv(&env))
+						}
+						return strings.Join(es, "\n\n")
+					}())
 				}
-				es := []string{}
-				for _, env := range envs {
-					es = append(es, formatEnv(&env))
-				}
-				return strings.Join(es, "\n\n")
+				return nil
 			},
 		},
 		{
 			Rules: []string{`env set ? ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				err := SetConfigEnv(Env{
-					Name:   s.Get(0),
-					Value:  s.Get(1),
-					Status: 3,
-				})
+				err, qls := QinglongSC(s)
 				if err != nil {
 					return err
 				}
-				return fmt.Sprintf("操作成功")
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						err := SetConfigEnv(ql, Env{
+							Name:   s.Get(0),
+							Value:  s.Get(1),
+							Status: 3,
+						})
+						if err != nil {
+							return err
+						}
+						return fmt.Sprintf("设置完成。")
+					}())
+				}
+				return nil
+
 			},
 		},
 		// {
@@ -110,45 +147,75 @@ func initConfig() {
 			Rules: []string{`env remark ? ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				if err := SetConfigEnv(Env{Name: s.Get(0), Remarks: s.Get(1), Status: 3}); err != nil {
+				err, qls := QinglongSC(s)
+				if err != nil {
 					return err
 				}
-				return "操作成功"
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						if err := SetConfigEnv(ql, Env{Name: s.Get(0), Remarks: s.Get(1), Status: 3}); err != nil {
+							return err
+						}
+						return "备注成功。"
+					}())
+				}
+				return nil
+
 			},
 		},
 		{
 			Rules: []string{`env disable ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				if err := SetConfigEnv(Env{Name: s.Get(), Status: 1}); err != nil {
+				err, qls := QinglongSC(s)
+				if err != nil {
 					return err
 				}
-				return "操作成功"
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						if err := SetConfigEnv(ql, Env{Name: s.Get(), Status: 1}); err != nil {
+							return err
+						}
+						return "禁用完成。"
+					}())
+				}
+				return nil
+
 			},
 		},
 		{
 			Rules: []string{`env enable ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
-				if err := SetConfigEnv(Env{Name: s.Get()}); err != nil {
+				err, qls := QinglongSC(s)
+				if err != nil {
 					return err
 				}
-				return "操作成功"
+				for _, ql := range qls {
+					s.Reply(func() interface{} {
+						if err := SetConfigEnv(ql, Env{Name: s.Get()}); err != nil {
+							return err
+						}
+						return "启用完成."
+					}())
+				}
+				return nil
+
 			},
 		},
 	})
 }
 
-func GetConfig() (string, error) {
+func GetConfig(ql *QingLong) (string, error) {
 	config := "data"
-	if err := Req(nil, CONFIG, &config, "/config.sh"); err != nil {
+	if _, err := Req(ql, CONFIG, &config, "/config.sh"); err != nil {
 		return "", err
 	}
 	return config, nil
 }
 
-func SvaeConfig(content string) error {
-	if err := Req(nil, POST, CONFIG, map[string]interface{}{
+func SvaeConfig(ql *QingLong, content string) error {
+	if _, err := Req(ql, POST, CONFIG, map[string]interface{}{
 		"name":    "config.sh",
 		"content": content,
 	}, "/save"); err != nil {
@@ -157,9 +224,9 @@ func SvaeConfig(content string) error {
 	return nil
 }
 
-func GetConfigEnvs(searchValue string) ([]Env, error) {
+func GetConfigEnvs(ql *QingLong, searchValue string) ([]Env, error) {
 	envs := []Env{}
-	content, err := GetConfig()
+	content, err := GetConfig(ql)
 	if err != nil {
 		return nil, err
 	}
@@ -184,8 +251,8 @@ func GetConfigEnvs(searchValue string) ([]Env, error) {
 	return envs, nil
 }
 
-func SetConfigEnv(envs ...Env) error {
-	config, err := GetConfig()
+func SetConfigEnv(ql *QingLong, envs ...Env) error {
+	config, err := GetConfig(ql)
 	if err != nil {
 		return err
 	}
@@ -230,7 +297,7 @@ func SetConfigEnv(envs ...Env) error {
 			lines = append(lines, fmt.Sprintf("export %s=\"%s\"", env.Name, env.Value))
 		}
 	}
-	return SvaeConfig(strings.Join(lines, "\n"))
+	return SvaeConfig(ql, strings.Join(lines, "\n"))
 }
 
 func formatEnv(env *Env) string {
