@@ -97,7 +97,6 @@ func init() {
 						if nn[i].Token == "" {
 							t = append(t, "❌")
 						}
-
 						s := ""
 						if len(t) > 0 {
 							s = fmt.Sprintf("[%s]", strings.Join(t, ","))
@@ -332,6 +331,7 @@ func (ql *QingLong) GetToken() (string, error) {
 		return ql.Token, nil
 	}
 	req := httplib.Get(fmt.Sprintf("%s/open/auth/token?client_id=%s&client_secret=%s", ql.Host, ql.ClientID, ql.ClientSecret))
+	req.SetTimeout(time.Second*2, time.Second*2)
 	data, err := req.Bytes()
 	if err != nil {
 		msg := fmt.Sprintf("青龙连接失败：%v", err)
