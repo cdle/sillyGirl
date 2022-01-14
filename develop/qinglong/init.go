@@ -61,10 +61,11 @@ func init() {
 				Admin: true,
 				Handle: func(s core.Sender) interface{} {
 					var ql *QingLong
-					ls := []string{}
+					var ls []string
 					nn := QLS
 					t := ""
 				hh:
+					ls = []string{}
 					for i := range nn {
 						t := ""
 						if nn[i].Default {
