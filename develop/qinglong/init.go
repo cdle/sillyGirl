@@ -88,25 +88,29 @@ func init() {
 					}
 					for i := range nn {
 						t := []string{}
+						if nn[i].Token == "" {
+							t = append(t, "异常")
+						}
 						if nn[i].Default {
 							t = append(t, "默认")
 						}
 						if nn[i].AggregatedMode {
 							t = append(t, "聚合")
 						}
-						if nn[i].Token == "" {
-							t = append(t, "❌")
-						}
+
 						s := ""
 						if len(t) > 0 {
 							s = fmt.Sprintf("[%s]", strings.Join(t, ","))
 						}
 						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, s))
 					}
-					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
+					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出, wq保存)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
 					is := r.(string)
 					i := 0
+					if is == "wq" || is == "qw" {
+						goto save
+					}
 					if is == "q" {
 						goto stop
 					}
@@ -201,13 +205,15 @@ func init() {
 					s.Reply("是否保存修改？(Y/n)")
 					if s.Await(s, func(s core.Sender) interface{} {
 						return core.YesNo
-					}) == core.Yes {
-						QLS = nn
-						d, _ := json.Marshal(nn)
-						qinglong.Set("QLS", string(d))
-						return "已保存修改。"
+					}) == core.No {
+						return "未作修改。"
 					}
-					return "未作修改。"
+				save:
+					QLS = nn
+					d, _ := json.Marshal(nn)
+					qinglong.Set("QLS", string(d))
+					return "已保存修改。"
+
 				},
 			},
 		})
