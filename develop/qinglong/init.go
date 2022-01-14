@@ -430,6 +430,9 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	if len(QLS) == 0 {
 		return errors.New("未配置容器。"), nil
 	}
+	if len(QLS) == 1 {
+		return nil, QLS
+	}
 	var ql *QingLong
 	if s != nil && !s.IsAdmin() { //普通用户自动分配
 		for i := range QLS {
