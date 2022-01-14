@@ -71,6 +71,21 @@ func init() {
 					ju := ""
 				hh:
 					ls = []string{}
+					cs := []chan bool{}
+					for i := range nn {
+						c := make(chan bool)
+						cs = append(cs, c)
+						go func(i int) {
+							nn[i].GetToken()
+							close(c)
+						}(i)
+					}
+					for _, c := range cs {
+						o, k := <-c
+						if o == k {
+
+						}
+					}
 					for i := range nn {
 						t := []string{}
 						if nn[i].Default {
@@ -79,6 +94,10 @@ func init() {
 						if nn[i].AggregatedMode {
 							t = append(t, "聚合")
 						}
+						if nn[i].Token == "" {
+							t = append(t, "❌")
+						}
+
 						s := ""
 						if len(t) > 0 {
 							s = fmt.Sprintf("[%s]", strings.Join(t, ","))
@@ -134,9 +153,9 @@ func init() {
 					}
 					for {
 						if ql.Default {
-							t = "取消默认"
+							t = "移除默认标记"
 						} else {
-							t = "设置默认"
+							t = "设置默认标记"
 						}
 						if ql.AggregatedMode {
 							ju = "关闭聚合模式"
