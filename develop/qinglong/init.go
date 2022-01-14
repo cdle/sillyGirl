@@ -313,6 +313,28 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	return ql, nil
 }
 
+func GetQinglongByClientID(s string) (error, *QingLong) {
+	for i := range QLS {
+		if QLS[i].ClientID == s {
+			return nil, QLS[i]
+		}
+	}
+	if len(QLS) == 0 {
+		return errors.New("未配置容器。"), nil
+	}
+	var ql *QingLong
+	for i := range QLS {
+		if QLS[i].Default {
+			ql = QLS[i]
+			break
+		}
+	}
+	if ql == nil {
+		ql = QLS[0]
+	}
+	return errors.New("默认获取了一个容器。"), ql
+}
+
 func QinglongSC(s core.Sender) (error, []*QingLong) {
 	if len(QLS) == 0 {
 		return errors.New("未配置容器。"), nil
