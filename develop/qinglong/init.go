@@ -67,7 +67,7 @@ func init() {
 					for i := range nn {
 						t := ""
 						if nn[i].Default {
-							t = "默认"
+							t = "- 默认"
 						}
 						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
 					}
