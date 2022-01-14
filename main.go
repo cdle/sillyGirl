@@ -28,7 +28,7 @@ func main() {
 		if tm == 0 {
 			tm = nm
 		} else {
-			if nm-tm < 10 {
+			if nm-tm < 100 {
 				break
 			}
 		}
