@@ -419,7 +419,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 					c.Result <- fmt.Sprintf("请从%d~%d中选择一个整数。", vv[0], vv[1])
 				} else {
 					c.Result <- result
-					return nil
+					return s.GetContent()
 				}
 			case error:
 				if handleErr != nil {
