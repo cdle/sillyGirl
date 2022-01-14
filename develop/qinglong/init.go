@@ -32,7 +32,26 @@ type QingLong struct {
 
 // var Config *QingLong
 var qinglong = core.NewBucket("qinglong")
-var QLS = []*QingLong{}
+var qLS = []*QingLong{}
+var qLSLock = new(sync.RWMutex)
+
+func GetQLS() []*QingLong {
+	qLSLock.RLock()
+	defer qLSLock.RUnlock()
+	return qLS
+}
+
+func GetQLSLen() int {
+	qLSLock.RLock()
+	defer qLSLock.RUnlock()
+	return len(qLS)
+}
+
+func SetQLS(qls []*QingLong) {
+	qLSLock.Lock()
+	defer qLSLock.Unlock()
+	qLS = qls
+}
 
 var expiration int64
 var GET = "GET"
@@ -119,7 +138,7 @@ func init() {
 						nn = append(nn, ql)
 					}
 					i = core.Int(is)
-					if i < 0 && i >= -len(QLS) {
+					if i < 0 && i >= -len(nn) {
 						for j := range nn {
 							if j == -i-1 {
 								nn = append(nn[:j], nn[j+1:]...)
@@ -128,7 +147,7 @@ func init() {
 						}
 						goto hh
 					}
-					if i > 0 && i <= len(QLS) {
+					if i > 0 && i <= len(nn) {
 						ql = nn[i-1]
 					}
 					if ql == nil {
@@ -209,7 +228,7 @@ func init() {
 						return "未作修改。"
 					}
 				save:
-					QLS = nn
+					SetQLS(nn)
 					d, _ := json.Marshal(nn)
 					qinglong.Set("QLS", string(d))
 					return "已保存修改。"
@@ -223,19 +242,20 @@ func init() {
 
 func initqls() {
 	s := qinglong.Get("QLS")
-	json.Unmarshal([]byte(s), &QLS)
-	if len(QLS) == 0 {
+	nn := []*QingLong{}
+	json.Unmarshal([]byte(s), &nn)
+	if len(nn) == 0 {
 		Config := &QingLong{}
 		Config.Host = regexp.MustCompile(`^(https?://[\.\w]+:?\d*)`).FindString(qinglong.Get("host"))
 		Config.ClientID = qinglong.Get("client_id")
 		Config.ClientSecret = qinglong.Get("client_secret")
 		if Config.Host != "" {
-			QLS = append(QLS, Config)
-			d, _ := json.Marshal(QLS)
+			nn = append(nn, Config)
+			d, _ := json.Marshal(nn)
 			qinglong.Set("QLS", string(d))
 		}
 	}
-	for _, ql := range QLS {
+	for _, ql := range nn {
 		if ql.Name == "" {
 			ql.Name = ql.Host
 		}
@@ -249,6 +269,7 @@ func initqls() {
 			logs.Warn("青龙面板(%s)连接错误，%v", ql.Name, err)
 		}
 	}
+	SetQLS(nn)
 	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切流氓脚本！")
 }
 
@@ -356,7 +377,8 @@ func (ql *QingLong) GetToken() (string, error) {
 }
 
 func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
-	if len(QLS) == 0 {
+	var nn = GetQLS()
+	if len(nn) == 0 {
 		return nil, errors.New("未配置容器。")
 	}
 	var s core.Sender
@@ -377,43 +399,43 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		return nil, nil
 	}
 	if s != nil && !s.IsAdmin() { //普通用户自动分配
-		for i := range QLS {
-			if QLS[i].Default {
-				ql = QLS[i]
+		for i := range nn {
+			if nn[i].Default {
+				ql = nn[i]
 				break
 			}
 		}
 		if ql == nil {
-			ql = QLS[0]
+			ql = nn[0]
 		}
 	}
 	if ql == nil {
-		if len(QLS) > 1 {
+		if len(nn) > 1 {
 			if s != nil {
 				ls := []string{}
-				for i := range QLS {
-					ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
+				for i := range nn {
+					ls = append(ls, fmt.Sprintf("%d. %s", i+1, nn[i].Name))
 				}
-				ls = append(ls, fmt.Sprintf("%d. %s", len(QLS)+1, "所有容器"))
+				ls = append(ls, fmt.Sprintf("%d. %s", len(nn)+1, "所有容器"))
 				s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
 				r := s.Await(s, func(s core.Sender) interface{} {
-					return core.Range([]int{1, len(QLS) + 1})
+					return core.Range([]int{1, len(nn) + 1})
 				}, time.Second*10)
 				switch r {
 				case nil:
 				default:
-					ql = QLS[r.(int)-1]
+					ql = nn[r.(int)-1]
 				}
 			}
 		} else {
-			ql = QLS[0]
+			ql = nn[0]
 		}
 	}
 
 	if ql == nil {
-		for i := range QLS {
-			if QLS[i].Default {
-				ql = QLS[i]
+		for i := range nn {
+			if nn[i].Default {
+				ql = nn[i]
 				if s != nil {
 					s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
 				}
@@ -523,54 +545,56 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 }
 
 func GetQinglongByClientID(s string) (error, *QingLong) {
-	for i := range QLS {
-		if QLS[i].ClientID == s {
-			return nil, QLS[i]
+	nn := GetQLS()
+	for i := range nn {
+		if nn[i].ClientID == s {
+			return nil, nn[i]
 		}
 	}
-	if len(QLS) == 0 {
+	if len(nn) == 0 {
 		return errors.New("未配置容器。"), nil
 	}
 	var ql *QingLong
 	min := 10000000
-	for i := range QLS {
-		if num := QLS[i].GetNumber(); num <= min {
+	for i := range nn {
+		if num := nn[i].GetNumber(); num <= min {
 			min = num
-			ql = QLS[i]
+			ql = nn[i]
 		}
 	}
 	return errors.New("默认获取了一个容器。"), ql
 }
 
 func QinglongSC(s core.Sender) (error, []*QingLong) {
-	if len(QLS) == 0 {
+	nn := GetQLS()
+	if len(nn) == 0 {
 		return errors.New("未配置容器。"), nil
 	}
-	if len(QLS) == 1 {
-		return nil, QLS
+	if len(nn) == 1 {
+		return nil, nn
 	}
 	var ql *QingLong
 	if s != nil && !s.IsAdmin() { //普通用户自动分配
-		for i := range QLS {
-			if QLS[i].Default {
-				ql = QLS[i]
+		for i := range nn {
+			if nn[i].Default {
+				ql = nn[i]
 				break
 			}
 		}
 		if ql == nil {
-			ql = QLS[0]
+			ql = nn[0]
 		}
 	}
 	if ql != nil {
 		return nil, []*QingLong{ql}
 	}
 	ls := []string{}
-	for i := range QLS {
-		ls = append(ls, fmt.Sprintf("%d. %s", i+1, QLS[i].Name))
+	for i := range nn {
+		ls = append(ls, fmt.Sprintf("%d. %s", i+1, nn[i].Name))
 	}
 	s.Reply("请选择容器：\n" + strings.Join(ls, "\n"))
 	r := s.Await(s, func(s core.Sender) interface{} {
-		return core.Range([]int{1, len(QLS)})
+		return core.Range([]int{1, len(nn)})
 	}, time.Second*10)
 	switch r {
 	case nil:
@@ -578,10 +602,10 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		return errors.New("你没有选择容器。"), []*QingLong{}
 	default:
 		index := r.(int) - 1
-		if index != len(QLS) {
-			return nil, []*QingLong{QLS[index]}
+		if index != len(nn) {
+			return nil, []*QingLong{nn[index]}
 		} else {
-			return nil, QLS
+			return nil, nn
 		}
 	}
 }
