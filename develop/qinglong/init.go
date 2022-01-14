@@ -87,7 +87,7 @@ func init() {
 					i = core.Int(is)
 					if i < 0 && i >= -len(QLS) {
 						for j := range nn {
-							if j == -i {
+							if j == -i-1 {
 								nn = append(nn[:j], nn[j+1:]...)
 								break
 							}
