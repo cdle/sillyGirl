@@ -332,12 +332,14 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		return nil, nil
 	}
 	if s != nil && !s.IsAdmin() { //普通用户自动分配
-		min := 10000000
 		for i := range QLS {
-			if num := QLS[i].GetNumber(); num < min {
-				min = num
+			if QLS[i].Default {
 				ql = QLS[i]
+				break
 			}
+		}
+		if ql == nil {
+			ql = QLS[0]
 		}
 	}
 	if ql == nil {
@@ -485,14 +487,12 @@ func GetQinglongByClientID(s string) (error, *QingLong) {
 		return errors.New("未配置容器。"), nil
 	}
 	var ql *QingLong
+	min := 10000000
 	for i := range QLS {
-		if QLS[i].Default {
+		if num := QLS[i].GetNumber(); num <= min {
+			min = num
 			ql = QLS[i]
-			break
 		}
-	}
-	if ql == nil {
-		ql = QLS[0]
 	}
 	return errors.New("默认获取了一个容器。"), ql
 }
@@ -506,12 +506,14 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	}
 	var ql *QingLong
 	if s != nil && !s.IsAdmin() { //普通用户自动分配
-		min := 10000000
 		for i := range QLS {
-			if num := QLS[i].GetNumber(); num < min {
-				min = num
+			if QLS[i].Default {
 				ql = QLS[i]
+				break
 			}
+		}
+		if ql == nil {
+			ql = QLS[0]
 		}
 	}
 	if ql != nil {
