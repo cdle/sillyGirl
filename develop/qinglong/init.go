@@ -71,7 +71,6 @@ func init() {
 						}
 						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
 					}
-					ls = append(ls, fmt.Sprintf("%d. %s", len(nn)+1, "所有容器"))
 				hh:
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
@@ -114,12 +113,12 @@ func init() {
 						s.Reply("请输入备注：")
 						ql.Name = s.Await(s, nil).(string)
 					}
-					if ql.Default {
-						t = "取消默认"
-					} else {
-						t = "设置默认"
-					}
 					for {
+						if ql.Default {
+							t = "取消默认"
+						} else {
+							t = "设置默认"
+						}
 						s.Reply(fmt.Sprintf("请选择要编辑的属性(q退出)：\n%s", strings.Join(
 							[]string{
 								fmt.Sprintf("1. 容器备注 - %s", ql.Name),
@@ -150,7 +149,7 @@ func init() {
 						case "5":
 							ql.Default = !ql.Default
 						case "q":
-							goto stop
+							goto hh
 						}
 					}
 				stop:
