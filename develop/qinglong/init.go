@@ -331,7 +331,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		}
 		return nil, nil
 	}
-	if s != nil && s.GetImType() != "wxmp" { //普通用户自动分配
+	if s != nil && !s.IsAdmin() { //普通用户自动分配
 		for i := range QLS {
 			if QLS[i].Default {
 				ql = QLS[i]
@@ -507,7 +507,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		return nil, QLS
 	}
 	var ql *QingLong
-	if s != nil && s.GetImType() != "wxmp" { //普通用户自动分配
+	if s != nil && !s.IsAdmin() { //普通用户自动分配
 		for i := range QLS {
 			if QLS[i].Default {
 				ql = QLS[i]
