@@ -72,7 +72,7 @@ func init() {
 						if nn[i].Default {
 							t = "- 默认"
 						}
-						ls = append(ls, fmt.Sprintf("%d. %s %d名乘客 %s", i+1, nn[i].Name, ql.GetNumber(), t))
+						ls = append(ls, fmt.Sprintf("%d. %s %d名乘客 %s", i+1, nn[i].Name, nn[i].GetNumber(), t))
 					}
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
