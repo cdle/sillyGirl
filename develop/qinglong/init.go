@@ -210,13 +210,13 @@ func (ql *QingLong) GetToken() (string, error) {
 	data, err := req.Bytes()
 	if err != nil {
 		msg := fmt.Sprintf("青龙连接失败：%v", err)
-		logs.Warn(msg)
+		// logs.Warn(msg)
 		return "", errors.New(msg)
 	}
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
 		msg := fmt.Sprintf("青龙登录失败：%v", string(data))
-		logs.Warn(msg)
+		// logs.Warn(msg)
 		return "", errors.New(msg)
 	}
 	ql.Token, _ = jsonparser.GetString(data, "data", "token")
