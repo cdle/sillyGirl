@@ -64,6 +64,7 @@ func init() {
 					ls := []string{}
 					nn := QLS
 					t := ""
+				hh:
 					for i := range nn {
 						t := ""
 						if nn[i].Default {
@@ -71,7 +72,6 @@ func init() {
 						}
 						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
 					}
-				hh:
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
 					is := r.(string)
@@ -157,6 +157,9 @@ func init() {
 					if s.Await(s, func(s core.Sender) interface{} {
 						return core.YesNo
 					}) == core.Yes {
+						QLS = nn
+						d, _ := json.Marshal(nn)
+						qinglong.Set("QLS", string(d))
 						return "已保存修改。"
 					}
 					return "未作修改。"
