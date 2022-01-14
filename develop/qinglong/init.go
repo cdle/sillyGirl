@@ -63,7 +63,9 @@ func init() {
 				Handle: func(s core.Sender) interface{} {
 					var ql *QingLong
 					var ls []string
-					nn := QLS
+					nn := []*QingLong{}
+					sss := qinglong.Get("QLS")
+					json.Unmarshal([]byte(sss), &nn)
 					t := ""
 				hh:
 					ls = []string{}
@@ -72,7 +74,7 @@ func init() {
 						if nn[i].Default {
 							t = "- 默认"
 						}
-						ls = append(ls, fmt.Sprintf("%d. %s %d名乘客 %s", i+1, nn[i].Name, nn[i].GetNumber(), t))
+						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
 					}
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
@@ -218,7 +220,75 @@ func (ql *QingLong) GetNumber() int {
 	return ql.Number
 }
 
+func (ql *QingLong) SetClientID(i string) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.ClientID = i
+}
+
+func (ql *QingLong) GetClientID() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.ClientID
+}
+
+func (ql *QingLong) SetClientSecret(i string) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.ClientSecret = i
+}
+
+func (ql *QingLong) GetClientSecret() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.ClientSecret
+}
+
+func (ql *QingLong) SetHost(i string) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.Host = i
+}
+
+func (ql *QingLong) GetHost() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Host
+}
+
+func (ql *QingLong) SetName(i string) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.Name = i
+}
+
+func (ql *QingLong) SetIsSqlite() {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.idSqlite = true
+}
+
+func (ql *QingLong) IsSqlite() bool {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.idSqlite
+}
+
+func (ql *QingLong) GetName() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Name
+}
+
+func (ql *QingLong) SetToken(i string) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.Name = i
+}
+
 func (ql *QingLong) GetToken() (string, error) {
+	ql.RLock()
+	defer ql.RUnlock()
 	if ql.Token != "" && expiration > time.Now().Unix() {
 		return ql.Token, nil
 	}
@@ -237,7 +307,6 @@ func (ql *QingLong) GetToken() (string, error) {
 	}
 	ql.Token, _ = jsonparser.GetString(data, "data", "token")
 	expiration, _ = jsonparser.GetInt(data, "data", "expiration")
-
 	return ql.Token, nil
 }
 
@@ -311,9 +380,6 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if ql == nil {
 		return nil, errors.New("未选择容器。")
 	}
-
-	ql.RLock()
-	defer ql.RUnlock()
 	token, err := ql.GetToken()
 	if err != nil {
 		return nil, err
@@ -355,29 +421,27 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	api = strings.Trim(api, " ")
 	switch method {
 	case GET:
-		req = httplib.Get(ql.Host + "/open/" + api)
+		req = httplib.Get(ql.GetHost() + "/open/" + api)
 	case POST:
-		req = httplib.Post(ql.Host + "/open/" + api)
+		req = httplib.Post(ql.GetHost() + "/open/" + api)
 	case DELETE:
-		req = httplib.Delete(ql.Host + "/open/" + api)
+		req = httplib.Delete(ql.GetHost() + "/open/" + api)
 	case PUT:
-		req = httplib.Put(ql.Host + "/open/" + api)
+		req = httplib.Put(ql.GetHost() + "/open/" + api)
 	}
 	req.Header("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header("Content-Type", "application/json;charset=UTF-8")
 	req.SetTimeout(time.Second*5, time.Second*5)
 	if method != GET {
-		if ql.idSqlite {
+		if ql.IsSqlite() {
 			s := string(body)
 			for _, v := range regexp.MustCompile(`"_id":"(\d+)",`).FindAllStringSubmatch(s, -1) {
 				s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
 			}
 			body = []byte(s)
-			// body = []byte(strings.ReplaceAll(string(body), `"_id"`, `"id"`))
 		}
 		req.Body(body)
 	}
-	// logs.Info(ql.idSqlite, string(body))
 	data, err := req.Bytes()
 	if err != nil {
 		return nil, err
@@ -388,15 +452,11 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			s = strings.Replace(s, v[0], `"_id":"`+v[1]+`",`, -1)
 		}
 		data = []byte(s)
-		if !ql.idSqlite {
-			go func() {
-				ql.Lock()
-				ql.idSqlite = true
-				ql.Unlock()
-			}()
+		if !ql.IsSqlite() {
+			ql.SetIsSqlite()
 		}
 	}
-	// logs.Info(ql.idSqlite, string(data))
+
 	code, _ := jsonparser.GetInt(data, "code")
 	if code != 200 {
 		return nil, errors.New(string(data))
