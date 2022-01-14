@@ -17,14 +17,15 @@ import (
 )
 
 type QingLong struct {
-	Host         string `json:"host"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Token        string `json:"-"`
-	Error        error  `json:"-"`
-	Default      bool   `json:"default"`
+	Host           string `json:"host"`
+	ClientID       string `json:"client_id"`
+	ClientSecret   string `json:"client_secret"`
+	Token          string `json:"-"`
+	Error          error  `json:"-"`
+	Default        bool   `json:"default"`
+	AggregatedMode bool   `json:"aggregated_mode"`
 	sync.RWMutex
-	idSqlite bool
+	idSqlite bool   `json:"-"`
 	Name     string `json:"name"`
 	Number   int    `json:"-"`
 }
@@ -67,14 +68,22 @@ func init() {
 					sss := qinglong.Get("QLS")
 					json.Unmarshal([]byte(sss), &nn)
 					t := ""
+					ju := ""
 				hh:
 					ls = []string{}
 					for i := range nn {
-						t := ""
+						t := []string{}
 						if nn[i].Default {
-							t = "- 默认"
+							t = append(t, "默认")
 						}
-						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
+						if nn[i].AggregatedMode {
+							t = append(t, "聚合")
+						}
+						s := ""
+						if len(t) > 0 {
+							s = fmt.Sprintf("[%s]", strings.Join(t, ","))
+						}
+						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, s))
 					}
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
@@ -129,6 +138,11 @@ func init() {
 						} else {
 							t = "设置默认"
 						}
+						if ql.AggregatedMode {
+							ju = "关闭聚合模式"
+						} else {
+							ju = "开启聚合模式"
+						}
 						s.Reply(fmt.Sprintf("请选择要编辑的属性(q退出)：\n%s", strings.Join(
 							[]string{
 								fmt.Sprintf("1. 容器备注 - %s", ql.Name),
@@ -136,6 +150,7 @@ func init() {
 								fmt.Sprintf("3. ClientID - %s", ql.ClientID),
 								fmt.Sprintf("4. ClientSecret - %s", ql.ClientSecret),
 								fmt.Sprintf("5. %s", t),
+								fmt.Sprintf("6. %s", ju),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -158,6 +173,8 @@ func init() {
 							ql.ClientSecret = s.Await(s, nil).(string)
 						case "5":
 							ql.Default = !ql.Default
+						case "6":
+							ql.AggregatedMode = !ql.AggregatedMode
 						case "q":
 							goto hh
 						}
