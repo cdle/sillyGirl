@@ -26,6 +26,7 @@ type QingLong struct {
 	sync.RWMutex
 	idSqlite bool
 	Name     string `json:"name"`
+	Number   int    `json:"-"`
 }
 
 // var Config *QingLong
@@ -71,7 +72,7 @@ func init() {
 						if nn[i].Default {
 							t = "- 默认"
 						}
-						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, t))
+						ls = append(ls, fmt.Sprintf("%d. %s %d名乘客 %s", i+1, nn[i].Name, ql.GetNumber(), t))
 					}
 					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
@@ -205,6 +206,18 @@ func initqls() {
 	logs.Info("青龙360安全卫士为您保驾护航，杜绝一切流氓脚本！")
 }
 
+func (ql *QingLong) SetNumber(i int) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.Number = i
+}
+
+func (ql *QingLong) GetNumber() int {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Number
+}
+
 func (ql *QingLong) GetToken() (string, error) {
 	if ql.Token != "" && expiration > time.Now().Unix() {
 		return ql.Token, nil
@@ -249,7 +262,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		}
 		return nil, nil
 	}
-	if s != nil && !s.IsAdmin() { //普通用户自动分配
+	if s != nil && s.GetImType() != "wxmp" { //普通用户自动分配
 		for i := range QLS {
 			if QLS[i].Default {
 				ql = QLS[i]
@@ -434,7 +447,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		return nil, QLS
 	}
 	var ql *QingLong
-	if s != nil && !s.IsAdmin() { //普通用户自动分配
+	if s != nil && s.GetImType() != "wxmp" { //普通用户自动分配
 		for i := range QLS {
 			if QLS[i].Default {
 				ql = QLS[i]
