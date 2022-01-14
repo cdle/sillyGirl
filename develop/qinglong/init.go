@@ -100,6 +100,9 @@ func init() {
 					if i > 0 && i <= len(QLS) {
 						ql = nn[i-1]
 					}
+					if ql == nil {
+						goto hh
+					}
 					if ql.Host == "" {
 					oo:
 						s.Reply("请输入青龙面板地址：")
