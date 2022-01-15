@@ -222,7 +222,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已禁用，%s。", cron.Name))
+					s.Reply(fmt.Sprintf("已删除，%s。", cron.Name))
 				}
 				return nil
 			},

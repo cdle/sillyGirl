@@ -135,6 +135,9 @@ func init() {
 					if is == "q" {
 						goto stop
 					}
+					if is == "!q" || is == "q!" {
+						return "强制退出。"
+					}
 					if is == "0" {
 						ql = &QingLong{}
 						nn = append(nn, ql)
@@ -221,8 +224,9 @@ func init() {
 						case "u":
 							goto hh
 						case "q":
-
 							goto stop
+						case "!q", "q!":
+							return "强制退出。"
 						case "wq", "qw":
 							goto save
 						}
