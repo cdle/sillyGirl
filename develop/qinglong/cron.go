@@ -264,11 +264,7 @@ func initCron() {
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
 
-				err, qls := QinglongSC(s)
-				if err != nil {
-					return err
-				}
-				for _, ql := range qls {
+				for _, ql := range GetQLS() {
 					w := func(s string) int {
 						if strings.Contains(s, "cdle") {
 							return 20
