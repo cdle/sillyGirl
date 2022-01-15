@@ -353,7 +353,7 @@ func (ql *QingLong) GetName() string {
 func (ql *QingLong) SetToken(i string) {
 	ql.Lock()
 	defer ql.Unlock()
-	ql.Name = i
+	ql.Token = i
 }
 
 func (ql *QingLong) GetToken() (string, error) {
@@ -452,6 +452,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if ql == nil {
 		return nil, errors.New("未选择容器。")
 	}
+start:
 	token, err := ql.GetToken()
 	if err != nil {
 		return nil, err
@@ -515,6 +516,12 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 		req.Body(body)
 	}
 	data, err := req.Bytes()
+
+	if strings.Contains(string(data), "UnauthorizedError") {
+		ql.SetToken("")
+		goto start
+	}
+
 	if err != nil {
 		return nil, err
 	}
