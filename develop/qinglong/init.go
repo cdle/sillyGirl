@@ -184,7 +184,7 @@ func init() {
 						} else {
 							ju = "开启聚合模式"
 						}
-						s.Reply(fmt.Sprintf("请选择要编辑的属性(q退出)：\n%s", strings.Join(
+						s.Reply(fmt.Sprintf("请选择要编辑的属性(u返回,q退出,wq保存)：\n%s", strings.Join(
 							[]string{
 								fmt.Sprintf("1. 容器备注 - %s", ql.Name),
 								fmt.Sprintf("2. 面板地址 - %s", ql.Host),
@@ -216,8 +216,13 @@ func init() {
 							ql.Default = !ql.Default
 						case "6":
 							ql.AggregatedMode = !ql.AggregatedMode
-						case "q":
+						case "u":
 							goto hh
+						case "q":
+
+							goto stop
+						case "wq", "qw":
+							goto save
 						}
 					}
 				stop:
