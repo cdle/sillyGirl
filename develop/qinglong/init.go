@@ -111,6 +111,7 @@ func init() {
 						if nn[i].Token == "" {
 							t = append(t, "异常")
 						}
+						nn[i].Token = ""
 						if nn[i].Default {
 							t = append(t, "默认")
 						}
@@ -373,9 +374,9 @@ func (ql *QingLong) GetToken() (string, error) {
 	ql.RLock()
 	defer ql.RUnlock()
 
-	if ql.try != 0 {
-		time.Sleep(time.Second * time.Duration(ql.try))
-	}
+	// if ql.try >= 2 {
+	// 	return "", errors.New(fmt.Sprintf("%s异常。", ql.Name))
+	// }
 
 	if ql.Token != "" && expiration > time.Now().Unix() {
 		return ql.Token, nil
@@ -395,11 +396,11 @@ func (ql *QingLong) GetToken() (string, error) {
 		return "", errors.New(msg)
 	}
 	ql.Token, _ = jsonparser.GetString(data, "data", "token")
-	if ql.Token == "" {
-		go ql.SetTry(0)
-	} else {
-		go ql.AddTry()
-	}
+	// if ql.Token == "" {
+	// 	go ql.SetTry(0)
+	// } else {
+	// 	go ql.AddTry()
+	// }
 	expiration, _ = jsonparser.GetInt(data, "data", "expiration")
 	return ql.Token, nil
 }
@@ -475,7 +476,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if ql == nil {
 		return nil, errors.New("未选择容器。")
 	}
-start:
+	// start:
 	token, err := ql.GetToken()
 	if err != nil {
 		return nil, err
@@ -540,10 +541,10 @@ start:
 	}
 	data, err := req.Bytes()
 
-	if strings.Contains(string(data), "UnauthorizedError") {
-		ql.SetToken("")
-		goto start
-	}
+	// if strings.Contains(string(data), "UnauthorizedError") {
+	// 	ql.SetToken("")
+	// 	goto start
+	// }
 
 	if err != nil {
 		return nil, err
