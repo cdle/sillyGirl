@@ -28,6 +28,7 @@ type QingLong struct {
 	idSqlite bool   `json:"-"`
 	Name     string `json:"name"`
 	Number   int    `json:"-"`
+	try      int    `json:"-"`
 }
 
 // var Config *QingLong
@@ -356,9 +357,26 @@ func (ql *QingLong) SetToken(i string) {
 	ql.Token = i
 }
 
+func (ql *QingLong) AddTry() {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.try = ql.try + 1
+}
+
+func (ql *QingLong) SetTry(i int) {
+	ql.Lock()
+	defer ql.Unlock()
+	ql.try = i
+}
+
 func (ql *QingLong) GetToken() (string, error) {
 	ql.RLock()
 	defer ql.RUnlock()
+
+	if ql.try != 0 {
+		time.Sleep(time.Second * time.Duration(ql.try))
+	}
+
 	if ql.Token != "" && expiration > time.Now().Unix() {
 		return ql.Token, nil
 	}
@@ -377,6 +395,11 @@ func (ql *QingLong) GetToken() (string, error) {
 		return "", errors.New(msg)
 	}
 	ql.Token, _ = jsonparser.GetString(data, "data", "token")
+	if ql.Token == "" {
+		go ql.SetTry(0)
+	} else {
+		go ql.AddTry()
+	}
 	expiration, _ = jsonparser.GetInt(data, "data", "expiration")
 	return ql.Token, nil
 }
