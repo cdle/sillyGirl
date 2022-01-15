@@ -20,7 +20,7 @@ type QingLong struct {
 	Host           string `json:"host"`
 	ClientID       string `json:"client_id"`
 	ClientSecret   string `json:"client_secret"`
-	Token          string `json:"token"`
+	Token          string `json:"-"`
 	Error          error  `json:"-"`
 	Default        bool   `json:"default"`
 	AggregatedMode bool   `json:"aggregated_mode"`
