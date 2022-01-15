@@ -205,6 +205,29 @@ func initCron() {
 			},
 		},
 		{
+			Rules: []string{`cron delete ?`},
+			Admin: true,
+			Handle: func(s core.Sender) interface{} {
+				err, qls := QinglongSC(s)
+				if err != nil {
+					return err
+				}
+				for _, ql := range qls {
+					cron, err := GetCronID(ql, s, s.Get())
+					if err != nil {
+						s.Reply(err)
+						continue
+					}
+					if _, err := Req(ql, CRONS, DELETE, "", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
+						s.Reply(err)
+						continue
+					}
+					s.Reply(fmt.Sprintf("已禁用，%s。", cron.Name))
+				}
+				return nil
+			},
+		},
+		{
 			Rules: []string{`cron find ?`},
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
