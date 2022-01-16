@@ -454,6 +454,7 @@ func Init123() {
 				if err != nil {
 					return err
 				}
+				var firstErr error = nil
 				for _, v := range files {
 					if v.IsDir() {
 						continue
@@ -461,15 +462,13 @@ func Init123() {
 					if !strings.Contains(v.Name(), ".js") {
 						continue
 					}
-					var firstErr error = nil
 					if err := importJs(dir + "/" + v.Name()); err != nil {
 						if firstErr == nil {
 							firstErr = err
 						}
 					}
-					return firstErr
 				}
-				return nil
+				return firstErr
 			})
 			_, err = vm.RunString(template)
 			if err != nil {
