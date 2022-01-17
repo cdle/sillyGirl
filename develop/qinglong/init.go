@@ -194,6 +194,7 @@ func init() {
 						ClientSecret := ql.ClientSecret
 
 						host = regexp.MustCompile(`\.[^.]+\.`).ReplaceAllString(host, ".*.")
+						host = regexp.MustCompile(`\.[^.]+\:`).ReplaceAllString(host, ".*:")
 						ClientSecret = "*******"
 
 						s.Reply(fmt.Sprintf("请选择要编辑的属性(u返回,q退出,wq保存)：\n%s", strings.Join(
