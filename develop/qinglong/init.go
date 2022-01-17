@@ -189,12 +189,21 @@ func init() {
 						} else {
 							ju = "开启聚合模式"
 						}
+
+						host := ql.Host
+						ClientSecret := ql.ClientSecret
+
+						if s.GetChatID() != 0 {
+							host = regexp.MustCompile(`\d+`).ReplaceAllString(host, "*")
+							ClientSecret = regexp.MustCompile(`[a-z]`).ReplaceAllString(host, "*")
+						}
+
 						s.Reply(fmt.Sprintf("请选择要编辑的属性(u返回,q退出,wq保存)：\n%s", strings.Join(
 							[]string{
 								fmt.Sprintf("1. 容器备注 - %s", ql.Name),
-								fmt.Sprintf("2. 面板地址 - %s", ql.Host),
+								fmt.Sprintf("2. 面板地址 - %s", host),
 								fmt.Sprintf("3. ClientID - %s", ql.ClientID),
-								fmt.Sprintf("4. ClientSecret - %s", ql.ClientSecret),
+								fmt.Sprintf("4. ClientSecret - %s", ClientSecret),
 								fmt.Sprintf("5. %s", t),
 								fmt.Sprintf("6. %s", ju),
 							}, "\n")))
