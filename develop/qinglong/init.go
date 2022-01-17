@@ -193,6 +193,7 @@ func init() {
 						host := ql.Host
 						ClientSecret := ql.ClientSecret
 
+						host = regexp.MustCompile(`/[^.]+\.`).ReplaceAllString(host, "/*.")
 						host = regexp.MustCompile(`\.[^.]+\.`).ReplaceAllString(host, ".*.")
 						host = regexp.MustCompile(`\.[^.]+\:`).ReplaceAllString(host, ".*:")
 						ClientSecret = "*******"
