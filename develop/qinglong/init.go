@@ -248,6 +248,8 @@ func init() {
 							ql.Default = !ql.Default
 						case "6":
 							ql.AggregatedMode = !ql.AggregatedMode
+						case "7":
+							ql.Disable = !ql.Disable
 						case "u":
 							goto hh
 						case "q":
