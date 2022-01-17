@@ -210,7 +210,7 @@ func init() {
 						host := ql.Host
 						ClientSecret := ql.ClientSecret
 
-						host = regexp.MustCompile(`/[^.]+\.`).ReplaceAllString(host, "/*.")
+						host = regexp.MustCompile(`/[^.]+?\.`).ReplaceAllString(host, "/*.")
 						host = regexp.MustCompile(`\.[^.]+\.`).ReplaceAllString(host, ".*.")
 						host = regexp.MustCompile(`\.[^.]+\:`).ReplaceAllString(host, ".*:")
 						ClientSecret = "*******"
@@ -256,7 +256,7 @@ func init() {
 							goto stop
 						case "!q", "q!":
 							return "强制退出。"
-						case "wq", "qw":
+						case "wq", "qw", "qw!", "!wq":
 							goto save
 						}
 					}
