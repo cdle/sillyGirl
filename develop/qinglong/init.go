@@ -193,10 +193,8 @@ func init() {
 						host := ql.Host
 						ClientSecret := ql.ClientSecret
 
-						if s.GetChatID() != 0 {
-							host = regexp.MustCompile(`\d+`).ReplaceAllString(host, "*")
-							ClientSecret = regexp.MustCompile(`[a-z]`).ReplaceAllString(host, "*")
-						}
+						host = regexp.MustCompile(`\.[^.]+\.`).ReplaceAllString(host, ".*.")
+						ClientSecret = "*******"
 
 						s.Reply(fmt.Sprintf("请选择要编辑的属性(u返回,q退出,wq保存)：\n%s", strings.Join(
 							[]string{
