@@ -121,8 +121,14 @@ func AddEnv(ql *QingLong, es ...Env) error {
 
 func RemEnv(ql *QingLong, es ...Env) error {
 	v := []string{}
-	for i := range es {
-		v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+	if ql.IsSqlite() {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
+		}
+	} else {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+		}
 	}
 	_, err := Req(ql, DELETE, ENVS, []byte(`[`+strings.Join(v, ",")+`]`))
 	return err
