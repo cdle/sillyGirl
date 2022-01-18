@@ -149,6 +149,36 @@ func DisableEnv(ql *QingLong, es ...Env) error {
 	return err
 }
 
+func DisableCron(ql *QingLong, es ...Cron) error {
+	v := []string{}
+	if ql.IsSqlite() {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
+		}
+	} else {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+		}
+	}
+	_, err := Req(ql, PUT, CRONS, "/disable", []byte(`[`+strings.Join(v, ",")+`]`))
+	return err
+}
+
+func EnableCron(ql *QingLong, es ...Cron) error {
+	v := []string{}
+	if ql.IsSqlite() {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
+		}
+	} else {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+		}
+	}
+	_, err := Req(ql, PUT, CRONS, "/enable", []byte(`[`+strings.Join(v, ",")+`]`))
+	return err
+}
+
 func initEnv() {
 	core.AddCommand("ql", []core.Function{
 		{

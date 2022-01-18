@@ -590,12 +590,12 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if method != GET {
 		if ql.IsSqlite() {
 			s := string(body)
-			// logs.Info(s, "--")
-
 			for _, v := range regexp.MustCompile(`"_id":"(\d+)",`).FindAllStringSubmatch(s, -1) {
 				s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
 			}
-
+			if regexp.MustCompile(`^[\s"`).FindString(s) != "" {
+				s = strings.ReplaceAll(s, `"`, "")
+			}
 			body = []byte(s)
 		}
 		// logs.Info(string(body))

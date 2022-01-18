@@ -286,7 +286,6 @@ func initCron() {
 			Admin: true,
 			Cron:  "*/5 * * * *",
 			Handle: func(s core.Sender) interface{} {
-
 				for _, ql := range GetQLS() {
 					w := func(s string) int {
 						if strings.Contains(s, "cdle") {
