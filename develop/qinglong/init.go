@@ -104,7 +104,7 @@ func init() {
 					jy := ""
 				hh:
 					ls = []string{}
-					// ps := qinglong.Get("pins")
+					ps := qinglong.Get("pins")
 					cs := []chan bool{}
 					for i := range nn {
 						c := make(chan bool)
