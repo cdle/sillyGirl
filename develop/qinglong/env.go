@@ -121,14 +121,8 @@ func AddEnv(ql *QingLong, es ...Env) error {
 
 func RemEnv(ql *QingLong, es ...Env) error {
 	v := []string{}
-	if ql.IsSqlite() {
-		for i := range es {
-			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
-		}
-	} else {
-		for i := range es {
-			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
-		}
+	for i := range es {
+		v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
 	}
 	_, err := Req(ql, DELETE, ENVS, []byte(`[`+strings.Join(v, ",")+`]`))
 	return err
@@ -136,14 +130,8 @@ func RemEnv(ql *QingLong, es ...Env) error {
 
 func DisableEnv(ql *QingLong, es ...Env) error {
 	v := []string{}
-	if ql.IsSqlite() {
-		for i := range es {
-			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
-		}
-	} else {
-		for i := range es {
-			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
-		}
+	for i := range es {
+		v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
 	}
 	_, err := Req(ql, PUT, ENVS, "/disable", []byte(`[`+strings.Join(v, ",")+`]`))
 	return err
