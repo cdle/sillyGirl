@@ -578,7 +578,6 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			body = []byte(s)
 
 		}
-		fmt.Println(string(body))
 		req.Body(body)
 	}
 	data, err := req.Bytes()
