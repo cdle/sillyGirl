@@ -289,7 +289,7 @@ func init() {
 					SetQLS(nn)
 					d, _ := json.Marshal(nn)
 					qinglong.Set("QLS", string(d))
-					qinglong.Set("pins", strings.Join(regexp.MustCompile(`\S`).FindAllString(ps, -1), " "))
+					qinglong.Set("pins", strings.Join(regexp.MustCompile(`\S+`).FindAllString(ps, -1), " "))
 					return "已保存修改。"
 
 				},
