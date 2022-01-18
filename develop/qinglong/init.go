@@ -338,6 +338,12 @@ func (ql *QingLong) GetNumber() int {
 	return ql.Number
 }
 
+func (ql *QingLong) GetWeight() int {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Weight
+}
+
 func (ql *QingLong) SetClientID(i string) {
 	ql.Lock()
 	defer ql.Unlock()
