@@ -107,12 +107,14 @@ func UdpEnv(ql *QingLong, env Env) error {
 // }
 
 func AddEnv(ql *QingLong, es ...Env) error {
+	nn := []Env{}
 	for i := range es {
 		es[i].Created = 0
 		es[i].Timestamp = ""
 		es[i].ID = ""
+		nn = append(nn, es[i])
 	}
-	_, err := Req(ql, POST, ENVS, es)
+	_, err := Req(ql, POST, ENVS, nn)
 	return err
 }
 
