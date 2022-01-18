@@ -600,6 +600,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			}
 			body = []byte(s)
 		}
+		logs.Info(s)
 		req.Body(body)
 	}
 	data, err := req.Bytes()
