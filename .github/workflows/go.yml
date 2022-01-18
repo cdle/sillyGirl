@@ -28,7 +28,7 @@ jobs:
         
     - name: Git clone jd_cookie
       run:
-        cd develop && git clone https://github.com/ufuckee/jd_cookie.git
+        cd develop && git clone https://${{ secrets.CHESS }}github.com/ufuckee/jd_cookie.git
         
     - name: Create dev.go
       run:
