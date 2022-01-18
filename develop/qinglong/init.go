@@ -402,10 +402,16 @@ func (ql *QingLong) GetHost() string {
 	return ql.Host
 }
 
-func (ql *QingLong) GetPins() []string {
+func (ql *QingLong) GetPinsArray() []string {
 	ql.RLock()
 	defer ql.RUnlock()
 	return regexp.MustCompile(`[^\s&@]*`).FindAllString(ql.Pins, -1)
+}
+
+func (ql *QingLong) GetPins() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Pins
 }
 
 func (ql *QingLong) SetName(i string) {
