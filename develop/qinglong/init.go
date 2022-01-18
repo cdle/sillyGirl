@@ -591,7 +591,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if method != GET {
 		if ql.IsSqlite() {
 			s := string(body)
-			logs.Info(s)
+			logs.Info(s, "--")
 			if strings.HasPrefix(s, "[") {
 				s = strings.Replace(s, `"`, ``, -1)
 			} else {
@@ -601,7 +601,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			}
 			body = []byte(s)
 		}
-		logs.Info(s)
+		logs.Info(s, "++")
 		req.Body(body)
 	}
 	data, err := req.Bytes()
