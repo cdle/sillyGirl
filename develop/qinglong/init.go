@@ -575,6 +575,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 				s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
 			}
 			body = []byte(s)
+			fmt.Println(s)
 		}
 		req.Body(body)
 	}
