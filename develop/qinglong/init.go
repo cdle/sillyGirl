@@ -148,7 +148,7 @@ func init() {
 					r := s.Await(s, nil)
 					is := r.(string)
 					i := 0
-					if is == "wq" || is == "qw" {
+					if is == "wq" || is == "qw" || is == "wq!" {
 						goto save
 					}
 					if is == "q" {
@@ -271,13 +271,14 @@ func init() {
 							ql.Weight = core.Int(s.Await(s, nil).(string))
 						case "9":
 							s.Reply("请输入车头：")
-							ct = s.Await(s, nil).(string)
+							ct = regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " ")
+
 						case "10":
 							s.Reply("请输入大钉子户：")
-							ps = s.Await(s, nil).(string)
+							ps = regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " ")
 						case "11":
 							s.Reply("请输入小钉子户：")
-							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(s.Await(s, nil).(string), -1), " ")
+							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " "), -1), " ")
 						case "u":
 							goto hh
 						case "q":
