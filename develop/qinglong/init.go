@@ -30,6 +30,7 @@ type QingLong struct {
 	Name     string `json:"name"`
 	Number   int    `json:"-"`
 	try      int    `json:"-"`
+	Weight   int    `json:"weight"`
 }
 
 // var Config *QingLong
@@ -40,6 +41,7 @@ var qLSLock = new(sync.RWMutex)
 func GetQLS() []*QingLong {
 	qLSLock.RLock()
 	defer qLSLock.RUnlock()
+
 	return qLS
 }
 
@@ -55,6 +57,9 @@ func SetQLS(qls []*QingLong) {
 	nn := []*QingLong{}
 	for _, ql := range qls {
 		if !ql.Disable {
+			if ql.Weight == 0 {
+				ql.Weight = 1
+			}
 			nn = append(nn, ql)
 		}
 	}
@@ -207,6 +212,10 @@ func init() {
 							jy = "禁用容器"
 						}
 
+						if ql.Weight == 0 {
+							ql.Weight = 1
+						}
+
 						host := ql.Host
 						ClientSecret := ql.ClientSecret
 
@@ -224,6 +233,7 @@ func init() {
 								fmt.Sprintf("5. %s", t),
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
+								fmt.Sprintf("8. 权重 - %d", ql.Weight),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -250,6 +260,9 @@ func init() {
 							ql.AggregatedMode = !ql.AggregatedMode
 						case "7":
 							ql.Disable = !ql.Disable
+						case "8":
+							s.Reply("请输入权重：")
+							ql.Weight = core.Int(s.Await(s, nil).(string))
 						case "u":
 							goto hh
 						case "q":
