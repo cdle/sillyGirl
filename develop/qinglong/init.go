@@ -235,7 +235,7 @@ func init() {
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
-								fmt.Sprintf("9. 钉子户 - %s", strings.Join(regexp.MustCompile(`\S`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("9. 钉子户 - %s", strings.Join(regexp.MustCompile(`\S+`).FindAllString(ps, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
