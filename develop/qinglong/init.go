@@ -104,6 +104,7 @@ func init() {
 					jy := ""
 				hh:
 					ls = []string{}
+					ps := qinglong.Get("pins")
 					cs := []chan bool{}
 					for i := range nn {
 						c := make(chan bool)
@@ -234,6 +235,7 @@ func init() {
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
+								fmt.Sprintf("9. 钉子户 - %s", strings.Join(regexp.MustCompile(`\S`).FindAllString(ps, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -263,6 +265,9 @@ func init() {
 						case "8":
 							s.Reply("请输入权重：")
 							ql.Weight = core.Int(s.Await(s, nil).(string))
+						case "9":
+							s.Reply("请输入钉子户(多个用空格隔开)：")
+							ps = s.Await(s, nil).(string)
 						case "u":
 							goto hh
 						case "q":
@@ -284,6 +289,7 @@ func init() {
 					SetQLS(nn)
 					d, _ := json.Marshal(nn)
 					qinglong.Set("QLS", string(d))
+					qinglong.Set("pins", strings.Join(regexp.MustCompile(`\S`).FindAllString(ps, -1), " "))
 					return "已保存修改。"
 
 				},
@@ -607,7 +613,6 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	// 	ql.SetToken("")
 	// 	goto start
 	// }
-
 	if err != nil {
 		return nil, err
 	}
