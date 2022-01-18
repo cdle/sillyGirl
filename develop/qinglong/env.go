@@ -1,6 +1,8 @@
 package qinglong
 
 import (
+	"errors"
+
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -17,6 +19,7 @@ type Env struct {
 	Remarks   string `json:"remarks,omitempty"`
 	Timestamp string `json:"timestamp,omitempty"`
 	Created   int64  `json:"created,omitempty"`
+	PtPin     string `json:"-"`
 }
 
 func GetEnv(ql *QingLong, id string) (*Env, error) {
@@ -29,7 +32,7 @@ func GetEnv(ql *QingLong, id string) (*Env, error) {
 			return &env, nil
 		}
 	}
-	return nil, nil
+	return nil, errors.New("无效ID。")
 }
 
 func GetEnvs(ql *QingLong, searchValue string) ([]Env, error) {
@@ -101,10 +104,12 @@ func UdpEnv(ql *QingLong, env Env) error {
 // 	return errors.New("找不到环境变量")
 // }
 
-func AddEnv(ql *QingLong, e Env) error {
-	e.Created = 0
-	e.Timestamp = ""
-	_, err := Req(ql, POST, ENVS, []Env{e})
+func AddEnv(ql *QingLong, es ...Env) error {
+	for _, e := range es {
+		e.Created = 0
+		e.Timestamp = ""
+	}
+	_, err := Req(ql, POST, ENVS, es)
 	return err
 }
 

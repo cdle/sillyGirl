@@ -355,6 +355,12 @@ func (ql *QingLong) SetHost(i string) {
 	ql.Host = i
 }
 
+func (ql *QingLong) GetTail() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return fmt.Sprintf("	——来自%s", ql.Name)
+}
+
 func (ql *QingLong) GetHost() string {
 	ql.RLock()
 	defer ql.RUnlock()
