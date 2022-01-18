@@ -568,7 +568,6 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 				toParse = p
 			} else {
 				body, _ = json.Marshal(p)
-
 			}
 		}
 	}
@@ -601,7 +600,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			}
 			body = []byte(s)
 		}
-		logs.Info(s, "++")
+		logs.Info(string(body))
 		req.Body(body)
 	}
 	data, err := req.Bytes()
