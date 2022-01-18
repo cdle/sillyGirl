@@ -134,6 +134,21 @@ func RemEnv(ql *QingLong, es ...Env) error {
 	return err
 }
 
+func DisableEnv(ql *QingLong, es ...Env) error {
+	v := []string{}
+	if ql.IsSqlite() {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`%s`, es[i].ID))
+		}
+	} else {
+		for i := range es {
+			v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+		}
+	}
+	_, err := Req(ql, PUT, ENVS, "/disable", []byte(`[`+strings.Join(v, ",")+`]`))
+	return err
+}
+
 func initEnv() {
 	core.AddCommand("ql", []core.Function{
 		{
