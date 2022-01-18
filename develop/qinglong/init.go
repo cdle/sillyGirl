@@ -599,7 +599,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			for _, v := range regexp.MustCompile(`"_id":"(\d+)",`).FindAllStringSubmatch(s, -1) {
 				s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
 			}
-			if regexp.MustCompile(`^[\s"`).FindString(s) != "" {
+			if regexp.MustCompile(`^\[\s"`).FindString(s) != "" {
 				s = strings.ReplaceAll(s, `"`, "")
 			}
 			body = []byte(s)
