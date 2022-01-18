@@ -31,6 +31,7 @@ type QingLong struct {
 	Number   int    `json:"-"`
 	try      int    `json:"-"`
 	Weight   int    `json:"weight"`
+	Pins     string `json:"pins"`
 }
 
 // var Config *QingLong
@@ -237,7 +238,8 @@ func init() {
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
 								fmt.Sprintf("9. 车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ct, -1), "｜")),
-								fmt.Sprintf("10. 钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("10. 大钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("11. 小钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ql.Pins, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -268,11 +270,14 @@ func init() {
 							s.Reply("请输入权重：")
 							ql.Weight = core.Int(s.Await(s, nil).(string))
 						case "9":
-							s.Reply("请输入钉子户(多个用空格隔开)：")
-							ps = s.Await(s, nil).(string)
+							s.Reply("请输入车头：")
+							ct = s.Await(s, nil).(string)
 						case "10":
-							s.Reply("请输入车头(多个用空格隔开)：")
+							s.Reply("请输入大钉子户：")
 							ps = s.Await(s, nil).(string)
+						case "11":
+							s.Reply("请输入小钉子户：")
+							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(s.Await(s, nil).(string), -1), " ")
 						case "u":
 							goto hh
 						case "q":
