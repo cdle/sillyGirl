@@ -105,6 +105,7 @@ func init() {
 				hh:
 					ls = []string{}
 					ps := qinglong.Get("pins")
+					ct := qinglong.Get("chetou")
 					cs := []chan bool{}
 					for i := range nn {
 						c := make(chan bool)
@@ -235,7 +236,8 @@ func init() {
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
-								fmt.Sprintf("9. 钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("9. 车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ct, -1), "｜")),
+								fmt.Sprintf("10. 钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -268,6 +270,9 @@ func init() {
 						case "9":
 							s.Reply("请输入钉子户(多个用空格隔开)：")
 							ps = s.Await(s, nil).(string)
+						case "10":
+							s.Reply("请输入车头(多个用空格隔开)：")
+							ps = s.Await(s, nil).(string)
 						case "u":
 							goto hh
 						case "q":
@@ -290,6 +295,7 @@ func init() {
 					d, _ := json.Marshal(nn)
 					qinglong.Set("QLS", string(d))
 					qinglong.Set("pins", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), " "))
+					qinglong.Set("chetou", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ct, -1), " "))
 					return "已保存修改。"
 				},
 			},
