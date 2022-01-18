@@ -591,11 +591,14 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 	if method != GET {
 		if ql.IsSqlite() {
 			s := string(body)
-			for _, v := range regexp.MustCompile(`"_id":"(\d+)",`).FindAllStringSubmatch(s, -1) {
-				s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
+			if strings.HasPrefix(s, "[") {
+				s = strings.Replace(s, `"`, ``, -1)
+			} else {
+				for _, v := range regexp.MustCompile(`"_id":"(\d+)",`).FindAllStringSubmatch(s, -1) {
+					s = strings.Replace(s, v[0], `"id":`+v[1]+`,`, -1)
+				}
 			}
 			body = []byte(s)
-
 		}
 		req.Body(body)
 	}

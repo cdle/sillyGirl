@@ -2,6 +2,8 @@ package qinglong
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/cdle/sillyGirl/core"
 )
@@ -114,9 +116,14 @@ func AddEnv(ql *QingLong, es ...Env) error {
 	return err
 }
 
-// func RemEnv(e *Env) error {
-// 	return Req(nil, DELETE, ENVS, []byte(`["`+e.ID+`"]`))
-// }
+func RemEnv(ql *QingLong, es ...Env) error {
+	v := []string{}
+	for i := range es {
+		v = append(v, fmt.Sprintf(`"%s"`, es[i].ID))
+	}
+	_, err := Req(ql, DELETE, ENVS, []byte(`[`+strings.Join(v, ",")+`]`))
+	return err
+}
 
 func initEnv() {
 	core.AddCommand("ql", []core.Function{
