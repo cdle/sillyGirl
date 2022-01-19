@@ -42,7 +42,6 @@ var qLSLock = new(sync.RWMutex)
 func GetQLS() []*QingLong {
 	qLSLock.RLock()
 	defer qLSLock.RUnlock()
-
 	return qLS
 }
 
