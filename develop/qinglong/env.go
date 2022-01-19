@@ -22,6 +22,7 @@ type Env struct {
 	Timestamp string `json:"timestamp,omitempty"`
 	Created   int64  `json:"created,omitempty"`
 	PtPin     string `json:"-"`
+	Index     int    `json:"-"`
 }
 
 func GetEnv(ql *QingLong, id string) (*Env, error) {
