@@ -236,9 +236,9 @@ func init() {
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
-								fmt.Sprintf("9. 车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ct, -1), "｜")),
-								fmt.Sprintf("10. 大钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), "｜")),
-								fmt.Sprintf("11. 小钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ql.Pins, -1), "｜")),
+								fmt.Sprintf("9. 车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ct, -1), "｜")),
+								fmt.Sprintf("10. 大钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("11. 小钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Pins, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -277,7 +277,7 @@ func init() {
 							ps = regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " ")
 						case "11":
 							s.Reply("请输入小钉子户：")
-							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " "), -1), " ")
+							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " "), -1), " ")
 						case "u":
 							goto hh
 						case "q":
@@ -299,8 +299,8 @@ func init() {
 					SetQLS(nn)
 					d, _ := json.Marshal(nn)
 					qinglong.Set("QLS", string(d))
-					qinglong.Set("pins", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ps, -1), " "))
-					qinglong.Set("chetou", strings.Join(regexp.MustCompile(`[^\s&@]*`).FindAllString(ct, -1), " "))
+					qinglong.Set("pins", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ps, -1), " "))
+					qinglong.Set("chetou", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ct, -1), " "))
 					return "已保存修改。"
 				},
 			},
@@ -405,7 +405,7 @@ func (ql *QingLong) GetHost() string {
 func (ql *QingLong) GetPinsArray() []string {
 	ql.RLock()
 	defer ql.RUnlock()
-	return regexp.MustCompile(`[^\s&@]*`).FindAllString(ql.Pins, -1)
+	return regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Pins, -1)
 }
 
 func (ql *QingLong) GetPins() string {
