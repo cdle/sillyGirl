@@ -187,11 +187,7 @@ func initSys() {
 								s.Reply(fmt.Sprintf("检测到最新版本(%s)。", str))
 							}
 							if str > compiled_at {
-								if i == 0 {
-									s.Reply("正在从ghproxy.com下载更新...")
-								} else {
-									s.Reply("尝试从github.com下载更新...")
-								}
+								s.Reply(fmt.Sprintf("正在从%s下载更新...", prefix))
 								req := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str)
 								if i == 1 && Transport != nil {
 									req.SetTransport(Transport)
