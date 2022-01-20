@@ -32,6 +32,7 @@ type QingLong struct {
 	try      int    `json:"-"`
 	Weight   int    `json:"weight"`
 	Pins     string `json:"pins"`
+	Chetou   string `json:"chetou"`
 }
 
 // var Config *QingLong
@@ -236,9 +237,10 @@ func init() {
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
-								fmt.Sprintf("9. 车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ct, -1), "｜")),
-								fmt.Sprintf("10. 大钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ps, -1), "｜")),
-								fmt.Sprintf("11. 小钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Pins, -1), "｜")),
+								fmt.Sprintf("9. 大车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ct, -1), "｜")),
+								fmt.Sprintf("10. 小车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Chetou, -1), "｜")),
+								fmt.Sprintf("11. 大钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ps, -1), "｜")),
+								fmt.Sprintf("12. 小钉子户 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Pins, -1), "｜")),
 							}, "\n")))
 						switch s.Await(s, nil) {
 						default:
@@ -269,13 +271,15 @@ func init() {
 							s.Reply("请输入权重：")
 							ql.Weight = core.Int(s.Await(s, nil).(string))
 						case "9":
-							s.Reply("请输入车头：")
+							s.Reply("请输入大车头：")
 							ct = regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " ")
-
 						case "10":
+							s.Reply("请输入小车头：")
+							ql.Chetou = strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " "), -1), " ")
+						case "11":
 							s.Reply("请输入大钉子户：")
 							ps = regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " ")
-						case "11":
+						case "12":
 							s.Reply("请输入小钉子户：")
 							ql.Pins = strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(regexp.MustCompile(`\s+`).ReplaceAllString(s.Await(s, nil).(string), " "), -1), " ")
 						case "u":
@@ -412,6 +416,18 @@ func (ql *QingLong) GetPins() string {
 	ql.RLock()
 	defer ql.RUnlock()
 	return ql.Pins
+}
+
+func (ql *QingLong) GetChetouArray() []string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Chetou, -1)
+}
+
+func (ql *QingLong) GetChetou() string {
+	ql.RLock()
+	defer ql.RUnlock()
+	return ql.Chetou
 }
 
 func (ql *QingLong) SetName(i string) {
