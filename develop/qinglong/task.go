@@ -16,7 +16,6 @@ func initTask() {
 			Admin: true,
 			Handle: func(s core.Sender) interface{} {
 				err, qls := QinglongSC(s)
-				s.UAtLast()
 				if err != nil {
 					return err
 				}
