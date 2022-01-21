@@ -25,23 +25,23 @@ func initTask() {
 					}
 					ql, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql raw `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					if _, err := Req(ql, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					for {
 						time.Sleep(time.Microsecond * 300)
 						data, _ := GetCronLog(ql, cron.Value)
 						if strings.Contains(data, "执行结束...") {
-							s.Reply(data)
+							s.Reply(data + ql.GetTail())
 							break
 						}
 					}
 					if _, err := Req(ql, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 				}
@@ -62,23 +62,23 @@ func initTask() {
 					}
 					ql, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					if _, err := Req(ql, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					for {
 						time.Sleep(time.Second)
 						data, _ := GetCronLog(ql, cron.Value)
 						if strings.Contains(data, "执行结束...") {
-							s.Reply(data)
+							s.Reply(data + ql.GetTail())
 							break
 						}
 					}
 					if _, err := Req(ql, cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 				}
@@ -104,23 +104,23 @@ func initTask() {
 					})
 					ql, err := Req(ql, cron, CRONS, POST, data)
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					if _, err := Req(ql, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					for {
 						time.Sleep(time.Second)
 						data, _ := GetCronLog(ql, cron.Value)
 						if strings.Contains(data, "执行结束...") {
-							s.Reply(data)
+							s.Reply(data + ql.GetTail())
 							break
 						}
 					}
 					if _, err := Req(ql, cron, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 				}

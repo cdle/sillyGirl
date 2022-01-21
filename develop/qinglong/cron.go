@@ -129,7 +129,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已运行，%v。", cron.Name))
+					s.Reply(fmt.Sprintf("已运行，%v。%s", cron.Name, ql.GetTail()))
 				}
 				return nil
 			},
@@ -152,7 +152,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已停止，%s。", cron.Name))
+					s.Reply(fmt.Sprintf("已停止，%s。%s", cron.Name, ql.GetTail()))
 				}
 				return nil
 			},
@@ -175,7 +175,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已启用，%s。", cron.Name))
+					s.Reply(fmt.Sprintf("已启用，%s。%s", cron.Name, ql.GetTail()))
 				}
 				return nil
 
@@ -199,7 +199,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已禁用，%s。", cron.Name))
+					s.Reply(fmt.Sprintf("已禁用，%s。%s", cron.Name, ql.GetTail()))
 				}
 				return nil
 			},
@@ -222,7 +222,7 @@ func initCron() {
 						s.Reply(err)
 						continue
 					}
-					s.Reply(fmt.Sprintf("已删除，%s。", cron.Name))
+					s.Reply(fmt.Sprintf("已删除，%s。%s", cron.Name, ql.GetTail()))
 				}
 				return nil
 			},
@@ -239,7 +239,7 @@ func initCron() {
 					name := s.Get()
 					crons, err := GetCrons(ql, "")
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					es := []string{}
@@ -249,10 +249,10 @@ func initCron() {
 						}
 					}
 					if len(es) == 0 {
-						s.Reply("找不到匹配的任务")
+						s.Reply("找不到匹配的任务.%s", ql.GetTail())
 						continue
 					}
-					s.Reply(strings.Join(es, "\n\n"))
+					s.Reply(strings.Join(es, "\n\n") + ql.GetTail())
 				}
 				return nil
 			},
@@ -268,15 +268,15 @@ func initCron() {
 				for _, ql := range qls {
 					cron, err := GetCronID(ql, s, s.Get())
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					data, err := GetCronLog(ql, cron.ID)
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
-					s.Reply(data)
+					s.Reply(data + ql.GetTail())
 				}
 				return nil
 			},
@@ -341,15 +341,15 @@ func initCron() {
 								tasks[crons[i].Name] = crons[i]
 							}
 							if _, err := Req(ql, CRONS, PUT, "/disable", []byte(fmt.Sprintf(`["%s"]`, dup.ID))); err != nil {
-								s.Reply(fmt.Sprintf("隐藏 %v %v %v", dup.Name, dup.Command, err))
+								s.Reply(fmt.Sprintf("隐藏 %v %v %v%s", dup.Name, dup.Command, err, ql.GetTail()))
 							} else {
-								s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v\n\n关闭此功能对我说“qinglong set autoCronHideDuplicate false”", dup.Name, dup.Command), core.N)
+								s.Reply(fmt.Sprintf("已隐藏重复任务 %v %v\n\n关闭此功能对我说“qinglong set autoCronHideDuplicate false”%s", dup.Name, dup.Command, ql.GetTail()), core.N)
 							}
 						} else {
 							tasks[crons[i].Name] = crons[i]
 						}
 					}
-					s.Reply("操作成功")
+					s.Reply("操作成功。" + ql.GetTail())
 				}
 				return nil
 			},

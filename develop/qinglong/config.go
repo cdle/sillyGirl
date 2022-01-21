@@ -34,18 +34,18 @@ func initConfig() {
 				for _, ql := range qls {
 					envs, err := GetConfigEnvs(ql, "")
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					if len(envs) == 0 {
-						s.Reply("未设置任何环境变量。")
+						s.Reply("未设置任何环境变量。" + ql.GetTail())
 						continue
 					}
 					es := []string{}
 					for _, env := range envs {
 						es = append(es, formatEnv(&env))
 					}
-					s.Reply(strings.Join(es, "\n\n"))
+					s.Reply(strings.Join(es, "\n\n") + ql.GetTail())
 				}
 				return nil
 			},
@@ -66,7 +66,7 @@ func initConfig() {
 							return err
 						}
 						if len(envs) == 0 {
-							return "未设置该环境变量。"
+							return "未设置该环境变量。" + ql.GetTail()
 						}
 						es := []string{}
 						for _, env := range envs {
@@ -74,7 +74,7 @@ func initConfig() {
 								es = append(es, formatEnv(&env))
 							}
 						}
-						return strings.Join(es, "\n\n")
+						return strings.Join(es, "\n\n") + ql.GetTail()
 					}())
 				}
 				return nil
@@ -93,16 +93,16 @@ func initConfig() {
 						m := s.Get()
 						envs, err := GetConfigEnvs(ql, m)
 						if err != nil {
-							return err
+							return err.Error() + ql.GetTail()
 						}
 						if len(envs) == 0 {
-							return "找不到环境变量。"
+							return "找不到环境变量。" + ql.GetTail()
 						}
 						es := []string{}
 						for _, env := range envs {
 							es = append(es, formatEnv(&env))
 						}
-						return strings.Join(es, "\n\n")
+						return strings.Join(es, "\n\n") + ql.GetTail()
 					}())
 				}
 				return nil
@@ -124,9 +124,9 @@ func initConfig() {
 							Status: 3,
 						})
 						if err != nil {
-							return err
+							return err.Error() + ql.GetTail()
 						}
-						return fmt.Sprintf("设置完成。")
+						return fmt.Sprintf("设置完成。" + ql.GetTail())
 					}())
 				}
 				return nil
@@ -154,9 +154,9 @@ func initConfig() {
 				for _, ql := range qls {
 					s.Reply(func() interface{} {
 						if err := SetConfigEnv(ql, Env{Name: s.Get(0), Remarks: s.Get(1), Status: 3}); err != nil {
-							return err
+							return err.Error() + ql.GetTail()
 						}
-						return "备注成功。"
+						return "备注成功。" + ql.GetTail()
 					}())
 				}
 				return nil
@@ -174,9 +174,9 @@ func initConfig() {
 				for _, ql := range qls {
 					s.Reply(func() interface{} {
 						if err := SetConfigEnv(ql, Env{Name: s.Get(), Status: 1}); err != nil {
-							return err
+							return err.Error()
 						}
-						return "禁用完成。"
+						return "禁用完成。" + ql.GetTail()
 					}())
 				}
 				return nil
@@ -189,14 +189,14 @@ func initConfig() {
 			Handle: func(s core.Sender) interface{} {
 				err, qls := QinglongSC(s)
 				if err != nil {
-					return err
+					return err.Error()
 				}
 				for _, ql := range qls {
 					s.Reply(func() interface{} {
 						if err := SetConfigEnv(ql, Env{Name: s.Get()}); err != nil {
-							return err
+							return err.Error() + ql.GetTail()
 						}
-						return "启用完成."
+						return "启用完成。" + ql.GetTail()
 					}())
 				}
 				return nil
