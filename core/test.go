@@ -157,7 +157,7 @@ func initSys() {
 
 				if compiled_at != "" {
 					str := ""
-					for i, prefix := range []string{"https://github.yanyuge.workers.dev/", "https://ghproxy.com/", ""} {
+					for i, prefix := range []string{""} {
 						if str == "" && s.GetImType() != "fake" {
 							if v, ok := OttoFuncs["version"]; ok {
 								if rt := v.(func(string) string)(""); rt != "" {
