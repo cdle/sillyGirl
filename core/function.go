@@ -128,7 +128,7 @@ func handleMessage(sender Sender) {
 		sender.Finish()
 		if sender.IsAtLast() {
 			s := sender.MessagesToSend()
-			if s == "" {
+			if s != "" {
 				sender.Reply(s)
 			}
 		}
