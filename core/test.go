@@ -438,26 +438,6 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"empty ?"},
-			Handle: func(s Sender) interface{} {
-				name := s.Get(0)
-				if name == "silly" {
-					name = "sillyGirl"
-				}
-				s.Reply("20秒内回复任意取消清空" + name + "的操作。")
-				if s.Await(s, nil, time.Second*20) != nil {
-					return "取消清空操作。"
-				}
-				b := Bucket(name)
-				b.Foreach(func(k, _ []byte) error {
-					b.Set(string(k), "")
-					return nil
-				})
-				return "清空完成。"
-			},
-		},
-		{
-			Admin: true,
 			Rules: []string{"get ? ?", "? get ?"},
 			Handle: func(s Sender) interface{} {
 				name := s.Get(0)
