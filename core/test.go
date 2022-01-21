@@ -406,7 +406,7 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"empty ? ?"},
+			Rules: []string{"empty ? ?", "? empty ?"},
 			Handle: func(s Sender) interface{} {
 				name := s.Get(0)
 				filter := s.Get(1)
