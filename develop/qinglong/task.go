@@ -29,6 +29,7 @@ func initTask() {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
+					s.Reply(fmt.Sprintf("任务ID%s。", cron.Value))
 					if _, err := Req(ql, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.Value))); err != nil {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
