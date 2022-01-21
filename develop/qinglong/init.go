@@ -740,7 +740,6 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	r := s.Await(s, nil, time.Second*10)
 	switch r {
 	case nil:
-		s.Reply()
 		return errors.New("你没有选择容器。"), []*QingLong{}
 	case "q":
 		return errors.New("你已取消选择容器。"), nil
