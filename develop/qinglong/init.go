@@ -739,7 +739,6 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	ls = append(ls, "a. 所有容器")
 	ls = append(ls, "b. 所有聚合容器")
 	ls = append(ls, "c. 所有普通容器")
-	s.AtLast()
 	s.Reply("请选择容器：(q退出)\n" + strings.Join(ls, "\n"))
 	r := s.Await(s, nil, time.Second*10)
 	switch r {
@@ -748,6 +747,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	case "q":
 		return errors.New("你已取消选择容器。"), nil
 	case "a":
+		s.AtLast()
 		return nil, nn
 	case "b":
 		t := []*QingLong{}
@@ -759,6 +759,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		if len(t) == 0 {
 			return errors.New("你没有设置聚合容器。"), nil
 		}
+		s.AtLast()
 		return nil, t
 	case "c":
 		t := []*QingLong{}
@@ -770,6 +771,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		if len(t) == 0 {
 			return errors.New("你没有设置普通容器。"), nil
 		}
+		s.AtLast()
 		return nil, t
 	default:
 		index := r.(int) - 1
