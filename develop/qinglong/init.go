@@ -24,6 +24,7 @@ type QingLong struct {
 	Error          error  `json:"-"`
 	Default        bool   `json:"default"`
 	Disable        bool   `json:"disable"`
+	Transfer       bool   `json:"transfer"`
 	AggregatedMode bool   `json:"aggregated_mode"`
 	sync.RWMutex
 	idSqlite bool   `json:"-"`
@@ -44,6 +45,27 @@ func GetQLS() []*QingLong {
 	qLSLock.RLock()
 	defer qLSLock.RUnlock()
 	return qLS
+}
+
+func GetTsQl() (error, *QingLong) {
+	qLSLock.RLock()
+	defer qLSLock.RUnlock()
+	for i := range qLS {
+		if qLS[i].Transfer {
+			return nil, qLS[i]
+		}
+	}
+	for i := range qLS {
+		if qLS[i].AggregatedMode {
+			return nil, qLS[i]
+		}
+	}
+	for i := range qLS {
+		if !qLS[i].AggregatedMode {
+			return nil, qLS[i]
+		}
+	}
+	return errors.New("未配置容器。"), nil
 }
 
 func GetQLSLen() int {
@@ -103,6 +125,7 @@ func init() {
 					t := ""
 					ju := ""
 					jy := ""
+					ts := ""
 				hh:
 					ls = []string{}
 					ps := qinglong.Get("pins")
@@ -137,7 +160,9 @@ func init() {
 						if nn[i].Disable {
 							t = append(t, "禁用")
 						}
-
+						if nn[i].Transfer {
+							t = append(t, "转换")
+						}
 						s := ""
 						if len(t) > 0 {
 							s = fmt.Sprintf("[%s]", strings.Join(t, ","))
@@ -215,6 +240,12 @@ func init() {
 							jy = "禁用容器"
 						}
 
+						if ql.Transfer {
+							ts = "移除转换标记"
+						} else {
+							ts = "设置转换标记"
+						}
+
 						if ql.Weight == 0 {
 							ql.Weight = 1
 						}
@@ -236,6 +267,7 @@ func init() {
 								fmt.Sprintf("5. %s", t),
 								fmt.Sprintf("6. %s", ju),
 								fmt.Sprintf("7. %s", jy),
+								fmt.Sprintf("t. %s", ts),
 								fmt.Sprintf("8. 权重 - %d", ql.Weight),
 								fmt.Sprintf("9. 大车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ct, -1), "｜")),
 								fmt.Sprintf("10. 小车头 - %s", strings.Join(regexp.MustCompile(`[^\s&@｜]*`).FindAllString(ql.Chetou, -1), "｜")),
@@ -267,6 +299,8 @@ func init() {
 							ql.AggregatedMode = !ql.AggregatedMode
 						case "7":
 							ql.Disable = !ql.Disable
+						case "t":
+							ql.Transfer = !ql.Transfer
 						case "8":
 							s.Reply("请输入权重：")
 							ql.Weight = core.Int(s.Await(s, nil).(string))
