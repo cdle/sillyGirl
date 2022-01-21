@@ -44,7 +44,13 @@ func initTask() {
 						if strings.Contains(data, "执行结束...") {
 							for _, v := range strings.Split(data, "\n") {
 								if strings.Contains(v, "添加成功") {
-									s.Reply(data + ql.GetTail())
+									s.Reply(v + ql.GetTail())
+									goto oye
+								}
+							}
+							for _, v := range strings.Split(data, "\n") {
+								if strings.Contains(v, "成功...") {
+									s.Reply(v + ql.GetTail())
 									goto oye
 								}
 							}
