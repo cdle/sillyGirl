@@ -774,11 +774,14 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		s.AtLast()
 		return nil, t
 	default:
-		index := core.Int(r.(string)) - 1
-		if index != len(nn) {
-			return nil, []*QingLong{nn[index]}
-		} else {
-			return errors.New("输入错误，已取消。"), nil
+		str := r.(string)
+
+		for i := range nn {
+			if fmt.Sprint(i+1) == str {
+				return nil, []*QingLong{nn[i]}
+			}
 		}
+
+		return errors.New("输入错误，已取消。"), nil
 	}
 }
