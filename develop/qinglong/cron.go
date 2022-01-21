@@ -393,6 +393,10 @@ func formatCron(cron *Cron) string {
 }
 
 func GetCronID(ql *QingLong, s core.Sender, keyword string) (*Cron, error) {
+	if s.IsAtLast() {
+		s.UAtLast()
+		defer s.AtLast()
+	}
 	crons, err := GetCrons(ql, "")
 	if err != nil {
 		return nil, err
