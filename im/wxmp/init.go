@@ -25,7 +25,6 @@ var image2Md = core.NewBucket("image2Md")
 var file_dir = "logs/wxmp/"
 
 func init() {
-
 	os.MkdirAll(file_dir, os.ModePerm)
 	if !wxmp.GetBool("isKe?", false) {
 		core.Server.Any("/wx/", func(c *gin.Context) {
@@ -212,6 +211,10 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 				rt = item.(error).Error()
 			case string:
 				rt = item.(string)
+				if sender.ctx != nil && sender.Atlast && !sender.IsFinished {
+					sender.ToSendMessages = append(sender.ToSendMessages, rt)
+					return []string{}, nil
+				}
 			case []byte:
 				rt = string(item.([]byte))
 			case core.ImageUrl:
@@ -277,6 +280,7 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 }
 
 func (sender *Sender) Finish() {
+	sender.IsFinished = true
 	if sender.ctx != nil {
 		return
 	}

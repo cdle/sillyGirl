@@ -327,6 +327,10 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 		switch item.(type) {
 		case string:
 			pmsg.Msg = item.(string)
+			if sender.Atlast && !sender.IsFinished {
+				sender.ToSendMessages = append(sender.ToSendMessages, pmsg.Msg)
+				return []string{}, nil
+			}
 			pmsg.Msg = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(pmsg.Msg, "file")
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]*)\]`).FindAllStringSubmatch(pmsg.Msg, -1) {
 				pmsg.Msg = strings.Replace(pmsg.Msg, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)

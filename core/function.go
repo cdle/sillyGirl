@@ -124,7 +124,15 @@ func handleMessage(sender Sender) {
 	atomic.AddUint64(&total, 1)
 	defer atomic.AddUint64(&finished, 1)
 	content := TrimHiddenCharacter(sender.GetContent())
-	defer sender.Finish()
+	defer func() {
+		sender.Finish()
+		if sender.IsAtLast() {
+			s := sender.MessagesToSend()
+			if s == "" {
+				sender.Reply(s)
+			}
+		}
+	}()
 
 	// defer func() {
 	// logs.Info("%v ==> %v", sender.GetContent())

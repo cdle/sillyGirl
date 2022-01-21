@@ -332,6 +332,10 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 
 	case string:
 		message := msg.(string)
+		if sender.Atlast && !sender.IsFinished {
+			sender.ToSendMessages = append(sender.ToSendMessages, message)
+			return []string{}, nil
+		}
 		if edit != nil && sender.reply != nil {
 			if *edit == 0 {
 				if sender.reply != nil {
@@ -490,10 +494,6 @@ func (sender *Sender) Disappear(lifetime ...time.Duration) {
 	} else {
 		sender.Duration = &lifetime[0]
 	}
-}
-
-func (sender *Sender) Finish() {
-
 }
 
 func (sender *Sender) Copy() core.Sender {

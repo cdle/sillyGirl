@@ -382,6 +382,12 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 		return []string{}, nil
 	}
 	rt = strings.Trim(rt, "\n")
+
+	if sender.Atlast && !sender.IsFinished {
+		sender.ToSendMessages = append(sender.ToSendMessages, rt)
+		return []string{}, nil
+	}
+
 	ids := []string{}
 	if sender.Message.MessageType == "private" {
 		id, err := sender.Conn.WriteJSON(CallApi{
@@ -419,10 +425,6 @@ func (sender *Sender) Delete() error {
 }
 
 func (sender *Sender) Disappear(lifetime ...time.Duration) {
-
-}
-
-func (sender *Sender) Finish() {
 
 }
 
