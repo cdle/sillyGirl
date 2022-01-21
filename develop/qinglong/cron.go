@@ -369,7 +369,7 @@ func GetCronLog(ql *QingLong, id string) (string, error) {
 	c := &Carrier{
 		Get: "data",
 	}
-	if _, err := Req(nil, CRONS, "/"+id+"/log", c); err != nil {
+	if _, err := Req(ql, CRONS, "/"+id+"/log", c); err != nil {
 		return "", err
 	}
 	return c.Value, nil

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
@@ -40,13 +39,12 @@ func initTask() {
 						continue
 					}
 					for {
-						time.Sleep(time.Microsecond * 300)
 						data, _ := GetCronLog(ql, cron.Value)
-						logs.Info(string(data))
 						if strings.Contains(data, "执行结束...") {
 							s.Reply(data + ql.GetTail())
 							break
 						}
+						time.Sleep(time.Microsecond * 300)
 					}
 					if _, err := Req(ql, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 						s.Reply(err.Error() + ql.GetTail())
