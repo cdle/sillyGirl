@@ -731,7 +731,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	}
 	ls := []string{}
 	for i := range nn {
-		ls = append(ls, fmt.Sprintf("%d. %s", i+1, nn[i].Name))
+		ls = append(ls, fmt.Sprintf("%d. 容器(%s)", i+1, nn[i].Name))
 	}
 	ls = append(ls, "a. 所有容器")
 	ls = append(ls, "b. 所有聚合容器")
