@@ -774,7 +774,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 		s.AtLast()
 		return nil, t
 	default:
-		index := r.(int) - 1
+		index := core.Int(r.(string)) - 1
 		if index != len(nn) {
 			return nil, []*QingLong{nn[index]}
 		} else {
