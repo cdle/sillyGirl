@@ -418,8 +418,11 @@ func initSys() {
 					a = "中包含" + filter
 				}
 				s.Reply("20秒内回复任意取消清空" + name + a + "的记录。")
-				if s.Await(s, nil, time.Second*20) != nil {
-					return "取消清空操作。"
+				switch s.Await(s, nil, time.Second*20) {
+				case nil:
+				case "快":
+				default:
+					return "已取消。"
 				}
 				b := Bucket(name)
 				i := 0
