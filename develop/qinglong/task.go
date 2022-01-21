@@ -23,7 +23,7 @@ func initTask() {
 					cron := &Carrier{
 						Get: "data._id",
 					}
-					ql, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql raw `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
+					_, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"ql raw `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
 					if err != nil {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
@@ -60,7 +60,7 @@ func initTask() {
 					cron := &Carrier{
 						Get: "data._id",
 					}
-					ql, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
+					_, err := Req(ql, cron, CRONS, POST, []byte(`{"name":"sillyGirl临时创建任务","command":"task `+s.Get()+`","schedule":" 1 1 1 1 1"}`))
 					if err != nil {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
@@ -102,7 +102,7 @@ func initTask() {
 						"command":  `ql repo ` + s.Get(),
 						"schedule": "1 1 1 1 1",
 					})
-					ql, err := Req(ql, cron, CRONS, POST, data)
+					_, err := Req(ql, cron, CRONS, POST, data)
 					if err != nil {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
