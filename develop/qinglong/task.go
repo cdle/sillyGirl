@@ -38,14 +38,22 @@ func initTask() {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
+
 					for {
 						data, _ := GetCronLog(ql, cron.Value)
 						if strings.Contains(data, "执行结束...") {
+							for _, v := range strings.Split(data, "\n") {
+								if strings.Contains(v, "添加成功") {
+									s.Reply(data + ql.GetTail())
+									goto oye
+								}
+							}
 							s.Reply(data + ql.GetTail())
 							break
 						}
 						time.Sleep(time.Microsecond * 300)
 					}
+				oye:
 					if _, err := Req(ql, CRONS, DELETE, []byte(`["`+cron.Value+`"]`)); err != nil {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
