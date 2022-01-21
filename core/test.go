@@ -64,6 +64,18 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"reply empty all"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				b := Bucket(fmt.Sprintf("reply%s%d", s.GetImType(), s.GetChatID()))
+				b.Foreach(func(k, v []byte) error {
+					b.Set(string(k), "")
+					return nil
+				})
+				return "清空成功。"
+			},
+		},
+		{
 			Rules: []string{"reply ? ?"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
@@ -390,6 +402,26 @@ func initSys() {
 					}, "^撤回$", time.Second*60)
 				}()
 				return "操作成功，在60s内可\"撤回\"。"
+			},
+		},
+		{
+			Admin: true,
+			Rules: []string{"empty ?"},
+			Handle: func(s Sender) interface{} {
+				name := s.Get(0)
+				if name == "silly" {
+					name = "sillyGirl"
+				}
+				s.Reply("20秒内回复任意，取消清空" + name + "的操作。")
+				if s.Await(s, nil, time.Second*20) != nil {
+					return "取消清空操作。"
+				}
+				b := Bucket(name)
+				b.Foreach(func(k, _ []byte) error {
+					b.Set(string(k), "")
+					return nil
+				})
+				return "清空完成。"
 			},
 		},
 		{
