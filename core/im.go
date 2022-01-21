@@ -44,6 +44,7 @@ type Sender interface {
 	GroupKick(uid string, reject_add_request bool)
 	GroupBan(uid string, duration int)
 	AtLast()
+	UAtLast()
 	IsAtLast() bool
 	MessagesToSend() string
 }
@@ -306,6 +307,10 @@ func (sender *BaseSender) GroupBan(uid string, duration int) {
 
 func (sender *BaseSender) AtLast() {
 	sender.Atlast = true
+}
+
+func (sender *BaseSender) UAtLast() {
+	sender.Atlast = false
 }
 
 func (sender *BaseSender) IsAtLast() bool {
