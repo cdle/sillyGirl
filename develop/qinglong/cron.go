@@ -420,7 +420,7 @@ func GetCronID(ql *QingLong, s core.Sender, keyword string) (*Cron, error) {
 		// }
 	}
 	if len(cs) == 0 {
-		return nil, errors.New("找不到任务。" + ql.GetTail())
+		return nil, errors.New("找不到任务。")
 	}
 	var cron Cron
 	if len := len(cs); len > 1 {
