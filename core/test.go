@@ -201,7 +201,7 @@ func initSys() {
 							if str > compiled_at {
 								s.Reply(fmt.Sprintf("正在从%s下载更新...", prefix))
 								req := httplib.Get(prefix + "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + str)
-								if i == 1 && Transport != nil {
+								if prefix == "" && Transport != nil {
 									req.SetTransport(Transport)
 								}
 								req.SetTimeout(time.Minute*5, time.Minute*5)
