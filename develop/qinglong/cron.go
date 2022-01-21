@@ -122,11 +122,11 @@ func initCron() {
 				for _, ql := range qls {
 					cron, err := GetCronID(ql, s, s.Get())
 					if err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					if _, err := Req(ql, CRONS, PUT, "/run", []byte(fmt.Sprintf(`["%s"]`, cron.ID))); err != nil {
-						s.Reply(err)
+						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
 					s.Reply(fmt.Sprintf("已运行，%v。%s", cron.Name, ql.GetTail()))

@@ -739,6 +739,7 @@ func QinglongSC(s core.Sender) (error, []*QingLong) {
 	ls = append(ls, "a. 所有容器")
 	ls = append(ls, "b. 所有聚合容器")
 	ls = append(ls, "c. 所有普通容器")
+	s.AtLast()
 	s.Reply("请选择容器：(q退出)\n" + strings.Join(ls, "\n"))
 	r := s.Await(s, nil, time.Second*10)
 	switch r {
