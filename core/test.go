@@ -417,7 +417,7 @@ func initSys() {
 				if filter != "" {
 					a = "中包含" + filter
 				}
-				s.Reply("20秒内回复任意取消清空" + name + a + "的操作。")
+				s.Reply("20秒内回复任意取消清空" + name + a + "的记录。")
 				if s.Await(s, nil, time.Second*20) != nil {
 					return "取消清空操作。"
 				}
@@ -430,7 +430,7 @@ func initSys() {
 					}
 					return nil
 				})
-				return fmt.Sprintf("已清空%d个项目。", i)
+				return fmt.Sprintf("已清空%d个记录。", i)
 			},
 		},
 		{
