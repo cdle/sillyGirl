@@ -397,6 +397,9 @@ func (ql *QingLong) SetHost(i string) {
 func (ql *QingLong) GetTail() string {
 	ql.RLock()
 	defer ql.RUnlock()
+	if GetQLSLen() == 1 {
+		return ""
+	}
 	return fmt.Sprintf("	——来自%s", ql.Name)
 }
 
