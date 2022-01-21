@@ -144,7 +144,7 @@ func init() {
 						}
 						ls = append(ls, fmt.Sprintf("%d. %s %s", i+1, nn[i].Name, s))
 					}
-					s.Reply("请选择容器进行编辑：(-删除，0增加，q退出, wq保存)\n" + strings.Join(ls, "\n"))
+					s.Reply("请选择对象进行编辑：(-删除容器，0增加容器，q退出, wq保存)\n" + strings.Join(ls, "\n"))
 					r := s.Await(s, nil)
 					is := r.(string)
 					i := 0
@@ -543,7 +543,7 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 			ql = nn[0]
 		}
 	}
-	if ql == nil {
+	if ql == nil && s != nil {
 		if len(nn) > 1 {
 			if s != nil {
 				ls := []string{}
@@ -572,6 +572,30 @@ func Req(p interface{}, ps ...interface{}) (*QingLong, error) {
 				ql = nn[i]
 				if s != nil {
 					s.Reply(fmt.Sprintf("已默认选择容器%s", ql.Name))
+				}
+				break
+			}
+		}
+	}
+
+	if ql == nil {
+		for i := range nn {
+			if nn[i].AggregatedMode {
+				ql = nn[i]
+				if s != nil {
+					s.Reply(fmt.Sprintf("已选择聚合容器%s", ql.Name))
+				}
+				break
+			}
+		}
+	}
+
+	if ql == nil {
+		for i := range nn {
+			if !nn[i].AggregatedMode {
+				ql = nn[i]
+				if s != nil {
+					s.Reply(fmt.Sprintf("已选择普通容器%s", ql.Name))
 				}
 				break
 			}
