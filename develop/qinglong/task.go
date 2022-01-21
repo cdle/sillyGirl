@@ -33,6 +33,10 @@ func initTask() {
 						s.Reply(err.Error() + ql.GetTail())
 						continue
 					}
+					if err != nil {
+						s.Reply(err.Error() + ql.GetTail())
+						continue
+					}
 					for {
 						time.Sleep(time.Microsecond * 300)
 						data, _ := GetCronLog(ql, cron.Value)
