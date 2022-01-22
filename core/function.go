@@ -54,7 +54,7 @@ func initToHandleMessage() {
 	Senders = make(chan Sender)
 	go func() {
 		for {
-			go handleMessage(<-Senders)
+			go HandleMessage(<-Senders)
 		}
 	}()
 }
@@ -120,7 +120,7 @@ func AddCommand(prefix string, cmds []Function) {
 	}
 }
 
-func handleMessage(sender Sender) {
+func HandleMessage(sender Sender) {
 	atomic.AddUint64(&total, 1)
 	defer atomic.AddUint64(&finished, 1)
 	content := TrimHiddenCharacter(sender.GetContent())
