@@ -440,7 +440,10 @@ func initSys() {
 				}
 				if filter == "" {
 					db.Update(func(t *bolt.Tx) error {
-						t.DeleteBucket([]byte(name))
+						err := t.DeleteBucket([]byte(name))
+						if err != nil {
+							s.Reply(err)
+						}
 						return nil
 					})
 					return fmt.Sprintf("已清空。")
