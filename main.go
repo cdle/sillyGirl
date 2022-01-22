@@ -28,5 +28,6 @@ func main() {
 			}
 		}
 	}
+	logs.Info("终端交互不可用，运行带-t参数即可启用。")
 	select {}
 }
