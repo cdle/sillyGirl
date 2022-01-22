@@ -174,7 +174,7 @@ func initSys() {
 						pxs = append(pxs, p)
 					}
 					pxs = append(pxs, "")
-					pxs = append(pxs, "http://github.yanyuge.workers.dev")
+					pxs = append(pxs, "http://github.yanyuge.workers.dev/")
 					pxs = append(pxs, "https://ghproxy.com/")
 					for _, prefix := range pxs {
 						if str == "" && s.GetImType() != "fake" {
