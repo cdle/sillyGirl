@@ -28,6 +28,10 @@ func NewBucket(name string) Bucket {
 	return b
 }
 
+func GetDB() *bolt.DB {
+	return db
+}
+
 func initStore() {
 	var err error
 	if runtime.GOOS == "darwin" {
@@ -44,6 +48,7 @@ func (bucket Bucket) Set(key interface{}, value interface{}) {
 
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
+
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
@@ -67,6 +72,7 @@ func (bucket Bucket) Get(kv ...interface{}) string {
 			value = fmt.Sprint(kv[1])
 		}
 	}
+
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
