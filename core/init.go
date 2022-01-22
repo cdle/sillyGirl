@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
-	"github.com/beego/beego/v2/core/logs"
 )
 
 var Duration time.Duration
@@ -31,20 +30,10 @@ func init() {
 		dataHome = `/etc/sillyGirl`
 	}
 
-	t := false
 	for _, arg := range os.Args {
-		if arg == "-t" {
-			t = true
-		}
-	}
-	for _, arg := range os.Args {
-		if !t {
-			logs.Warn("已开启终端交互，无法静默运行。")
-		} else {
-			if arg == "-d" {
-				initStore()
-				Daemon()
-			}
+		if arg == "-d" {
+			initStore()
+			Daemon()
 		}
 	}
 
