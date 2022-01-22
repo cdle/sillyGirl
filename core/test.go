@@ -155,7 +155,7 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"raw ^升级$"},
+			Rules: []string{"raw 升级 ?"},
 			// Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
@@ -165,7 +165,7 @@ func initSys() {
 				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) && compiled_at == "" {
 					return nil
 				}
-
+				var kz = s.Get(0)
 				if compiled_at != "" {
 					str := ""
 					for _, prefix := range []string{""} {
@@ -259,20 +259,28 @@ func initSys() {
 						update = true
 					}
 				}
-				need, err := GitPull("")
-				if err != nil {
-					return "请使用以下命令手动升级：\n cd " + ExecPath + " && git stash && git pull && go build && ./" + pname
+				var need bool
+				var err error
+				if kz == "" || kz == "core" {
+					need, err = GitPull("")
+					if err != nil {
+						return "请使用以下命令手动升级：\n cd " + ExecPath + " && git stash && git pull && go build && ./" + pname
+					}
+					if !need {
+						s.Reply("核心功能已是最新。", E)
+					} else {
+						record(need)
+						s.Reply("核心功能发现更新。", E)
+					}
 				}
-				if !need {
-					s.Reply("核心功能已是最新。", E)
-				} else {
-					record(need)
-					s.Reply("核心功能发现更新。", E)
-				}
+
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() && f.Name() != "replies" {
 						if f.Name() == "qinglong" {
+							continue
+						}
+						if kz != "" && kz != f.Name() {
 							continue
 						}
 						if strings.HasPrefix(f.Name(), "_") {
