@@ -155,7 +155,7 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"raw 升级 ?"},
+			Rules: []string{"升级 ?"},
 			// Cron:  "*/1 * * * *",
 			Admin: true,
 			Handle: func(s Sender) interface{} {
