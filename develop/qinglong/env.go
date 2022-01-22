@@ -22,6 +22,8 @@ type Env struct {
 	Timestamp string `json:"timestamp,omitempty"`
 	Created   int64  `json:"created,omitempty"`
 	PtPin     string `json:"-"`
+	PtKey     string `json:"-"`
+	AppKey    bool   `json:"-"`
 	Index     int    `json:"-"`
 }
 
