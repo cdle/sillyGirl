@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
+	"github.com/boltdb/bolt"
 )
 
 func init() {
@@ -418,7 +419,7 @@ func initSys() {
 		},
 		{
 			Admin: true,
-			Rules: []string{"empty ? ?", "? empty ?"},
+			Rules: []string{"empty ?", "empty ? ?", "? empty ?"},
 			Handle: func(s Sender) interface{} {
 				name := s.Get(0)
 				filter := s.Get(1)
@@ -430,11 +431,19 @@ func initSys() {
 					a = "中包含" + filter
 				}
 				s.Reply("20秒内回复任意取消清空" + name + a + "的记录。")
+
 				switch s.Await(s, nil, time.Second*20) {
 				case nil:
 				case "快":
 				default:
 					return "已取消。"
+				}
+				if filter == "" {
+					db.Update(func(t *bolt.Tx) error {
+						t.DeleteBucket([]byte(name))
+						return nil
+					})
+					return fmt.Sprintf("已清空。")
 				}
 				b := Bucket(name)
 				i := 0
