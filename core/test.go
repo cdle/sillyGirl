@@ -162,7 +162,6 @@ func initSys() {
 				if runtime.GOOS == "windows" {
 					return "windows系统不支持此命令"
 				}
-
 				if s.GetImType() == "fake" && !sillyGirl.GetBool("auto_update", true) && compiled_at == "" {
 					return nil
 				}
