@@ -18,6 +18,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for _, arg := range os.Args {
 		if arg == "-t" {
+			logs.Info("终端交互已启用。")
 			for {
 				data, _, _ := reader.ReadLine()
 				core.Senders <- &core.Faker{
