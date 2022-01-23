@@ -4,6 +4,10 @@ go 1.16
 
 replace github.com/willf/bitset v1.2.0 => github.com/bits-and-blooms/bitset v1.2.0
 
+replace gorm.io/driver/sqlite => github.com/go-gorm/sqlite v1.2.6
+
+replace gorm.io/gorm => github.com/go-gorm/gorm v1.22.5
+
 require (
 	github.com/Han-Ya-Jun/qrcode2console v0.0.0-20190430081741-6890f5f0fdf5
 	github.com/PuerkitoBio/goquery v1.8.0
@@ -33,4 +37,6 @@ require (
 	gopkg.in/tucnak/telebot.v2 v2.4.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gorm.io/driver/sqlite v0.0.0-00010101000000-000000000000
+	gorm.io/gorm v1.22.3
 )
