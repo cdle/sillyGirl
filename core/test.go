@@ -285,9 +285,7 @@ func initSys() {
 				files, _ := ioutil.ReadDir(ExecPath + "/develop")
 				for _, f := range files {
 					if f.IsDir() && f.Name() != "replies" {
-						if f.Name() == "qinglong" {
-							continue
-						}
+
 						if kz != "" && kz != f.Name() {
 							continue
 						}
