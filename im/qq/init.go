@@ -302,10 +302,6 @@ func (sender *Sender) IsReply() bool {
 	return false
 }
 
-func (sender *Sender) GetReplySenderUserID() int {
-	return 0
-}
-
 func (sender *Sender) GetRawMessage() interface{} {
 	return sender.Message
 }
@@ -435,10 +431,6 @@ func (sender *Sender) Copy() core.Sender {
 
 func (sender *Sender) GetUsername() string {
 	return sender.Message.Sender.Nickname
-}
-
-func (sender *Sender) GetChatname() string {
-	return ""
 }
 
 func (sender *Sender) RecallMessage(ps ...interface{}) error {

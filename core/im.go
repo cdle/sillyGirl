@@ -305,6 +305,22 @@ func (sender *BaseSender) GroupBan(uid string, duration int) {
 
 }
 
+func (sender *BaseSender) GetUsername() string {
+	return ""
+}
+
+func (sender *BaseSender) IsAdmin() bool {
+	return false
+}
+
+func (sender *BaseSender) GetChatname() string {
+	return ""
+}
+
+func (sender *BaseSender) GetReplySenderUserID() int {
+	return 0
+}
+
 func (sender *BaseSender) AtLast() {
 	sender.Atlast = true
 }
