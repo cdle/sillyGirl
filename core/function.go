@@ -231,7 +231,7 @@ func HandleMessage(sender Sender) {
 					sender.Delete()
 					sender.Disappear()
 					// if sender.GetImType() != "wx" && sender.GetImType() != "qq" {
-					sender.Reply("再捣乱我就报警啦～")
+					// sender.Reply("再捣乱我就报警啦～")
 					// }
 					return
 				}
