@@ -129,6 +129,9 @@ func init() {
 		}
 		logs.Info("QQ机器人(%s)已连接。", botID)
 		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
+			if qq.GetBool("ban_one2one") {
+				return
+			}
 			if botID == "" {
 				botID = defaultBot
 			}
