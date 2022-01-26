@@ -174,9 +174,6 @@ func Init123() {
 	}
 	bucketKeys := func(bucket string) []string {
 		b := Bucket(bucket)
-		if !IsBucket(b) {
-			return []string{}
-		}
 		slice := []string{}
 		b.Foreach(func(k, _ []byte) error {
 			slice = append(slice, string(k))
