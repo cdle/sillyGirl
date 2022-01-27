@@ -32,15 +32,15 @@ type Reply struct {
 }
 
 func InitReplies() {
-	appreciate := Reply{
-		Rules: []string{"^打赏", "^赞赏"},
-		Type:  "url",
-	}
-	recommand := "https://gitee.com/sillybot/sillyGirl/raw/main/appreciate.jpg"
-	appreciate.Request.Url = sillyGirl.Get("appreciate", recommand)
-	appreciate.Request.ResponseType = "image"
-	appreciate.Request.Disappear = true
-	Config.Replies = append([]Reply{appreciate}, Config.Replies...)
+	// appreciate := Reply{
+	// 	Rules: []string{"^打赏", "^赞赏"},
+	// 	Type:  "url",
+	// }
+	// recommand := "https://gitee.com/sillybot/sillyGirl/raw/main/appreciate.jpg"
+	// appreciate.Request.Url = sillyGirl.Get("appreciate", recommand)
+	// appreciate.Request.ResponseType = "image"
+	// appreciate.Request.Disappear = true
+	// Config.Replies = append([]Reply{appreciate}, Config.Replies...)
 	for _, v := range Config.Replies {
 		reply := v
 		var handler func(s Sender) interface{}
