@@ -357,7 +357,6 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			return []string{}, nil
 		}
 	}
-	msg := msgs[0]
 	rt := ""
 	for _, item := range msgs {
 		switch item.(type) {
@@ -365,16 +364,15 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			du := item.(time.Duration)
 			sender.Duration = &du
 		case error:
-			rt = fmt.Sprint(msg)
+			rt = fmt.Sprint(item)
 		case string:
-			rt = msg.(string)
+			rt = item.(string)
 		case []byte:
-			rt = string(msg.([]byte))
+			rt = string(item.([]byte))
 		case core.ImageUrl:
-			rt = `[CQ:image,file=` + string(msg.(core.ImageUrl)) + `]`
+			rt = `[CQ:image,file=` + string(item.(core.ImageUrl)) + `]`
 		case core.VideoUrl:
-			rt = `[CQ:video,file=` + string(msg.(core.VideoUrl)) + `]`
-
+			rt = `[CQ:video,file=` + string(item.(core.VideoUrl)) + `]`
 		}
 	}
 	if rt == "" {

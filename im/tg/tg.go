@@ -21,10 +21,9 @@ import (
 )
 
 type Sender struct {
-	Message  *tb.Message
-	Duration *time.Duration
-	deleted  bool
-	reply    *tb.Message
+	Message *tb.Message
+	deleted bool
+	reply   *tb.Message
 	core.BaseSender
 	sync.RWMutex
 	replied []tb.Message

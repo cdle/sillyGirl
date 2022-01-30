@@ -208,6 +208,7 @@ type BaseSender struct {
 	Atlast         bool
 	ToSendMessages []string
 	IsFinished     bool
+	Duration       *time.Duration
 }
 
 func (sender *BaseSender) SetMatch(ss []string) {
