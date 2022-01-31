@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/boltdb/bolt"
 )
@@ -61,6 +62,14 @@ func (bucket Bucket) Set(key interface{}, value interface{}) {
 		}
 		return nil
 	})
+}
+
+func (bucket Bucket) Push2Array(key, value string) {
+	bucket.Set(key, strings.Join(append(strings.Split(bucket.Get(key), ","), value), ","))
+}
+
+func (bucket Bucket) GetArray(key string) []string {
+	return strings.Split(bucket.Get(key), ",")
 }
 
 func (bucket Bucket) Get(kv ...interface{}) string {
