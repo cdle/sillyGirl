@@ -32,7 +32,10 @@ func Daemon() {
 	execArgs := make([]string, 0)
 	l := len(args)
 	for i := 0; i < l; i++ {
-		if strings.Index(args[i], "-d") == 0 {
+		if strings.Index(args[i], "-d") != -1 {
+			continue
+		}
+		if strings.Index(args[i], "-t") != -1 {
 			continue
 		}
 		execArgs = append(execArgs, args[i])
