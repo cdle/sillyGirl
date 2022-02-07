@@ -28,22 +28,6 @@ set sillyGirl appreciate https://gitee.com/aiancandle/sillyGirl/raw/main/appreci
 
 set sillyGirl enable_http_server false
 
-##### 设置青龙openapi的client_id参数
-
-set qinglong client_id ?
-
-##### 设置青龙openapi的client_secret参数
-
-set qinglong client_secret ?
-
-##### 青龙是否开启自动隐藏重复任务功能
-
-set qinglong autoCronHideDuplicate true
-
-##### 设置青龙面板地址
-
-set qinglong host http://127.0.0.1:5700
-
 ##### 设置主qq账号
 
 set qq default_bot 10000
