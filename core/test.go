@@ -353,6 +353,7 @@ func initSys() {
 			Rules: []string{"raw ^status$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
+				s.Disappear()
 				ss := []string{}
 				cts.Range(func(key, value interface{}) bool {
 					ss = append(ss, fmt.Sprintf("%v. %v", key, value))
