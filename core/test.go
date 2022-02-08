@@ -353,7 +353,12 @@ func initSys() {
 			Rules: []string{"raw ^status$"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
-				return fmt.Sprintf("总计：%d，已处理：%d，运行中：%d", total, finished, total-finished)
+				ss := []string{}
+				cts.Range(func(key, value interface{}) bool {
+					ss = append(ss, fmt.Sprintf("%v. %v", key, value))
+					return true
+				})
+				return fmt.Sprintf("总计：%d，已处理：%d，运行中：%d\n\n%s", total, finished, total-finished, strings.Join(ss, "\n"))
 			},
 		},
 		{

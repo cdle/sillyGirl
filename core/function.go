@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	cron "github.com/robfig/cron/v3"
@@ -119,10 +120,17 @@ func AddCommand(prefix string, cmds []Function) {
 	}
 }
 
+var cts sync.Map
+
 func HandleMessage(sender Sender) {
-	atomic.AddUint64(&total, 1)
+	num := atomic.AddUint64(&total, 1)
 	defer atomic.AddUint64(&finished, 1)
-	content := TrimHiddenCharacter(sender.GetContent())
+	ct := sender.GetContent()
+	cts.Store(num, ct)
+	defer func() {
+		cts.Delete(num)
+	}()
+	content := TrimHiddenCharacter(ct)
 	defer func() {
 		sender.Finish()
 		if sender.IsAtLast() {
