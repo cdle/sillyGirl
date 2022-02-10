@@ -129,7 +129,7 @@ func init() {
 		}
 		logs.Info("QQ机器人(%s)已连接。", botID)
 		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
-			if qq.GetBool("ban_one2one") {
+			if qq.GetBool("ban_one2one") && !strings.Contains(qq.Get("masters"), fmt.Sprint(i)) {
 				return
 			}
 			if botID == "" {
