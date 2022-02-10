@@ -46,19 +46,26 @@ func initStore() {
 }
 
 func (bucket Bucket) Set(key interface{}, value interface{}) {
-
 	db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
-
 		if b == nil {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
 		k := fmt.Sprint(key)
-		v := fmt.Sprint(value)
-		if v == "" {
-			b.Delete([]byte(k))
+		if _, ok := value.([]byte); ok {
+			v := fmt.Sprint(value)
+			if v == "" {
+				b.Delete([]byte(k))
+			} else {
+				b.Put([]byte(k), []byte(v))
+			}
 		} else {
-			b.Put([]byte(k), []byte(v))
+
+			if len(value.([]byte)) == 0 {
+				b.Delete([]byte(k))
+			} else {
+				b.Put([]byte(k), value.([]byte))
+			}
 		}
 		return nil
 	})
@@ -88,6 +95,21 @@ func (bucket Bucket) Get(kv ...interface{}) string {
 			return nil
 		}
 		if v := string(b.Get([]byte(key))); v != "" {
+			value = v
+		}
+		return nil
+	})
+	return value
+}
+
+func (bucket Bucket) GetBytes(key string) []byte {
+	var value []byte
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		if b == nil {
+			return nil
+		}
+		if v := b.Get([]byte(key)); v != nil {
 			value = v
 		}
 		return nil
