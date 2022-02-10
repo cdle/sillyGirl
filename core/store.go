@@ -60,7 +60,6 @@ func (bucket Bucket) Set(key interface{}, value interface{}) {
 				b.Put([]byte(k), []byte(v))
 			}
 		} else {
-
 			if len(value.([]byte)) == 0 {
 				b.Delete([]byte(k))
 			} else {
