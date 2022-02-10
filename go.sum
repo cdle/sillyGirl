@@ -1,5 +1,7 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/EDDYCJY/fake-useragent v0.2.0 h1:Jcnkk2bgXmDpX0z+ELlUErTkoLb/mxFBNd2YdcpvJBs=
+github.com/EDDYCJY/fake-useragent v0.2.0/go.mod h1:5wn3zzlDxhKW6NYknushqinPcAqZcAPHy8lLczCdJdc=
 github.com/Han-Ya-Jun/qrcode2console v0.0.0-20190430081741-6890f5f0fdf5 h1:EMggICCq0/d9uNIJzwj3UHntcH6cPVT4kfWbyzut8GQ=
 github.com/Han-Ya-Jun/qrcode2console v0.0.0-20190430081741-6890f5f0fdf5/go.mod h1:onbao3S7v7VTWE5sGfmiYgOt1MqzSd2dMp/+o6rk1Wk=
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
