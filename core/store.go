@@ -52,7 +52,7 @@ func (bucket Bucket) Set(key interface{}, value interface{}) {
 			b, _ = tx.CreateBucket([]byte(bucket))
 		}
 		k := fmt.Sprint(key)
-		if _, ok := value.([]byte); ok {
+		if _, ok := value.([]byte); !ok {
 			v := fmt.Sprint(value)
 			if v == "" {
 				b.Delete([]byte(k))
