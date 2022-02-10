@@ -371,6 +371,8 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			}
 		case []byte:
 			pmsg.Msg = string(item.([]byte))
+		case error:
+			pmsg.Msg = fmt.Sprint(item)
 		case core.ImageUrl:
 			url := string(item.(core.ImageUrl))
 			pmsg := OtherMsg{
