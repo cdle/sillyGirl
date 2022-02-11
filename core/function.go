@@ -56,7 +56,9 @@ func initToHandleMessage() {
 	go func() {
 		for {
 			s := <-Senders
-			logs.Info("接收到消息%s：", s.GetContent())
+			if s.GetImType() != "terminal" {
+				logs.Info("接收到消息：%s", s.GetContent())
+			}
 			go HandleMessage(s)
 		}
 	}()
