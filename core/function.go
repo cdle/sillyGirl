@@ -10,6 +10,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/beego/beego/v2/core/logs"
 	cron "github.com/robfig/cron/v3"
 )
 
@@ -54,7 +55,9 @@ func initToHandleMessage() {
 	Senders = make(chan Sender)
 	go func() {
 		for {
-			go HandleMessage(<-Senders)
+			s := <-Senders
+			logs.Info("接收到消息%s：", s.GetContent())
+			go HandleMessage(s)
 		}
 	}()
 }
@@ -216,7 +219,6 @@ func HandleMessage(sender Sender) {
 	for _, function := range functions {
 		for _, rule := range function.Rules {
 			var matched bool
-
 			if function.FindAll {
 				if res := regexp.MustCompile(rule).FindAllStringSubmatch(content, -1); len(res) > 0 {
 					tmp := [][]string{}
