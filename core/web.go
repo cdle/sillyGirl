@@ -436,6 +436,7 @@ func initWebPlugin() {
 					}).(*goja.Object)
 					vm.Set("__response", res)
 					importedJs := make(map[string]struct{})
+					importedJs[pluginPath+"/"+p[2]+".js"] = struct{}{}
 					vm.Set("importJs", func(file string) error {
 						js, e := ReadJs(file, pluginPath+"/", importedJs)
 						if e != nil {
