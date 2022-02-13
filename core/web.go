@@ -435,6 +435,18 @@ func initWebPlugin() {
 						},
 					}).(*goja.Object)
 					vm.Set("__response", res)
+					importedJs := make(map[string]struct{})
+					vm.Set("importJs", func(file string) error {
+						js, e := ReadJs(file, pluginPath+"/", importedJs)
+						if e != nil {
+							return e
+						}
+						vm.RunString(string(js))
+						return nil
+					})
+					vm.Set("importDir", func(dir string) error {
+						return importDir(dir, pluginPath, importedJs, vm)
+					})
 					_, err = vm.RunString(string(file))
 					if err != nil {
 						c.String(http.StatusBadGateway, err.Error())
