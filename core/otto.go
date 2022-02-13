@@ -407,65 +407,16 @@ func Init123() {
 			// vm.Set("fmt", fmt)
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
-			//2个或者2个以上"/"
-			regexp1, _ := regexp.Compile("/{2,}")
-			importJs := func(file string) error {
-				if file == "" {
-					return errors.New("路径不能为空")
+			vm.Set("importJs", func(file string) error {
+				js, e := ReadJs(file, basePath+"/", importedJs)
+				if e != nil {
+					return e
 				}
-				if strings.Contains(file, "..") {
-					return errors.New("不能使用父路径")
-				}
-				file = strings.Replace(file, "./", "", -1)
-				file = regexp1.ReplaceAllString(file, "/")
-				if !strings.HasSuffix(file, ".js") {
-					file = file + ".js"
-				}
-				if _, ok := importedJs[file]; ok {
-					return nil
-				}
-				importedJs[file] = struct{}{}
-				filePath := basePath + file
-				f, err := os.Open(filePath)
-				if err != nil {
-					return err
-				}
-				v, _ := ioutil.ReadAll(f)
-				vm.RunString(string(v))
+				vm.RunString(string(js))
 				return nil
-			}
-			vm.Set("importJs", importJs)
+			})
 			vm.Set("importDir", func(dir string) error {
-				if dir == "" {
-					return errors.New("路径不能为空")
-				}
-				if strings.Contains(dir, "..") {
-					return errors.New("不能使用父路径")
-				}
-				dir = strings.Replace(dir, "./", "", -1)
-				dir = regexp1.ReplaceAllString(dir, "/")
-				//统一处理为没有前后"/"
-				dir = strings.TrimPrefix(dir, "/")
-				dir = strings.TrimSuffix(dir, "/")
-				files, err := ioutil.ReadDir(basePath + dir)
-				if err != nil {
-					return err
-				}
-				var firstErr error = nil
-				for _, v := range files {
-					if v.IsDir() {
-						continue
-					}
-					if !strings.Contains(v.Name(), ".js") {
-						continue
-					}
-					if err := importJs(dir + "/" + v.Name()); err != nil {
-						if firstErr == nil {
-							firstErr = err
-						}
-					}
-				}
-				return firstErr
+				return importDir(dir, basePath, importedJs, vm)
 			})
 			_, err = vm.RunString(template)
 			if err != nil {
@@ -497,7 +448,69 @@ func Init123() {
 			},
 		})
 	}
+	regexp1, _ := regexp.Compile("/{2,}")
+	ReadJs = func(file string, basePath string, exclude map[string]struct{}) ([]byte, error) {
+		if file == "" {
+			return nil, errors.New("路径不能为空")
+		}
+		if strings.Contains(file, "..") {
+			return nil, errors.New("不能使用父路径")
+		}
+		file = strings.Replace(file, "./", "", -1)
+		file = regexp1.ReplaceAllString(file, "/")
+		if !strings.HasSuffix(file, ".js") {
+			file = file + ".js"
+		}
+		if _, ok := exclude[file]; ok {
+			return nil, nil
+		}
+		exclude[file] = struct{}{}
+		filePath := basePath + file
+		f, err := os.Open(filePath)
+		if err != nil {
+			return nil, err
+		}
+		v, _ := ioutil.ReadAll(f)
+		return v, nil
+	}
+	importDir = func(dir string, basePath string, exclude map[string]struct{}, vm *goja.Runtime) error {
+		if dir == "" {
+			return errors.New("路径不能为空")
+		}
+		if strings.Contains(dir, "..") {
+			return errors.New("不能使用父路径")
+		}
+		dir = strings.Replace(dir, "./", "", -1)
+		dir = regexp1.ReplaceAllString(dir, "/")
+		//统一处理为没有前后"/"
+		dir = strings.TrimPrefix(dir, "/")
+		dir = strings.TrimSuffix(dir, "/")
+		files, err := ioutil.ReadDir(basePath + dir)
+		if err != nil {
+			return err
+		}
+		var firstErr error = nil
+		for _, v := range files {
+			if v.IsDir() {
+				continue
+			}
+			if !strings.Contains(v.Name(), ".js") {
+				continue
+			}
+			js, err := ReadJs(dir+"/"+v.Name(), basePath, exclude)
+			vm.RunString(string(js))
+			if err != nil {
+				if firstErr == nil {
+					firstErr = err
+				}
+			}
+		}
+		return firstErr
+	}
 }
+
+var ReadJs func(file string, basePath string, exclude map[string]struct{}) ([]byte, error)
+var importDir func(path string, basePath string, exclude map[string]struct{}, vm *goja.Runtime) error
 
 func ToImage(url string) string {
 	return `[CQ:image,file=` + url + `]`
