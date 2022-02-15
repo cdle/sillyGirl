@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
+	"regexp"
 	"strings"
 
 	"github.com/beego/beego/v2/adapter/logs"
@@ -38,6 +40,13 @@ type Request struct {
 	Cookie      func(string) string `json:"cookie"`
 }
 
+type SillyGirlWeb struct {
+	BucketGet  func(bucket, key string) interface{} `json:"bucketGet"`
+	BucketSet  func(bucket, key, value string)      `json:"bucketSet"`
+	BucketKeys func(bucket string) []string         `json:"bucketKeys"`
+	Push       func(obj map[string]interface{})     `json:"push"`
+}
+
 func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string {
 	for _, key := range obj.Keys() {
 		v := obj.Get(key).String()
@@ -49,6 +58,8 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 	}
 	return text
 }
+
+var Handle = make(map[string]func(c *gin.Context))
 
 func init() {
 
@@ -189,28 +200,18 @@ app.get('/lastTime', (req, res) => {
 	}
 	Server.Static("/assets", dataHome+"/assets")
 	Server.LoadHTMLGlob(dataHome + "/views/**/*")
-	Server.NoRoute(func(c *gin.Context) {
-		patchPostForm(c)
-		var status = http.StatusOK
-		var content = ""
-		var isJson bool
-		var method = strings.ToLower(c.Request.Method)
-		var bodyData, _ = ioutil.ReadAll(c.Request.Body)
-		var isRedirect bool
-		vm := goja.New()
+
+	Handle["default"] = func(c *gin.Context) {
 		script, err := os.ReadFile(dataHome + "/express.js")
 		if err != nil {
 			c.String(404, err.Error())
 			return
 		}
-		vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
-		vm.Set("Logger", Logger)
-		vm.Set("console", console)
-		vm.Set("SillyGirl", SillyGirl)
-		vm.Set("Request", newrequest)
-		vm.Set("request", request)
-		vm.Set("fetch", request)
-		vm.Set("require", require)
+		vm, req := newVm(c)
+		var status = http.StatusOK
+		var content = ""
+		var isJson bool
+		var isRedirect bool
 		Render := func(path string, obj map[string]interface{}) {
 			c.HTML(http.StatusOK, path, obj)
 		}
@@ -272,35 +273,7 @@ app.get('/lastTime', (req, res) => {
 				c.SetCookie(name, value, 1000*60, "/", "", false, true)
 			},
 		}).(*goja.Object)
-		req := vm.ToValue(&Request{
-			Body: func() string {
-				return string(bodyData)
-			},
-			Json: func() interface{} {
-				var i interface{}
-				if json.Unmarshal(bodyData, &i) != nil {
-					return nil
-				}
-				return i
-			},
-			IP:          c.ClientIP,
-			OriginalUrl: c.Request.URL.String,
-			Query:       c.Query,
-			PostForm: func(s string) string {
-				return c.PostForm(s)
-			},
-			Path: func() string {
-				return c.Request.URL.Path
-			},
-			Header: c.GetHeader,
-			Method: func() string {
-				return c.Request.Method
-			},
-			Cookie: func(s string) string {
-				var cookie, _ = c.Cookie(s)
-				return cookie
-			},
-		}).(*goja.Object)
+		var method = strings.ToLower(c.Request.Method)
 		handled := false
 		vm.Set("Express",
 			func(call goja.ConstructorCall) *goja.Object {
@@ -333,7 +306,247 @@ app.get('/lastTime', (req, res) => {
 		}
 
 		c.String(status, content)
+	}
+	Server.NoRoute(func(c *gin.Context) {
+		patchPostForm(c)
+		p := c.Request.URL.Path
+		var f func(c *gin.Context) = nil
+		if len(p) > 1 {
+			split := strings.Split(p, "/")
+			f = Handle[split[1]]
+		}
+		if f == nil {
+			f = Handle["default"]
+		}
+		f(c)
 	})
+	initWebPlugin()
+}
+
+func initWebPlugin() {
+	//请求接口插件化为目录:
+	//pluginRoot
+	// - dir1 //目录名称做为请求路径
+	// -- static //静态文件目录
+	// -- *.js //接口本体,请求路径为/dir/js名称,只支持2级
+	// - dir2 //目录2
+	rootPath := ExecPath + "/plugin/web"
+	rootFiles, err := ioutil.ReadDir(rootPath)
+	if err != nil {
+		os.MkdirAll(rootPath, os.ModePerm)
+		return
+	}
+	for _, base := range rootFiles {
+		if !base.IsDir() {
+			continue
+		}
+		if ok, _ := regexp.MatchString("[A-z0-9]+", base.Name()); !ok {
+			continue
+		}
+		pluginPath := path.Join(rootPath, base.Name())
+		files, _ := ioutil.ReadDir(pluginPath)
+		var plugin []string
+		for _, v := range files {
+			if v.IsDir() {
+				continue
+			}
+			if ok, _ := regexp.MatchString("[A-z0-9]+\\.js", v.Name()); !ok {
+				continue
+			}
+			plugin = append(plugin, strings.TrimPrefix(v.Name(), ".js"))
+		}
+		if len(plugin) > 0 {
+			_, err := ioutil.ReadDir(pluginPath + "/static")
+			if err == nil {
+				Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
+			}
+			Handle[base.Name()] = func(c *gin.Context) {
+				p := strings.Split(c.Request.URL.Path, "/")
+				if len(p) > 2 {
+					file, e := os.ReadFile(pluginPath + "/" + p[2] + ".js")
+					if e != nil {
+						c.String(404, "plugin not find")
+						return
+					}
+					vm, _ := newVm(c)
+					var status = 200
+					var isOver bool
+					var isJson bool
+					var content = ""
+					var res *goja.Object
+					res = vm.ToValue(&Response{
+						Send: func(gv goja.Value) {
+							gve := gv.Export()
+							switch gve.(type) {
+							case string:
+								content += gve.(string)
+							default:
+								d, err := json.Marshal(gve)
+								if err == nil {
+									content += string(d)
+									isJson = true
+								} else {
+									content += fmt.Sprint(gve)
+								}
+							}
+						},
+						SendStatus: func(st int) {
+							status = st
+						},
+						Json: func(ps ...interface{}) {
+							if len(ps) == 1 {
+								d, err := json.Marshal(ps[0])
+								if err == nil {
+									content += string(d)
+									isJson = true
+								} else {
+									content += fmt.Sprint(ps[0])
+								}
+							}
+							isJson = true
+						},
+						Header: func(str, value string) {
+							c.Header(str, value)
+						},
+						Render: func(path string, obj map[string]interface{}) {
+							isOver = true
+							c.HTML(http.StatusOK, path, obj)
+						},
+						Redirect: func(is ...interface{}) {
+							a := 302
+							b := ""
+							for _, i := range is {
+								switch i.(type) {
+								case string:
+									b = i.(string)
+								default:
+									a = Int(i)
+								}
+							}
+							c.Redirect(a, b)
+							isOver = true
+						},
+						Status: func(i int) goja.Value {
+							status = i
+							return res
+						},
+						SetCookie: func(name, value string) {
+							c.SetCookie(name, value, 1000*60, "/", "", false, true)
+						},
+					}).(*goja.Object)
+					vm.Set("__response", res)
+					importedJs := make(map[string]struct{})
+					vm.Set("importJs", func(file string) error {
+						js, e := ReadJs(file, pluginPath+"/", importedJs)
+						if e != nil {
+							return e
+						}
+						vm.RunString(string(js))
+						return nil
+					})
+					vm.Set("importDir", func(dir string) error {
+						return importDir(dir, pluginPath, importedJs, vm)
+					})
+					_, err = vm.RunString(string(file))
+					if err != nil {
+						c.String(http.StatusBadGateway, err.Error())
+						return
+					}
+					if isOver {
+						return
+					}
+					if isJson {
+						c.Header("Content-Type", "application/json")
+					}
+
+					c.String(status, content)
+				} else {
+					c.String(404, "plugin not find")
+				}
+			}
+		}
+	}
+}
+
+func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
+	vm := goja.New()
+	vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
+	vm.Set("Logger", Logger)
+	vm.Set("console", console)
+	vm.Set("SillyGirl", SillyGirl)
+	s := vm.ToValue(&SillyGirlWeb{
+		BucketGet: func(bucket, key string) interface{} {
+			return Bucket(bucket).Get(key)
+		},
+		BucketSet: func(bucket, key, value string) {
+			Bucket(bucket).Set(key, value)
+		},
+		BucketKeys: func(bucket string) []string {
+			ss := []string{}
+			Bucket(bucket).Foreach(func(k, _ []byte) error {
+				ss = append(ss, string(k))
+				return nil
+			})
+			return ss
+		},
+		Push: func(obj map[string]interface{}) {
+			imType := obj["imType"].(string)
+			groupCode := 0
+			var userID interface{}
+			if _, ok := obj["groupCode"]; ok {
+				groupCode = Int(obj["groupCode"])
+			} else {
+				userID = obj["userID"]
+			}
+			content := obj["content"].(string)
+			if groupCode != 0 {
+				if push, ok := GroupPushs[imType]; ok {
+					push(groupCode, userID, content, "")
+				}
+			} else {
+				if push, ok := Pushs[imType]; ok {
+					push(userID, content, nil, "")
+				}
+			}
+		},
+	}).(*goja.Object)
+	vm.Set("sillyGirl", s)
+	vm.Set("Request", newrequest)
+	vm.Set("request", request)
+	vm.Set("fetch", request)
+	vm.Set("require", require)
+	var bodyData, _ = ioutil.ReadAll(c.Request.Body)
+	req := vm.ToValue(&Request{
+		Body: func() string {
+			return string(bodyData)
+		},
+		Json: func() interface{} {
+			var i interface{}
+			if json.Unmarshal(bodyData, &i) != nil {
+				return nil
+			}
+			return i
+		},
+		IP:          c.ClientIP,
+		OriginalUrl: c.Request.URL.String,
+		Query:       c.Query,
+		PostForm: func(s string) string {
+			return c.PostForm(s)
+		},
+		Path: func() string {
+			return c.Request.URL.Path
+		},
+		Header: c.GetHeader,
+		Method: func() string {
+			return c.Request.Method
+		},
+		Cookie: func(s string) string {
+			var cookie, _ = c.Cookie(s)
+			return cookie
+		},
+	}).(*goja.Object)
+	vm.Set("__request", req)
+	return vm, req
 }
 
 func patchPostForm(c *gin.Context) {
