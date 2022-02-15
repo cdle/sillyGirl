@@ -462,7 +462,7 @@ func initWebPlugin() {
 
 					c.String(status, content)
 				} else {
-					c.String(404, "plugin not find")
+					c.Redirect(302, "/"+base.Name()+"/static")
 				}
 			}
 		}
