@@ -436,6 +436,7 @@ func initWebPlugin() {
 					}).(*goja.Object)
 					vm.Set("__response", res)
 					importedJs := make(map[string]struct{})
+					importedJs[pluginPath+"/"+p[2]+".js"] = struct{}{}
 					vm.Set("importJs", func(file string) error {
 						js, e := ReadJs(file, pluginPath+"/", importedJs)
 						if e != nil {
@@ -740,6 +741,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	rspObj := map[string]interface{}{}
 	var bd interface{}
 	if err == nil {
+		rspObj["status"] = rsp.StatusCode
 		rspObj["statusCode"] = rsp.StatusCode
 		data, _ := ioutil.ReadAll(rsp.Body)
 		if isJson {
@@ -750,6 +752,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 			bd = string(data)
 		}
 		rspObj["body"] = bd
+		rspObj["header"] = rsp.Header
 	}
 	if len(handles) > 0 {
 		return handles[0](err, rspObj, bd)
