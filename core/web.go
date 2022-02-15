@@ -362,7 +362,7 @@ func initWebPlugin() {
 			}
 			Handle[base.Name()] = func(c *gin.Context) {
 				p := strings.Split(c.Request.URL.Path, "/")
-				if len(p) > 2 {
+				if len(p) > 3 || (len(p) == 3 && "" != p[2]) {
 					file, e := os.ReadFile(pluginPath + "/" + p[2] + ".js")
 					if e != nil {
 						c.String(404, "plugin not find")
@@ -462,7 +462,12 @@ func initWebPlugin() {
 
 					c.String(status, content)
 				} else {
-					c.String(404, "plugin not find")
+					_, err := os.Stat(pluginPath + "/static/index.html")
+					if err != nil {
+						c.String(404, "plugin not find")
+					} else {
+						c.Redirect(302, "/"+p[1]+"/static")
+					}
 				}
 			}
 		}
