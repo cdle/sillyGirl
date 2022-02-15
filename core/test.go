@@ -275,7 +275,7 @@ func initSys() {
 						return "请使用以下命令手动升级：\n cd " + ExecPath + " && git stash && git pull && go build && ./" + pname
 					}
 					if !need {
-						s.Reply("核心功能已是最新。", E)
+						// s.Reply("核心功能已是最新。", E)
 					} else {
 						record(need)
 						s.Reply("核心功能发现更新。", E)
@@ -292,13 +292,13 @@ func initSys() {
 						if strings.HasPrefix(f.Name(), "_") {
 							continue
 						}
-						s.Reply("检查扩展"+f.Name()+"更新...", E)
+						// s.Reply("检查扩展"+f.Name()+"更新...", E)
 						need, err := GitPull("/develop/" + f.Name())
 						if err != nil {
 							s.Reply("扩展"+f.Name()+"更新错误"+err.Error()+"。", E)
 						}
 						if !need {
-							s.Reply("扩展"+f.Name()+"已是最新。", E)
+							// s.Reply("扩展"+f.Name()+"已是最新。", E)
 						} else {
 							record(need)
 							s.Reply("扩展"+f.Name()+"发现更新。", E)
