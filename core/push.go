@@ -27,24 +27,24 @@ var GroupPushs = map[string]func(interface{}, interface{}, string, string){}
 // }
 
 func NotifyMasters(content string) {
-	go func() {
-		content = strings.Trim(content, " ")
-		if sillyGirl.GetBool("ignore_notify", false) == true {
-			return
+	// go func() {
+	content = strings.Trim(content, " ")
+	if sillyGirl.GetBool("ignore_notify", false) == true {
+		return
+	}
+	// if token := sillyGirl.Get("pushplus"); token != "" {
+	// 	httplib.Get("http://www.pushplus.plus/send?token=" + token + "&title=0101010&content=" + content + "&template=html")
+	// }
+	for _, class := range []string{"tg", "qq", "wx"} {
+		notify := Bucket(class).Get("notifiers")
+		if notify == "" {
+			notify = Bucket(class).Get("masters")
 		}
-		// if token := sillyGirl.Get("pushplus"); token != "" {
-		// 	httplib.Get("http://www.pushplus.plus/send?token=" + token + "&title=0101010&content=" + content + "&template=html")
-		// }
-		for _, class := range []string{"tg", "qq", "wx"} {
-			notify := Bucket(class).Get("notifiers")
-			if notify == "" {
-				notify = Bucket(class).Get("masters")
-			}
-			for _, v := range strings.Split(notify, "&") {
-				if push, ok := Pushs[class]; ok {
-					push(v, content, nil, "")
-				}
+		for _, v := range strings.Split(notify, "&") {
+			if push, ok := Pushs[class]; ok {
+				push(v, content, nil, "")
 			}
 		}
-	}()
+	}
+	// }()
 }
