@@ -362,7 +362,7 @@ func initWebPlugin() {
 			}
 			Handle[base.Name()] = func(c *gin.Context) {
 				p := strings.Split(c.Request.URL.Path, "/")
-				if len(p) > 2 {
+				if len(p) > 3 || (len(p) == 3 && "" != p[2]) {
 					file, e := os.ReadFile(pluginPath + "/" + p[2] + ".js")
 					if e != nil {
 						c.String(404, "plugin not find")
@@ -436,6 +436,7 @@ func initWebPlugin() {
 					}).(*goja.Object)
 					vm.Set("__response", res)
 					importedJs := make(map[string]struct{})
+					importedJs[pluginPath+"/"+p[2]+".js"] = struct{}{}
 					vm.Set("importJs", func(file string) error {
 						js, e := ReadJs(file, pluginPath+"/", importedJs)
 						if e != nil {
@@ -461,7 +462,12 @@ func initWebPlugin() {
 
 					c.String(status, content)
 				} else {
-					c.String(404, "plugin not find")
+					_, err := os.Stat(pluginPath + "/static/index.html")
+					if err != nil {
+						c.String(404, "plugin not find")
+					} else {
+						c.Redirect(302, "/"+p[1]+"/static")
+					}
 				}
 			}
 		}
@@ -740,6 +746,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	rspObj := map[string]interface{}{}
 	var bd interface{}
 	if err == nil {
+		rspObj["status"] = rsp.StatusCode
 		rspObj["statusCode"] = rsp.StatusCode
 		data, _ := ioutil.ReadAll(rsp.Body)
 		if isJson {
@@ -750,6 +757,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 			bd = string(data)
 		}
 		rspObj["body"] = bd
+		rspObj["header"] = rsp.Header
 	}
 	if len(handles) > 0 {
 		return handles[0](err, rspObj, bd)
