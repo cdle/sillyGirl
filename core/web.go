@@ -640,6 +640,19 @@ func SillyGirl(call goja.ConstructorCall) *goja.Object {
 			}
 		}
 	})
+	call.This.Set("Session", func(msg string) func() (string, bool) {
+		c := &Faker{
+			Type:    "carry",
+			Message: msg,
+			Carry:   make(chan string),
+		}
+		Senders <- c
+		var f = func() (string, bool) {
+			v, ok := <-c.Listen()
+			return v, ok
+		}
+		return f
+	})
 	return nil
 }
 
