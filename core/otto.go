@@ -376,7 +376,9 @@ func Init123() {
 			})
 			vm.Set("Logger", Logger)
 			vm.Set("console", console)
-			vm.Set("SillyGirl", SillyGirl)
+			sillyGirl := NewSillyGirl(vm)
+			vm.Set("SillyGirl", func() interface{} { return sillyGirl })
+			vm.Set("sillyGirl", sillyGirl)
 			vm.Set("image", func(url string) interface{} {
 				return `[CQ:image,file=` + url + `]`
 			})
