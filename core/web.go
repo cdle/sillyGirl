@@ -576,8 +576,8 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 	return nil
 }
 
-func NewSillyGirl(vm *goja.Runtime) *goja.Object {
-	return vm.ToValue(&SillyGirlJs{
+func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
+	return &SillyGirlJs{
 		BucketGet: func(bucket, key string) interface{} {
 			return Bucket(bucket).Get(key)
 		},
@@ -622,13 +622,13 @@ func NewSillyGirl(vm *goja.Runtime) *goja.Object {
 			var f = func() SessionResult {
 				v, ok := <-c.Listen()
 				return SessionResult{
-					HasNext: !ok,
+					HasNext: ok,
 					Message: v,
 				}
 			}
 			return f
 		},
-	}).(*goja.Object)
+	}
 }
 
 func newrequest() interface{} {
