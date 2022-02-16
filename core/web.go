@@ -350,7 +350,11 @@ func initWebPlugin() {
 		}
 		pluginPath := path.Join(rootPath, base.Name())
 		files, _ := ioutil.ReadDir(pluginPath)
-		var plugin []string
+		_, err := os.Stat(pluginPath + "/static")
+		if err == nil {
+			Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
+		}
+		hasPlugin := false
 		for _, v := range files {
 			if v.IsDir() {
 				continue
@@ -358,13 +362,10 @@ func initWebPlugin() {
 			if ok, _ := regexp.MatchString("[A-z0-9]+\\.js", v.Name()); !ok {
 				continue
 			}
-			plugin = append(plugin, strings.TrimPrefix(v.Name(), ".js"))
+			hasPlugin = true
+			break
 		}
-		if len(plugin) > 0 {
-			_, err := ioutil.ReadDir(pluginPath + "/static")
-			if err == nil {
-				Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
-			}
+		if hasPlugin {
 			Handle[base.Name()] = func(c *gin.Context) {
 				p := strings.Split(c.Request.URL.Path, "/")
 				if len(p) > 3 || (len(p) == 3 && "" != p[2]) {
