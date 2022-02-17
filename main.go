@@ -54,6 +54,9 @@ func main() {
 }
 
 func monitorGoroutine() {
+	if runtime.GOOS == "windows" {
+		return
+	}
 	ticker := time.NewTicker(time.Millisecond * 100)
 	lastGNum := 0
 	for {

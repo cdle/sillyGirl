@@ -25,6 +25,7 @@ var getPidf = func() string {
 var pidf = getPidf()
 
 func Daemon() {
+
 	for _, bs := range BeforeStop {
 		bs()
 	}
