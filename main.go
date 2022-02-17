@@ -3,20 +3,22 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"time"
 
-	// _ "net/http/pprof"
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
 func main() {
-	// go func() {
-	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
-	// }()
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+	}()
 
 	core.Init123()
 	sillyGirl := core.Bucket("sillyGirl")
