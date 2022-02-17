@@ -275,8 +275,7 @@ func (bucket Bucket) First(i interface{}) error {
 				err = errors.New("record not find")
 				return nil
 			}
-			json.Unmarshal(data, i)
-			return nil
+			return json.Unmarshal(data, i)
 		})
 	}
 	return err

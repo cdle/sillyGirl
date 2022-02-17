@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -20,9 +19,9 @@ func main() {
 
 	core.Init123()
 	sillyGirl := core.Bucket("sillyGirl")
-	if sillyGirl.GetBool("monitorGoroutine") {
-		go monitorGoroutine()
-	}
+	// if sillyGirl.GetBool("monitorGoroutine") {
+	go monitorGoroutine()
+	// }
 	port := sillyGirl.Get("port", "8080")
 	logs.Info("Http服务已运行(%s)。", sillyGirl.Get("port", "8080"))
 	go core.Server.Run("0.0.0.0:" + port)
@@ -55,14 +54,16 @@ func main() {
 }
 
 func monitorGoroutine() {
-
 	ticker := time.NewTicker(time.Millisecond * 100)
 	lastGNum := 0
 	for {
 		<-ticker.C
-		if lastGNum != runtime.NumGoroutine() {
-			fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
-			lastGNum = runtime.NumGoroutine()
+		if newGNum := runtime.NumGoroutine(); lastGNum != newGNum {
+			// fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
+			lastGNum = newGNum
+			if newGNum > 5000 {
+				core.Daemon()
+			}
 		}
 	}
 }
