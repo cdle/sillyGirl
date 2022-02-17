@@ -3,23 +3,21 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"time"
 
-	"net/http"
-	_ "net/http/pprof"
+	"github.com/DeanThompson/ginpprof"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
 func main() {
-	go func() {
-		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
-	}()
-
+	// go func() {
+	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+	// }()
+	ginpprof.Wrapper(core.Server)
 	core.Init123()
 	sillyGirl := core.Bucket("sillyGirl")
 	// if sillyGirl.GetBool("monitorGoroutine") {
