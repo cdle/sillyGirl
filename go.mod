@@ -9,6 +9,7 @@ replace gorm.io/driver/sqlite => github.com/go-gorm/sqlite v1.2.6
 replace gorm.io/gorm => github.com/go-gorm/gorm v1.22.5
 
 require (
+	github.com/DeanThompson/ginpprof v0.0.0-20201112072838-007b1e56b2e1
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Han-Ya-Jun/qrcode2console v0.0.0-20190430081741-6890f5f0fdf5
 	github.com/PuerkitoBio/goquery v1.8.0

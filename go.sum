@@ -1,5 +1,7 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/DeanThompson/ginpprof v0.0.0-20201112072838-007b1e56b2e1 h1:IIOiH2YkFyyHCImuX7YWlHpc7wHZTQVxZwADs5jfggQ=
+github.com/DeanThompson/ginpprof v0.0.0-20201112072838-007b1e56b2e1/go.mod h1:kMi/fSDAgvjo9TYfYwYeQ2vkyj+VTR/tB6u/Tjh39t0=
 github.com/EDDYCJY/fake-useragent v0.2.0 h1:Jcnkk2bgXmDpX0z+ELlUErTkoLb/mxFBNd2YdcpvJBs=
 github.com/EDDYCJY/fake-useragent v0.2.0/go.mod h1:5wn3zzlDxhKW6NYknushqinPcAqZcAPHy8lLczCdJdc=
 github.com/Han-Ya-Jun/qrcode2console v0.0.0-20190430081741-6890f5f0fdf5 h1:EMggICCq0/d9uNIJzwj3UHntcH6cPVT4kfWbyzut8GQ=
