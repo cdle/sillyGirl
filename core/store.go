@@ -46,14 +46,10 @@ func initStore() {
 }
 
 func (bucket Bucket) Set(key interface{}, value interface{}) error {
-	var err error
 	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucket))
-		if b == nil {
-			b, err = tx.CreateBucket([]byte(bucket))
-			if err != nil {
-				return err
-			}
+		b, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		if err != nil {
+			return err
 		}
 		k := fmt.Sprint(key)
 		if _, ok := value.([]byte); !ok {
@@ -189,18 +185,13 @@ var Int64 = func(s interface{}) int64 {
 }
 
 func (bucket Bucket) Create(i interface{}) error {
-
 	s := reflect.ValueOf(i).Elem()
 	id := s.FieldByName("ID")
 	sequence := s.FieldByName("Sequence")
-	var err error
 	return db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(bucket))
-		if b == nil {
-			b, err = tx.CreateBucket([]byte(bucket))
-			if err != nil {
-				return err
-			}
+		b, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		if err != nil {
+			return err
 		}
 		if _, ok := id.Interface().(int); ok {
 			key := id.Int()

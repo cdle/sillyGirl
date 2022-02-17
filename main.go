@@ -67,7 +67,7 @@ func monitorGoroutine() {
 			fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
 			// }
 			lastGNum = newGNum
-			if newGNum > 5000 {
+			if newGNum > 800 {
 				core.Daemon()
 			}
 		}
