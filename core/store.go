@@ -46,9 +46,6 @@ func initStore() {
 }
 
 func (bucket Bucket) Set(key interface{}, value interface{}) error {
-	if sillyGirl.GetBool("debug_boltdb") {
-		return nil
-	}
 	var err error
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
@@ -192,9 +189,7 @@ var Int64 = func(s interface{}) int64 {
 }
 
 func (bucket Bucket) Create(i interface{}) error {
-	if sillyGirl.GetBool("debug_boltdb") {
-		return nil
-	}
+
 	s := reflect.ValueOf(i).Elem()
 	id := s.FieldByName("ID")
 	sequence := s.FieldByName("Sequence")
