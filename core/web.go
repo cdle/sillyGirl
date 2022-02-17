@@ -40,11 +40,16 @@ type Request struct {
 	Cookie      func(string) string `json:"cookie"`
 }
 
-type SillyGirlWeb struct {
-	BucketGet  func(bucket, key string) interface{} `json:"bucketGet"`
-	BucketSet  func(bucket, key, value string)      `json:"bucketSet"`
-	BucketKeys func(bucket string) []string         `json:"bucketKeys"`
-	Push       func(obj map[string]interface{})     `json:"push"`
+type SillyGirlJs struct {
+	BucketGet  func(bucket, key string) interface{}  `json:"bucketGet"`
+	BucketSet  func(bucket, key, value string)       `json:"bucketSet"`
+	BucketKeys func(bucket string) []string          `json:"bucketKeys"`
+	Push       func(obj map[string]interface{})      `json:"push"`
+	Session    func(msg string) func() SessionResult `json:"session"`
+}
+type SessionResult struct {
+	HasNext bool   `json:"hasNext"`
+	Message string `json:"message"`
 }
 
 func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string {
@@ -345,7 +350,11 @@ func initWebPlugin() {
 		}
 		pluginPath := path.Join(rootPath, base.Name())
 		files, _ := ioutil.ReadDir(pluginPath)
-		var plugin []string
+		_, err := os.Stat(pluginPath + "/static")
+		if err == nil {
+			Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
+		}
+		hasPlugin := false
 		for _, v := range files {
 			if v.IsDir() {
 				continue
@@ -353,13 +362,10 @@ func initWebPlugin() {
 			if ok, _ := regexp.MatchString("[A-z0-9]+\\.js", v.Name()); !ok {
 				continue
 			}
-			plugin = append(plugin, strings.TrimPrefix(v.Name(), ".js"))
+			hasPlugin = true
+			break
 		}
-		if len(plugin) > 0 {
-			_, err := ioutil.ReadDir(pluginPath + "/static")
-			if err == nil {
-				Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
-			}
+		if hasPlugin {
 			Handle[base.Name()] = func(c *gin.Context) {
 				p := strings.Split(c.Request.URL.Path, "/")
 				if len(p) > 3 || (len(p) == 3 && "" != p[2]) {
@@ -479,43 +485,8 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
 	vm.Set("Logger", Logger)
 	vm.Set("console", console)
-	vm.Set("SillyGirl", SillyGirl)
-	s := vm.ToValue(&SillyGirlWeb{
-		BucketGet: func(bucket, key string) interface{} {
-			return Bucket(bucket).Get(key)
-		},
-		BucketSet: func(bucket, key, value string) {
-			Bucket(bucket).Set(key, value)
-		},
-		BucketKeys: func(bucket string) []string {
-			ss := []string{}
-			Bucket(bucket).Foreach(func(k, _ []byte) error {
-				ss = append(ss, string(k))
-				return nil
-			})
-			return ss
-		},
-		Push: func(obj map[string]interface{}) {
-			imType := obj["imType"].(string)
-			groupCode := 0
-			var userID interface{}
-			if _, ok := obj["groupCode"]; ok {
-				groupCode = Int(obj["groupCode"])
-			} else {
-				userID = obj["userID"]
-			}
-			content := obj["content"].(string)
-			if groupCode != 0 {
-				if push, ok := GroupPushs[imType]; ok {
-					push(groupCode, userID, content, "")
-				}
-			} else {
-				if push, ok := Pushs[imType]; ok {
-					push(userID, content, nil, "")
-				}
-			}
-		},
-	}).(*goja.Object)
+	s := NewSillyGirl(vm)
+	vm.Set("SillyGirl", func() interface{} { return s })
 	vm.Set("sillyGirl", s)
 	vm.Set("Request", newrequest)
 	vm.Set("request", request)
@@ -605,55 +576,59 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 	return nil
 }
 
-func SillyGirl(call goja.ConstructorCall) *goja.Object {
-	call.This.Set("bucketGet", func(bucket, key string) interface{} {
-		return Bucket(bucket).Get(key)
-	})
-	call.This.Set("bucketSet", func(bucket, key, value string) {
-		Bucket(bucket).Set(key, value)
-	})
-	call.This.Set("bucketKeys", func(bucket string) []string {
-		ss := []string{}
-		Bucket(bucket).Foreach(func(k, _ []byte) error {
-			ss = append(ss, string(k))
-			return nil
-		})
-		return ss
-	})
-	call.This.Set("push", func(obj map[string]interface{}) {
-		imType := obj["imType"].(string)
-		groupCode := 0
-		var userID interface{}
-		if _, ok := obj["groupCode"]; ok {
-			groupCode = Int(obj["groupCode"])
-		} else {
-			userID = obj["userID"]
-		}
-		content := obj["content"].(string)
-		if groupCode != 0 {
-			if push, ok := GroupPushs[imType]; ok {
-				push(groupCode, userID, content, "")
+func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
+	return &SillyGirlJs{
+		BucketGet: func(bucket, key string) interface{} {
+			return Bucket(bucket).Get(key)
+		},
+		BucketSet: func(bucket, key, value string) {
+			Bucket(bucket).Set(key, value)
+		},
+		BucketKeys: func(bucket string) []string {
+			ss := []string{}
+			Bucket(bucket).Foreach(func(k, _ []byte) error {
+				ss = append(ss, string(k))
+				return nil
+			})
+			return ss
+		},
+		Push: func(obj map[string]interface{}) {
+			imType := obj["imType"].(string)
+			groupCode := 0
+			var userID interface{}
+			if _, ok := obj["groupCode"]; ok {
+				groupCode = Int(obj["groupCode"])
+			} else {
+				userID = obj["userID"]
 			}
-		} else {
-			if push, ok := Pushs[imType]; ok {
-				push(userID, content, nil, "")
+			content := obj["content"].(string)
+			if groupCode != 0 {
+				if push, ok := GroupPushs[imType]; ok {
+					push(groupCode, userID, content, "")
+				}
+			} else {
+				if push, ok := Pushs[imType]; ok {
+					push(userID, content, nil, "")
+				}
 			}
-		}
-	})
-	call.This.Set("Session", func(msg string) func() (string, bool) {
-		c := &Faker{
-			Type:    "carry",
-			Message: msg,
-			Carry:   make(chan string),
-		}
-		Senders <- c
-		var f = func() (string, bool) {
-			v, ok := <-c.Listen()
-			return v, ok
-		}
-		return f
-	})
-	return nil
+		},
+		Session: func(msg string) func() SessionResult {
+			c := &Faker{
+				Type:    "carry",
+				Message: msg,
+				Carry:   make(chan string),
+			}
+			Senders <- c
+			var f = func() SessionResult {
+				v, ok := <-c.Listen()
+				return SessionResult{
+					HasNext: ok,
+					Message: v,
+				}
+			}
+			return f
+		},
+	}
 }
 
 func newrequest() interface{} {
