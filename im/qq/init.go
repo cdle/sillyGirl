@@ -88,7 +88,7 @@ func (qq *QQ) WriteJSON(ca CallApi) (string, error) {
 	select {
 	case v := <-cy:
 		return v, nil
-	case <-time.After(time.Second * 2):
+	case <-time.After(time.Second * 60):
 	}
 	return "", nil
 }
