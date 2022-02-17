@@ -45,25 +45,38 @@ func initStore() {
 	}
 }
 
-func (bucket Bucket) Set(key interface{}, value interface{}) {
-	db.Update(func(tx *bolt.Tx) error {
+func (bucket Bucket) Set(key interface{}, value interface{}) error {
+	var err error
+	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
-			b, _ = tx.CreateBucket([]byte(bucket))
+			b, err = tx.CreateBucket([]byte(bucket))
+			if err != nil {
+				return err
+			}
 		}
 		k := fmt.Sprint(key)
 		if _, ok := value.([]byte); !ok {
 			v := fmt.Sprint(value)
 			if v == "" {
-				b.Delete([]byte(k))
+				if err := b.Delete([]byte(k)); err != nil {
+					return err
+				}
 			} else {
-				b.Put([]byte(k), []byte(v))
+				if err := b.Put([]byte(k), []byte(v)); err != nil {
+					return err
+				}
 			}
 		} else {
 			if len(value.([]byte)) == 0 {
-				b.Delete([]byte(k))
+				if err := b.Delete([]byte(k)); err != nil {
+					return err
+				}
+
 			} else {
-				b.Put([]byte(k), value.([]byte))
+				if err := b.Put([]byte(k), value.([]byte)); err != nil {
+					return err
+				}
 			}
 		}
 		return nil
@@ -87,7 +100,6 @@ func (bucket Bucket) Get(kv ...interface{}) string {
 			value = fmt.Sprint(kv[1])
 		}
 	}
-
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
@@ -180,14 +192,21 @@ func (bucket Bucket) Create(i interface{}) error {
 	s := reflect.ValueOf(i).Elem()
 	id := s.FieldByName("ID")
 	sequence := s.FieldByName("Sequence")
+	var err error
 	return db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b == nil {
-			b, _ = tx.CreateBucket([]byte(bucket))
+			b, err = tx.CreateBucket([]byte(bucket))
+			if err != nil {
+				return err
+			}
 		}
 		if _, ok := id.Interface().(int); ok {
 			key := id.Int()
-			sq, _ := b.NextSequence()
+			sq, err := b.NextSequence()
+			if err != nil {
+				return err
+			}
 			if key == 0 {
 				key = int64(sq)
 				id.SetInt(key)
@@ -202,7 +221,10 @@ func (bucket Bucket) Create(i interface{}) error {
 			return b.Put(itob(uint64(key)), buf)
 		} else {
 			key := id.String()
-			sq, _ := b.NextSequence()
+			sq, err := b.NextSequence()
+			if err != nil {
+				return err
+			}
 			if key == "" {
 				key = fmt.Sprint(sq)
 				id.SetString(key)
@@ -228,7 +250,7 @@ func (bucket Bucket) First(i interface{}) error {
 	s := reflect.ValueOf(i).Elem()
 	id := s.FieldByName("ID")
 	if v, ok := id.Interface().(int); ok {
-		db.View(func(tx *bolt.Tx) error {
+		err = db.View(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(bucket))
 			if b == nil {
 				err = errors.New("bucket not find")
@@ -239,11 +261,10 @@ func (bucket Bucket) First(i interface{}) error {
 				err = errors.New("record not find")
 				return nil
 			}
-			json.Unmarshal(data, i)
-			return nil
+			return json.Unmarshal(data, i)
 		})
 	} else {
-		db.View(func(tx *bolt.Tx) error {
+		err = db.View(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(bucket))
 			if b == nil {
 				err = errors.New("bucket not find")
@@ -258,32 +279,5 @@ func (bucket Bucket) First(i interface{}) error {
 			return nil
 		})
 	}
-
 	return err
 }
-
-func (bucket Bucket) Find(is []interface{}) error {
-	var err error
-	// is = append(is, interface{})
-	// reflect.ValueOf(is).
-	// id := reflect.ValueOf(i).Elem().FieldByName("ID").Int()
-	// db.View(func(tx *bolt.Tx) error {
-	// 	b := tx.Bucket([]byte(bucket))
-	// 	if b == nil {
-	// 		err = errors.New("bucket not find")
-	// 		return nil
-	// 	}
-	// 	data := b.Get(itob(uint64(id)))
-	// 	if len(data) == 0 {
-	// 		err = errors.New("record not find")
-	// 		return nil
-	// 	}
-	// 	json.Unmarshal(data, i)
-	// 	return nil
-	// })
-	return err
-}
-
-// func (bucket Bucket) Find(o interface{}) {
-
-// }
