@@ -3,26 +3,26 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"time"
 
-	"net/http"
-	_ "net/http/pprof"
+	// _ "net/http/pprof"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
 )
 
 func main() {
-	go func() {
-		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
-	}()
+	// go func() {
+	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+	// }()
 
-	go monitorGoroutine()
 	core.Init123()
 	sillyGirl := core.Bucket("sillyGirl")
+	if sillyGirl.GetBool("monitorGoroutine") {
+		go monitorGoroutine()
+	}
 	port := sillyGirl.Get("port", "8080")
 	logs.Info("Http服务已运行(%s)。", sillyGirl.Get("port", "8080"))
 	go core.Server.Run("0.0.0.0:" + port)

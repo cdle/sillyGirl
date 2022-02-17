@@ -358,7 +358,7 @@ func initSys() {
 				cts.Range(func(key, value interface{}) bool {
 					ss = append(ss, fmt.Sprintf("%v. %v", key, value))
 					return true
-				})
+				}) //runtime.NumGoroutine()
 				return fmt.Sprintf("总计：%d，已处理：%d，运行中：%d\n\n%s", total, finished, total-finished, strings.Join(ss, "\n"))
 			},
 		},
