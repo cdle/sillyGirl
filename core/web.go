@@ -382,7 +382,6 @@ func initWebPlugin() {
 					var res *goja.Object
 					res = vm.ToValue(&Response{
 						Send: func(gv goja.Value) {
-							isOver = true
 							gve := gv.Export()
 							switch gve.(type) {
 							case string:
@@ -402,7 +401,6 @@ func initWebPlugin() {
 						},
 						Json: func(ps ...interface{}) {
 							if len(ps) == 1 {
-								isOver = true
 								isJson = true
 								d, err := json.Marshal(ps[0])
 								if err == nil {
@@ -470,7 +468,7 @@ func initWebPlugin() {
 					if pree == nil {
 						_, err = vm.RunString(string(pre))
 					}
-					if !isOver && err == nil {
+					if !isOver && err == nil && len(content) == 0 && status == 200 {
 						_, err = vm.RunString(string(file))
 					}
 					if err != nil {
