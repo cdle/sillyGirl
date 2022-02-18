@@ -31,10 +31,10 @@ func init() {
 			wc := wechat.NewWechat()
 			memory := cache.NewMemory()
 			cfg := &offConfig.Config{
-				AppID:          wxmp.Get("app_id"),
-				AppSecret:      wxmp.Get("app_secret"),
-				Token:          wxmp.Get("token"),
-				EncodingAESKey: wxmp.Get("encoding_aes_key"),
+				AppID:          wxmp.GetString("app_id"),
+				AppSecret:      wxmp.GetString("app_secret"),
+				Token:          wxmp.GetString("token"),
+				EncodingAESKey: wxmp.GetString("encoding_aes_key"),
 				Cache:          memory,
 			}
 			officialAccount := wc.GetOfficialAccount(cfg)
@@ -42,7 +42,7 @@ func init() {
 			server := officialAccount.GetServer(c.Request, c.Writer)
 			server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 				if msg.Event == "subscribe" {
-					return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(wxmp.Get("subscribe_reply", "感谢关注！"))}
+					return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(wxmp.GetString("subscribe_reply", "感谢关注！"))}
 				}
 				sender := &Sender{}
 				sender.Message = msg.Content
@@ -54,7 +54,7 @@ func init() {
 				ss := []string{}
 				url := ""
 				if len(end) == 0 {
-					ss = append(ss, wxmp.Get("default_reply", "无法回复该消息"))
+					ss = append(ss, wxmp.GetString("default_reply", "无法回复该消息"))
 				}
 				for _, item := range end {
 					switch item.(type) {
@@ -110,10 +110,10 @@ func init() {
 		return
 	} else {
 		cfg := &server.WxConfig{
-			AppId:          wxmp.Get("app_id"),
-			Secret:         wxmp.Get("app_secret"),
-			Token:          wxmp.Get("token"),
-			EncodingAESKey: wxmp.Get("encoding_aes_key"),
+			AppId:          wxmp.GetString("app_id"),
+			Secret:         wxmp.GetString("app_secret"),
+			Token:          wxmp.GetString("token"),
+			EncodingAESKey: wxmp.GetString("encoding_aes_key"),
 			DateFormat:     "XML",
 		}
 		app := server.New(cfg)
@@ -123,7 +123,7 @@ func init() {
 		core.Server.Any("/wx/", func(c *gin.Context) {
 			ctx := app.VerifyURL(c.Writer, c.Request)
 			if ctx.Msg.Event == "subscribe" {
-				ctx.NewText(wxmp.Get("subscribe_reply", "感谢关注！")).Reply()
+				ctx.NewText(wxmp.GetString("subscribe_reply", "感谢关注！")).Reply()
 				return
 			}
 			sender := &Sender{}
@@ -195,7 +195,7 @@ func (sender *Sender) IsAdmin() bool {
 	if sender.admin {
 		return true
 	}
-	return strings.Contains(core.Bucket(sender.tp).Get("masters"), fmt.Sprint(sender.uid))
+	return strings.Contains(core.Bucket(sender.tp).GetString("masters"), fmt.Sprint(sender.uid))
 }
 
 func (sender *Sender) IsMedia() bool {
@@ -227,7 +227,7 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(rt, -1) {
 				// paths = append(paths, v[1])
 				if strings.HasPrefix(v[1], "http") {
-					if mid := image2Md.Get(v[1]); mid != "" {
+					if mid := image2Md.GetString(v[1]); mid != "" {
 						app.SendImage(sender.GetUserID(), mid)
 						continue
 					}

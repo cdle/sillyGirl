@@ -13,14 +13,14 @@ var wxsv = core.NewBucket("wxsv")
 var app *server.Server
 
 func init() {
-	if wxsv.Get("app_id") == "" {
+	if wxsv.GetString("app_id") == "" {
 		return
 	}
 	app = server.New(&server.WxConfig{
-		AppId:          wxsv.Get("app_id"),
-		Secret:         wxsv.Get("app_secret"),
-		Token:          wxsv.Get("token"),
-		EncodingAESKey: wxsv.Get("encoding_aes_key"),
+		AppId:          wxsv.GetString("app_id"),
+		Secret:         wxsv.GetString("app_secret"),
+		Token:          wxsv.GetString("token"),
+		EncodingAESKey: wxsv.GetString("encoding_aes_key"),
 		DateFormat:     "XML",
 	})
 

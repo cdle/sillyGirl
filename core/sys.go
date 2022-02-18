@@ -46,7 +46,7 @@ func Daemon() {
 	if err != nil {
 		panic(err)
 	}
-	logs.Info(sillyGirl.Get("name", "傻妞") + "以静默形式运行")
+	logs.Info(sillyGirl.GetString("name", "傻妞") + "以静默形式运行")
 	err = os.WriteFile(pidf, []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 	if err != nil {
 		logs.Warn(err)

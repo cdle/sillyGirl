@@ -80,14 +80,14 @@ func (bucket Bucket) Set(key interface{}, value interface{}) error {
 }
 
 func (bucket Bucket) Push2Array(key, value string) {
-	bucket.Set(key, strings.Join(append(strings.Split(bucket.Get(key), ","), value), ","))
+	bucket.Set(key, strings.Join(append(strings.Split(bucket.GetString(key), ","), value), ","))
 }
 
 func (bucket Bucket) GetArray(key string) []string {
-	return strings.Split(bucket.Get(key), ",")
+	return strings.Split(bucket.GetString(key), ",")
 }
 
-func (bucket Bucket) Get(kv ...interface{}) string {
+func (bucket Bucket) GetString(kv ...interface{}) string {
 	var key, value string
 	for i := range kv {
 		if i == 0 {

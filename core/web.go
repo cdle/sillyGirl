@@ -579,7 +579,7 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 	return &SillyGirlJs{
 		BucketGet: func(bucket, key string) interface{} {
-			return Bucket(bucket).Get(key)
+			return Bucket(bucket).GetString(key)
 		},
 		BucketSet: func(bucket, key, value string) {
 			Bucket(bucket).Set(key, value)

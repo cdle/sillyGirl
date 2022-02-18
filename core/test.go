@@ -18,7 +18,7 @@ import (
 
 func init() {
 	go func() {
-		v := sillyGirl.Get("rebootInfo")
+		v := sillyGirl.GetString("rebootInfo")
 		defer sillyGirl.Set("rebootInfo", "")
 		if v != "" {
 			vv := strings.Split(v, " ")
@@ -170,7 +170,7 @@ func initSys() {
 				if compiled_at != "" {
 					str := ""
 					pxs := []string{}
-					if p := sillyGirl.Get("download_prefix"); p != "" {
+					if p := sillyGirl.GetString("download_prefix"); p != "" {
 						pxs = append(pxs, p)
 					}
 					pxs = append(pxs, "")
@@ -193,7 +193,7 @@ func initSys() {
 						}
 						if str != "" {
 							if s.GetImType() == "fake" {
-								ver := sillyGirl.Get("compiled_at")
+								ver := sillyGirl.GetString("compiled_at")
 								if str > ver && ver > compiled_at {
 									return nil
 								}
@@ -412,7 +412,7 @@ func initSys() {
 				// 	s.Continue()
 				// 	return nil
 				// }
-				old := b.Get(s.Get(1))
+				old := b.GetString(s.Get(1))
 				b.Set(s.Get(1), s.Get(2))
 				go func() {
 					s.Await(s, func(_ Sender) interface{} {
@@ -480,7 +480,7 @@ func initSys() {
 					return nil
 				}
 				s.Disappear()
-				v := b.Get(s.Get(1))
+				v := b.GetString(s.Get(1))
 				if v == "" {
 					return errors.New("无值")
 				}
@@ -543,7 +543,7 @@ func initSys() {
 		{
 			Rules: []string{"raw ^compiled_at$"},
 			Handle: func(s Sender) interface{} {
-				return sillyGirl.Get("compiled_at")
+				return sillyGirl.GetString("compiled_at")
 			},
 		},
 		{
@@ -557,7 +557,7 @@ func initSys() {
 		{
 			Rules: []string{"raw ^started_at$"},
 			Handle: func(s Sender) interface{} {
-				return sillyGirl.Get("started_at")
+				return sillyGirl.GetString("started_at")
 			},
 		},
 		{

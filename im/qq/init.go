@@ -64,7 +64,7 @@ type Message struct {
 
 var conns = map[string]*QQ{}
 var defaultBot = ""
-var ignore = qq.Get("ignore")
+var ignore = qq.GetString("ignore")
 
 type QQ struct {
 	conn *websocket.Conn
@@ -115,7 +115,7 @@ func init() {
 		botID := c.GetHeader("X-Self-ID")
 		if len(conns) == 0 {
 			defaultBot = botID
-		} else if qq.Get("default_bot") == botID {
+		} else if qq.GetString("default_bot") == botID {
 			defaultBot = botID
 		}
 		qqcon := &QQ{
@@ -129,7 +129,7 @@ func init() {
 		}
 		logs.Info("QQ机器人(%s)已连接。", botID)
 		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
-			if qq.GetBool("ban_one2one") && !strings.Contains(qq.Get("masters"), fmt.Sprint(i)) {
+			if qq.GetBool("ban_one2one") && !strings.Contains(qq.GetString("masters"), fmt.Sprint(i)) {
 				return
 			}
 			if botID == "" {
@@ -233,10 +233,10 @@ func init() {
 				continue
 			}
 			if msg.GroupID != 0 {
-				if onGroups := qq.Get("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+				if onGroups := qq.GetString("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
 					continue
 				}
-				if onGroups := qq.Get("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+				if onGroups := qq.GetString("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
 					continue
 				}
 			}
@@ -314,7 +314,7 @@ func (sender *Sender) IsAdmin() bool {
 		return true
 	}
 	uid := fmt.Sprint(sender.Message.UserID)
-	for _, v := range regexp.MustCompile(`\d+`).FindAllString(qq.Get("masters"), -1) {
+	for _, v := range regexp.MustCompile(`\d+`).FindAllString(qq.GetString("masters"), -1) {
 		if uid == v {
 			return true
 		}
@@ -353,7 +353,7 @@ var dd sync.Map
 func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 	chatId := sender.GetChatID()
 	if chatId != 0 {
-		if onGroups := qq.Get("spy_on", "9251251&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
+		if onGroups := qq.GetString("spy_on", "9251251&833022151"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(chatId)) {
 			return []string{}, nil
 		}
 	}

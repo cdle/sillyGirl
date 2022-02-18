@@ -50,7 +50,7 @@ func init() {
 			line := scanner.Text()
 			if v := regexp.MustCompile(`^\s*set\s+(\S+)\s+(\S+)\s+(\S+.*)`).FindStringSubmatch(line); len(v) > 0 {
 				b := Bucket(v[1])
-				if b.Get(v[2]) != v[3] {
+				if b.GetString(v[2]) != v[3] {
 					b.Set(v[2], v[3])
 				}
 			}
@@ -60,12 +60,12 @@ func init() {
 	initSys()
 	Duration = time.Duration(sillyGirl.GetInt("duration", 5)) * time.Second
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
-	api_key := sillyGirl.Get("api_key")
+	api_key := sillyGirl.GetString("api_key")
 	if api_key == "" {
 		api_key := time.Now().UnixNano()
 		sillyGirl.Set("api_key", api_key)
 	}
-	if sillyGirl.Get("uuid") == "" {
+	if sillyGirl.GetString("uuid") == "" {
 		sillyGirl.Set("uuid", GetUUID())
 	}
 	httplib.SetDefaultSetting(httplib.BeegoHTTPSettings{

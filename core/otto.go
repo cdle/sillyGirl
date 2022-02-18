@@ -25,7 +25,7 @@ var OttoFuncs = map[string]interface{}{
 	"machineId": func(_ string) string {
 		id, err := machineid.ProtectedID("sillyGirl")
 		if err != nil {
-			id = sillyGirl.Get("machineId")
+			id = sillyGirl.GetString("machineId")
 			if id == "" {
 				id = GetUUID()
 				sillyGirl.Set("machineId", id)
@@ -164,10 +164,10 @@ func Init123() {
 		return
 	}
 	get := func(key string) string {
-		return o.Get(key)
+		return o.GetString(key)
 	}
 	bucketGet := func(bucket, key string) string {
-		return o.Get(key, Bucket(bucket).Get(key))
+		return o.GetString(key, Bucket(bucket).GetString(key))
 	}
 	bucketSet := func(bucket, key, value string) {
 		Bucket(bucket).Set(key, value)

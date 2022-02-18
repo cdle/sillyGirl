@@ -36,9 +36,9 @@ func NotifyMasters(content string) {
 	// 	httplib.Get("http://www.pushplus.plus/send?token=" + token + "&title=0101010&content=" + content + "&template=html")
 	// }
 	for _, class := range []string{"tg", "qq", "wx"} {
-		notify := Bucket(class).Get("notifiers")
+		notify := Bucket(class).GetString("notifiers")
 		if notify == "" {
-			notify = Bucket(class).Get("masters")
+			notify = Bucket(class).GetString("masters")
 		}
 		for _, v := range strings.Split(notify, "&") {
 			if push, ok := Pushs[class]; ok {

@@ -6,15 +6,15 @@ import (
 
 var wx = core.NewBucket("wx")
 var api_url = func() string {
-	if v := wx.Get("vlw_addr"); v != "" {
+	if v := wx.GetString("vlw_addr"); v != "" {
 		return v
 	}
-	if v := wx.Get("api_url"); v != "" {
+	if v := wx.GetString("api_url"); v != "" {
 		return v
 	}
 	return ""
 }
-var robot_wxid = wx.Get("robot_wxid")
+var robot_wxid = wx.GetString("robot_wxid")
 
 type TextMsg struct {
 	Event      string `json:"event"`

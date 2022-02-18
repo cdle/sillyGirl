@@ -44,7 +44,7 @@ var getPname = func() string {
 
 var pname = getPname()
 var name = func() string {
-	return sillyGirl.Get("name", "傻妞")
+	return sillyGirl.GetString("name", "傻妞")
 }
 
 var functions = []Function{}
@@ -261,7 +261,7 @@ func HandleMessage(sender Sender) {
 	goon:
 	}
 
-	recall := sillyGirl.Get("recall")
+	recall := sillyGirl.GetString("recall")
 	if recall != "" {
 		recalled := false
 		for _, v := range strings.Split(recall, "&") {
