@@ -66,5 +66,4 @@ func Init() {
 	})
 	initGoja()
 	initReboot()
-	initGin()
 }

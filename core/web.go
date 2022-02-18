@@ -69,7 +69,7 @@ var Handle = make(map[string]func(c *gin.Context))
 
 var Server *gin.Engine
 
-func initGin() {
+func init() {
 	gin.SetMode(gin.ReleaseMode)
 	Server = gin.New()
 	initWeb()
