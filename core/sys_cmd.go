@@ -437,8 +437,9 @@ func initSys() {
 			},
 		},
 		{
-			Admin: true,
-			Rules: []string{"set ? ? ?", "delete ? ?", "? set ? ?", "? delete ?", "set ? ?", "? set ?"},
+			Admin:    true,
+			Priority: 10000,
+			Rules:    []string{"set ? ? ?", "delete ? ?", "? set ? ?", "? delete ?", "set ? ?", "? set ?"},
 			Handle: func(s Sender) interface{} {
 				name := s.Get(0)
 				if name == "silly" {
