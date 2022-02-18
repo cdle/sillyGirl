@@ -44,7 +44,7 @@ var Handler = func(message *tb.Message) {
 }
 
 func buildHttpTransportWithProxy() {
-	addr := tg.Get("http_proxy")
+	addr := tg.GetString("http_proxy")
 	if strings.Contains(addr, "http://") {
 		if addr != "" {
 			u, err := url.Parse(addr)
@@ -80,13 +80,13 @@ func buildHttpTransportWithProxy() {
 
 func init() {
 	go func() {
-		if tg.Get("sock5") != "" {
-			tg.Set("http_proxy", "sock5://"+tg.Get("sock5"))
+		if tg.GetString("sock5") != "" {
+			tg.Set("http_proxy", "sock5://"+tg.GetString("sock5"))
 			tg.Set("sock5", "")
 		}
 		buildHttpTransportWithProxy()
 		core.Transport = Transport
-		token := tg.Get("token")
+		token := tg.GetString("token")
 		if runtime.GOOS == "darwin" {
 			tg.Set("http_proxy", "http://127.0.0.1:7890")
 			token = "2134744649:AAED_uyILY7L8Rb_b4Bfn8h23-HRHHsoVwk"
@@ -99,7 +99,7 @@ func init() {
 			Token:  token,
 			Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 			// ParseMode: tb.ModeMarkdownV2,
-			URL: tg.Get("url"),
+			URL: tg.GetString("url"),
 		}
 		if Transport != nil {
 			settings.Client = &http.Client{Transport: Transport}
@@ -274,7 +274,7 @@ func (sender *Sender) IsAdmin() bool {
 		return true
 	}
 
-	return strings.Contains(tg.Get("masters"), fmt.Sprint(sender.Message.Sender.ID))
+	return strings.Contains(tg.GetString("masters"), fmt.Sprint(sender.Message.Sender.ID))
 }
 
 func (sender *Sender) IsMedia() bool {
