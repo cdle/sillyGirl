@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -59,9 +58,9 @@ func monitorGoroutine() {
 	for {
 		<-ticker.C
 		if newGNum := runtime.NumGoroutine(); lastGNum != newGNum {
-			if core.MakeBucket("sillyGirl").GetBool("debug_boltdb") {
-				fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
-			}
+			// if core.MakeBucket("sillyGirl").GetBool("debug_boltdb") {
+			// 	fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
+			// }
 			lastGNum = newGNum
 			if newGNum > 800 {
 				utils.Daemon()
