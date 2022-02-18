@@ -66,6 +66,10 @@ var Int64 = func(s interface{}) int64 {
 	return int64(i)
 }
 
+func init() {
+	KillPeer()
+}
+
 func KillPeer() {
 	pids, err := ppid()
 	if err == nil {
