@@ -12,11 +12,12 @@ import (
 
 	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-var qq = core.NewBucket("qq")
+var qq = core.MakeBucket("qq")
 
 type Result struct {
 	Retcode int `json:"retcode"`
@@ -151,7 +152,7 @@ func init() {
 			conn.WriteJSON(CallApi{
 				Action: "send_private_msg",
 				Params: map[string]interface{}{
-					"user_id": core.Int64(i),
+					"user_id": utils.Int64(i),
 					"message": s,
 				},
 			})
@@ -172,7 +173,7 @@ func init() {
 					return
 				}
 			}
-			userId := core.Int64(j)
+			userId := utils.Int64(j)
 			if userId != 0 {
 				if strings.Contains(s, "\n") {
 					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
@@ -184,7 +185,7 @@ func init() {
 			conn.WriteJSON(CallApi{
 				Action: "send_group_msg",
 				Params: map[string]interface{}{
-					"group_id": core.Int(i),
+					"group_id": utils.Int(i),
 					"user_id":  userId,
 					"message":  s,
 				},
@@ -331,7 +332,7 @@ func (sender *Sender) GroupKick(uid string, reject_add_request bool) {
 		Action: "set_group_kick",
 		Params: map[string]interface{}{
 			"group_id":           sender.Message.GroupID,
-			"user_id":            core.Int(uid),
+			"user_id":            utils.Int(uid),
 			"reject_add_request": reject_add_request,
 		},
 	})
@@ -342,7 +343,7 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 		Action: "set_group_ban",
 		Params: map[string]interface{}{
 			"group_id": sender.Message.GroupID,
-			"user_id":  core.Int(uid),
+			"user_id":  utils.Int(uid),
 			"duration": duration,
 		},
 	})

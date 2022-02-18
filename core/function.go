@@ -3,27 +3,18 @@ package core
 import (
 	"fmt"
 	"net/url"
-	"os"
 	"regexp"
-	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
 
 	"github.com/beego/beego/v2/core/logs"
-	cron "github.com/robfig/cron/v3"
+	"github.com/cdle/sillyGirl/utils"
 )
-
-var c *cron.Cron
-var reply = NewBucket("reply")
 
 var total uint64 = 0
 var finished uint64 = 0
-
-func init() {
-	c = cron.New()
-	c.Start()
-}
+var contents sync.Map
 
 type Function struct {
 	Rules    []string
@@ -33,25 +24,20 @@ type Function struct {
 	Cron     string
 	Priority int
 	Disable  bool
+	Hash     string
 }
 
-var getPname = func() string {
-	if runtime.GOOS == "windows" {
-		return regexp.MustCompile(`([\w\.-]*)\.exe$`).FindStringSubmatch(os.Args[0])[0]
-	}
-	return regexp.MustCompile(`/([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
-}
+var reply Bucket
 
-var pname = getPname()
 var name = func() string {
 	return sillyGirl.GetString("name", "傻妞")
 }
-
-var functions = []Function{}
+var Functions = []Function{}
 
 var Senders chan Sender
 
 func initToHandleMessage() {
+	reply = MakeBucket("reply")
 	Senders = make(chan Sender)
 	go func() {
 		for {
@@ -89,25 +75,23 @@ func AddCommand(prefix string, cmds []Function) {
 			cmds[j].Rules[i] = "^" + cmds[j].Rules[i] + "$"
 		}
 		{
-			lf := len(functions)
-			for i := range functions {
+			lf := len(Functions)
+			for i := range Functions {
 				f := lf - i - 1
-				// logs.Warn(`functions[f].Priority %d > cmds[j].Priority %d = %t`, functions[f].Priority, cmds[j].Priority, functions[f].Priority > cmds[j].Priority)
-				if functions[f].Priority > cmds[j].Priority {
-					functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)
-					// logs.Warn(`functions = append(functions[:f+1], append([]Function{cmds[j]}, functions[f+1:]...)...)`)
+				if Functions[f].Priority > cmds[j].Priority {
+					Functions = append(Functions[:f+1], append([]Function{cmds[j]}, Functions[f+1:]...)...)
 					break
 				}
 			}
-			if len(functions) == lf {
+			if len(Functions) == lf {
 				if lf > 0 {
-					if functions[0].Priority < cmds[j].Priority && functions[lf-1].Priority < cmds[j].Priority {
-						functions = append([]Function{cmds[j]}, functions...)
+					if Functions[0].Priority < cmds[j].Priority && Functions[lf-1].Priority < cmds[j].Priority {
+						Functions = append([]Function{cmds[j]}, Functions...)
 					} else {
-						functions = append(functions, cmds[j])
+						Functions = append(Functions, cmds[j])
 					}
 				} else {
-					functions = append(functions, cmds[j])
+					Functions = append(Functions, cmds[j])
 				}
 			}
 		}
@@ -117,25 +101,23 @@ func AddCommand(prefix string, cmds []Function) {
 			if _, err := c.AddFunc(cmds[j].Cron, func() {
 				cmd.Handle(&Faker{})
 			}); err != nil {
-				// logs.Warn("任务%v添加失败%v", cmds[j].Rules[0], err)
+
 			} else {
-				// logs.Warn("任务%v添加成功", cmds[j].Rules[0])
+
 			}
 		}
 	}
 }
 
-var cts sync.Map
-
 func HandleMessage(sender Sender) {
 	num := atomic.AddUint64(&total, 1)
 	defer atomic.AddUint64(&finished, 1)
 	ct := sender.GetContent()
-	cts.Store(num, ct)
+	contents.Store(num, ct)
 	defer func() {
-		cts.Delete(num)
+		contents.Delete(num)
 	}()
-	content := TrimHiddenCharacter(ct)
+	content := utils.TrimHiddenCharacter(ct)
 	defer func() {
 		sender.Finish()
 		if sender.IsAtLast() {
@@ -145,16 +127,10 @@ func HandleMessage(sender Sender) {
 			}
 		}
 	}()
-
-	// defer func() {
-	// logs.Info("%v ==> %v", sender.GetContent())
-	// logs.Info("%v ==> %v", sender.GetContent(), "finished")
-	// }()
 	u, g, i := fmt.Sprint(sender.GetUserID()), fmt.Sprint(sender.GetChatID()), fmt.Sprint(sender.GetImType())
 	con := true
 	mtd := false
 	waits.Range(func(k, v interface{}) bool {
-		// logs.Debug(k.(string), c, "")
 		c := v.(*Carry)
 		vs, _ := url.ParseQuery(k.(string))
 		userID := vs.Get("u")
@@ -171,7 +147,6 @@ func HandleMessage(sender Sender) {
 			return true
 		}
 		if m := regexp.MustCompile(c.Pattern).FindString(content); m != "" {
-			// logs.Debug(k.(string), c)
 			mtd = true
 			c.Chan <- sender
 			sender.Reply(<-c.Result)
@@ -179,30 +154,29 @@ func HandleMessage(sender Sender) {
 				con = false
 				return false
 			}
-			content = TrimHiddenCharacter(sender.GetContent())
+			content = utils.TrimHiddenCharacter(sender.GetContent())
 		}
 		return true
 	})
-	// logs.Debug(mtd, con)
 	if mtd && !con {
 		return
 	}
-	dddd := false
-	Bucket(fmt.Sprintf("reply%s%d", sender.GetImType(), sender.GetChatID())).Foreach(func(k, v []byte) error {
+	replied := false
+	MakeBucket(fmt.Sprintf("reply%s%d", sender.GetImType(), sender.GetChatID())).Foreach(func(k, v []byte) error {
 		if string(v) == "" {
 			return nil
 		}
 		reg, err := regexp.Compile(string(k))
 		if err == nil {
 			if reg.FindString(content) != "" {
-				dddd = true
+				replied = true
 				sender.Reply(string(v))
 			}
 		}
 		return nil
 	})
 
-	if !dddd {
+	if !replied {
 		reply.Foreach(func(k, v []byte) error {
 			if string(v) == "" {
 				return nil
@@ -210,7 +184,7 @@ func HandleMessage(sender Sender) {
 			reg, err := regexp.Compile(string(k))
 			if err == nil {
 				if reg.FindString(content) != "" {
-					dddd = true
+					replied = true
 					sender.Reply(string(v))
 				}
 			}
@@ -218,7 +192,7 @@ func HandleMessage(sender Sender) {
 		})
 	}
 
-	for _, function := range functions {
+	for _, function := range Functions {
 		for _, rule := range function.Rules {
 			var matched bool
 			if function.FindAll {
@@ -237,13 +211,9 @@ func HandleMessage(sender Sender) {
 				}
 			}
 			if matched {
-				// logs.Info("%v ==> %v", content, rule)
 				if function.Admin && !sender.IsAdmin() {
 					sender.Delete()
 					sender.Disappear()
-					// if sender.GetImType() != "wx" && sender.GetImType() != "qq" {
-					// sender.Reply("再捣乱我就报警啦～")
-					// }
 					return
 				}
 				rt := function.Handle(sender)
@@ -252,13 +222,13 @@ func HandleMessage(sender Sender) {
 				}
 				if sender.IsContinue() {
 					sender.ClearContinue()
-					content = TrimHiddenCharacter(sender.GetContent())
-					goto goon
+					content = utils.TrimHiddenCharacter(sender.GetContent())
+					goto next
 				}
 				return
 			}
 		}
-	goon:
+	next:
 	}
 
 	recall := sillyGirl.GetString("recall")

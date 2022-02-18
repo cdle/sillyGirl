@@ -15,6 +15,7 @@ import (
 	"github.com/axgle/mahonia"
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -159,10 +160,10 @@ func init() {
 				if ag.Content.FromGroup != "" {
 					// logs.Info(ag.Content.FromGroup, wm.chat_id, qy)
 					if qy == 2 {
-						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "R:", "", -1))
+						wm.chat_id = utils.Int(strings.Replace(ag.Content.FromGroup, "R:", "", -1))
 
 					} else {
-						wm.chat_id = core.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
+						wm.chat_id = utils.Int(strings.Replace(ag.Content.FromGroup, "@chatroom", "", -1))
 					}
 
 					wm.chat_name = ag.Content.FromGroupName
@@ -224,7 +225,7 @@ func init() {
 		wm.user_id = jms.FinalFromWxid
 		wm.user_name = jms.FinalFromName
 		if strings.Contains(jms.FromWxid, "@chatroom") {
-			wm.chat_id = core.Int(strings.Replace(jms.FromWxid, "@chatroom", "", -1))
+			wm.chat_id = utils.Int(strings.Replace(jms.FromWxid, "@chatroom", "", -1))
 			wm.chat_name = jms.FromName
 		}
 		core.Senders <- &Sender{
@@ -262,7 +263,7 @@ func relay(url string) string {
 				myip = ip
 			}
 		}
-		return fmt.Sprintf("http://%s:%s/relay?url=%s", myip, wx.GetString("relay_port", core.Bucket("sillyGirl").GetString("port")), url) //"8002"
+		return fmt.Sprintf("http://%s:%s/relay?url=%s", myip, wx.GetString("relay_port", core.MakeBucket("sillyGirl").GetString("port")), url) //"8002"
 	}
 }
 

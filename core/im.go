@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Han-Ya-Jun/qrcode2console"
+	"github.com/cdle/sillyGirl/utils"
 )
 
 type Sender interface {
@@ -449,7 +450,7 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 					c.Result <- fmt.Sprintf("请从%s中选择一个。", strings.Join(vv, "、"))
 				} else if vv, ok := result.(Range); ok {
 					ct := s.GetContent()
-					n := Int(ct)
+					n := utils.Int(ct)
 					if fmt.Sprint(n) == ct {
 						if (n >= vv[0]) && (n <= vv[1]) {
 

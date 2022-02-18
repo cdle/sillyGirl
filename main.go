@@ -11,18 +11,14 @@ import (
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/utils"
 )
 
 func main() {
-	// go func() {
-	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
-	// }()
+	core.Init()
 	ginpprof.Wrapper(core.Server)
-	core.Init123()
-	sillyGirl := core.Bucket("sillyGirl")
-	// if sillyGirl.GetBool("monitorGoroutine") {
+	sillyGirl := core.MakeBucket("sillyGirl")
 	go monitorGoroutine()
-	// }
 	port := sillyGirl.GetString("port", "8080")
 	logs.Info("Http服务已运行(%s)。", sillyGirl.GetString("port", "8080"))
 	go core.Server.Run("0.0.0.0:" + port)
@@ -63,12 +59,12 @@ func monitorGoroutine() {
 	for {
 		<-ticker.C
 		if newGNum := runtime.NumGoroutine(); lastGNum != newGNum {
-			if core.Bucket("sillyGirl").GetBool("debug_boltdb") {
+			if core.MakeBucket("sillyGirl").GetBool("debug_boltdb") {
 				fmt.Println("<========================", time.Now().Format("2006-01-02 15:04:05"), "Goroutine Number :", runtime.NumGoroutine(), "=========================>")
 			}
 			lastGNum = newGNum
 			if newGNum > 800 {
-				core.Daemon()
+				utils.Daemon()
 			}
 		}
 	}

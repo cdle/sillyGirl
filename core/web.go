@@ -12,6 +12,7 @@ import (
 
 	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/beego/beego/v2/client/httplib"
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 )
@@ -66,13 +67,20 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 
 var Handle = make(map[string]func(c *gin.Context))
 
-func init() {
+var Server *gin.Engine
 
-	_, err := os.Stat(dataHome + "/views/home/hello.html")
+func initGin() {
+	gin.SetMode(gin.ReleaseMode)
+	Server = gin.New()
+	initWeb()
+}
+
+func initWeb() {
+	_, err := os.Stat(DataHome + "/views/home/hello.html")
 	if os.IsNotExist(err) {
-		os.MkdirAll(dataHome+"/views/home", os.ModePerm)
-		os.MkdirAll(dataHome+"/assets", os.ModePerm)
-		os.WriteFile(dataHome+"/views/home/hello.html", []byte(
+		os.MkdirAll(DataHome+"/views/home", os.ModePerm)
+		os.MkdirAll(DataHome+"/assets", os.ModePerm)
+		os.WriteFile(DataHome+"/views/home/hello.html", []byte(
 			`<!DOCTYPE html>
 <html lang="en">
 
@@ -95,10 +103,10 @@ func init() {
 </html>`), os.ModePerm)
 	}
 
-	_, err = os.Stat(dataHome + "/express.js")
+	_, err = os.Stat(DataHome + "/express.js")
 	var d = "`"
 	if os.IsNotExist(err) {
-		os.WriteFile(dataHome+"/views/home/hello.html", []byte(
+		os.WriteFile(DataHome+"/views/home/hello.html", []byte(
 			`<!DOCTYPE html>
 <html lang="en">
 
@@ -119,7 +127,7 @@ func init() {
 </body>
 
 </html>`), os.ModePerm)
-		os.WriteFile(dataHome+"/express.js", []byte(
+		os.WriteFile(DataHome+"/express.js", []byte(
 			`// 获取web服务实例
 var app = Express();
 // 获取日志实例
@@ -203,11 +211,11 @@ app.get('/lastTime', (req, res) => {
 
 `), os.ModePerm)
 	}
-	Server.Static("/assets", dataHome+"/assets")
-	Server.LoadHTMLGlob(dataHome + "/views/**/*")
+	Server.Static("/assets", DataHome+"/assets")
+	Server.LoadHTMLGlob(DataHome + "/views/**/*")
 
 	Handle["default"] = func(c *gin.Context) {
-		script, err := os.ReadFile(dataHome + "/express.js")
+		script, err := os.ReadFile(DataHome + "/express.js")
 		if err != nil {
 			c.String(404, err.Error())
 			return
@@ -264,7 +272,7 @@ app.get('/lastTime', (req, res) => {
 					case string:
 						b = i.(string)
 					default:
-						a = Int(i)
+						a = utils.Int(i)
 					}
 				}
 				c.Redirect(a, b)
@@ -335,7 +343,7 @@ func initWebPlugin() {
 	// -- static //静态文件目录
 	// -- *.js //接口本体,请求路径为/dir/js名称,只支持2级
 	// - dir2 //目录2
-	rootPath := ExecPath + "/plugin/web"
+	rootPath := utils.ExecPath + "/plugin/web"
 	rootFiles, err := ioutil.ReadDir(rootPath)
 	if err != nil {
 		os.MkdirAll(rootPath, os.ModePerm)
@@ -426,7 +434,7 @@ func initWebPlugin() {
 								case string:
 									b = i.(string)
 								default:
-									a = Int(i)
+									a = utils.Int(i)
 								}
 							}
 							c.Redirect(a, b)
@@ -579,14 +587,14 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 	return &SillyGirlJs{
 		BucketGet: func(bucket, key string) interface{} {
-			return Bucket(bucket).GetString(key)
+			return MakeBucket(bucket).GetString(key)
 		},
 		BucketSet: func(bucket, key, value string) {
-			Bucket(bucket).Set(key, value)
+			MakeBucket(bucket).Set(key, value)
 		},
 		BucketKeys: func(bucket string) []string {
 			ss := []string{}
-			Bucket(bucket).Foreach(func(k, _ []byte) error {
+			MakeBucket(bucket).Foreach(func(k, _ []byte) error {
 				ss = append(ss, string(k))
 				return nil
 			})
@@ -597,7 +605,7 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 			groupCode := 0
 			var userID interface{}
 			if _, ok := obj["groupCode"]; ok {
-				groupCode = Int(obj["groupCode"])
+				groupCode = utils.Int(obj["groupCode"])
 			} else {
 				userID = obj["userID"]
 			}
