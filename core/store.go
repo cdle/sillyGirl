@@ -86,7 +86,9 @@ func (bucket Bucket) Push2Array(key, value string) {
 func (bucket Bucket) GetArray(key string) []string {
 	return strings.Split(bucket.GetString(key), ",")
 }
-
+func (bucket Bucket) Get(kv ...interface{}) string {
+	return bucket.GetString(kv)
+}
 func (bucket Bucket) GetString(kv ...interface{}) string {
 	var key, value string
 	for i := range kv {
