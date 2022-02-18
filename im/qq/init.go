@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var qq = core.MakeBucket("qq")
+var qq core.Bucket
 
 type Result struct {
 	Retcode int `json:"retcode"`
@@ -103,6 +103,7 @@ func init() {
 		return strings.Join(ss, " ")
 	}
 	go func() {
+		qq = core.MakeBucket("qq")
 		core.Server.GET("/qq/receive", func(c *gin.Context) {
 			var upGrader = websocket.Upgrader{
 				CheckOrigin: func(r *http.Request) bool {
