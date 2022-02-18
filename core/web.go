@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -438,13 +439,18 @@ func initWebPlugin() {
 						SetCookie: func(name, value string, i ...interface{}) {
 							time := 60 * 60 * 24 * 30 //秒,30天
 							path := p[2]
-							for j := 0; j < len(i); j++ {
+							l := len(i)
+							if l > 2 {
+								l = 2
+							}
+							for j := 0; j < l; j++ {
 								switch i[j].(type) {
 								case string:
 									path = i[j].(string)
 								case int:
 									time = i[j].(int)
 								default:
+									path = string(reflect.TypeOf(i[j]).Name())
 								}
 							}
 							c.SetCookie(name, value, time, path, "", false, true)
