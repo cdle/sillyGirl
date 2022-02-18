@@ -65,7 +65,7 @@ type Message struct {
 
 var conns = map[string]*QQ{}
 var defaultBot = ""
-var ignore = qq.GetString("ignore")
+var ignore string
 
 type QQ struct {
 	conn *websocket.Conn
@@ -102,8 +102,9 @@ func init() {
 		}
 		return strings.Join(ss, " ")
 	}
+	qq = core.MakeBucket("qq")
+	ignore = qq.GetString("ignore")
 	go func() {
-		qq = core.MakeBucket("qq")
 		core.Server.GET("/qq/receive", func(c *gin.Context) {
 			var upGrader = websocket.Upgrader{
 				CheckOrigin: func(r *http.Request) bool {
