@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"os"
 	"regexp"
-	"runtime"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -13,15 +12,10 @@ import (
 
 var Duration time.Duration
 
-var lindir = `/etc/sillyGirl`
-var windir = `C:\ProgramData\sillyGirl`
-var DataHome = ""
+var DataHome = utils.GetDataHome()
 
 func Init() {
 	sillyGirl = MakeBucket("sillyGirl")
-	if runtime.GOOS == "windows" {
-		DataHome = windir
-	}
 	_, err := os.Stat(DataHome)
 	if err != nil {
 		os.MkdirAll(DataHome, os.ModePerm)

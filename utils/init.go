@@ -70,6 +70,14 @@ func init() {
 	KillPeer()
 }
 
+var GetDataHome = func() string {
+	if runtime.GOOS == "windows" {
+		return `C:\ProgramData\sillyGirl`
+	} else {
+		return `/etc/sillyGirl`
+	}
+}
+
 func KillPeer() {
 	pids, err := ppid()
 	if err == nil {
