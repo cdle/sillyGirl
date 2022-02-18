@@ -165,13 +165,21 @@ func (bucket Bucket) GetBool(key interface{}, vs ...bool) bool {
 }
 
 func (bucket Bucket) Foreach(f func(k, v []byte) error) {
+	var bs = [][][]byte{}
+
 	db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucket))
 		if b != nil {
-			b.ForEach(f)
+			b.ForEach(func(k, v []byte) error {
+				bs = append(bs, [][]byte{k, v})
+				return nil
+			})
 		}
 		return nil
 	})
+	for i := range bs {
+		f(bs[i][0], bs[i][1])
+	}
 }
 
 var Int = func(s interface{}) int {
