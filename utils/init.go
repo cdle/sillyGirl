@@ -67,6 +67,11 @@ var Int64 = func(s interface{}) int64 {
 }
 
 func init() {
+	for _, arg := range os.Args {
+		if arg == "-d" {
+			Daemon()
+		}
+	}
 	KillPeer()
 }
 

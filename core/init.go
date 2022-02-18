@@ -20,11 +20,6 @@ func Init() {
 	if err != nil {
 		os.MkdirAll(DataHome, os.ModePerm)
 	}
-	for _, arg := range os.Args {
-		if arg == "-d" {
-			utils.Daemon()
-		}
-	}
 	ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
