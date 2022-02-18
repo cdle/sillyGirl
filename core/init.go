@@ -31,7 +31,6 @@ func Init() {
 			utils.Daemon()
 		}
 	}
-	initCron()
 	ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
