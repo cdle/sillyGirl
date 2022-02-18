@@ -407,7 +407,6 @@ func initWebPlugin() {
 								d, err := json.Marshal(ps[0])
 								if err == nil {
 									content += string(d)
-									isJson = true
 								} else {
 									content += fmt.Sprint(ps[0])
 								}
@@ -471,7 +470,7 @@ func initWebPlugin() {
 					if pree == nil {
 						_, err = vm.RunString(string(pre))
 					}
-					if !isOver {
+					if !isOver && err == nil {
 						_, err = vm.RunString(string(file))
 					}
 					if err != nil {
