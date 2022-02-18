@@ -9,7 +9,7 @@ import (
 	server "github.com/rixingyike/wechat"
 )
 
-var wxsv = core.NewBucket("wxsv")
+var wxsv = core.MakeBucket("wxsv")
 var app *server.Server
 
 func init() {

@@ -19,9 +19,9 @@ import (
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
-var wxmp = core.NewBucket("wxmp")
-var material = core.NewBucket("wxmpMaterial")
-var image2Md = core.NewBucket("image2Md")
+var wxmp = core.MakeBucket("wxmp")
+var material = core.MakeBucket("wxmpMaterial")
+var image2Md = core.MakeBucket("image2Md")
 var file_dir = "logs/wxmp/"
 
 func init() {
@@ -195,7 +195,7 @@ func (sender *Sender) IsAdmin() bool {
 	if sender.admin {
 		return true
 	}
-	return strings.Contains(core.Bucket(sender.tp).GetString("masters"), fmt.Sprint(sender.uid))
+	return strings.Contains(core.MakeBucket(sender.tp).GetString("masters"), fmt.Sprint(sender.uid))
 }
 
 func (sender *Sender) IsMedia() bool {

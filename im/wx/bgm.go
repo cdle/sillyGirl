@@ -4,7 +4,7 @@ import (
 	"github.com/cdle/sillyGirl/core"
 )
 
-var wx = core.NewBucket("wx")
+var wx = core.MakeBucket("wx")
 var api_url = func() string {
 	if v := wx.GetString("vlw_addr"); v != "" {
 		return v

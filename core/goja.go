@@ -13,13 +13,14 @@ import (
 
 	"github.com/beego/beego/v2/adapter/httplib"
 	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/denisbrodbeck/machineid"
 	"github.com/dop251/goja"
 )
 
 type JsReply string
 
-var o = NewBucket("otto")
+var o Bucket
 
 var OttoFuncs = map[string]interface{}{
 	"machineId": func(_ string) string {
@@ -27,14 +28,14 @@ var OttoFuncs = map[string]interface{}{
 		if err != nil {
 			id = sillyGirl.GetString("machineId")
 			if id == "" {
-				id = GetUUID()
+				id = utils.GenUUID()
 				sillyGirl.Set("machineId", id)
 			}
 		}
 		return id
 	},
 	"uuid": func(_ string) string {
-		return GetUUID()
+		return utils.GenUUID()
 	},
 	"md5": func(str string) string {
 		w := md5.New()
@@ -156,10 +157,11 @@ func (sender *JsSender) Await(timeout int, fg bool, hd func(*JsSender) string) *
 	return newJsSender
 }
 
-func Init123() {
-	files, err := ioutil.ReadDir(ExecPath + "/develop/replies")
+func initGoja() {
+	o = MakeBucket("otto")
+	files, err := ioutil.ReadDir(utils.ExecPath + "/develop/replies")
 	if err != nil {
-		os.MkdirAll(ExecPath+"/develop/replies", os.ModePerm)
+		os.MkdirAll(utils.ExecPath+"/develop/replies", os.ModePerm)
 
 		return
 	}
@@ -167,13 +169,13 @@ func Init123() {
 		return o.GetString(key)
 	}
 	bucketGet := func(bucket, key string) string {
-		return o.GetString(key, Bucket(bucket).GetString(key))
+		return o.GetString(key, MakeBucket(bucket).GetString(key))
 	}
 	bucketSet := func(bucket, key, value string) {
-		Bucket(bucket).Set(key, value)
+		MakeBucket(bucket).Set(key, value)
 	}
 	bucketKeys := func(bucket string) []string {
-		b := Bucket(bucket)
+		b := MakeBucket(bucket)
 		slice := []string{}
 		b.Foreach(func(k, _ []byte) error {
 			slice = append(slice, string(k))
@@ -209,7 +211,7 @@ func Init123() {
 				content = obj.Get(key).String()
 			}
 		}
-		gid := Int(groupCode)
+		gid := utils.Int(groupCode)
 		if gid != 0 {
 			if push, ok := GroupPushs[imType]; ok {
 				push(int(gid), userID, content, "")
@@ -229,7 +231,7 @@ func Init123() {
 		if !strings.Contains(v.Name(), ".js") {
 			continue
 		}
-		basePath := ExecPath + "/develop/replies/"
+		basePath := utils.ExecPath + "/develop/replies/"
 		jr := basePath + v.Name()
 		data := ""
 		if strings.Contains(jr, "http") {
@@ -271,7 +273,7 @@ func Init123() {
 		}
 		priority := 0
 		if res := regexp.MustCompile(`\[priority:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
-			priority = Int(strings.Trim(res[1], " "))
+			priority = utils.Int(strings.Trim(res[1], " "))
 		}
 		server := ""
 		if res := regexp.MustCompile(`\[server:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
@@ -341,7 +343,7 @@ func Init123() {
 				var i int64
 				j := ""
 				if len(vs) > 0 {
-					i = Int64(vs[0])
+					i = utils.Int64(vs[0])
 				}
 				if len(vs) > 1 {
 					j = fmt.Sprint(vs[1])

@@ -16,6 +16,7 @@ import (
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/utils"
 	"golang.org/x/net/proxy"
 	tb "gopkg.in/tucnak/telebot.v2"
 )
@@ -29,7 +30,7 @@ type Sender struct {
 	replied []tb.Message
 }
 
-var tg = core.NewBucket("tg")
+var tg = core.MakeBucket("tg")
 var b *tb.Bot
 var Transport *http.Transport
 var Handler = func(message *tb.Message) {
@@ -112,11 +113,11 @@ func init() {
 			return
 		}
 		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}, _ string) {
-			b.Send(&tb.User{ID: core.Int(i)}, s)
+			b.Send(&tb.User{ID: utils.Int(i)}, s)
 		}
 		core.GroupPushs["tg"] = func(i, _ interface{}, s string, _ string) {
 			paths := []string{}
-			ct := &tb.Chat{ID: core.Int64(i)}
+			ct := &tb.Chat{ID: utils.Int64(i)}
 			s = regexp.MustCompile(`file=[^\[\]]*,url`).ReplaceAllString(s, "file")
 			for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(s, -1) {
 				paths = append(paths, v[1])
@@ -512,11 +513,11 @@ func (sender *Sender) RecallMessage(ps ...interface{}) error {
 				}
 				b.Delete(sender.Message)
 			} else {
-				b.Delete(&sender.replied[core.Int(p.(string))])
+				b.Delete(&sender.replied[utils.Int(p.(string))])
 			}
 		case []string:
 			for _, v := range p.([]string) {
-				b.Delete(&sender.replied[core.Int(v)])
+				b.Delete(&sender.replied[utils.Int(v)])
 			}
 		}
 	}
@@ -539,7 +540,7 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 		duration = 60
 	}
 	b.Ban(sender.Message.Chat, &tb.ChatMember{
-		User:            &tb.User{ID: core.Int(uid)},
+		User:            &tb.User{ID: utils.Int(uid)},
 		RestrictedUntil: time.Now().Unix() + int64(duration),
 	})
 }

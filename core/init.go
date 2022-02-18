@@ -4,52 +4,37 @@ import (
 	"bufio"
 	"os"
 	"regexp"
-	"runtime"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
+	"github.com/cdle/sillyGirl/utils"
 )
 
 var Duration time.Duration
 
-var dataHome = ""
+var DataHome = utils.GetDataHome()
 
-func init() {
-	killp()
-	if runtime.GOOS == "windows" {
-		_, err := os.Stat(`C:\ProgramData\sillyGirl`)
-		if err != nil {
-			os.MkdirAll(`C:\ProgramData\sillyGirl`, os.ModePerm)
-		}
-		dataHome = `C:\ProgramData\sillyGirl`
-	} else {
-		_, err := os.Stat("/etc/sillyGirl")
-		if err != nil {
-			os.MkdirAll("/etc/sillyGirl", os.ModePerm)
-		}
-		dataHome = `/etc/sillyGirl`
+func Init() {
+	sillyGirl = MakeBucket("sillyGirl")
+	_, err := os.Stat(DataHome)
+	if err != nil {
+		os.MkdirAll(DataHome, os.ModePerm)
 	}
-
 	for _, arg := range os.Args {
 		if arg == "-d" {
-			initStore()
-			Daemon()
+			utils.Daemon()
 		}
 	}
-
-	initStore()
-	ReadYaml(ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
+	ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	InitReplies()
 	initToHandleMessage()
-
-	file, err := os.Open(dataHome + "/sets.conf")
-
+	file, err := os.Open(DataHome + "/sets.conf")
 	if err == nil {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			line := scanner.Text()
 			if v := regexp.MustCompile(`^\s*set\s+(\S+)\s+(\S+)\s+(\S+.*)`).FindStringSubmatch(line); len(v) > 0 {
-				b := Bucket(v[1])
+				b := MakeBucket(v[1])
 				if b.GetString(v[2]) != v[3] {
 					b.Set(v[2], v[3])
 				}
@@ -66,13 +51,12 @@ func init() {
 		sillyGirl.Set("api_key", api_key)
 	}
 	if sillyGirl.GetString("uuid") == "" {
-		sillyGirl.Set("uuid", GetUUID())
+		sillyGirl.Set("uuid", utils.GenUUID())
 	}
 	httplib.SetDefaultSetting(httplib.BeegoHTTPSettings{
 		ConnectTimeout:   time.Second * 10,
 		ReadWriteTimeout: time.Second * 10,
 	})
-
-	// initWeb()
-
+	initGoja()
+	initReboot()
 }
