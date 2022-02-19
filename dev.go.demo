@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "github.com/cdle/sillyGirl/develop/utils"
 	_ "github.com/cdle/sillyGirl/develop/boltdb"
 	_ "github.com/cdle/sillyGirl/develop/qinglong"
 	_ "github.com/cdle/sillyGirl/im/qq"
