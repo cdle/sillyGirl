@@ -12,7 +12,6 @@ import (
 
 	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/cdle/sillyGirl/core"
-	_ "github.com/cdle/sillyGirl/develop/boltdb"
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
