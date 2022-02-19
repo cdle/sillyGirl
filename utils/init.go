@@ -67,6 +67,11 @@ var Int64 = func(s interface{}) int64 {
 }
 
 func init() {
+	for _, arg := range os.Args {
+		if arg == "-d" {
+			Daemon()
+		}
+	}
 	KillPeer()
 }
 
@@ -154,4 +159,21 @@ func Daemon() {
 		logs.Warn(err)
 	}
 	os.Exit(0)
+}
+
+func FetchCookieValue(ps ...string) string {
+	var key, cookies string
+	if len(ps) == 2 {
+		if len(ps[0]) > len(ps[1]) {
+			key, cookies = ps[1], ps[0]
+		} else {
+			key, cookies = ps[0], ps[1]
+		}
+	}
+	match := regexp.MustCompile(key + `=([^;]*);{0,1}`).FindStringSubmatch(cookies)
+	if len(match) == 2 {
+		return strings.Trim(match[1], " ")
+	} else {
+		return ""
+	}
 }
