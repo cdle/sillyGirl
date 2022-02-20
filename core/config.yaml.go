@@ -21,7 +21,6 @@ func ReadYaml(confDir string, conf interface{}, _ string) {
 	}
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0777)
 	if err != nil {
-		// logs.Warn(err)
 		return
 	}
 	s, _ := ioutil.ReadAll(f)

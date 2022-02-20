@@ -13,14 +13,14 @@ func MakeBucket(name string) Bucket {
 }
 
 type Bucket interface {
-	Copy(name string) Bucket
-	Set(key interface{}, value interface{}) error
-	GetString(kv ...interface{}) string
-	GetBytes(key string) []byte
-	GetInt(key interface{}, vs ...int) int
-	GetBool(key interface{}, vs ...bool) bool
-	Foreach(f func(k, v []byte) error)
-	Create(i interface{}) error
-	First(i interface{}) error
+	Copy(string) Bucket
+	Set(interface{}, interface{}) error
+	GetString(...interface{}) string
+	GetBytes(string) []byte
+	GetInt(interface{}, ...int) int
+	GetBool(interface{}, ...bool) bool
+	Foreach(func([]byte, []byte) error)
+	Create(interface{}) error
+	First(interface{}) error
 	String() string
 }
