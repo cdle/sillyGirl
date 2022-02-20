@@ -7,7 +7,7 @@ var Zero Bucket
 
 func MakeBucket(name string) Bucket {
 	if Zero == nil {
-		logs.Error("找不到存储器。")
+		logs.Error("找不到存储器，开发者自行实现接口。")
 	}
 	return Zero.Copy(name)
 }
