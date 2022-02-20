@@ -25,7 +25,7 @@ type Response struct {
 	Render     func(string, map[string]interface{}) `json:"render"`
 	Redirect   func(...interface{})                 `json:"redirect"`
 	Status     func(int) goja.Value                 `json:"status"`
-	SetCookie  func(string, string)                 `json:"setCookie"`
+	SetCookie  func(string, string, ...interface{}) `json:"setCookie"`
 }
 
 type Request struct {
@@ -282,7 +282,7 @@ app.get('/lastTime', (req, res) => {
 				status = i
 				return res
 			},
-			SetCookie: func(name, value string) {
+			SetCookie: func(name, value string, i ...interface{}) {
 				c.SetCookie(name, value, 1000*60, "/", "", false, true)
 			},
 		}).(*goja.Object)
@@ -409,15 +409,14 @@ func initWebPlugin() {
 						},
 						Json: func(ps ...interface{}) {
 							if len(ps) == 1 {
+								isJson = true
 								d, err := json.Marshal(ps[0])
 								if err == nil {
 									content += string(d)
-									isJson = true
 								} else {
 									content += fmt.Sprint(ps[0])
 								}
 							}
-							isJson = true
 						},
 						Header: func(str, value string) {
 							c.Header(str, value)
@@ -427,6 +426,7 @@ func initWebPlugin() {
 							c.HTML(http.StatusOK, path, obj)
 						},
 						Redirect: func(is ...interface{}) {
+							isOver = true
 							a := 302
 							b := ""
 							for _, i := range is {
@@ -438,14 +438,30 @@ func initWebPlugin() {
 								}
 							}
 							c.Redirect(a, b)
-							isOver = true
 						},
 						Status: func(i int) goja.Value {
 							status = i
 							return res
 						},
-						SetCookie: func(name, value string) {
-							c.SetCookie(name, value, 1000*60, "/", "", false, true)
+						SetCookie: func(name, value string, i ...interface{}) {
+							time := 60 * 60 * 24 * 30 //秒,30天
+							path := p[2]
+							l := len(i)
+							if l > 2 {
+								l = 2
+							}
+							for j := 0; j < l; j++ {
+								switch i[j].(type) {
+								case string:
+									path = i[j].(string)
+								case int:
+									time = i[j].(int)
+								case int64:
+									time = int(i[j].(int64))
+								default:
+								}
+							}
+							c.SetCookie(name, value, time, path, "", false, true)
 						},
 					}).(*goja.Object)
 					vm.Set("__response", res)
@@ -462,7 +478,13 @@ func initWebPlugin() {
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath, importedJs, vm)
 					})
-					_, err = vm.RunString(string(file))
+					pre, pree := ioutil.ReadFile(pluginPath + "/$beforeRequest.js")
+					if pree == nil {
+						_, err = vm.RunString(string(pre))
+					}
+					if !isOver && err == nil && len(content) == 0 && status == 200 {
+						_, err = vm.RunString(string(file))
+					}
 					if err != nil {
 						c.String(http.StatusBadGateway, err.Error())
 						return

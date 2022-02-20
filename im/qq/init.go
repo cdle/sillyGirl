@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var qq = core.MakeBucket("qq")
+var qq core.Bucket
 
 type Result struct {
 	Retcode int `json:"retcode"`
@@ -65,7 +65,7 @@ type Message struct {
 
 var conns = map[string]*QQ{}
 var defaultBot = ""
-var ignore = qq.GetString("ignore")
+var ignore string
 
 type QQ struct {
 	conn *websocket.Conn
@@ -102,166 +102,170 @@ func init() {
 		}
 		return strings.Join(ss, " ")
 	}
-	core.Server.GET("/qq/receive", func(c *gin.Context) {
-		var upGrader = websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		}
-		ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			c.Writer.Write([]byte(err.Error()))
-			return
-		}
-		botID := c.GetHeader("X-Self-ID")
-		if len(conns) == 0 {
-			defaultBot = botID
-		} else if qq.GetString("default_bot") == botID {
-			defaultBot = botID
-		}
-		qqcon := &QQ{
-			conn:  ws,
-			chans: make(map[string]chan string),
-		}
-
-		conns[botID] = qqcon
-		if !strings.Contains(ignore, botID) {
-			ignore += "&" + botID
-		}
-		logs.Info("QQ机器人(%s)已连接。", botID)
-		core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
-			if qq.GetBool("ban_one2one") && !strings.Contains(qq.GetString("masters"), fmt.Sprint(i)) {
+	qq = core.MakeBucket("qq")
+	ignore = qq.GetString("ignore")
+	go func() {
+		core.Server.GET("/qq/receive", func(c *gin.Context) {
+			var upGrader = websocket.Upgrader{
+				CheckOrigin: func(r *http.Request) bool {
+					return true
+				},
+			}
+			ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
+			if err != nil {
+				c.Writer.Write([]byte(err.Error()))
 				return
 			}
-			if botID == "" {
-				botID = defaultBot
+			botID := c.GetHeader("X-Self-ID")
+			if len(conns) == 0 {
+				defaultBot = botID
+			} else if qq.GetString("default_bot") == botID {
+				defaultBot = botID
 			}
-			conn, ok := conns[botID]
-			if !ok {
-				botID = ""
-				for v := range conns {
-					conn = conns[v]
-					botID = v
-					break
-				}
-				if botID == "" {
+			qqcon := &QQ{
+				conn:  ws,
+				chans: make(map[string]chan string),
+			}
+
+			conns[botID] = qqcon
+			if !strings.Contains(ignore, botID) {
+				ignore += "&" + botID
+			}
+			logs.Info("QQ机器人(%s)已连接。", botID)
+			core.Pushs["qq"] = func(i interface{}, s string, _ interface{}, botID string) {
+				if qq.GetBool("ban_one2one") && !strings.Contains(qq.GetString("masters"), fmt.Sprint(i)) {
 					return
 				}
-			}
-			s = strings.Trim(s, "\n")
-			conn.WriteJSON(CallApi{
-				Action: "send_private_msg",
-				Params: map[string]interface{}{
-					"user_id": utils.Int64(i),
-					"message": s,
-				},
-			})
-		}
-		core.GroupPushs["qq"] = func(i, j interface{}, s string, botID string) {
-			if botID == "" {
-				botID = defaultBot
-			}
-			conn, ok := conns[botID]
-			if !ok {
-				botID = ""
-				for v := range conns {
-					conn = conns[v]
-					botID = v
-					break
-				}
 				if botID == "" {
-					return
+					botID = defaultBot
 				}
-			}
-			userId := utils.Int64(j)
-			if userId != 0 {
-				if strings.Contains(s, "\n") {
-					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
-				} else {
-					s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
-				}
-			}
-			s = strings.Trim(s, "\n")
-			conn.WriteJSON(CallApi{
-				Action: "send_group_msg",
-				Params: map[string]interface{}{
-					"group_id": utils.Int(i),
-					"user_id":  userId,
-					"message":  s,
-				},
-			})
-		}
-		// var closed bool
-		// go func() {
-		for {
-			_, data, err := ws.ReadMessage()
-			// fmt.Println(string(data))
-			if err != nil {
-				ws.Close()
-				logs.Info("QQ机器人(%s)已断开。", botID)
-				delete(conns, botID)
-				if defaultBot == botID {
-					defaultBot = ""
+				conn, ok := conns[botID]
+				if !ok {
+					botID = ""
 					for v := range conns {
-						defaultBot = v
+						conn = conns[v]
+						botID = v
 						break
 					}
-				}
-				break
-			}
-			{
-				res := &Result{}
-				json.Unmarshal(data, res)
-				if res.Echo != "" {
-					qqcon.RLock()
-					if c, ok := qqcon.chans[res.Echo]; ok {
-						c <- fmt.Sprint(res.Data.MessageID)
+					if botID == "" {
+						return
 					}
-					qqcon.RUnlock()
+				}
+				s = strings.Trim(s, "\n")
+				conn.WriteJSON(CallApi{
+					Action: "send_private_msg",
+					Params: map[string]interface{}{
+						"user_id": utils.Int64(i),
+						"message": s,
+					},
+				})
+			}
+			core.GroupPushs["qq"] = func(i, j interface{}, s string, botID string) {
+				if botID == "" {
+					botID = defaultBot
+				}
+				conn, ok := conns[botID]
+				if !ok {
+					botID = ""
+					for v := range conns {
+						conn = conns[v]
+						botID = v
+						break
+					}
+					if botID == "" {
+						return
+					}
+				}
+				userId := utils.Int64(j)
+				if userId != 0 {
+					if strings.Contains(s, "\n") {
+						s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + "\n" + s
+					} else {
+						s = fmt.Sprintf(`[CQ:at,qq=%d]`, userId) + s
+					}
+				}
+				s = strings.Trim(s, "\n")
+				conn.WriteJSON(CallApi{
+					Action: "send_group_msg",
+					Params: map[string]interface{}{
+						"group_id": utils.Int(i),
+						"user_id":  userId,
+						"message":  s,
+					},
+				})
+			}
+			// var closed bool
+			// go func() {
+			for {
+				_, data, err := ws.ReadMessage()
+				// fmt.Println(string(data))
+				if err != nil {
+					ws.Close()
+					logs.Info("QQ机器人(%s)已断开。", botID)
+					delete(conns, botID)
+					if defaultBot == botID {
+						defaultBot = ""
+						for v := range conns {
+							defaultBot = v
+							break
+						}
+					}
+					break
+				}
+				{
+					res := &Result{}
+					json.Unmarshal(data, res)
+					if res.Echo != "" {
+						qqcon.RLock()
+						if c, ok := qqcon.chans[res.Echo]; ok {
+							c <- fmt.Sprint(res.Data.MessageID)
+						}
+						qqcon.RUnlock()
+						continue
+					}
+				}
+				msg := &Message{}
+				json.Unmarshal(data, msg)
+				if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
 					continue
 				}
-			}
-			msg := &Message{}
-			json.Unmarshal(data, msg)
-			if msg.MessageType != "private" && fmt.Sprint(msg.SelfID) != defaultBot {
-				continue
-			}
-			// fmt.Println(msg)
-			if msg.SelfID == msg.UserID {
-				continue
-			}
-			if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
-				continue
-			}
-			if msg.GroupID != 0 {
-				if onGroups := qq.GetString("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+				// fmt.Println(msg)
+				if msg.SelfID == msg.UserID {
 					continue
 				}
-				if onGroups := qq.GetString("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+				if strings.Contains(ignore, fmt.Sprint(msg.UserID)) {
 					continue
 				}
+				if msg.GroupID != 0 {
+					if onGroups := qq.GetString("offGroups", "923993867"); onGroups != "" && strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+						continue
+					}
+					if onGroups := qq.GetString("onGroups"); onGroups != "" && !strings.Contains(onGroups, fmt.Sprint(msg.GroupID)) {
+						continue
+					}
+				}
+				// if msg.PostType == "message" {
+				msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
+				msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
+				core.Senders <- &Sender{
+					Conn:    qqcon,
+					Message: msg,
+				}
+				// }
 			}
-			// if msg.PostType == "message" {
-			msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
-			msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
-			core.Senders <- &Sender{
-				Conn:    qqcon,
-				Message: msg,
-			}
+			// closed = true
+			// }()
+			// for {
+			// 	if closed {
+			// 		break
+			// 	}
+			// 	qqcon.WriteJSON(CallApi{
+			// 		Action: "get_status",
+			// 	})
+			// 	time.Sleep(time.Second)
 			// }
-		}
-		// closed = true
-		// }()
-		// for {
-		// 	if closed {
-		// 		break
-		// 	}
-		// 	qqcon.WriteJSON(CallApi{
-		// 		Action: "get_status",
-		// 	})
-		// 	time.Sleep(time.Second)
-		// }
-	})
+		})
+	}()
 }
 
 type Sender struct {
