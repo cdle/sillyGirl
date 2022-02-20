@@ -400,7 +400,9 @@ func initGoja() {
 				return i
 			})
 
-			vm.Set("Sender", s)
+			vm.Set("Sender", &JsSender{
+				Sender: s,
+			})
 
 			vm.Set("fmt", &Fmt{})
 			vm.Set("strings", &Strings{})

@@ -30,16 +30,18 @@ type Response struct {
 }
 
 type Request struct {
-	Body        func() string       `json:"body"`
-	Json        func() interface{}  `json:"json"`
-	IP          func() string       `json:"ip"`
-	OriginalUrl func() string       `json:"originalUrl"`
-	Query       func(string) string `json:"query"`
-	PostForm    func(string) string `json:"postForm"`
-	Path        func() string       `json:"path"`
-	Header      func(string) string `json:"header"`
-	Method      func() string       `json:"method"`
-	Cookie      func(string) string `json:"cookie"`
+	Body        func() string              `json:"body"`
+	Json        func() interface{}         `json:"json"`
+	IP          func() string              `json:"ip"`
+	OriginalUrl func() string              `json:"originalUrl"`
+	Query       func(string) string        `json:"query"`
+	PostForm    func(string) string        `json:"postForm"`
+	PostForms   func() map[string][]string `json:"postForms"`
+	Path        func() string              `json:"path"`
+	Header      func(string) string        `json:"header"`
+	Headers     func() map[string][]string `json:"headers"`
+	Method      func() string              `json:"method"`
+	Cookie      func(string) string        `json:"cookie"`
 }
 
 type SillyGirlJs struct {
@@ -541,10 +543,16 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 		PostForm: func(s string) string {
 			return c.PostForm(s)
 		},
+		PostForms: func() map[string][]string {
+			return c.Request.PostForm
+		},
 		Path: func() string {
 			return c.Request.URL.Path
 		},
 		Header: c.GetHeader,
+		Headers: func() map[string][]string {
+			return c.Request.Header
+		},
 		Method: func() string {
 			return c.Request.Method
 		},
