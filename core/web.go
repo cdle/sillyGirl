@@ -663,7 +663,7 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 					case "chatId":
 						chatId = utils.Int(props["chatId"])
 					case "userId":
-						userId = strings.ToLower(props["userId"].(string))
+						userId = props["userId"].(string)
 					}
 				}
 			}
