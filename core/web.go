@@ -667,6 +667,9 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 					}
 				}
 			}
+			if msg == "" {
+				return nil
+			}
 			c := &Faker{
 				Type:    imTpye,
 				Message: msg,
