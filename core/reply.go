@@ -20,9 +20,9 @@ type Reply struct {
 	Request struct {
 		Url          string
 		Method       string
-		Body         string // form-data raw
+		Body         string
 		Headers      []string
-		ResponseType string `yaml:"response_type"` //text json image
+		ResponseType string `yaml:"response_type"`
 		Get          string
 		Regex        string
 		Template     string
