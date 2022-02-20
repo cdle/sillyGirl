@@ -485,7 +485,8 @@ func (sender *Sender) Delete() error {
 	}
 	msg := *sender.Message
 	sender.deleted = true
-	return b.Delete(&msg)
+	b.Delete(&msg)
+	return nil
 }
 
 func (sender *Sender) Disappear(lifetime ...time.Duration) {
