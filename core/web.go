@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
@@ -42,11 +43,11 @@ type Request struct {
 }
 
 type SillyGirlJs struct {
-	BucketGet  func(bucket, key string) interface{}  `json:"bucketGet"`
-	BucketSet  func(bucket, key, value string)       `json:"bucketSet"`
-	BucketKeys func(bucket string) []string          `json:"bucketKeys"`
-	Push       func(obj map[string]interface{})      `json:"push"`
-	Session    func(msg string) func() SessionResult `json:"session"`
+	BucketGet  func(bucket, key string) interface{}      `json:"bucketGet"`
+	BucketSet  func(bucket, key, value string)           `json:"bucketSet"`
+	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
+	Push       func(obj map[string]interface{})          `json:"push"`
+	Session    func(wt interface{}) func() SessionResult `json:"session"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -607,6 +608,7 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 }
 
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
+	dufaultUserId := fmt.Sprintf("carry_%d", rand.Int63())
 	return &SillyGirlJs{
 		BucketGet: func(bucket, key string) interface{} {
 			return MakeBucket(bucket).GetString(key)
@@ -642,11 +644,35 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 				}
 			}
 		},
-		Session: func(msg string) func() SessionResult {
+		Session: func(info interface{}) func() SessionResult {
+			userId := dufaultUserId
+			msg := ""
+			imTpye := "carry"
+			chatId := 0
+			switch info.(type) {
+			case string:
+				msg = info.(string)
+			default:
+				props := info.(map[string]interface{})
+				for i := range props {
+					switch i {
+					case "imTpye":
+						imTpye = props["imTpye"].(string)
+					case "msg":
+						msg = props["msg"].(string)
+					case "chatId":
+						chatId = utils.Int(props["chatId"])
+					case "userId":
+						userId = strings.ToLower(props["userId"].(string))
+					}
+				}
+			}
 			c := &Faker{
-				Type:    "carry",
+				Type:    imTpye,
 				Message: msg,
 				Carry:   make(chan string),
+				UserID:  userId,
+				ChatID:  chatId,
 			}
 			Senders <- c
 			var f = func() SessionResult {
