@@ -734,7 +734,6 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	if isJsonBody {
 		req.Header("Content-Type", "application/json")
 	}
-	//自定义header优先级最高
 	for i := range headers {
 		req.Header(i, fmt.Sprint(headers[i]))
 	}
