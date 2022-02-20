@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
 	"path"
@@ -29,24 +30,26 @@ type Response struct {
 }
 
 type Request struct {
-	Body        func() string       `json:"body"`
-	Json        func() interface{}  `json:"json"`
-	IP          func() string       `json:"ip"`
-	OriginalUrl func() string       `json:"originalUrl"`
-	Query       func(string) string `json:"query"`
-	PostForm    func(string) string `json:"postForm"`
-	Path        func() string       `json:"path"`
-	Header      func(string) string `json:"header"`
-	Method      func() string       `json:"method"`
-	Cookie      func(string) string `json:"cookie"`
+	Body        func() string              `json:"body"`
+	Json        func() interface{}         `json:"json"`
+	IP          func() string              `json:"ip"`
+	OriginalUrl func() string              `json:"originalUrl"`
+	Query       func(string) string        `json:"query"`
+	PostForm    func(string) string        `json:"postForm"`
+	PostForms   func() map[string][]string `json:"postForms"`
+	Path        func() string              `json:"path"`
+	Header      func(string) string        `json:"header"`
+	Headers     func() map[string][]string `json:"headers"`
+	Method      func() string              `json:"method"`
+	Cookie      func(string) string        `json:"cookie"`
 }
 
 type SillyGirlJs struct {
-	BucketGet  func(bucket, key string) interface{}  `json:"bucketGet"`
-	BucketSet  func(bucket, key, value string)       `json:"bucketSet"`
-	BucketKeys func(bucket string) []string          `json:"bucketKeys"`
-	Push       func(obj map[string]interface{})      `json:"push"`
-	Session    func(msg string) func() SessionResult `json:"session"`
+	BucketGet  func(bucket, key string) interface{}      `json:"bucketGet"`
+	BucketSet  func(bucket, key, value string)           `json:"bucketSet"`
+	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
+	Push       func(obj map[string]interface{})          `json:"push"`
+	Session    func(wt interface{}) func() SessionResult `json:"session"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -540,10 +543,16 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 		PostForm: func(s string) string {
 			return c.PostForm(s)
 		},
+		PostForms: func() map[string][]string {
+			return c.Request.PostForm
+		},
 		Path: func() string {
 			return c.Request.URL.Path
 		},
 		Header: c.GetHeader,
+		Headers: func() map[string][]string {
+			return c.Request.Header
+		},
 		Method: func() string {
 			return c.Request.Method
 		},
@@ -607,6 +616,7 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 }
 
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
+	dufaultUserId := fmt.Sprintf("carry_%d", rand.Int63())
 	return &SillyGirlJs{
 		BucketGet: func(bucket, key string) interface{} {
 			return MakeBucket(bucket).GetString(key)
@@ -642,11 +652,38 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 				}
 			}
 		},
-		Session: func(msg string) func() SessionResult {
+		Session: func(info interface{}) func() SessionResult {
+			userId := dufaultUserId
+			msg := ""
+			imTpye := "carry"
+			chatId := 0
+			switch info.(type) {
+			case string:
+				msg = info.(string)
+			default:
+				props := info.(map[string]interface{})
+				for i := range props {
+					switch i {
+					case "imTpye":
+						imTpye = props["imTpye"].(string)
+					case "msg":
+						msg = props["msg"].(string)
+					case "chatId":
+						chatId = utils.Int(props["chatId"])
+					case "userId":
+						userId = props["userId"].(string)
+					}
+				}
+			}
+			if msg == "" {
+				return nil
+			}
 			c := &Faker{
-				Type:    "carry",
+				Type:    imTpye,
 				Message: msg,
 				Carry:   make(chan string),
+				UserID:  userId,
+				ChatID:  chatId,
 			}
 			Senders <- c
 			var f = func() SessionResult {
