@@ -28,7 +28,7 @@ type Response struct {
 	Redirect   func(...interface{})                 `json:"redirect"`
 	Status     func(int) goja.Value                 `json:"status"`
 	GetStatus  func() int                           `json:"getStatus"`
-	IsComplete func() bool                          `json:"IsComplete"`
+	IsComplete func() bool                          `json:"isComplete"`
 	SetCookie  func(string, string, ...interface{}) `json:"setCookie"`
 }
 
