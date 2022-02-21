@@ -27,6 +27,8 @@ type Response struct {
 	Render     func(string, map[string]interface{}) `json:"render"`
 	Redirect   func(...interface{})                 `json:"redirect"`
 	Status     func(int) goja.Value                 `json:"status"`
+	GetStatus  func() int                           `json:"getStatus"`
+	IsComplete func() bool                          `json:"IsComplete"`
 	SetCookie  func(string, string, ...interface{}) `json:"setCookie"`
 }
 
@@ -289,6 +291,12 @@ app.get('/lastTime', (req, res) => {
 			SetCookie: func(name, value string, i ...interface{}) {
 				c.SetCookie(name, value, 1000*60, "/", "", false, true)
 			},
+			IsComplete: func() bool {
+				return isRedirect || len(content) > 0
+			},
+			GetStatus: func() int {
+				return status
+			},
 		}).(*goja.Object)
 		var method = strings.ToLower(c.Request.Method)
 		handled := false
@@ -382,7 +390,8 @@ func initWebPlugin() {
 				p := strings.Split(c.Request.URL.Path, "/")
 				if len(p) > 3 || (len(p) == 3 && "" != p[2]) {
 					file, e := os.ReadFile(pluginPath + "/" + p[2] + ".js")
-					if e != nil {
+					before, beforee := ioutil.ReadFile(pluginPath + "/$beforeRequest.js")
+					if e != nil && beforee != nil {
 						c.String(404, "plugin not find")
 						return
 					}
@@ -467,6 +476,12 @@ func initWebPlugin() {
 							}
 							c.SetCookie(name, value, time, path, "", false, true)
 						},
+						IsComplete: func() bool {
+							return isOver || len(content) > 0
+						},
+						GetStatus: func() int {
+							return status
+						},
 					}).(*goja.Object)
 					vm.Set("__response", res)
 					importedJs := make(map[string]struct{})
@@ -482,12 +497,15 @@ func initWebPlugin() {
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath, importedJs, vm)
 					})
-					pre, pree := ioutil.ReadFile(pluginPath + "/$beforeRequest.js")
-					if pree == nil {
-						_, err = vm.RunString(string(pre))
+					if beforee == nil {
+						vm.RunString(string(before))
 					}
 					if !isOver && err == nil && len(content) == 0 && status == 200 {
-						_, err = vm.RunString(string(file))
+						vm.RunString(string(file))
+					}
+					after, aftere := ioutil.ReadFile(pluginPath + "/$afterRequest.js")
+					if aftere != nil {
+						vm.RunString(string(after))
 					}
 					if err != nil {
 						c.String(http.StatusBadGateway, err.Error())
@@ -499,11 +517,14 @@ func initWebPlugin() {
 					if isJson {
 						c.Header("Content-Type", "application/json")
 					}
-
-					c.String(status, content)
+					if status == 200 && len(content) == 0 {
+						c.String(404, "plugin not message")
+					} else {
+						c.String(status, content)
+					}
 				} else {
-					_, err := os.Stat(pluginPath + "/static/index.html")
-					if err != nil {
+					_, e := os.Stat(pluginPath + "/static/index.html")
+					if e != nil {
 						c.String(404, "plugin not find")
 					} else {
 						c.Redirect(302, "/"+p[1]+"/static")
