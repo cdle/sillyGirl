@@ -10,6 +10,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/beego/beego/v2/client/httplib"
@@ -721,6 +722,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	var body string
 	var location bool
 	var useproxy bool
+	var timeOut time.Duration = 0
 	switch wt.(type) {
 	case string:
 		url = wt.(string)
@@ -728,6 +730,8 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		props := wt.(map[string]interface{})
 		for i := range props {
 			switch i {
+			case "timeOut":
+				timeOut = time.Duration(utils.Int(props["timeOut"]))
 			case "headers":
 				headers = props["headers"].(map[string]interface{})
 			case "method":
@@ -767,6 +771,9 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		req = httplib.Delete(url)
 	default:
 		req = httplib.Get(url)
+	}
+	if timeOut != 0 {
+		req.SetTimeout(timeOut, timeOut)
 	}
 	if isJsonBody {
 		req.Header("Content-Type", "application/json")
