@@ -403,12 +403,9 @@ func initGoja() {
 			vm.Set("Sender", &JsSender{
 				Sender: s,
 			})
-
 			vm.Set("fmt", &Fmt{})
 			vm.Set("strings", &Strings{})
 			vm.Set("nil", nil)
-
-			// vm.Set("fmt", fmt)
 			importedJs := make(map[string]struct{})
 			importedJs[jr[len(basePath):]] = struct{}{}
 			vm.Set("importJs", func(file string) error {
@@ -430,15 +427,6 @@ func initGoja() {
 				return err
 			}
 			return nil
-			// result := rt.String()
-			// for _, v := range regexp.MustCompile(`\[image:\s*([^\s\[\]]+)\s*]`).FindAllStringSubmatch(result, -1) {
-			// 	s.Reply(ImageUrl(v[1]))
-			// 	result = strings.Replace(result, fmt.Sprintf(`[image:%s]\n`, v[1]), "", -1)
-			// }
-			// if result == "" || result == "undefined" {
-			// 	return nil
-			// }
-			// return result
 		}
 
 		AddCommand("", []Function{

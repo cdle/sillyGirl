@@ -7,20 +7,20 @@ var Zero Bucket
 
 func MakeBucket(name string) Bucket {
 	if Zero == nil {
-		logs.Error("找不到存储器。")
+		logs.Error("找不到存储器，开发者自行实现接口。")
 	}
 	return Zero.Copy(name)
 }
 
 type Bucket interface {
-	Copy(name string) Bucket
-	Set(key interface{}, value interface{}) error
-	GetString(kv ...interface{}) string
-	GetBytes(key string) []byte
-	GetInt(key interface{}, vs ...int) int
-	GetBool(key interface{}, vs ...bool) bool
-	Foreach(f func(k, v []byte) error)
-	Create(i interface{}) error
-	First(i interface{}) error
+	Copy(string) Bucket
+	Set(interface{}, interface{}) error
+	GetString(...interface{}) string
+	GetBytes(string) []byte
+	GetInt(interface{}, ...int) int
+	GetBool(interface{}, ...bool) bool
+	Foreach(func([]byte, []byte) error)
+	Create(interface{}) error
+	First(interface{}) error
 	String() string
 }

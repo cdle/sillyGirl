@@ -73,9 +73,7 @@ func initReboot() {
 		if v != "" {
 			vv := strings.Split(v, " ")
 			tp, cd, ud := vv[0], utils.Int(vv[1]), vv[2]
-			if tp == "fake" { //&& sillyGirl.GetBool("update_notify", false) == true {
-				// time.Sleep(time.Second * 10)
-				// NotifyMasters("自动更新完成。")
+			if tp == "fake" {
 				return
 			}
 			msg := "重启完成。"
