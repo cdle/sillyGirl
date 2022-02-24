@@ -141,61 +141,6 @@ func initSys() {
 			},
 		},
 		{
-			Rules: []string{"raw ^卸载$"},
-			Admin: true,
-			Handle: func(s Sender) interface{} {
-				if runtime.GOOS == "windows" {
-					return "windows系统不支持此命令"
-				}
-				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
-				switch s.Await(s, func(s Sender) interface{} {
-					return YesNo
-				}, time.Second*5) {
-				case No:
-					return name() + "将继续为您服务！"
-				}
-				s.Reply("是否删除用户数据？(5秒后默认删除，Y/n)")
-				clear := true
-				switch s.Await(s, func(s Sender) interface{} {
-					return YesNo
-				}, time.Second*5) {
-				case No:
-					clear = false
-					return name() + "将继续为您服务！"
-				}
-				s.Reply("进入冷静期，给你5秒时间思考，输入任意字符取消卸载：")
-				if s.Await(s, nil, time.Second*5) != nil {
-					return name() + "将继续为您服务！"
-				}
-				s.Reply("你终究还是下得了狠心，不过那又怎样？")
-				time.Sleep(time.Second * 2)
-				s.Reply("请在5秒内输入“我是🐶”完成卸载：")
-				rt := s.Await(s, nil, time.Second*5)
-				switch rt.(type) {
-				case nil:
-					return "你的打字速度不够快啊，请重新卸载～"
-				case string:
-					if rt.(string) != "我是🐶" {
-						return "输入错误，请重新卸载～"
-					}
-				}
-				if !sillyGirl.GetBool("forbid_uninstall") {
-					if clear {
-						os.RemoveAll(DataHome)
-					}
-					os.RemoveAll(utils.ExecPath)
-					os.RemoveAll("/usr/lib/systemd/system/sillyGirl.service")
-				}
-				s.Reply("卸载完成，下次重启你就再也见不到我了。")
-				time.Sleep(time.Second)
-				s.Reply("是否立即重启？")
-				s.Reply("正在重启...")
-				time.Sleep(time.Second)
-				os.Exit(0)
-				return nil
-			},
-		},
-		{
 			Rules: []string{"升级 ?", "^升级$"},
 			// Cron:  "*/1 * * * *",
 			Admin: true,
@@ -355,21 +300,6 @@ func initSys() {
 					time.Sleep(time.Second)
 					utils.Daemon()
 				}()
-				return nil
-			},
-		},
-		{
-			Rules: []string{"raw ^编译$"},
-			Admin: true,
-			Handle: func(s Sender) interface{} {
-				if compiled_at != "" {
-					return "编译个🐔8。"
-				}
-				s.Reply("正在编译程序...", E)
-				if err := CompileCode(); err != nil {
-					return err
-				}
-				s.Reply("编译程序完毕。", E)
 				return nil
 			},
 		},
@@ -585,6 +515,95 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"^machineId$"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				return fmt.Sprintf("你的机器码：%s", OttoFuncs["machineId"].(func(string) string)(""))
+			},
+		},
+		{
+			Rules: []string{"^time$"},
+			Handle: func(s Sender) interface{} {
+				return OttoFuncs["timeFormat"].(func(string) string)("2006-01-02 15:04:05")
+			},
+		},
+	})
+	if !isReleaseVersion() {
+		AddCommand("", []Function{
+			{
+				Rules: []string{"raw ^编译$"},
+				Admin: true,
+				Handle: func(s Sender) interface{} {
+					s.Reply("正在编译程序...", E)
+					if err := CompileCode(); err != nil {
+						return err
+					}
+					s.Reply("编译程序完毕。", E)
+					return nil
+				},
+			},
+		})
+	}
+	if !inDocker() {
+		return
+	}
+	AddCommand("", []Function{
+		{
+			Rules: []string{"raw ^卸载$"},
+			Admin: true,
+			Handle: func(s Sender) interface{} {
+				if runtime.GOOS == "windows" {
+					return "windows系统不支持此命令"
+				}
+				s.Reply("您真的要卸载" + name() + "吗？(5秒后默认卸载，Y/n)")
+				switch s.Await(s, func(s Sender) interface{} {
+					return YesNo
+				}, time.Second*5) {
+				case No:
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("是否删除用户数据？(5秒后默认删除，Y/n)")
+				clear := true
+				switch s.Await(s, func(s Sender) interface{} {
+					return YesNo
+				}, time.Second*5) {
+				case No:
+					clear = false
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("进入冷静期，给你5秒时间思考，输入任意字符取消卸载：")
+				if s.Await(s, nil, time.Second*5) != nil {
+					return name() + "将继续为您服务！"
+				}
+				s.Reply("你终究还是下得了狠心，不过那又怎样？")
+				time.Sleep(time.Second * 2)
+				s.Reply("请在5秒内输入“我是🐶”完成卸载：")
+				rt := s.Await(s, nil, time.Second*5)
+				switch rt.(type) {
+				case nil:
+					return "你的打字速度不够快啊，请重新卸载～"
+				case string:
+					if rt.(string) != "我是🐶" {
+						return "输入错误，请重新卸载～"
+					}
+				}
+				if !sillyGirl.GetBool("forbid_uninstall") {
+					if clear {
+						os.RemoveAll(DataHome)
+					}
+					os.RemoveAll(utils.ExecPath)
+					os.RemoveAll("/usr/lib/systemd/system/sillyGirl.service")
+				}
+				s.Reply("卸载完成，下次重启你就再也见不到我了。")
+				time.Sleep(time.Second)
+				s.Reply("是否立即重启？")
+				s.Reply("正在重启...")
+				time.Sleep(time.Second)
+				os.Exit(0)
+				return nil
+			},
+		},
+		{
 			Rules: []string{"守护傻妞"},
 			Admin: true,
 			Handle: func(s Sender) interface{} {
@@ -602,7 +621,7 @@ PIDFile=/var/run/sillyGirl.pid
 Restart=always
 User=root
 Group=root
-				
+			
 [Install]
 WantedBy=multi-user.target
 Alias=sillyGirl.service`
@@ -622,18 +641,13 @@ Alias=sillyGirl.service`
 				return "电脑重启后生效。"
 			},
 		},
-		{
-			Rules: []string{"^machineId$"},
-			Admin: true,
-			Handle: func(s Sender) interface{} {
-				return fmt.Sprintf("你的机器码：%s", OttoFuncs["machineId"].(func(string) string)(""))
-			},
-		},
-		{
-			Rules: []string{"^time$"},
-			Handle: func(s Sender) interface{} {
-				return OttoFuncs["timeFormat"].(func(string) string)("2006-01-02 15:04:05")
-			},
-		},
 	})
+}
+func inDocker() bool {
+	info, e := os.Stat("/.dockerenv")
+	return e != nil && !info.IsDir()
+}
+
+func isReleaseVersion() bool {
+	return compiled_at != ""
 }
