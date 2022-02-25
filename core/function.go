@@ -197,7 +197,6 @@ func HandleMessage(sender Sender) {
 			var matched bool
 			if function.FindAll {
 				if res := regexp.MustCompile(rule).FindAllStringSubmatch(content, -1); len(res) > 0 {
-					logs.Info(res)
 					tmp := [][]string{}
 					for i := range res {
 						tmp = append(tmp, res[i][1:])
