@@ -532,12 +532,12 @@ func initWebPlugin() {
 						c.String(status, content)
 					}
 				} else {
-					i, e := os.Stat(pluginPath + "/static/index.html")
-					if e == nil && (i == nil || !i.IsDir()) {
-						c.Redirect(302, "/"+p[1]+"/static")
-					} else {
-						c.String(404, "plugin not find")
-					}
+					// i, e := os.Stat(pluginPath + "/static/index.html")
+					// if e == nil && (i == nil || !i.IsDir()) {
+					// c.Redirect(302, "/"+p[1]+"/static")
+					// } else {
+					c.String(404, "plugin not find")
+					// }
 				}
 			}
 		}
