@@ -38,6 +38,7 @@ type Request struct {
 	IP          func() string              `json:"ip"`
 	OriginalUrl func() string              `json:"originalUrl"`
 	Query       func(string) string        `json:"query"`
+	Querys      func() map[string][]string `json:"querys"`
 	PostForm    func(string) string        `json:"postForm"`
 	PostForms   func() map[string][]string `json:"postForms"`
 	Path        func() string              `json:"path"`
@@ -548,6 +549,7 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm.Set("fetch", request)
 	vm.Set("require", require)
 	var bodyData, _ = ioutil.ReadAll(c.Request.Body)
+	query := c.Request.URL.Query()
 	req := vm.ToValue(&Request{
 		Body: func() string {
 			return string(bodyData)
@@ -562,6 +564,9 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 		IP:          c.ClientIP,
 		OriginalUrl: c.Request.URL.String,
 		Query:       c.Query,
+		Querys: func() map[string][]string {
+			return query
+		},
 		PostForm: func(s string) string {
 			return c.PostForm(s)
 		},
