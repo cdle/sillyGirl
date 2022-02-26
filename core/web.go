@@ -370,8 +370,8 @@ func initWebPlugin() {
 		}
 		pluginPath := path.Join(rootPath, base.Name())
 		files, _ := ioutil.ReadDir(pluginPath)
-		_, err := os.Stat(pluginPath + "/static")
-		if err == nil {
+		info, err := os.Stat(pluginPath + "/static")
+		if err == nil && info != nil && info.IsDir() {
 			Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
 		}
 		hasPlugin := false
@@ -523,8 +523,8 @@ func initWebPlugin() {
 						c.String(status, content)
 					}
 				} else {
-					_, e := os.Stat(pluginPath + "/static/index.html")
-					if e != nil {
+					i, e := os.Stat(pluginPath + "/static/index.html")
+					if e != nil && i != nil && !i.IsDir() {
 						c.String(404, "plugin not find")
 					} else {
 						c.Redirect(302, "/"+p[1]+"/static")
