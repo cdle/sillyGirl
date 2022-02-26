@@ -839,7 +839,11 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 			bd = string(data)
 		}
 		rspObj["body"] = bd
-		rspObj["header"] = rsp.Header
+		h := make(map[string][]string)
+		for k := range rsp.Header {
+			h[k] = rsp.Header[k]
+		}
+		rspObj["headers"] = h
 	}
 	if len(handles) > 0 {
 		return handles[0](err, rspObj, bd)
