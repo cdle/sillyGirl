@@ -524,7 +524,7 @@ func initWebPlugin() {
 					}
 				} else {
 					i, e := os.Stat(pluginPath + "/static/index.html")
-					if e != nil && i != nil && !i.IsDir() {
+					if e != nil || i == nil || i.IsDir() {
 						c.String(404, "plugin not find")
 					} else {
 						c.Redirect(302, "/"+p[1]+"/static")
