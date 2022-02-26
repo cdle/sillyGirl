@@ -38,6 +38,7 @@ type Request struct {
 	IP          func() string              `json:"ip"`
 	OriginalUrl func() string              `json:"originalUrl"`
 	Query       func(string) string        `json:"query"`
+	Querys      func() map[string][]string `json:"querys"`
 	PostForm    func(string) string        `json:"postForm"`
 	PostForms   func() map[string][]string `json:"postForms"`
 	Path        func() string              `json:"path"`
@@ -369,11 +370,11 @@ func initWebPlugin() {
 			continue
 		}
 		pluginPath := path.Join(rootPath, base.Name())
-		files, _ := ioutil.ReadDir(pluginPath)
-		_, err := os.Stat(pluginPath + "/static")
-		if err == nil {
+		info, e1 := ioutil.ReadDir(pluginPath + "/static")
+		if e1 == nil && info != nil && len(info) > 0 {
 			Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
 		}
+		files, _ := ioutil.ReadDir(pluginPath)
 		hasPlugin := false
 		for _, v := range files {
 			if v.IsDir() {
@@ -523,11 +524,11 @@ func initWebPlugin() {
 						c.String(status, content)
 					}
 				} else {
-					_, e := os.Stat(pluginPath + "/static/index.html")
-					if e != nil {
-						c.String(404, "plugin not find")
-					} else {
+					i, e := os.Stat(pluginPath + "/static/index.html")
+					if e == nil && (i == nil || !i.IsDir()) {
 						c.Redirect(302, "/"+p[1]+"/static")
+					} else {
+						c.String(404, "plugin not find")
 					}
 				}
 			}
@@ -548,6 +549,7 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm.Set("fetch", request)
 	vm.Set("require", require)
 	var bodyData, _ = ioutil.ReadAll(c.Request.Body)
+	query := c.Request.URL.Query()
 	req := vm.ToValue(&Request{
 		Body: func() string {
 			return string(bodyData)
@@ -562,6 +564,9 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 		IP:          c.ClientIP,
 		OriginalUrl: c.Request.URL.String,
 		Query:       c.Query,
+		Querys: func() map[string][]string {
+			return query
+		},
 		PostForm: func(s string) string {
 			return c.PostForm(s)
 		},
@@ -839,7 +844,11 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 			bd = string(data)
 		}
 		rspObj["body"] = bd
-		rspObj["header"] = rsp.Header
+		h := make(map[string][]string)
+		for k := range rsp.Header {
+			h[k] = rsp.Header[k]
+		}
+		rspObj["headers"] = h
 	}
 	if len(handles) > 0 {
 		return handles[0](err, rspObj, bd)
