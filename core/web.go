@@ -370,19 +370,19 @@ func initWebPlugin() {
 		}
 		pluginPath := path.Join(rootPath, base.Name())
 		files, _ := ioutil.ReadDir(pluginPath)
-		info, err := os.Stat(pluginPath + "/static")
-		if err == nil && info != nil && info.IsDir() {
-			i, e := ioutil.ReadDir(pluginPath + "/static")
-			if e != nil {
-				has := false
-				for range i {
-					has = true
-				}
-				if has {
-					Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
-				}
-			}
-		}
+		// info, err := os.Stat(pluginPath + "/static")
+		// if err == nil && info != nil && info.IsDir() {
+		// 	i, e := ioutil.ReadDir(pluginPath + "/static")
+		// 	if e != nil {
+		// 		has := false
+		// 		for range i {
+		// 			has = true
+		// 		}
+		// 		if has {
+		// 			Server.Static("/"+base.Name()+"/static", pluginPath+"/static")
+		// 		}
+		// 	}
+		// }
 		hasPlugin := false
 		for _, v := range files {
 			if v.IsDir() {
