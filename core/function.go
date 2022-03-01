@@ -223,6 +223,7 @@ func HandleMessage(sender Sender) {
 				if sender.IsContinue() {
 					sender.ClearContinue()
 					content = utils.TrimHiddenCharacter(sender.GetContent())
+					logs.Info("继续到消息：%s", content)
 					goto next
 				}
 				return
