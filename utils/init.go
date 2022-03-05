@@ -82,7 +82,7 @@ var GetDataHome = func() string {
 		if os.Getuid() == 0 {
 		     return `/etc/sillyGirl`
 		} else {
-			 return fmt.Sprintf("%s/%s", ExecPath, "data")
+		     return fmt.Sprintf("%s/%s", ExecPath, "data")
 		}
 	}
 }
