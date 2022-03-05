@@ -79,7 +79,11 @@ var GetDataHome = func() string {
 	if runtime.GOOS == "windows" {
 		return `C:\ProgramData\sillyGirl`
 	} else {
-		return `/etc/sillyGirl`
+		if os.Getuid() == 0 {
+		     return `/etc/sillyGirl`
+		} else {
+			 return fmt.Sprintf("%s/%s", ExecPath, "data")
+		}
 	}
 }
 
