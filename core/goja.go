@@ -234,7 +234,7 @@ func initGoja() {
 		basePath := utils.ExecPath + "/develop/replies/"
 		jr := basePath + v.Name()
 		data := ""
-		if strings.Contains(jr, "http") {
+		if strings.HasPrefix(jr, "http") && strings.Contains(jr, "://") {
 			data, err = httplib.Get(jr).String()
 			if err != nil {
 				logs.Warn("回复：%s获取失败%v", jr, err)
