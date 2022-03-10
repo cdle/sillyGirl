@@ -260,35 +260,35 @@ func initGoja() {
 			rules = append(rules, strings.Trim(res[1], " "))
 		}
 		var imType *Filter
-		if res := regexp.MustCompile(`\[imType([+-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[imType([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			var item []string
 			for _, i := range strings.Split(res[2], ",") {
 				item = append(item, strings.TrimSpace(i))
 			}
 			imType = &Filter{
-				BlackMode: res[1] != "-",
+				BlackMode: res[1] == "-",
 				Items:     item,
 			}
 		}
 		var userId *Filter
-		if res := regexp.MustCompile(`\[groupId([+-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[groupId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			var item []string
 			for _, i := range strings.Split(res[2], ",") {
 				item = append(item, strings.TrimSpace(i))
 			}
 			userId = &Filter{
-				BlackMode: res[1] != "-",
+				BlackMode: res[1] == "-",
 				Items:     item,
 			}
 		}
 		var groupId *Filter
-		if res := regexp.MustCompile(`\[groupId([+-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[groupId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			var item []string
 			for _, i := range strings.Split(res[2], ",") {
 				item = append(item, strings.TrimSpace(i))
 			}
 			groupId = &Filter{
-				BlackMode: res[1] != "-",
+				BlackMode: res[1] == "-",
 				Items:     item,
 			}
 		}
