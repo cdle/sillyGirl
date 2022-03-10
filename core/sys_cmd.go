@@ -336,6 +336,10 @@ func initSys() {
 				ruless := [][]string{}
 				for _, f := range Functions {
 					if len(f.Rules) > 0 {
+						if f.Show != "" {
+							ss = append(ss, fmt.Sprint(f.Show))
+							continue
+						}
 						rules := []string{}
 						for i := range f.Rules {
 							rules = append(rules, f.Rules[i])

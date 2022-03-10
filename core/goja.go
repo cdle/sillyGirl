@@ -259,6 +259,44 @@ func initGoja() {
 		for _, res := range regexp.MustCompile(`\[rule:(.+)]`).FindAllStringSubmatch(data, -1) {
 			rules = append(rules, strings.Trim(res[1], " "))
 		}
+		var imType *Filter
+		if res := regexp.MustCompile(`\[imType([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+			var item []string
+			for _, i := range strings.Split(res[2], ",") {
+				item = append(item, strings.TrimSpace(i))
+			}
+			imType = &Filter{
+				BlackMode: res[1] == "-",
+				Items:     item,
+			}
+		}
+		var userId *Filter
+		if res := regexp.MustCompile(`\[groupId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+			var item []string
+			for _, i := range strings.Split(res[2], ",") {
+				item = append(item, strings.TrimSpace(i))
+			}
+			userId = &Filter{
+				BlackMode: res[1] == "-",
+				Items:     item,
+			}
+		}
+		var groupId *Filter
+		if res := regexp.MustCompile(`\[groupId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+			var item []string
+			for _, i := range strings.Split(res[2], ",") {
+				item = append(item, strings.TrimSpace(i))
+			}
+			groupId = &Filter{
+				BlackMode: res[1] == "-",
+				Items:     item,
+			}
+		}
+
+		show := ""
+		if res := regexp.MustCompile(`\[show:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+			show = strings.Trim(res[1], " ")
+		}
 		cron := ""
 		if res := regexp.MustCompile(`\[cron:([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			cron = strings.Trim(res[1], " ")
@@ -433,6 +471,10 @@ func initGoja() {
 			{
 				Handle:   handler,
 				Rules:    rules,
+				Show:     show,
+				ImType:   imType,
+				UserId:   userId,
+				GroupId:  groupId,
 				Cron:     cron,
 				Admin:    admin,
 				Priority: priority,

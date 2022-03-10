@@ -177,3 +177,12 @@ func FetchCookieValue(ps ...string) string {
 		return ""
 	}
 }
+
+func Contains(strs []string, str string) bool {
+	for _, o := range strs {
+		if str == o {
+			return true
+		}
+	}
+	return false
+}

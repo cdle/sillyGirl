@@ -18,13 +18,21 @@ var contents sync.Map
 
 type Function struct {
 	Rules    []string
+	ImType   *Filter
+	UserId   *Filter
+	GroupId  *Filter
 	FindAll  bool
 	Admin    bool
 	Handle   func(s Sender) interface{}
 	Cron     string
+	Show     string
 	Priority int
 	Disable  bool
 	Hash     string
+}
+type Filter struct {
+	BlackMode bool
+	Items     []string
 }
 
 var reply Bucket
@@ -193,6 +201,9 @@ func HandleMessage(sender Sender) {
 	}
 
 	for _, function := range Functions {
+		if black(function.ImType, sender.GetImType()) || black(function.UserId, sender.GetUserID()) || black(function.GroupId, fmt.Sprint(sender.GetChatID())) {
+			continue
+		}
 		for _, rule := range function.Rules {
 			var matched bool
 			if function.FindAll {
@@ -251,4 +262,18 @@ func HandleMessage(sender Sender) {
 			return
 		}
 	}
+}
+func black(filter *Filter, str string) bool {
+	if filter != nil {
+		if filter.BlackMode {
+			if utils.Contains(filter.Items, str) {
+				return true
+			}
+		} else {
+			if !utils.Contains(filter.Items, str) {
+				return true
+			}
+		}
+	}
+	return false
 }
