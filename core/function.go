@@ -267,13 +267,13 @@ func black(filter *Filter, str string) bool {
 	if filter != nil {
 		if filter.BlackMode {
 			if utils.Contains(filter.Items, str) {
-				return false
+				return true
 			}
 		} else {
 			if !utils.Contains(filter.Items, str) {
-				return false
+				return true
 			}
 		}
 	}
-	return true
+	return false
 }
