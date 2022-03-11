@@ -1,10 +1,8 @@
 package core
 
 import (
-	"crypto/md5"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -37,14 +35,15 @@ var OttoFuncs = map[string]interface{}{
 	"uuid": func(_ string) string {
 		return utils.GenUUID()
 	},
-	"md5": func(str string) string {
-		w := md5.New()
-		io.WriteString(w, str)
-		md5str := fmt.Sprintf("%x", w.Sum(nil))
-		return md5str
-	},
+	"md5": utils.Md5,
 	"timeFormat": func(str string) string {
 		return time.Now().Format(str)
+	},
+	"now": func() string {
+		return time.Now().Format("2000-01-01 00:00:00")
+	},
+	"timeFormater": func(time time.Time, format string) string {
+		return time.Format(format)
 	},
 }
 
@@ -271,7 +270,7 @@ func initGoja() {
 			}
 		}
 		var userId *Filter
-		if res := regexp.MustCompile(`\[groupId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
+		if res := regexp.MustCompile(`\[userId([+\-]?):([^\[\]]+)]`).FindStringSubmatch(data); len(res) != 0 {
 			var item []string
 			for _, i := range strings.Split(res[2], ",") {
 				item = append(item, strings.TrimSpace(i))

@@ -54,6 +54,7 @@ type SillyGirlJs struct {
 	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
 	Push       func(obj map[string]interface{})          `json:"push"`
 	Session    func(wt interface{}) func() SessionResult `json:"session"`
+	Call       func(key string) interface{}              `json:"call"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -721,6 +722,12 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 				}
 			}
 			return f
+		},
+		Call: func(key string) interface{} {
+			if f, ok := OttoFuncs[key]; ok {
+				return f
+			}
+			return nil
 		},
 	}
 }
