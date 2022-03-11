@@ -45,9 +45,6 @@ var OttoFuncs = map[string]interface{}{
 	"timeFormater": func(time time.Time, format string) string {
 		return time.Format(format)
 	},
-	"crypto": func(key string, val string) string {
-		aes.
-	},
 }
 
 type Strings struct {
