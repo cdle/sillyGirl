@@ -762,8 +762,8 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	default:
 		props := wt.(map[string]interface{})
 		for i := range props {
-			switch i {
-			case "timeOut":
+			switch strings.ToLower(i) {
+			case "timeout":
 				timeOut = time.Duration(utils.Int(props["timeOut"]))
 			case "headers":
 				headers = props["headers"].(map[string]interface{})
@@ -773,12 +773,15 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 				url = props["url"].(string)
 			case "json":
 				isJson = props["json"].(bool)
-			case "dataType":
-				switch props["dataType"].(string) {
-				case "json":
-					isJson = true
-				case "location":
-					location = true
+			case "datatype":
+				switch props["dataType"].(type) {
+				case string:
+					switch strings.ToLower(props["dataType"].(string)) {
+					case "json":
+						isJson = true
+					case "location":
+						location = true
+					}
 				}
 			case "body":
 				if v, ok := props["body"].(string); !ok {
@@ -788,7 +791,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 				} else {
 					body = v
 				}
-			case "formData":
+			case "formdata":
 				formData = props["formData"].(map[string]interface{})
 			case "useproxy":
 				useproxy = props["useproxy"].(bool)

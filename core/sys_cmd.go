@@ -649,7 +649,7 @@ Alias=sillyGirl.service`
 }
 func inDocker() bool {
 	info, e := os.Stat("/.dockerenv")
-	return e != nil && info != nil && !info.IsDir()
+	return e != nil && info != nil && !info.IsDir() && info.Size() == 0
 }
 
 func isReleaseVersion() bool {
