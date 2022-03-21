@@ -148,10 +148,10 @@ func HandleMessage(sender Sender) {
 		if imType != i {
 			return true
 		}
-		if chatID != g {
+		if chatID != g && forGroup != "me" {
 			return true
 		}
-		if userID != u && forGroup == "" {
+		if userID != u && (forGroup == "" || forGroup == "me") {
 			return true
 		}
 		if m := regexp.MustCompile(c.Pattern).FindString(content); m != "" {
