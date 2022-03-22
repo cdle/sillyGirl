@@ -499,17 +499,18 @@ func initWebPlugin() {
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath, importedJs, vm)
 					})
+					var re error
 					if beforee == nil {
-						vm.RunString(string(before))
+						_, re = vm.RunString(string(before))
 					}
 					if !isOver && err == nil && len(content) == 0 && status == 200 {
-						vm.RunString(string(file))
+						_, re = vm.RunString(string(file))
 					}
 					after, aftere := ioutil.ReadFile(pluginPath + "/$afterRequest.js")
 					if aftere != nil {
 						vm.RunString(string(after))
 					}
-					if err != nil {
+					if re != nil {
 						c.String(http.StatusBadGateway, err.Error())
 						return
 					}
