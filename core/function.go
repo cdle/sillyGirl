@@ -178,7 +178,12 @@ func HandleMessage(sender Sender) {
 		if err == nil {
 			if reg.FindString(content) != "" {
 				replied = true
-				sender.Reply(string(v))
+				r := string(v)
+				if strings.Contains(r, "$") {
+					sender.Reply(reg.ReplaceAllString(content, r))
+				} else {
+					sender.Reply(r)
+				}
 			}
 		}
 		return nil
@@ -193,7 +198,12 @@ func HandleMessage(sender Sender) {
 			if err == nil {
 				if reg.FindString(content) != "" {
 					replied = true
-					sender.Reply(string(v))
+					r := string(v)
+					if strings.Contains(r, "$") {
+						sender.Reply(reg.ReplaceAllString(content, r))
+					} else {
+						sender.Reply(r)
+					}
 				}
 			}
 			return nil
