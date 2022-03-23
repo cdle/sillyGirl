@@ -765,7 +765,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		for i := range props {
 			switch strings.ToLower(i) {
 			case "timeout":
-				timeout = time.Duration(utils.Int(props[i]))
+				timeout = time.Duration(utils.Int64(props[i]) * 1000 * 1000)
 			case "headers":
 				headers = props[i].(map[string]interface{})
 			case "method":
