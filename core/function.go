@@ -148,10 +148,10 @@ func HandleMessage(sender Sender) {
 		if imType != i {
 			return true
 		}
-		if chatID != g {
+		if chatID != g && forGroup != "me" {
 			return true
 		}
-		if userID != u && forGroup == "" {
+		if userID != u && (forGroup == "" || forGroup == "me") {
 			return true
 		}
 		if m := regexp.MustCompile(c.Pattern).FindString(content); m != "" {
@@ -178,7 +178,12 @@ func HandleMessage(sender Sender) {
 		if err == nil {
 			if reg.FindString(content) != "" {
 				replied = true
-				sender.Reply(string(v))
+				r := string(v)
+				if strings.Contains(r, "$") {
+					sender.Reply(reg.ReplaceAllString(content, r))
+				} else {
+					sender.Reply(r)
+				}
 			}
 		}
 		return nil
@@ -193,7 +198,12 @@ func HandleMessage(sender Sender) {
 			if err == nil {
 				if reg.FindString(content) != "" {
 					replied = true
-					sender.Reply(string(v))
+					r := string(v)
+					if strings.Contains(r, "$") {
+						sender.Reply(reg.ReplaceAllString(content, r))
+					} else {
+						sender.Reply(r)
+					}
 				}
 			}
 			return nil

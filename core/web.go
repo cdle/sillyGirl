@@ -499,17 +499,18 @@ func initWebPlugin() {
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath, importedJs, vm)
 					})
+					var re error
 					if beforee == nil {
-						vm.RunString(string(before))
+						_, re = vm.RunString(string(before))
 					}
 					if !isOver && err == nil && len(content) == 0 && status == 200 {
-						vm.RunString(string(file))
+						_, re = vm.RunString(string(file))
 					}
 					after, aftere := ioutil.ReadFile(pluginPath + "/$afterRequest.js")
 					if aftere != nil {
 						vm.RunString(string(after))
 					}
-					if err != nil {
+					if re != nil {
 						c.String(http.StatusBadGateway, err.Error())
 						return
 					}
@@ -755,7 +756,7 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	var body string
 	var location bool
 	var useproxy bool
-	var timeOut time.Duration = 0
+	var timeout time.Duration = 0
 	switch wt.(type) {
 	case string:
 		url = wt.(string)
@@ -764,19 +765,19 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 		for i := range props {
 			switch strings.ToLower(i) {
 			case "timeout":
-				timeOut = time.Duration(utils.Int(props["timeOut"]))
+				timeout = time.Duration(utils.Int64(props[i]) * 1000 * 1000)
 			case "headers":
-				headers = props["headers"].(map[string]interface{})
+				headers = props[i].(map[string]interface{})
 			case "method":
-				method = strings.ToLower(props["method"].(string))
+				method = strings.ToLower(props[i].(string))
 			case "url":
-				url = props["url"].(string)
+				url = props[i].(string)
 			case "json":
-				isJson = props["json"].(bool)
+				isJson = props[i].(bool)
 			case "datatype":
-				switch props["dataType"].(type) {
+				switch props[i].(type) {
 				case string:
-					switch strings.ToLower(props["dataType"].(string)) {
+					switch strings.ToLower(props[i].(string)) {
 					case "json":
 						isJson = true
 					case "location":
@@ -784,17 +785,17 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 					}
 				}
 			case "body":
-				if v, ok := props["body"].(string); !ok {
-					d, _ := json.Marshal(props["body"])
+				if v, ok := props[i].(string); !ok {
+					d, _ := json.Marshal(props[i])
 					body = string(d)
 					isJsonBody = true
 				} else {
 					body = v
 				}
 			case "formdata":
-				formData = props["formData"].(map[string]interface{})
+				formData = props[i].(map[string]interface{})
 			case "useproxy":
-				useproxy = props["useproxy"].(bool)
+				useproxy = props[i].(bool)
 			}
 		}
 	}
@@ -808,8 +809,8 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	default:
 		req = httplib.Get(url)
 	}
-	if timeOut != 0 {
-		req.SetTimeout(timeOut, timeOut)
+	if timeout != 0 {
+		req.SetTimeout(timeout, timeout)
 	}
 	if isJsonBody {
 		req.Header("Content-Type", "application/json")
