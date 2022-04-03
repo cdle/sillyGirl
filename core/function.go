@@ -148,7 +148,7 @@ func HandleMessage(sender Sender) {
 		if imType != i {
 			return true
 		}
-		if chatID != g && forGroup != "me" {
+		if chatID != g && (forGroup != "me" || g != "0") {
 			return true
 		}
 		if userID != u && (forGroup == "" || forGroup == "me") {
