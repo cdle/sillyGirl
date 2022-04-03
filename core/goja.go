@@ -127,13 +127,17 @@ func (sender *JsSender) Reply(text string) []string {
 	i, _ := sender.Sender.Reply(text)
 	return i
 }
-func (sender *JsSender) Await(timeout int, fg bool, hd func(*JsSender) string) *JsSender {
+func (sender *JsSender) Await(timeout int, fg string, hd func(*JsSender) string) *JsSender {
 	options := []interface{}{}
 	if timeout != 0 {
 		options = append(options, time.Duration(timeout)*time.Millisecond)
 	}
-	if fg {
-		options = append(options, ForGroup)
+	if fg != "" && fg != "false" {
+		if fg == "me" {
+			options = append(options, AndPrivate)
+		} else {
+			options = append(options, ForGroup)
+		}
 	}
 	var newJsSender *JsSender
 	sender.Sender.Await(sender.Sender, func(sender Sender) interface{} {
@@ -388,7 +392,11 @@ func initGoja() {
 				options := []interface{}{}
 				options = append(options, time.Duration(i)*time.Millisecond)
 				if j != "" {
-					options = append(options, ForGroup)
+					if j == "me" {
+						options = append(options, AndPrivate)
+					} else {
+						options = append(options, ForGroup)
+					}
 				}
 				if rt := s.Await(s, nil, options...); rt != nil {
 					str = rt.(string)

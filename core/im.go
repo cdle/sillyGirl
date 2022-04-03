@@ -372,6 +372,7 @@ type Range []int
 type Switch []string
 
 var ForGroup forGroup
+var AndPrivate = forGroup("me")
 
 func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) interface{} {
 	c := &Carry{}
@@ -407,7 +408,11 @@ func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, par
 
 	key := fmt.Sprintf("u=%v&c=%v&i=%v&t=%v", sender.GetUserID(), sender.GetChatID(), sender.GetImType(), time.Now().UnixNano())
 	if fg != nil {
-		key += fmt.Sprintf("&f=true")
+		if *fg == "me" {
+			key += fmt.Sprintf("&f=me")
+		} else {
+			key += fmt.Sprintf("&f=true")
+		}
 	}
 	if oc, ok := waits.LoadOrStore(key, c); ok {
 		oc.(*Carry).Chan <- InterruptError
