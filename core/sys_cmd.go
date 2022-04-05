@@ -460,10 +460,10 @@ func initSys() {
 				if s.GetChatID() != 0 && name != "reply" {
 					return "请私聊我。"
 				}
-				if name != "fanlivip" && name != "otto" && name != "reply" && name != "wxsv" && name != "sillyGirl" && name != "qinglong" && name != "wx" && name != "wxmp" && name != "tg" && name != "qq" && !strings.HasPrefix(name, "tgc_") {
-					s.Continue()
-					return nil
-				}
+				// if name != "fanlivip" && name != "otto" && name != "reply" && name != "wxsv" && name != "sillyGirl" && name != "qinglong" && name != "wx" && name != "wxmp" && name != "tg" && name != "qq" && !strings.HasPrefix(name, "tgc_") {
+				// 	s.Continue()
+				// 	return nil
+				// }
 				if s.GetChatID() != 0 {
 					s.Disappear()
 				}

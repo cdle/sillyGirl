@@ -18,7 +18,7 @@ import (
 	"github.com/cdle/sillyGirl/core"
 	"github.com/cdle/sillyGirl/utils"
 	"golang.org/x/net/proxy"
-	tb "gopkg.in/tucnak/telebot.v2"
+	tb "gopkg.in/telebot.v3"
 )
 
 type Sender struct {
@@ -33,15 +33,17 @@ type Sender struct {
 var tg = core.MakeBucket("tg")
 var b *tb.Bot
 var Transport *http.Transport
-var Handler = func(message *tb.Message) {
+var Handler = func(ctx tb.Context) error {
+	message := ctx.Message()
 	if message.FromGroup() {
 		if groupCode := tg.GetInt("groupCode"); groupCode != 0 && groupCode != int(message.Chat.ID) {
-			return
+			return nil
 		}
 	}
 	core.Senders <- &Sender{
 		Message: message,
 	}
+	return nil
 }
 
 func buildHttpTransportWithProxy() {
@@ -113,7 +115,7 @@ func init() {
 			return
 		}
 		core.Pushs["tg"] = func(i interface{}, s string, _ interface{}, _ string) {
-			b.Send(&tb.User{ID: utils.Int(i)}, s)
+			b.Send(&tb.User{ID: utils.Int64(i)}, s)
 		}
 		core.GroupPushs["tg"] = func(i, _ interface{}, s string, _ string) {
 			paths := []string{}
@@ -134,7 +136,7 @@ func init() {
 				s = strings.Join(t, "\n")
 			}
 			if len(paths) > 0 {
-				is := []tb.InputMedia{}
+				is := tb.Album{}
 				for index, path := range paths {
 					// fmt.Println(path, s)
 					if strings.HasPrefix(path, "http") {
@@ -174,17 +176,16 @@ func init() {
 			s = strings.Trim(s, "\n")
 			b.Send(ct, s)
 		}
-		b.Handle(tb.OnPhoto, func(m *tb.Message) {
-			filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
-			filepath := "data/images/" + filename
-
-			// fmt.Println(m.Photo.FileLocal, "++++++++++++")
-			if b.Download(&m.Photo.File, filepath) == nil {
-				// fmt.Sprintf(`[TG:image,file=%s]`, filename)
-				m.Text = m.Caption
-				Handler(m)
-			}
-		})
+		// b.Handle(tb.OnPhoto, func(m *tb.Message) {
+		// 	filename := fmt.Sprint(time.Now().UnixNano()) + ".image"
+		// 	filepath := "data/images/" + filename
+		// 	// fmt.Println(m.Photo.FileLocal, "++++++++++++")
+		// 	if b.Download(&m.Photo.File, filepath) == nil {
+		// 		// fmt.Sprintf(`[TG:image,file=%s]`, filename)
+		// 		m.Text = m.Caption
+		// 		Handler(m)
+		// 	}
+		// })
 		// b.Handle(tb.OnSticker, func(m *tb.Message) {
 		// 	buf := new(bytes.Buffer)
 		// 	buf.ReadFrom(m.Sticker.FileReader)
@@ -358,7 +359,7 @@ func (sender *Sender) Reply(msgs ...interface{}) ([]string, error) {
 			message = strings.Replace(message, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
 		}
 		if len(paths) > 0 {
-			is := []tb.InputMedia{}
+			is := tb.Album{}
 			for index, path := range paths {
 				if strings.Contains(path, "base64") {
 					decodeBytes, err := base64.StdEncoding.DecodeString(strings.Replace(path, "base64://", "", -1))
@@ -541,7 +542,7 @@ func (sender *Sender) GroupBan(uid string, duration int) {
 		duration = 60
 	}
 	b.Ban(sender.Message.Chat, &tb.ChatMember{
-		User:            &tb.User{ID: utils.Int(uid)},
+		User:            &tb.User{ID: utils.Int64(uid)},
 		RestrictedUntil: time.Now().Unix() + int64(duration),
 	})
 }

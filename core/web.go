@@ -499,6 +499,7 @@ func initWebPlugin() {
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath, importedJs, vm)
 					})
+					var re error
 					if beforee == nil {
 						_, rune := vm.RunString(string(before))
 						if rune != nil {
