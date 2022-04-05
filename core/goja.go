@@ -407,6 +407,15 @@ func initGoja() {
 			vm.Set("sleep", sleep)
 			vm.Set("isAdmin", s.IsAdmin)
 			vm.Set("set", set)
+			vm.Set("remain", func(a string, b string) string {
+				dd := []string{}
+				for _, s := range strings.Split(a, "\n") {
+					if strings.Contains(s, b) {
+						dd = append(dd, s)
+					}
+				}
+				return strings.Join(dd, "\n")
+			})
 			vm.Set("param", param)
 			vm.Set("get", get)
 			vm.Set("bucketGet", bucketGet)
