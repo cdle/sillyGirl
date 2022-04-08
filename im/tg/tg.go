@@ -272,11 +272,13 @@ func (sender *Sender) GetRawMessage() interface{} {
 }
 
 func (sender *Sender) IsAdmin() bool {
-	if runtime.GOOS == "darwin" {
-		return true
+	uid := fmt.Sprint(sender.GetUserID())
+	for _, v := range regexp.MustCompile(`\d+`).FindAllString(tg.GetString("masters"), -1) {
+		if uid == v {
+			return true
+		}
 	}
-
-	return strings.Contains(tg.GetString("masters"), fmt.Sprint(sender.Message.Sender.ID))
+	return false
 }
 
 func (sender *Sender) IsMedia() bool {
