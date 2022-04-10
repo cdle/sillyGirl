@@ -380,6 +380,11 @@ func initGoja() {
 				s.SetContent(str)
 				Senders <- s
 			})
+			vm.Set("BreakIn", func(str string) {
+				s := s.Copy()
+				s.SetContent(str)
+				Senders <- s
+			})
 			vm.Set("input", func(vs ...interface{}) string {
 				str := ""
 				var i int64
