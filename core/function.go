@@ -222,7 +222,7 @@ func HandleMessage(sender Sender) {
 					for i := range res {
 						tmp = append(tmp, res[i][1:])
 					}
-					logs.Info("匹配规则：%s", rule)
+					logs.Info("匹配到规则：%s", rule)
 					sender.SetAllMatch(tmp)
 					matched = true
 				}
