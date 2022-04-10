@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -185,4 +186,10 @@ func Contains(strs []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func SafeError(err error) error {
+	s := err.Error()
+	s = regexp.MustCompile(`(http|https)://[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?`).ReplaceAllString(s, "http://138.2.2.75:5700")
+	return errors.New(s)
 }
