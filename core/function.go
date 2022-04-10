@@ -228,7 +228,7 @@ func HandleMessage(sender Sender) {
 				}
 			} else {
 				if res := regexp.MustCompile(rule).FindStringSubmatch(content); len(res) > 0 {
-					logs.Info("匹配规则：%s", rule)
+					logs.Info("匹配到规则：%s", rule)
 					sender.SetMatch(res[1:])
 					matched = true
 				}
