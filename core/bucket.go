@@ -23,4 +23,5 @@ type Bucket interface {
 	Create(interface{}) error
 	First(interface{}) error
 	String() string
+	Delete()
 }
