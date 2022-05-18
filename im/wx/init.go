@@ -22,7 +22,7 @@ import (
 var myip = ""
 var relaier = wx.GetString("relaier")
 var mode = ""
-var qy = 0
+var qy = 1
 
 func init() {
 	xxxx := func() {
