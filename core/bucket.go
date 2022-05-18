@@ -15,6 +15,9 @@ func MakeBucket(name string) Bucket {
 type Bucket interface {
 	Copy(string) Bucket
 	Set(interface{}, interface{}) error
+	Size() (int64, error)
+	Delete() error
+	Buckets() ([][]byte, error)
 	GetString(...interface{}) string
 	GetBytes(string) []byte
 	GetInt(interface{}, ...int) int
@@ -23,5 +26,4 @@ type Bucket interface {
 	Create(interface{}) error
 	First(interface{}) error
 	String() string
-	Delete()
 }
