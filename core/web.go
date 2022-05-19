@@ -49,7 +49,7 @@ type Request struct {
 }
 
 type SillyGirlJs struct {
-	BucketGet  func(bucket, key string) interface{}      `json:"bucketGet"`
+	BucketGet  func(bucket, key string) string           `json:"bucketGet"`
 	BucketSet  func(bucket, key, value string)           `json:"bucketSet"`
 	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
 	Push       func(obj map[string]interface{})          `json:"push"`
@@ -58,11 +58,11 @@ type SillyGirlJs struct {
 }
 
 type BucketJs struct {
-	Get     func(bucket, key string) interface{} `json:"get"`
-	Set     func(bucket, key, value string)      `json:"set"`
-	Keys    func(bucket string) []string         `json:"keys"`
-	Size    func(bucket string) int64            `json:"size"`
-	Buckets func() []string                      `json:"buckets"`
+	Get     func(bucket, key string) string `json:"get"`
+	Set     func(bucket, key, value string) `json:"set"`
+	Keys    func(bucket string) []string    `json:"keys"`
+	Size    func(bucket string) int64       `json:"size"`
+	Buckets func() []string                 `json:"buckets"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -82,11 +82,21 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 }
 
 var BucketJsImpl = &BucketJs{
-	Get: func(bucket, key string) interface{} {
+	Get: func(bucket, key string) string {
 		return MakeBucket(bucket).GetString(key)
 	},
 	Set: func(bucket, key, value string) {
-		MakeBucket(bucket).Set(key, value)
+		bk := MakeBucket(bucket)
+		bk.Set(key, value)
+		if value == "" {
+			size, e := bk.Size()
+			if e != nil {
+				return
+			}
+			if size == 0 {
+				bk.Delete()
+			}
+		}
 	},
 	Keys: func(bucket string) []string {
 		ss := []string{}
@@ -695,19 +705,14 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 	dufaultUserId := fmt.Sprintf("carry_%d", rand.Int63())
 	return &SillyGirlJs{
-		BucketGet: func(bucket, key string) interface{} {
-			return MakeBucket(bucket).GetString(key)
+		BucketGet: func(bucket, key string) string {
+			return BucketJsImpl.Get(bucket, key)
 		},
 		BucketSet: func(bucket, key, value string) {
-			MakeBucket(bucket).Set(key, value)
+			BucketJsImpl.Set(bucket, key, value)
 		},
 		BucketKeys: func(bucket string) []string {
-			ss := []string{}
-			MakeBucket(bucket).Foreach(func(k, _ []byte) error {
-				ss = append(ss, string(k))
-				return nil
-			})
-			return ss
+			return BucketJsImpl.Keys(bucket)
 		},
 		Push: func(obj map[string]interface{}) {
 			imType := obj["imType"].(string)
