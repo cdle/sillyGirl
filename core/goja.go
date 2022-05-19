@@ -172,19 +172,13 @@ func initGoja() {
 		return o.GetString(key)
 	}
 	bucketGet := func(bucket, key string) string {
-		return o.GetString(key, MakeBucket(bucket).GetString(key))
+		return BucketJsImpl.Get(bucket, key)
 	}
 	bucketSet := func(bucket, key, value string) {
-		MakeBucket(bucket).Set(key, value)
+		BucketJsImpl.Set(bucket, key, value)
 	}
 	bucketKeys := func(bucket string) []string {
-		b := MakeBucket(bucket)
-		slice := []string{}
-		b.Foreach(func(k, _ []byte) error {
-			slice = append(slice, string(k))
-			return nil
-		})
-		return slice
+		return BucketJsImpl.Keys(bucket)
 	}
 	set := func(key, value string) {
 		o.Set(key, value)
