@@ -108,7 +108,6 @@ var BucketJsImpl = &BucketJs{
 		}
 		for _, data := range b {
 			ss = append(ss, string(data))
-			return nil
 		}
 		return ss
 	},
