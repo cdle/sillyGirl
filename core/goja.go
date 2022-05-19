@@ -427,6 +427,7 @@ func initGoja() {
 			vm.Set("bucketGet", bucketGet)
 			vm.Set("bucketSet", bucketSet)
 			vm.Set("bucketKeys", bucketKeys)
+			vm.Set("bucket", BucketJsImpl)
 			vm.Set("request", request)
 			vm.Set("push", push)
 			vm.Set("sendText", func(text string) []string {

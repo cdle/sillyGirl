@@ -56,6 +56,14 @@ type SillyGirlJs struct {
 	Session    func(wt interface{}) func() SessionResult `json:"session"`
 	Call       func(key string) interface{}              `json:"call"`
 }
+
+type BucketJs struct {
+	Get     func(bucket, key string) interface{} `json:"get"`
+	Set     func(bucket, key, value string)      `json:"set"`
+	Keys    func(bucket string) []string         `json:"keys"`
+	Size    func(bucket string) int64            `json:"size"`
+	Buckets func() []string                      `json:"buckets"`
+}
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
 	Message string `json:"message"`
@@ -71,6 +79,39 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 		}
 	}
 	return text
+}
+
+var BucketJsImpl = &BucketJs{
+	Get: func(bucket, key string) interface{} {
+		return MakeBucket(bucket).GetString(key)
+	},
+	Set: func(bucket, key, value string) {
+		MakeBucket(bucket).Set(key, value)
+	},
+	Keys: func(bucket string) []string {
+		ss := []string{}
+		MakeBucket(bucket).Foreach(func(k, _ []byte) error {
+			ss = append(ss, string(k))
+			return nil
+		})
+		return ss
+	},
+	Size: func(bucket string) int64 {
+		size, _ := MakeBucket(bucket).Size()
+		return size
+	},
+	Buckets: func() []string {
+		ss := []string{}
+		b, e := MakeBucket("").Buckets()
+		if e != nil {
+			return ss
+		}
+		for _, data := range b {
+			ss = append(ss, string(data))
+			return nil
+		}
+		return ss
+	},
 }
 
 var Handle = make(map[string]func(c *gin.Context))
@@ -555,6 +596,7 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm.Set("sillyGirl", s)
 	vm.Set("Request", newrequest)
 	vm.Set("request", request)
+	vm.Set("bucket", BucketJsImpl)
 	vm.Set("fetch", request)
 	vm.Set("require", require)
 	var bodyData, _ = ioutil.ReadAll(c.Request.Body)
