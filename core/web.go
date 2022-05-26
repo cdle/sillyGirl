@@ -49,12 +49,20 @@ type Request struct {
 }
 
 type SillyGirlJs struct {
-	BucketGet  func(bucket, key string) interface{}      `json:"bucketGet"`
+	BucketGet  func(bucket, key string) string           `json:"bucketGet"`
 	BucketSet  func(bucket, key, value string)           `json:"bucketSet"`
 	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
 	Push       func(obj map[string]interface{})          `json:"push"`
 	Session    func(wt interface{}) func() SessionResult `json:"session"`
 	Call       func(key string) interface{}              `json:"call"`
+}
+
+type BucketJs struct {
+	Get     func(bucket, key string) string `json:"get"`
+	Set     func(bucket, key, value string) `json:"set"`
+	Keys    func(bucket string) []string    `json:"keys"`
+	Size    func(bucket string) int64       `json:"size"`
+	Buckets func() []string                 `json:"buckets"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -71,6 +79,48 @@ func rpo(obj *goja.Object, father string, text string, vm *goja.Runtime) string 
 		}
 	}
 	return text
+}
+
+var BucketJsImpl = &BucketJs{
+	Get: func(bucket, key string) string {
+		return MakeBucket(bucket).GetString(key)
+	},
+	Set: func(bucket, key, value string) {
+		bk := MakeBucket(bucket)
+		bk.Set(key, value)
+		if value == "" {
+			size, e := bk.Size()
+			if e != nil {
+				return
+			}
+			if size == 0 {
+				bk.Delete()
+			}
+		}
+	},
+	Keys: func(bucket string) []string {
+		ss := []string{}
+		MakeBucket(bucket).Foreach(func(k, _ []byte) error {
+			ss = append(ss, string(k))
+			return nil
+		})
+		return ss
+	},
+	Size: func(bucket string) int64 {
+		size, _ := MakeBucket(bucket).Size()
+		return size
+	},
+	Buckets: func() []string {
+		ss := []string{}
+		b, e := MakeBucket("").Buckets()
+		if e != nil {
+			return ss
+		}
+		for _, data := range b {
+			ss = append(ss, string(data))
+		}
+		return ss
+	},
 }
 
 var Handle = make(map[string]func(c *gin.Context))
@@ -555,6 +605,7 @@ func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm.Set("sillyGirl", s)
 	vm.Set("Request", newrequest)
 	vm.Set("request", request)
+	vm.Set("bucket", BucketJsImpl)
 	vm.Set("fetch", request)
 	vm.Set("require", require)
 	var bodyData, _ = ioutil.ReadAll(c.Request.Body)
@@ -654,19 +705,14 @@ func Logger(call goja.ConstructorCall) *goja.Object {
 func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 	dufaultUserId := fmt.Sprintf("carry_%d", rand.Int63())
 	return &SillyGirlJs{
-		BucketGet: func(bucket, key string) interface{} {
-			return MakeBucket(bucket).GetString(key)
+		BucketGet: func(bucket, key string) string {
+			return BucketJsImpl.Get(bucket, key)
 		},
 		BucketSet: func(bucket, key, value string) {
-			MakeBucket(bucket).Set(key, value)
+			BucketJsImpl.Set(bucket, key, value)
 		},
 		BucketKeys: func(bucket string) []string {
-			ss := []string{}
-			MakeBucket(bucket).Foreach(func(k, _ []byte) error {
-				ss = append(ss, string(k))
-				return nil
-			})
-			return ss
+			return BucketJsImpl.Keys(bucket)
 		},
 		Push: func(obj map[string]interface{}) {
 			imType := obj["imType"].(string)
