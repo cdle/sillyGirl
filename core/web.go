@@ -63,6 +63,7 @@ type BucketJs struct {
 	Keys    func(bucket string) []string    `json:"keys"`
 	Size    func(bucket string) int64       `json:"size"`
 	Buckets func() []string                 `json:"buckets"`
+	Empty   func(bucket string) bool        `json:"empty"`
 }
 type SessionResult struct {
 	HasNext bool   `json:"hasNext"`
@@ -89,11 +90,11 @@ var BucketJsImpl = &BucketJs{
 		bk := MakeBucket(bucket)
 		bk.Set(key, value)
 		if value == "" {
-			size, e := bk.Size()
+			empty, e := bk.Empty()
 			if e != nil {
 				return
 			}
-			if size == 0 {
+			if empty {
 				bk.Delete()
 			}
 		}
@@ -109,6 +110,10 @@ var BucketJsImpl = &BucketJs{
 	Size: func(bucket string) int64 {
 		size, _ := MakeBucket(bucket).Size()
 		return size
+	},
+	Empty: func(bucket string) bool {
+		empty, _ := MakeBucket(bucket).Empty()
+		return empty
 	},
 	Buckets: func() []string {
 		ss := []string{}
