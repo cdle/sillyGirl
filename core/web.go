@@ -750,15 +750,15 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 			default:
 				props := info.(map[string]interface{})
 				for i := range props {
-					switch i {
-					case "imTpye":
-						imTpye = props["imTpye"].(string)
+					switch strings.ToLower(i) {
+					case "imtype":
+						imTpye = props[i].(string)
 					case "msg":
-						msg = props["msg"].(string)
-					case "chatId":
-						chatId = utils.Int(props["chatId"])
-					case "userId":
-						userId = props["userId"].(string)
+						msg = props[i].(string)
+					case "chatid":
+						chatId = utils.Int(props[i])
+					case "userid":
+						userId = props[i].(string)
 					}
 				}
 			}
