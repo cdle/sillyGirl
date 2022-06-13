@@ -161,14 +161,8 @@ func (sender *Faker) Reply(msgs ...interface{}) ([]string, error) {
 		NotifyMasters(rt)
 	}
 
-	if rt != "" {
-		if sender.Type == "carry" {
-			if sender.Carry != nil {
-				sender.Carry <- rt
-			}
-		} else if sender.Type == "terminal" {
-			fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, rt)
-		}
+	if rt != "" && sender.Carry != nil {
+		sender.Carry <- rt
 	}
 
 	return []string{}, nil

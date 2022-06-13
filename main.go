@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"runtime"
 	"time"
@@ -34,11 +35,17 @@ func main() {
 				logs.Info("终端交互已启用。")
 				for {
 					data, _, _ := reader.ReadLine()
-					core.Senders <- &core.Faker{
+					f := &core.Faker{
 						Type:    "terminal",
 						Message: string(data),
+						Carry:   make(chan string),
 					}
-
+					core.Senders <- f
+					go func() {
+						for v := range f.Listen() {
+							fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, v)
+						}
+					}()
 				}
 			}
 		}
