@@ -548,21 +548,21 @@ func initWebPlugin() {
 						if e != nil {
 							return e
 						}
-						vm.RunString(string(js))
+						vm.RunScript(file, string(js))
 						return nil
 					})
 					vm.Set("importDir", func(dir string) error {
 						return importDir(dir, pluginPath+"/", importedJs, vm)
 					})
 					if beforee == nil {
-						_, rune := vm.RunString(string(before))
+						_, rune := vm.RunScript("$beforeRequest.js", string(before))
 						if rune != nil {
 							c.String(http.StatusBadGateway, rune.Error())
 							return
 						}
 					}
 					if !isOver && err == nil && len(content) == 0 && status == 200 {
-						_, rune := vm.RunString(string(file))
+						_, rune := vm.RunScript(p[2], string(file))
 						if rune != nil {
 							c.String(http.StatusBadGateway, rune.Error())
 							return
@@ -570,7 +570,7 @@ func initWebPlugin() {
 					}
 					after, aftere := ioutil.ReadFile(pluginPath + "/$afterRequest.js")
 					if aftere != nil {
-						_, rune := vm.RunString(string(after))
+						_, rune := vm.RunScript("$afterRequest.js", string(after))
 						if rune != nil {
 							c.String(http.StatusBadGateway, rune.Error())
 							return
