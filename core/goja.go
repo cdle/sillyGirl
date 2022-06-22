@@ -469,13 +469,13 @@ func initGoja() {
 				if e != nil {
 					return e
 				}
-				vm.RunString(string(js))
+				vm.RunScript(file, string(js))
 				return nil
 			})
 			vm.Set("importDir", func(dir string) error {
 				return importDir(dir, basePath, importedJs, vm)
 			})
-			_, err = vm.RunString(template)
+			_, err = vm.RunScript(v.Name(), template)
 			if err != nil {
 				if strings.Contains(err.Error(), "window") {
 					return nil
