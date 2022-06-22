@@ -318,6 +318,7 @@ func initGoja() {
 			logs.Warn("回复：%s无效文件", jr, err)
 			continue
 		}
+		fileName := v.Name()
 		var handler = func(s Sender) interface{} {
 			data, err := os.ReadFile(jr)
 			if err != nil {
@@ -475,7 +476,7 @@ func initGoja() {
 			vm.Set("importDir", func(dir string) error {
 				return importDir(dir, basePath, importedJs, vm)
 			})
-			_, err = vm.RunScript(v.Name(), template)
+			_, err = vm.RunScript(fileName, template)
 			if err != nil {
 				if strings.Contains(err.Error(), "window") {
 					return nil
