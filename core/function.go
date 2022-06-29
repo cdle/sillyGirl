@@ -159,6 +159,7 @@ func HandleMessage(sender Sender) {
 			if f, ok := c.Sender.(*Faker); ok && f.Carry != nil {
 				if s1, o := sender.(*Faker); o && s1.Carry != nil {
 					f.Carry = s1.Carry
+					s1.Carry = nil
 				}
 			}
 			c.Chan <- sender
