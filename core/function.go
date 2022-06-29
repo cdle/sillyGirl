@@ -158,8 +158,6 @@ func HandleMessage(sender Sender) {
 			mtd = true
 			if f, ok := c.Sender.(*Faker); ok && f.Carry != nil {
 				if s1, o := sender.(*Faker); o && s1.Carry != nil {
-					logs.Info("替换成功")
-					close(f.Carry)
 					f.Carry = s1.Carry
 				}
 			}
