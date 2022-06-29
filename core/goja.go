@@ -318,6 +318,7 @@ func initGoja() {
 			logs.Warn("回复：%s无效文件", jr, err)
 			continue
 		}
+		fileName := v.Name()
 		var handler = func(s Sender) interface{} {
 			data, err := os.ReadFile(jr)
 			if err != nil {
@@ -328,6 +329,7 @@ func initGoja() {
 				return s.Get(int(i - 1))
 			}
 			vm := goja.New()
+			vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
 			vm.Set("call", func(key string) interface{} {
 				if f, ok := OttoFuncs[key]; ok {
 					return f
@@ -468,13 +470,13 @@ func initGoja() {
 				if e != nil {
 					return e
 				}
-				vm.RunString(string(js))
+				vm.RunScript(file, string(js))
 				return nil
 			})
 			vm.Set("importDir", func(dir string) error {
 				return importDir(dir, basePath, importedJs, vm)
 			})
-			_, err = vm.RunString(template)
+			_, err = vm.RunScript(fileName, template)
 			if err != nil {
 				if strings.Contains(err.Error(), "window") {
 					return nil
