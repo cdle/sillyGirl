@@ -487,6 +487,12 @@ func initSys() {
 			},
 		},
 		{
+			Rules: []string{"repeat ?"},
+			Handle: func(s Sender) interface{} {
+				return s.Get(0)
+			},
+		},
+		{
 			Rules: []string{"raw ^myuid$"},
 			Handle: func(s Sender) interface{} {
 				return fmt.Sprint(s.GetUserID())

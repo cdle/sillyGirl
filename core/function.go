@@ -106,7 +106,7 @@ func AddCommand(prefix string, cmds []Function) {
 
 		if cmds[j].Cron != "" {
 			cmd := cmds[j]
-			if _, err := c.AddFunc(cmds[j].Cron, func() {
+			if _, err := C.AddFunc(cmds[j].Cron, func() {
 				cmd.Handle(&Faker{})
 			}); err != nil {
 

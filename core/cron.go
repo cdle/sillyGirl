@@ -2,9 +2,9 @@ package core
 
 import cron "github.com/robfig/cron/v3"
 
-var c *cron.Cron
+var C *cron.Cron
 
 func init() {
-	c = cron.New()
-	c.Start()
+	C = cron.New()
+	C.Start()
 }
