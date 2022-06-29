@@ -369,7 +369,7 @@ var ForGroup forGroup
 var AndPrivate = forGroup("me")
 
 func (_ *BaseSender) Await(sender Sender, callback func(Sender) interface{}, params ...interface{}) interface{} {
-	c := &Carry{}
+	c := &Carry{Sender: sender}
 	timeout := time.Hour * 999999
 	var handleErr func(error)
 	var fg *forGroup
