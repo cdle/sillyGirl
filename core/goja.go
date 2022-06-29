@@ -329,7 +329,7 @@ func initGoja() {
 				return s.Get(int(i - 1))
 			}
 			vm := goja.New()
-			vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
+			vm.SetFieldNameMapper(myFieldNameMapper{})
 			vm.Set("call", func(key string) interface{} {
 				if f, ok := OttoFuncs[key]; ok {
 					return f

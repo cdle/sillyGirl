@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/beego/beego/v2/client/httplib"
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
+	"github.com/dop251/goja/parser"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,12 +51,12 @@ type Request struct {
 }
 
 type SillyGirlJs struct {
-	BucketGet  func(bucket, key string) string           `json:"bucketGet"`
-	BucketSet  func(bucket, key, value string)           `json:"bucketSet"`
-	BucketKeys func(bucket string) []string              `json:"bucketKeys"`
-	Push       func(obj map[string]interface{})          `json:"push"`
-	Session    func(wt interface{}) func() SessionResult `json:"session"`
-	Call       func(key string) interface{}              `json:"call"`
+	BucketGet  func(bucket, key string) string                 `json:"bucketGet"`
+	BucketSet  func(bucket, key, value string)                 `json:"bucketSet"`
+	BucketKeys func(bucket string) []string                    `json:"bucketKeys"`
+	Push       func(obj map[string]interface{})                `json:"push"`
+	Session    func(wt interface{}) func(...int) SessionResult `json:"session"`
+	Call       func(key string) interface{}                    `json:"call"`
 }
 
 type BucketJs struct {
@@ -600,9 +602,30 @@ func initWebPlugin() {
 	}
 }
 
+type myFieldNameMapper struct{}
+
+func (tfm myFieldNameMapper) FieldName(_ reflect.Type, f reflect.StructField) string {
+	tag := f.Tag.Get(`json`)
+	if idx := strings.IndexByte(tag, ','); idx != -1 {
+		tag = tag[:idx]
+	}
+	if parser.IsIdentifier(tag) {
+		return tag
+	}
+	return uncapitalize(f.Name)
+}
+
+func uncapitalize(s string) string {
+	return strings.ToLower(s[0:1]) + s[1:]
+}
+
+func (tfm myFieldNameMapper) MethodName(_ reflect.Type, m reflect.Method) string {
+	return uncapitalize(m.Name)
+}
+
 func newVm(c *gin.Context) (*goja.Runtime, *goja.Object) {
 	vm := goja.New()
-	vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
+	vm.SetFieldNameMapper(myFieldNameMapper{})
 	vm.Set("Logger", Logger)
 	vm.Set("console", console)
 	s := NewSillyGirl(vm)
@@ -739,7 +762,7 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 				}
 			}
 		},
-		Session: func(info interface{}) func() SessionResult {
+		Session: func(info interface{}) func(...int) SessionResult {
 			userId := dufaultUserId
 			msg := ""
 			imTpye := "carry"
@@ -773,11 +796,22 @@ func NewSillyGirl(vm *goja.Runtime) *SillyGirlJs {
 				ChatID:  chatId,
 			}
 			Senders <- c
-			var f = func() SessionResult {
-				v, ok := <-c.Listen()
-				return SessionResult{
-					HasNext: ok,
-					Message: v,
+			var f = func(i ...int) SessionResult {
+				timeOut := 1000 * 100
+				if len(i) > 0 {
+					timeOut = i[0]
+				}
+				select {
+				case v, ok := <-c.Listen():
+					return SessionResult{
+						HasNext: ok,
+						Message: v,
+					}
+				case <-time.After(time.Millisecond * time.Duration(timeOut)):
+					return SessionResult{
+						HasNext: false,
+						Message: "已超时",
+					}
 				}
 			}
 			return f
