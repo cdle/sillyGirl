@@ -36,26 +36,23 @@ func main() {
 			}
 		}
 		if t {
-			i, e := os.Stdin.Stat()
-			if i != nil && e == nil {
-				logs.Info("终端交互已启用。", i.Mode())
-				scanner := bufio.NewScanner(os.Stdin)
-				for scanner.Scan() {
-					data := scanner.Text()
-					f := &core.Faker{
-						Type:    "terminal",
-						Message: string(data),
-						Carry:   make(chan string),
-					}
-					core.Senders <- f
-					go func() {
-						for v := range f.Listen() {
-							fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, v)
-						}
-					}()
+			logs.Info("终端交互已启用。")
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				data := scanner.Text()
+				f := &core.Faker{
+					Type:    "terminal",
+					Message: string(data),
+					Carry:   make(chan string),
 				}
+				core.Senders <- f
+				go func() {
+					for v := range f.Listen() {
+						fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, v)
+					}
+				}()
 			}
-			logs.Info("终端交互不可用,请检查环境设置")
+			logs.Info("终端交互异常,请检查运行环境设置,如果是docker环境,请附加-it参数")
 		} else {
 			logs.Info("终端交互不可用，运行带-t参数即可启用。")
 		}
