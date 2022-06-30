@@ -22,7 +22,6 @@ func main() {
 	logs.Info("Http服务已运行(%s)。", sillyGirl.GetString("port", "8080"))
 	go core.Server.Run("0.0.0.0:" + port)
 	logs.Info("关注频道 https://t.me/kczz2021 获取最新消息。")
-	reader := bufio.NewReader(os.Stdin)
 	d := false
 	for _, arg := range os.Args {
 		if arg == "-d" {
@@ -30,9 +29,17 @@ func main() {
 		}
 	}
 	if !d {
+		t := false
 		for _, arg := range os.Args {
 			if arg == "-t" {
-				logs.Info("终端交互已启用。")
+				t = true
+			}
+		}
+		if t {
+			i, e := os.Stdin.Stat()
+			if i != nil && e == nil {
+				logs.Info("终端交互已启用。", i.Mode())
+				reader := bufio.NewReader(os.Stdin)
 				for {
 					data, _, _ := reader.ReadLine()
 					f := &core.Faker{
@@ -48,8 +55,10 @@ func main() {
 					}()
 				}
 			}
+			logs.Info("终端交互不可用,请检查环境")
+		} else {
+			logs.Info("终端交互不可用，运行带-t参数即可启用。")
 		}
-		logs.Info("终端交互不可用，运行带-t参数即可启用。")
 	}
 
 	select {}
