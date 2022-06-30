@@ -39,9 +39,9 @@ func main() {
 			i, e := os.Stdin.Stat()
 			if i != nil && e == nil {
 				logs.Info("终端交互已启用。", i.Mode())
-				reader := bufio.NewReader(os.Stdin)
-				for {
-					data, _, _ := reader.ReadLine()
+				scanner := bufio.NewScanner(os.Stdin)
+				for scanner.Scan() {
+					data := scanner.Text()
 					f := &core.Faker{
 						Type:    "terminal",
 						Message: string(data),
@@ -55,7 +55,7 @@ func main() {
 					}()
 				}
 			}
-			logs.Info("终端交互不可用,请检查环境")
+			logs.Info("终端交互不可用,请检查环境设置")
 		} else {
 			logs.Info("终端交互不可用，运行带-t参数即可启用。")
 		}
