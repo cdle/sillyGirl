@@ -160,7 +160,7 @@ func init() {
 							if fs[k].UUID == outs[i].Scripts[j] && !Contains(scripts, fs[k].UUID) { //
 								fs[k].Handle(s)
 								content = s.GetContent()
-								fmt.Println(content)
+								// fmt.Println(content)
 								if content == "" {
 									goto HELL
 								}

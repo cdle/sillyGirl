@@ -95,10 +95,11 @@ func initPluginList() {
 	for _, carry := range carrys {
 		list = append(list, <-carry...)
 	}
+	cyzl := "7642f5de-3300-11ed-8a79-52540066b468"
 	plugin_list = list
-	// if sillyGirl.GetString("password") == "" && plugins.GetString("7642f5de-3300-11ed-8a79-52540066b468") == "" { //自动安装老版命令
-	// 	plugins.Set("7642f5de-3300-11ed-8a79-52540066b468", "install")
-	// }
+	if sillyGirl.GetString("password") == "" && plugins.GetString(cyzl) == "" { //自动安装老版命令
+		plugins.Set(cyzl, "install")
+	}
 	// if plugins.GetString("78b15932-334f-11ed-8b59-aaaa00117a5c") == "" { //自动安装比价文案
 	// 	plugins.Set("78b15932-334f-11ed-8b59-aaaa00117a5c", "install")
 	// }

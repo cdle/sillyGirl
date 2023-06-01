@@ -155,7 +155,7 @@ func initListenReply() {
 		} else {
 			info := &GroupInfo{}
 			json.Unmarshal(data, info)
-			fmt.Println(string(b1), string(utils.JsonMarshal(info)))
+			// fmt.Println(string(b1), string(utils.JsonMarshal(info)))
 			if info.Enable {
 				NoListenUsers.Store(string(b1), info.Platform)
 			}

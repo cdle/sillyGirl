@@ -76,7 +76,7 @@ func DecryptByAes(data string) ([]byte, error) {
 func halfEct(str string) string {
 	ss := regexp.MustCompile(`/\*hidden\*/([\s\S]+?)/\*neddih\*/`).FindAllString(str, -1)
 	for _, v := range ss {
-		fmt.Println(v)
+		// fmt.Println(v)
 		// panic("")
 		c_, _ := EncryptByAes([]byte(v))
 		str = strings.Replace(str, v, fmt.Sprintf(`/** Here is hidden scripts %s */`, c_), 1)

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,8 +17,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// //go:embed admin/*
-// var static embed.FS
+//go:embed admin/*
+var static embed.FS
 
 var Handle = make(map[string]func(c *gin.Context))
 
@@ -50,23 +51,23 @@ func init() {
 		}
 		c.Status(200)
 		if strings.HasPrefix(c.Request.URL.Path, "/admin") {
-			// if file, err := static.Open(strings.Trim(c.Request.URL.Path, "/")); err == nil {
-			// 	fs, _ := file.Stat()
-			// 	if !fs.IsDir() {
-			// 		defer file.Close()
-			// 		c.Header("cache-control", "max-age=864000")
-			// 		io.Copy(c.Writer, file)
-			// 		return
-			// 	} else {
-			// 		file.Close()
-			// 	}
-			// }
-			// data, err := static.ReadFile("admin/index.html")
-			// if err == nil {
-			// 	c.Header("Content-Type", "text/html; charset=utf-8")
-			// 	c.Writer.Write(data)
-			// 	return
-			// }
+			if file, err := static.Open(strings.Trim(c.Request.URL.Path, "/")); err == nil {
+				fs, _ := file.Stat()
+				if !fs.IsDir() {
+					defer file.Close()
+					c.Header("cache-control", "max-age=864000")
+					io.Copy(c.Writer, file)
+					return
+				} else {
+					file.Close()
+				}
+			}
+			data, err := static.ReadFile("admin/index.html")
+			if err == nil {
+				c.Header("Content-Type", "text/html; charset=utf-8")
+				c.Writer.Write(data)
+				return
+			}
 		}
 		for _, req := range ss {
 			if c.Request.URL.Path == req.Path && (req.Method == c.Request.Method || req.Method == "ANY") {

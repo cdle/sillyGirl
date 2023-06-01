@@ -26,3 +26,5 @@ toulu
 develop/boltdb
 develop/core
 *.db
+dist/
+core/dist
