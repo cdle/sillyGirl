@@ -41,8 +41,6 @@ func Cors() gin.HandlerFunc {
 var Server = gin.New()
 
 func init() {
-	gin.SetMode(gin.ReleaseMode)
-	// Server.Use(gin.Recovery())
 	Server.Use(Cors())
 	Server.Use(gzip.Gzip(gzip.DefaultCompression))
 	Server.NoRoute(func(c *gin.Context) {
@@ -131,9 +129,6 @@ func init() {
 		}
 
 		c.String(404, "页面被喵咪劫走了。") //
-		//开启代理模式
-
-		// handleHTTP(c.Writer, c.Request)
 	})
 
 	port := sillyGirl.GetString("port", "8080")
@@ -187,37 +182,6 @@ func init() {
 			logs.Error("Http服务运行失败：%s。", err.Error())
 		}
 	}()
-}
-
-// var httpProxys = MakeBucket("httpProxys")
-
-func handleHTTP(w http.ResponseWriter, req *http.Request) {
-	// console.Info("%s", utils.JsonMarshal(req.Header))
-	// u, err := url.Parse("addr")
-	// if err != nil {
-	// 	core.Logs.Warn("can't connect to the http proxy:", err)
-	// 	return
-	// }
-	// Transport = &http.Transport{Proxy: http.ProxyURL(u)}
-	// resp, err := Transport.RoundTrip(req)
-	// fmt.Println("====")
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-	defer resp.Body.Close()
-	copyHeader(w.Header(), resp.Header)
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
-}
-
-func copyHeader(dst, src http.Header) {
-	for k, vv := range src {
-		for _, v := range vv {
-			dst.Add(k, v)
-		}
-	}
 }
 
 type Req struct {

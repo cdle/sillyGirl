@@ -359,7 +359,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 	vm.Set("Buffer", func(call goja.ConstructorCall) *goja.Object {
 		return Buffer(vm, call)
 	})
-	vm.Set("request", func(wts ...interface{}) interface{} {
+	vm.Set("fetch", func(wts ...interface{}) interface{} {
 		promise, resolve, reject := vm.NewPromise()
 		func() {
 			func() {
@@ -373,10 +373,11 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 
 				}
 			}()
-			request(vm, resolve, reject, wts...)
+			fetch(vm, resolve, reject, wts...)
 		}()
 		return promise
 	})
+	vm.Set("request", request)
 }
 
 func EncryptPlugin(script string) string {

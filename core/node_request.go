@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	u "net/url"
 	"strconv"
@@ -14,7 +15,147 @@ import (
 	"github.com/goccy/go-json"
 )
 
-func request(vm *goja.Runtime, resolve func(result interface{}), reject func(reason interface{}), wts ...interface{}) {
+func request(wt interface{}, handles ...func(error, map[string]interface{}, interface{}) interface{}) interface{} {
+	var method = "get"
+	var url = ""
+	var req *http.Request
+
+	var headers map[string]interface{}
+	// var formData map[string]interface{}
+	var isJson bool
+	var isJsonBody bool
+	var body string
+	var allow_redirects bool = true
+	// var useproxy bool
+	// var timeout time.Duration = 0
+	var goroutine = false
+	var uuid = ""
+	switch wt := wt.(type) {
+	case string:
+		url = wt
+	default:
+		props := wt.(map[string]interface{})
+		for i := range props {
+			switch strings.ToLower(i) {
+			// case "timeout":
+			// 	timeout = time.Duration(utils.Int64(props[i])) * time.Millisecond
+			case "headers":
+				headers = props[i].(map[string]interface{})
+			case "method":
+				method = strings.ToLower(props[i].(string))
+			case "url":
+				if f, ok := props[i].(func(i goja.FunctionCall) goja.Value); ok {
+					url = f(goja.FunctionCall{}).ToString().String()
+				} else {
+					url = props[i].(string)
+				}
+			case "json":
+				isJson = props[i].(bool)
+			case "uuid":
+				uuid = props[i].(string)
+			case "goroutine":
+				goroutine = true
+			case "datatype":
+				switch props[i].(type) {
+				case string:
+					switch strings.ToLower(props[i].(string)) {
+					case "json":
+						isJson = true
+					}
+				}
+			case "allowredirects":
+				allow_redirects = props[i].(bool)
+			case "body":
+				if v, ok := props[i].(string); !ok {
+					d, _ := json.Marshal(props[i])
+					body = string(d)
+					isJsonBody = true
+				} else {
+					body = v
+				}
+				// case "formdata":
+				// 	formData = props[i].(map[string]interface{})
+				// case "useproxy":
+				// 	useproxy = props[i].(bool)
+			}
+		}
+	}
+	method = strings.ToUpper(method)
+	req, _ = http.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
+	// if timeout != 0 {
+	// 	req.SetTimeout(timeout, timeout)
+	// }
+
+	if isJsonBody {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	for i := range headers {
+		req.Header.Set(i, fmt.Sprint(headers[i]))
+	}
+	// for i := range formData {
+	// 	req.Param(i, fmt.Sprint(formData[i]))
+	// }
+
+	// if useproxy && Transport != nil {
+	// 	req.SetTransport(Transport)
+	// }
+
+	rspObj := map[string]interface{}{}
+	var rsp *http.Response
+	var err error
+	// if !allow_redirects {
+	// 	req.SetCheckRedirect(func(req *http.Request, via []*http.Request) error {
+	// 		return http.ErrUseLastResponse
+	// 	})
+	// }
+	var dddd = func() interface{} {
+		client := &http.Client{}
+		if !allow_redirects {
+			client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			}
+		}
+		rsp, err = client.Do(req)
+		var bd interface{}
+		if err == nil {
+			defer rsp.Body.Close()
+			rspObj["status"] = rsp.StatusCode
+			rspObj["statusCode"] = rsp.StatusCode
+			data, _ := ioutil.ReadAll(rsp.Body)
+			if isJson {
+				var v interface{}
+				json.Unmarshal(data, &v)
+				bd = v
+			} else {
+				bd = string(data)
+			}
+			rspObj["body"] = bd
+			h := make(map[string][]string)
+			for k := range rsp.Header {
+				h[k] = rsp.Header[k]
+			}
+			rspObj["headers"] = h
+		} else {
+			rspObj["error"] = err.Error()
+		}
+		if uuid != "" {
+			rspObj["uuid"] = uuid
+		}
+		if len(handles) > 0 {
+			return handles[0](err, rspObj, bd)
+		} else {
+			return rspObj
+		}
+	}
+	if goroutine {
+		go dddd()
+	} else {
+		return dddd()
+	}
+	return nil
+}
+
+func fetch(vm *goja.Runtime, resolve func(result interface{}), reject func(reason interface{}), wts ...interface{}) {
 	var method = "get"
 	var url = ""
 	var req *http.Request
