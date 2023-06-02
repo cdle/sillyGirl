@@ -303,7 +303,7 @@ interface Sender {
 
 ### Express `Request` / `Response`
 
-只能说是够用，有需求可联系作者。插件中通过 `Express()` 返回一个对象。
+只能说是够用，有需求可联系作者。插件中通过 `Express()` 返回一个对象，或者`require("express")()`。
 
 ```ts
 interface Request {
