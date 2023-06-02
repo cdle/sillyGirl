@@ -245,47 +245,60 @@ func (f *Factory) SetReplyHandler(function func(map[string]string) string) {
 
 func GetReplyMessage(vm *goja.Runtime, plt string, bots_id []string) *goja.Promise {
 	promise, resolve, reject := vm.NewPromise()
-	go func() {
-		adapters, err := GetAdapters(plt, bots_id...)
-		if err != nil {
+	adapters, err := GetAdapters(plt, bots_id...)
+	if err != nil {
+		go func() {
+			time.Sleep(time.Second)
 			reject(Error(vm, err))
-			return
-		}
-		ctx, cancel := context.WithCancel(context.Background())
-		for i := range adapters {
-			go func(i int) {
-				select {
-				case <-ctx.Done():
-					logs.Debug("消息获取中断")
-				case <-adapters[i].ctx.Done():
-					cancel()
-					logs.Debug("%s adapter %s destroied", adapters[i].botplt, adapters[i].botid)
-					reject("adapter destroied")
-				case mc := <-adapters[i].msgChan:
-					cancel()
-					obj := adapters[i].vm.NewObject()
-					for k, v := range mc.Msg {
-						obj.Set(k, v)
-					}
-					obj.Set("bot_id", adapters[i].botid)
-
-					resolve(adapters[i].vm.NewProxy(obj, &goja.ProxyTrapConfig{
-						Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-							if property == "message_id" {
-								select {
-								case <-mc.Chan:
-									return false
-								case <-time.After(time.Millisecond):
-								}
-								mc.Chan <- fmt.Sprint(value.Export())
-							}
-							return true
-						},
-					}))
+		}()
+		return promise
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	for i := range adapters {
+		go func(i int) {
+			select {
+			case <-ctx.Done():
+				logs.Debug("消息获取中断")
+			case <-adapters[i].ctx.Done():
+				cancel()
+				logs.Debug("%s adapter %s destroied", adapters[i].botplt, adapters[i].botid)
+				reject("adapter destroied")
+			case mc := <-adapters[i].msgChan:
+				cancel()
+				var msg = map[string]interface{}{}
+				for k, v := range mc.Msg {
+					msg[k] = v
 				}
-			}(i)
-		}
-	}()
+				// obj := adapters[i].vm.NewObject()
+				// for k, v := range mc.Msg {
+				// 	obj.Set(k, v)
+				// }
+				// obj.Set("bot_id", adapters[i].botid)
+				msg["bot_id"] = adapters[i].botid
+				msg["setMessageId"] = func(id string) {
+					select {
+					case <-mc.Chan:
+					case <-time.After(time.Millisecond):
+						mc.Chan <- id
+					}
+				}
+				resolve(mc.Msg)
+				// adapters[i].vm.NewProxy(obj, &goja.ProxyTrapConfig{
+				// 	Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+				// 		if property == "message_id" {
+				// 			select {
+				// 			case <-mc.Chan:
+				// 				return false
+				// 			case <-time.After(time.Millisecond):
+				// 			}
+				// 			mc.Chan <- fmt.Sprint(value.Export())
+				// 		}
+				// 		return true
+				// 	},
+				// })
+			}
+		}(i)
+	}
 	return promise
 }
 
