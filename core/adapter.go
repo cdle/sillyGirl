@@ -103,6 +103,33 @@ func GetAdapter(botplt string, bots_id ...string) (*Factory, error) {
 	i := rand.Intn(len(bots))
 	return bots[i], ErrNotFind
 }
+
+func GetAdapters(botplt string, bots_id ...string) ([]*Factory, error) {
+	BotsLocker.RLock()
+	defer BotsLocker.RUnlock()
+	var bots = []*Factory{}
+	var select_bots = []*Factory{}
+	for i := range Bots {
+		plt, id := i[0], i[1]
+		// fmt.Println("plt", plt, "id", id, botplt, bots_id)
+		for j := range bots_id {
+			if plt == botplt && bots_id[j] == id {
+				select_bots = append(select_bots, Bots[i])
+			}
+			if plt == botplt {
+				bots = append(bots, Bots[i])
+			}
+		}
+	}
+	if len(bots) == 0 {
+		return nil, ErrNotFind
+	}
+	if len(select_bots) != 0 {
+		return select_bots, nil
+	}
+	return bots, ErrNotFind
+}
+
 func GetAdapterBotsID(botplt string) []string {
 	BotsLocker.RLock()
 	defer BotsLocker.RUnlock()
@@ -215,6 +242,52 @@ func (f *Factory) SetReplyHandler(function func(map[string]string) string) {
 // func (f *Factory) GetReplies() {
 
 // }
+
+func GetReplyMessage(vm *goja.Runtime, plt string, bots_id []string) *goja.Promise {
+	promise, resolve, reject := vm.NewPromise()
+	go func() {
+		adapters, err := GetAdapters(plt, bots_id...)
+		if err != nil {
+			reject(Error(vm, err))
+			return
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		for i := range adapters {
+			go func(i int) {
+				select {
+				case <-ctx.Done():
+					logs.Debug("消息获取中断")
+				case <-adapters[i].ctx.Done():
+					cancel()
+					logs.Debug("%s adapter %s destroied", adapters[i].botplt, adapters[i].botid)
+					reject("adapter destroied")
+				case mc := <-adapters[i].msgChan:
+					cancel()
+					obj := adapters[i].vm.NewObject()
+					for k, v := range mc.Msg {
+						obj.Set(k, v)
+					}
+					obj.Set("bot_id", adapters[i].botid)
+
+					resolve(adapters[i].vm.NewProxy(obj, &goja.ProxyTrapConfig{
+						Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+							if property == "message_id" {
+								select {
+								case <-mc.Chan:
+									return false
+								case <-time.After(time.Millisecond):
+								}
+								mc.Chan <- fmt.Sprint(value.Export())
+							}
+							return true
+						},
+					}))
+				}
+			}(i)
+		}
+	}()
+	return promise
+}
 
 func (f *Factory) GetReplyMessage() *goja.Promise {
 	promise, resolve, reject := f.vm.NewPromise()
