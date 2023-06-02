@@ -16,7 +16,7 @@ func Init() {
 	if err != nil {
 		os.MkdirAll(DataHome, os.ModePerm)
 	}
-	utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
+	// utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	initToHandleMessage()
 
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
