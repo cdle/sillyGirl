@@ -76,19 +76,19 @@ func DestroyAdapterByUUID(uuid string) {
 	}
 }
 
-func GetAdapter(botids ...string) (*Factory, error) {
+func GetAdapter(botplt string, bots_id ...string) (*Factory, error) {
 	BotsLocker.RLock()
 	defer BotsLocker.RUnlock()
-	botplt := botids[0]
-	bots_id := botids[1:]
 	var bots = []*Factory{}
 	var select_bots = []*Factory{}
 	for i := range Bots {
 		plt, id := i[0], i[1]
+		// fmt.Println("plt", plt, "id", id, botplt, bots_id)
 		for j := range bots_id {
 			if plt == botplt && bots_id[j] == id {
 				select_bots = append(select_bots, Bots[i])
-			} else if plt == botplt {
+			}
+			if plt == botplt {
 				bots = append(bots, Bots[i])
 			}
 		}
@@ -189,8 +189,8 @@ func (f *Factory) Push(msg map[string]string) (string, error) {
 	var sender = &demo
 	fsps := &common.FakerSenderParams{
 		UserID: msg[USER_ID],
+		ChatID: msg[CHAT_ID],
 	}
-	fsps.ChatID = msg[CHAT_ID]
 	sender.SetFsps(fsps)
 	return sender.Reply(msg[CONETNT], PUSH(""))
 }

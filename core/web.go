@@ -41,6 +41,8 @@ func Cors() gin.HandlerFunc {
 var Server = gin.New()
 
 func init() {
+	gin.SetMode(gin.ReleaseMode)
+	// Server.Use(gin.Recovery())
 	Server.Use(Cors())
 	Server.Use(gzip.Gzip(gzip.DefaultCompression))
 	Server.NoRoute(func(c *gin.Context) {
@@ -85,6 +87,65 @@ func init() {
 		var res = &Response{
 			c: c,
 		}
+		httpListens.Range(func(key, value any) bool {
+			web := value.(*HttpListen)
+			if web.Closed {
+				return true
+			}
+			// fmt.Println(c.Request.URL.Path, key, web.Method, c.Request.Method)
+			if web.Method == c.Request.Method {
+				var matched = web.Path == c.Request.URL.Path
+				if !matched && strings.HasPrefix(web.Path, "^") {
+					reg, err := regexp.Compile(web.Path)
+					if err != nil {
+						console.Error(err)
+						return true
+					}
+					req.ress = reg.FindAllStringSubmatch(c.Request.URL.Path, -1)
+					matched = len(req.ress) != 0
+				}
+				if matched {
+					httpListens.Delete(key)
+					req.handled = true
+					var end = make(chan bool, 1)
+					// fmt.Println(c.Request.URL.Path, key)
+					web.Chan <- &RR{
+						Req: req,
+						Res: res,
+						End: func() {
+							if !web.Closed {
+								end <- true
+							}
+						},
+					}
+					select {
+					case <-end:
+					case <-time.After(time.Second * 10):
+						logs.Warn("%s 响应超时", c.Request.URL.Path)
+					}
+					web.Closed = true
+					close(end)
+					if !web.Closed {
+						close(web.Chan)
+					}
+					if req.handled {
+						if res.isRedirect {
+							return false
+						}
+						if res.isJson {
+							c.Header("Content-Type", "application/json")
+						}
+						// fmt.Println(res.status, res.content)
+						c.String(res.status, res.content)
+						return false
+					}
+				}
+			}
+			return true
+		})
+		if req.handled {
+			return
+		}
 		for _, web := range webs {
 			if web.handles == nil {
 				continue
@@ -121,6 +182,7 @@ func init() {
 						if res.isJson {
 							c.Header("Content-Type", "application/json")
 						}
+						// fmt.Println(res.status, res.content)
 						c.String(res.status, res.content)
 						return
 					}
@@ -129,6 +191,9 @@ func init() {
 		}
 
 		c.String(404, "页面被喵咪劫走了。") //
+		//开启代理模式
+
+		// handleHTTP(c.Writer, c.Request)
 	})
 
 	port := sillyGirl.GetString("port", "8080")
@@ -182,6 +247,37 @@ func init() {
 			logs.Error("Http服务运行失败：%s。", err.Error())
 		}
 	}()
+}
+
+// var httpProxys = MakeBucket("httpProxys")
+
+func handleHTTP(w http.ResponseWriter, req *http.Request) {
+	// console.Info("%s", utils.JsonMarshal(req.Header))
+	// u, err := url.Parse("addr")
+	// if err != nil {
+	// 	core.Logs.Warn("can't connect to the http proxy:", err)
+	// 	return
+	// }
+	// Transport = &http.Transport{Proxy: http.ProxyURL(u)}
+	// resp, err := Transport.RoundTrip(req)
+	// fmt.Println("====")
+	resp, err := http.DefaultTransport.RoundTrip(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		return
+	}
+	defer resp.Body.Close()
+	copyHeader(w.Header(), resp.Header)
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
+func copyHeader(dst, src http.Header) {
+	for k, vv := range src {
+		for _, v := range vv {
+			dst.Add(k, v)
+		}
+	}
 }
 
 type Req struct {

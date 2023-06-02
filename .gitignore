@@ -28,3 +28,4 @@ develop/core
 *.db
 dist/
 core/dist
+.verysync

@@ -204,6 +204,7 @@ func initPlugins() {
 				CancelPluginCrons(key)
 				CancelPluginWebs(key)
 				CancelPluginlistening(key)
+				CancelHttpListen(key)
 				storage.DisableHandle(key)
 				if new != "" {
 					AddCommand([]*common.Function{f})
@@ -415,13 +416,13 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var running func() bool
 	f := &common.Function{
 		Handle: func(s common.Sender) interface{} {
-			defer func() {
-				err := recover()
-				if err != nil {
-					console.Error("脚本错误：", err)
-					s.Reply(fmt.Sprint(err))
-				}
-			}()
+			// defer func() {
+			// 	err := recover()
+			// 	if err != nil {
+			// 		console.Error("脚本错误：", err)
+			// 		s.Reply(fmt.Sprint(err))
+			// 	}
+			// }()
 			if err2 != nil {
 				panic(err2)
 			}

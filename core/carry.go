@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/cdle/sillyGirl/core/common"
@@ -26,6 +27,8 @@ type CarryGroupsResult struct {
 
 var CarryGroups = MakeBucket("CarryGroups")
 
+var carryCounter int64
+
 // LOGIC
 func init() {
 	AddCommand([]*common.Function{
@@ -40,9 +43,9 @@ func init() {
 				var content = s.GetContent()
 				var from *CarryGroup //判断当前消息来自采集源
 				var cgs = cgs
-				var uuid = utils.GenUUID()
+				var uuid = fmt.Sprintf("%d. ", atomic.AddInt64(&carryCounter, 1))
 				for i := range cgs {
-					if chat_id == cgs[i].ID && cgs[i].In {
+					if chat_id == cgs[i].ID && cgs[i].In && cgs[i].Enable {
 						from = &cgs[i]
 						break
 					}
@@ -101,7 +104,7 @@ func init() {
 				}
 				var outs []CarryGroup //预测转发群
 				for i := range cgs {
-					if cgs[i].Out && cgs[i].ID != chat_id {
+					if cgs[i].Enable && cgs[i].Out && cgs[i].ID != chat_id {
 						for j := range cgs[i].From {
 							if cgs[i].From[j] == chat_id {
 								if len(cgs[i].Allowed) != 0 { //白名单
@@ -132,8 +135,9 @@ func init() {
 						}
 					}
 				}
-				console.Debug("%s 预测转发群数目 %v", uuid, len(outs))
-				if len(outs) == 0 {
+				num := len(outs)
+				console.Debug("%s 预测转发群数目 %v", uuid, num)
+				if num == 0 {
 					return nil
 				}
 				var scripts = []string{}
@@ -170,13 +174,15 @@ func init() {
 					}
 				HELL:
 					if content != "" { //选择机器人
-						adapter, err := GetAdapter(append([]string{platform}, outs[i].BotsID...)...)
+						platform := outs[i].Platform
+						chat_id := outs[i].ID
+						adapter, err := GetAdapter(platform, outs[i].BotsID...)
 						if adapter == nil {
-							console.Warn("%s 转发群(%s)相关机器人%v都不在线", uuid, outs[i].ID, outs[i].BotsID)
+							console.Warn("%s (%s)转发群(%s)相关机器人%v都不在线", uuid, platform, chat_id, outs[i].BotsID)
 							continue
 						}
 						if err != nil {
-							console.Debug("%s 指定机器人都不在线，转发群(%s)已选择其他机器人(%s)推送", uuid, outs[i].ID, adapter.botid)
+							console.Debug("%s 指定(%s)机器人都不在线，转发群(%s)已选择其他机器人(%s)推送", uuid, platform, chat_id, adapter.botid)
 						}
 						if adapter != nil {
 							adapter.Push(map[string]string{
@@ -348,7 +354,17 @@ func init() {
 		var bots_id = []string{}
 		var users = []string{}
 		for _, cg := range cgs {
-			names[cg.ID] = cg.ChatName
+			if cg.In {
+				if cg.ChatName != "" {
+					names[cg.ID] = cg.ChatName
+				} else {
+					if cg.Remark != "" {
+						names[cg.ID] = cg.Remark
+					} else {
+						names[cg.ID] = cg.ID
+					}
+				}
+			}
 			if cg.ID == chat_id {
 				users = append(users, cg.Allowed...)
 				users = append(users, cg.Prohibited...)

@@ -264,21 +264,21 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 			}
 			return o
 		})
-		registry.RegisterNativeModule("express", func(runtime *goja.Runtime, module *goja.Object) {
-			o := module.Get("exports").(*goja.Object)
-			methods := []string{"get", "post", "delete", "put", "fetch"}
-			for i := range methods {
-				method := methods[i]
-				o.Set(method, func(path string, handles ...func(*Request, *Response)) {
-					webs = append(webs, Web{
-						uuid:    uuid,
-						method:  strings.ToUpper(method),
-						path:    path,
-						handles: handles,
-					})
-				})
-			}
-		})
+		// registry.RegisterNativeModule("express", func(runtime *goja.Runtime, module *goja.Object) {
+		// 	o := module.Get("exports").(*goja.Object)
+		// 	methods := []string{"get", "post", "delete", "put", "fetch"}
+		// 	for i := range methods {
+		// 		method := methods[i]
+		// 		o.Set(method, func(path string, handles ...func(*Request, *Response)) {
+		// 			webs = append(webs, Web{
+		// 				uuid:    uuid,
+		// 				method:  strings.ToUpper(method),
+		// 				path:    path,
+		// 				handles: handles,
+		// 			})
+		// 		})
+		// 	}
+		// })
 		vm.Set("gofor", func(running func() bool, handle func()) {
 			go func() {
 				for {
@@ -374,6 +374,27 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 				}
 			}()
 			fetch(vm, resolve, reject, wts...)
+		}()
+		return promise
+	})
+	// for _, method := range []string{"get", "post", "delete", "put", "fetch"} {
+	// 	vm.Set(method, )
+	// }
+	vm.Set("HttpListen", func(method, api string) *goja.Promise {
+		promise, resolve, reject := vm.NewPromise()
+		go func() {
+			func() {
+				v := recover()
+				if v != nil {
+					if err, ok := v.(error); ok {
+						reject(Error(vm, err))
+					} else {
+						reject(Error(vm, fmt.Sprint(v)))
+					}
+
+				}
+			}()
+			AddHttpListen(api, strings.ToUpper(method), vm, uuid, resolve, reject)
 		}()
 		return promise
 	})

@@ -44,45 +44,53 @@ func init() {
 		}
 		platform := ctx.Query("platform")
 		data := []NicklabeL{}
-		if keyword != "" {
-			full := false
-			nickname.Foreach(func(b1, b2 []byte) error {
-				v := &Nickname{}
-				code := string(b1)
-				err := json.Unmarshal(b2, v)
-				if err == nil {
-					if v.Group != group {
-						return nil
-					}
-					if platform != "" && v.Platform != platform {
-						return nil
-					}
-					if strings.HasPrefix(code, keyword) || strings.Contains(v.Value, keyword) {
-						nl := NicklabeL{
-							ChatName: v.Value,
-							Value:    code,
-							Platform: v.Platform,
-						}
-						if !group {
-							nl.Label = fmt.Sprintf("%s(%s)", v.Value, code)
-						} else {
-							nl.Label = fmt.Sprintf("%s %s@%s", v.Value, code, v.Platform)
-						}
-						data = append(data, nl)
-						if code == keyword {
-							full = true
-						}
-					}
+		data2 := []NicklabeL{}
+		// if keyword != "" {
+		// full := false
+		nickname.Foreach(func(b1, b2 []byte) error {
+			v := &Nickname{}
+			code := string(b1)
+			err := json.Unmarshal(b2, v)
+			if err == nil {
+				if v.Group != group {
+					return nil
 				}
-				return nil
-			})
-			if !full {
-				data = append([]NicklabeL{{
-					Label: keyword,
-					Value: keyword,
-				}}, data...)
+				if platform != "" && v.Platform != platform {
+					return nil
+				}
+				nl := NicklabeL{
+					ChatName: v.Value,
+					Value:    code,
+					Platform: v.Platform,
+				}
+				if !group {
+					nl.Label = fmt.Sprintf("%s(%s)", v.Value, code)
+				} else {
+					nl.Label = fmt.Sprintf("%s %s@%s", v.Value, code, v.Platform)
+				}
+				if strings.HasPrefix(code, keyword) || strings.Contains(v.Value, keyword) {
+					data = append(data, nl)
+					// if code == keyword {
+					// 	full = true
+					// }
+				}
+				data2 = append(data2, nl)
 			}
+			return nil
+		})
+		// if !full {
+		// 	data = append([]NicklabeL{{
+		// 		Label: keyword,
+		// 		Value: keyword,
+		// 	}}, data...)
+		// } else
+		if len(data) == 0 {
+			data = append([]NicklabeL{{
+				Label: keyword,
+				Value: keyword,
+			}}, data2...)
 		}
+		// }
 		ctx.JSON(200, map[string]interface{}{
 			"success": true,
 			"data":    data,

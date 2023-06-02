@@ -8,7 +8,6 @@ import (
 func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket storage.Bucket) *goja.Object {
 	obj := vm.NewObject()
 	obj.Set("get", func(v ...interface{}) interface{} {
-
 		return GetBucketKeyValue(bucket, v...)
 	})
 	obj.Set("foreach", func(v ...interface{}) map[string]interface{} {
