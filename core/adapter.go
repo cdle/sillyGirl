@@ -269,33 +269,33 @@ func GetReplyMessage(vm *goja.Runtime, plt string, bots_id []string) *goja.Promi
 				for k, v := range mc.Msg {
 					msg[k] = v
 				}
-				// obj := adapters[i].vm.NewObject()
-				// for k, v := range mc.Msg {
-				// 	obj.Set(k, v)
-				// }
-				// obj.Set("bot_id", adapters[i].botid)
-				msg["bot_id"] = adapters[i].botid
-				msg["setMessageId"] = func(id string) {
-					select {
-					case <-mc.Chan:
-					case <-time.After(time.Millisecond):
-						mc.Chan <- id
-					}
+				obj := adapters[i].vm.NewObject()
+				for k, v := range mc.Msg {
+					obj.Set(k, v)
 				}
-				resolve(mc.Msg)
-				// adapters[i].vm.NewProxy(obj, &goja.ProxyTrapConfig{
-				// 	Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-				// 		if property == "message_id" {
-				// 			select {
-				// 			case <-mc.Chan:
-				// 				return false
-				// 			case <-time.After(time.Millisecond):
-				// 			}
-				// 			mc.Chan <- fmt.Sprint(value.Export())
-				// 		}
-				// 		return true
-				// 	},
-				// })
+				obj.Set("bot_id", adapters[i].botid)
+				// msg["bot_id"] = adapters[i].botid
+				// msg["setMessageId"] = func(id string) {
+				// 	select {
+				// 	case <-mc.Chan:
+				// 	case <-time.After(time.Millisecond):
+				// 		mc.Chan <- id
+				// 	}
+				// }
+				// resolve(msg)
+				resolve(vm.NewProxy(obj, &goja.ProxyTrapConfig{
+					Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+						if property == "message_id" {
+							select {
+							case <-mc.Chan:
+								return false
+							case <-time.After(time.Millisecond):
+							}
+							mc.Chan <- fmt.Sprint(value.Export())
+						}
+						return true
+					},
+				}))
 			}
 		}(i)
 	}

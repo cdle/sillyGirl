@@ -87,6 +87,47 @@ func init() {
 		var res = &Response{
 			c: c,
 		}
+
+		httpListensAny.Range(func(_, value any) bool {
+			web := value.(*HttpListen)
+			if web.Closed {
+				return true
+			}
+			req.handled = true
+			var end = make(chan bool, 1)
+			web.Chan <- &RR{
+				Req: req,
+				Res: res,
+				End: func() {
+					if !web.Closed {
+						end <- true
+					}
+				},
+			}
+			select {
+			case <-end:
+				// fmt.Println("end", req.handled)
+			case <-time.After(time.Second * 10):
+				logs.Warn("%s 响应超时", c.Request.URL.Path)
+			}
+			close(end)
+			if req.handled {
+				if res.isRedirect {
+					return false
+				}
+				if res.isJson {
+					c.Header("Content-Type", "application/json")
+				}
+				// fmt.Println(res.status, res.content)
+				c.String(res.status, res.content)
+				return false
+			}
+			return true
+		})
+
+		if req.handled {
+			return
+		}
 		httpListens.Range(func(key, value any) bool {
 			web := value.(*HttpListen)
 			if web.Closed {
@@ -108,7 +149,6 @@ func init() {
 					httpListens.Delete(key)
 					req.handled = true
 					var end = make(chan bool, 1)
-					// fmt.Println(c.Request.URL.Path, key)
 					web.Chan <- &RR{
 						Req: req,
 						Res: res,

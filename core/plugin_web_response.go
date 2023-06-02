@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
@@ -62,14 +61,9 @@ func (r *Response) Json(ps ...interface{}) *Response {
 	}
 	d, err := json.Marshal(data)
 	f := string(d)
+	r.status = int(status)
 	if err == nil {
-		if strings.Contains(f, `"error"`) {
-			f = strings.Replace(f, "error", "msg", 1)
-			if status == 200 {
-				status = -1
-			}
-		}
-		r.content = strings.Replace(f, "{", fmt.Sprintf(`{"status":%d, `, status), 1)
+		r.content = f
 		r.isJson = true
 	} else {
 		r.content += fmt.Sprint(data)
