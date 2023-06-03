@@ -1,11 +1,14 @@
 package core
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -500,6 +503,53 @@ func (sender *Strings) ReplaceAll(s string, old string, new string) string {
 
 func (sender *Strings) Split(s string, sep string, n int) []string {
 	return strings.SplitN(s, sep, n)
+}
+
+func (sender *Strings) EncodeQueryString(params map[string]interface{}) string {
+	var buf bytes.Buffer
+	for key, value := range params {
+		if buf.Len() > 0 {
+			buf.WriteByte('&')
+		}
+		buf.WriteString(url.QueryEscape(key))
+		buf.WriteByte('=')
+		switch v := value.(type) {
+		case string:
+			buf.WriteString(url.QueryEscape(v))
+		case int:
+			buf.WriteString(strconv.Itoa(v))
+		case int64:
+			buf.WriteString(strconv.Itoa(int(v)))
+		case int32:
+			buf.WriteString(strconv.Itoa(int(v)))
+		case bool:
+			buf.WriteString(strconv.FormatBool(v))
+		default:
+			buf.WriteString(url.QueryEscape(fmt.Sprintf("%v", v)))
+		}
+	}
+	return buf.String()
+}
+
+func (sender *Strings) DecodeQueryString(querystring string) map[string]interface{} {
+	values, err := url.ParseQuery(querystring)
+	if err != nil {
+		panic(err)
+	}
+	params := make(map[string]interface{})
+	for key, values := range values {
+		if len(values) > 0 {
+			value := values[0]
+			if intValue, err := strconv.Atoi(value); err == nil {
+				params[key] = intValue
+			} else if boolValue, err := strconv.ParseBool(value); err == nil {
+				params[key] = boolValue
+			} else {
+				params[key] = value
+			}
+		}
+	}
+	return params
 }
 
 type Fmt struct {
