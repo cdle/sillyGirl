@@ -101,7 +101,7 @@ func initPlugins() {
 					continue
 				}
 				script := string(fetchScript(p.Address, key))
-				if f, _ := initPlugin(script, p.UUID); len(f.Rules) != 0 || f.Cron != "" || f.Module || f.OnStart {
+				if f, _ := initPlugin(script, p.UUID); f.Cron != "" || f.Module || f.OnStart {
 					fin = &storage.Final{
 						Now: script,
 					}
