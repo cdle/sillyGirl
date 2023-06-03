@@ -378,7 +378,7 @@ func init() {
 		var scripts = map[string]string{}
 		functions := Functions
 		for _, function := range functions {
-			if function.UUID != "" && len(function.Rules) == 0 && !function.OnStart && !function.Module {
+			if function.UUID != "" && len(function.Rules) == 0 && !function.OnStart && !function.Module && function.Http == nil && function.Reply == nil {
 				scripts[function.UUID] = function.Title + ".js"
 			}
 		}

@@ -101,7 +101,7 @@ func initPlugins() {
 					continue
 				}
 				script := string(fetchScript(p.Address, key))
-				if f, _ := initPlugin(script, p.UUID); f.Cron != "" || f.Module || f.OnStart {
+				if f, _ := initPlugin(script, p.UUID); f.CreateAt != "" {
 					fin = &storage.Final{
 						Now: script,
 					}
@@ -492,7 +492,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 					f.Init(plt, botid)
 					return f
 				})
-				vm.Set("GetAdapter", func(plt, botid string) map[string]interface{} {
+				getAdapter := func(plt, botid string) map[string]interface{} {
 					adapter, err := GetAdapter(plt, botid)
 					errstr := ""
 					if err != nil {
@@ -502,11 +502,19 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 						"error":   errstr,
 						"adapter": adapter,
 					}
-				})
+				}
+				vm.Set("GetAdapter", getAdapter)
+				vm.Set("getAdapter", getAdapter)
 				vm.Set("getAdapterBotsID", GetAdapterBotsID)
 				vm.Set("getAdapterBotPlts", GetAdapterBotPlts)
+				vm.Set("GetAdapterBotsID", GetAdapterBotsID)
+				vm.Set("GetAdapterBotPlts", GetAdapterBotPlts)
 				vm.Set("running", running)
+				vm.Set("Running", running)
 				vm.Set("uuid", func() string {
+					return uuid
+				})
+				vm.Set("UUID", func() string {
 					return uuid
 				})
 				if set != nil {
