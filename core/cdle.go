@@ -5,6 +5,7 @@ import (
 
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/utils"
+	"github.com/dop251/goja"
 )
 
 var IsCdle = false
@@ -20,7 +21,7 @@ func init() {
 		{
 			Admin: true,
 			Rules: []string{"identify sublink [地址] [组织]"},
-			Handle: func(s common.Sender) interface{} {
+			Handle: func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
 				address := s.Get(0)
 				organization := s.Get(1)
 				// machine_id := s.Get(1)

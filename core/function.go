@@ -371,7 +371,7 @@ func AddCommand(cmds []*common.Function) {
 				console.Log("初始化%v服务", f.Title)
 				f.Handle(&Faker{
 					Type: "*",
-				})
+				}, nil)
 			}(cmds[j])
 		}
 		fmtRule(cmds[j])
@@ -385,7 +385,7 @@ func AddCommand(cmds []*common.Function) {
 					cmds[j].Handle(&Faker{
 						Admin: true,
 						Type:  "cron",
-					})
+					}, nil)
 				})
 				if err == nil {
 					cmds[j].CronId = int(cronId)
@@ -624,7 +624,7 @@ func HandleMessage(sender common.Sender) {
 				if function.Admin && !a {
 					return
 				}
-				rt := function.Handle(sender)
+				rt := function.Handle(sender, nil)
 				if rt != nil {
 					sender.Reply(rt)
 				}

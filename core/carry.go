@@ -11,6 +11,7 @@ import (
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/core/storage"
 	"github.com/cdle/sillyGirl/utils"
+	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 )
@@ -35,7 +36,7 @@ func init() {
 		{
 			Rules:  []string{`raw [\s\S]+`},
 			Hidden: true,
-			Handle: func(s common.Sender) interface{} {
+			Handle: func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
 				var bot_id = s.GetBotID()
 				var platform = s.GetImType()
 				var chat_id = s.GetChatID()
@@ -146,7 +147,7 @@ func init() {
 				for i := range fs {
 					for j := range from.Scripts {
 						if fs[i].UUID == from.Scripts[j] && !Contains(scripts, fs[i].UUID) {
-							fs[i].Handle(s)
+							fs[i].Handle(s, nil)
 							content = s.GetContent()
 							if content == "" {
 								return nil
@@ -162,7 +163,7 @@ func init() {
 					for j := range outs[i].Scripts {
 						for k := range fs {
 							if fs[k].UUID == outs[i].Scripts[j] && !Contains(scripts, fs[k].UUID) { //
-								fs[k].Handle(s)
+								fs[k].Handle(s, nil)
 								content = s.GetContent()
 								// fmt.Println(content)
 								if content == "" {

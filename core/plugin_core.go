@@ -256,6 +256,8 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var encrypt bool
 	var onStart bool
 	var origin = "自定义"
+	var http *common.Http
+	var message *common.Reply
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
 	).FindAllStringSubmatch(data, -1)
@@ -377,6 +379,34 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			version = strings.TrimSpace(res[2])
 		case "author":
 			author = strings.TrimSpace(res[2])
+		case "http":
+			ss := regexp.MustCompile(`[\S]+`).FindAllString(strings.TrimSpace(res[2]), -1)
+			if len(ss) == 2 {
+				http = &common.Http{
+					Path:   ss[1],
+					Method: strings.ToUpper(ss[0]),
+				}
+			} else {
+				console.Warn("http param is not 2")
+			}
+		case "message":
+			ss := regexp.MustCompile(`[\S]+`).FindAllString(strings.TrimSpace(res[2]), -1)
+			if len(ss) > 1 {
+				if len(ss) == 2 && ss[1] == "*" {
+					message = &common.Reply{
+						Platform: ss[0],
+						BotsID:   []string{},
+					}
+				} else {
+					message = &common.Reply{
+						Platform: ss[0],
+						BotsID:   ss[1:],
+					}
+				}
+
+			} else {
+				console.Warn("message param is 0")
+			}
 		case "create_at":
 			create_at = strings.TrimSpace(res[2])
 		case "origin":
@@ -415,7 +445,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	}
 	var running func() bool
 	f := &common.Function{
-		Handle: func(s common.Sender) interface{} {
+		Handle: func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
 			defer func() {
 				err := recover()
 				if err != nil {
@@ -438,6 +468,12 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 					Persistent: "persistent",
 					UUID:       uuid,
 				}
+				vm.Set("msg", goja.Undefined())
+				vm.Set("message", goja.Undefined())
+				vm.Set("res", goja.Undefined())
+				vm.Set("req", goja.Undefined())
+				vm.Set("response", goja.Undefined())
+				vm.Set("request", goja.Undefined())
 				vm.Set("sender", ss)
 				vm.Set("s", ss)
 				vm.Set("InitAdapter", func(plt, botid string) *Factory {
@@ -473,7 +509,9 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				vm.Set("uuid", func() string {
 					return uuid
 				})
-
+				if set != nil {
+					set(vm)
+				}
 				_, err := vm.RunProgram(prg)
 				if err != nil {
 					console.Error(strings.ReplaceAll(strings.ReplaceAll(err.Error(), "node_modules/", ""), "github.com/dop251/goja_nodejs/require", ""))
@@ -502,6 +540,8 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		OnStart:     onStart,
 		Origin:      origin,
 		Running:     onStart,
+		Reply:       message,
+		Http:        http,
 	}
 	running = func() bool {
 		return f.Running

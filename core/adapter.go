@@ -468,6 +468,8 @@ type PUSH string
 func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	var push = false
 	var content = ""
+	var platform = sender.f.botplt
+	var bot_id = sender.f.botid
 	for _, item := range msgs {
 		switch item := item.(type) {
 		case PUSH:
@@ -491,25 +493,49 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			"content":    content,
 			"user_id":    sender.GetUserID(),
 			"chat_id":    sender.GetChatID(),
-			// "bot_id":     sender.GetBotID(),
-
+			"bot_id":     bot_id,
 			// "uuid":       utils.GenUUID(),
 		}
 		if sender.f.reply == nil {
-			c := MsgChan{
-				Msg:  msg,
-				Chan: make(chan string),
+			matched := false
+			for _, function := range Functions {
+				if function.Reply != nil && function.Reply.Platform == platform && (len(function.Reply.BotsID) == 0 || Contains(function.Reply.BotsID, platform)) {
+					message_id := ""
+					function.Handle(&Faker{
+						Type: "*",
+					}, func(vm *goja.Runtime) {
+						obj := vm.NewObject()
+						for k, v := range msg {
+							obj.Set(k, v)
+						}
+						proxy := vm.NewProxy(obj, &goja.ProxyTrapConfig{
+							Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+								message_id = fmt.Sprint(value.Export())
+								return true
+							},
+						})
+						vm.Set("msg", proxy)
+						vm.Set("message", proxy)
+					})
+					return message_id, nil
+				}
 			}
-			if sender.f.destroid {
-				return "", errors.New("adapter destroid")
-			}
-			sender.f.msgChan <- c
-			select {
-			case id := <-c.Chan:
-				return id, nil
-			case <-time.After(time.Second * 5):
-				close(c.Chan)
-				return "", errors.New("get message_id timeout")
+			if !matched {
+				c := MsgChan{
+					Msg:  msg,
+					Chan: make(chan string),
+				}
+				if sender.f.destroid {
+					return "", errors.New("adapter destroid")
+				}
+				sender.f.msgChan <- c
+				select {
+				case id := <-c.Chan:
+					return id, nil
+				case <-time.After(time.Second * 5):
+					close(c.Chan)
+					return "", errors.New("get message_id timeout")
+				}
 			}
 		} else {
 			//todo 阻塞延迟异常

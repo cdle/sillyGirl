@@ -13,6 +13,7 @@ import (
 	"github.com/cdle/sillyGirl/core/logs"
 	"github.com/cdle/sillyGirl/core/storage"
 	"github.com/cdle/sillyGirl/utils"
+	"github.com/dop251/goja"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 )
@@ -86,6 +87,36 @@ func init() {
 		}
 		var res = &Response{
 			c: c,
+		}
+
+		for _, function := range Functions {
+			if function.Http != nil {
+				path := function.Http.Path
+				method := function.Http.Method
+				if c.Request.URL.Path == path && c.Request.Method == method {
+					req.handled = true
+					function.Handle(&Faker{
+						Type: "*",
+					}, func(vm *goja.Runtime) {
+						vm.Set("res", res)
+						vm.Set("req", req)
+						vm.Set("response", res)
+						vm.Set("request", req)
+
+					})
+				}
+			}
+		}
+
+		if req.handled {
+			if res.isRedirect {
+				return
+			}
+			if res.isJson {
+				c.Header("Content-Type", "application/json")
+			}
+			c.String(res.status, res.content)
+			return
 		}
 
 		httpListensAny.Range(func(_, value any) bool {
