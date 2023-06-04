@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -39,10 +40,11 @@ func Cors() gin.HandlerFunc {
 	}
 }
 
-var Server = gin.New()
+var Server *gin.Engine
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
+	Server = gin.New()
 	// Server.Use(gin.Recovery())
 	Server.Use(Cors())
 	Server.Use(gzip.Gzip(gzip.DefaultCompression))
@@ -284,6 +286,7 @@ func init() {
 		}
 		var ch = make(chan error, 1)
 		srvs = append(srvs, srv)
+
 		go func() {
 			logs.Info("Http服务(%s)重新运行", port)
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -310,7 +313,10 @@ func init() {
 		}
 	})
 	go func() {
-		logs.Info("Http服务(%s)开始运行", port)
+		// logs.Info("Http服务(%s)开始运行", port)
+		logs.Info("管理员面板:")
+		logs.Info("  > 本机: http://localhost:%s", port)
+		logs.Info("  > 局域网: http://%s:%s", getLocalIP(), port)
 		if err := srvs[0].ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logs.Error("Http服务运行失败：%s", err.Error())
 		}
@@ -355,4 +361,39 @@ func GinApi(method string, path string, fs ...func(c *gin.Context)) {
 			}
 		},
 	})
+}
+
+func getLocalIP() string {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "127.0.0.1"
+	}
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 {
+			continue // interface down
+		}
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue // loopback interface
+		}
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil || ip.IsLoopback() {
+				continue
+			}
+			if ip.To4() != nil {
+				return ip.String()
+			}
+		}
+	}
+	return "127.0.0.1"
 }

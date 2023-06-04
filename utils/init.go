@@ -115,8 +115,8 @@ func KillProcess(pid int) error {
 	default:
 		return fmt.Errorf("unsupported operating system: %v", runtime.GOOS)
 	}
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if _, ok := err.(*exec.ExitError); ok {
 		return nil
