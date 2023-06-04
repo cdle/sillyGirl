@@ -32,19 +32,19 @@ func MakeBucket(name string) storage.Bucket {
 	MakeBucketlocker.Lock()
 	defer MakeBucketlocker.Unlock()
 	if bkt == nil {
-		utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
+		// utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 		utils.SlaveMode = Config.SlaveMode
 		HttpPort = Config.HttpPort
 		if !Config.EnableRedis {
 			bkt = boltdb.InitsillyGirl()
 			Get = boltdb.Get
 			Set = boltdb.Set
-			logs.Info("默认使用boltdb进行数据存储。")
+			logs.Info("默认使用boltdb进行数据存储")
 		} else {
 			bkt = redis.InitsillyGirl(Config.RedisAddr, Config.RedisPassword)
 			Get = redis.Get
 			Set = redis.Set
-			logs.Info("已使用redis进行数据存储。")
+			logs.Info("已使用redis进行数据存储")
 		}
 		for _, name := range bkt.Buckets() {
 			b := bkt.Copy(name)

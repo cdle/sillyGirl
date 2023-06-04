@@ -203,7 +203,7 @@ func init() {
 func init() {
 	setCgs()
 	storage.Watch(CarryGroups, nil, func(old, new, key string) *storage.Final {
-		console.Log("已更新搬运数据。")
+		console.Log("已更新搬运数据")
 		ocg := CarryGroup{}
 		ncg := CarryGroup{}
 		json.Unmarshal([]byte(old), &ocg)
@@ -215,7 +215,7 @@ func init() {
 					for i, cg := range tmp {
 						if cg.ID == ocg.ID {
 							tmp = append(tmp[:i], tmp[i+1:]...)
-							RemListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式。", cg.ID))
+							RemListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", cg.ID))
 							break
 						}
 					}
@@ -229,12 +229,12 @@ func init() {
 							tmp[i] = ncg
 							if ncg.In {
 								if ncg.Enable {
-									AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式。", ncg.ID))
+									AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
 								} else {
-									RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式。", ncg.ID))
+									RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", ncg.ID))
 								}
 							} else {
-								RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式。", ncg.ID))
+								RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", ncg.ID))
 							}
 							break
 						}
@@ -247,7 +247,7 @@ func init() {
 			if ncg.ID != "" {
 				tmp = append(tmp, ncg)
 				if ncg.In && ncg.Enable {
-					AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式。", ncg.ID))
+					AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
 				}
 			} else {
 				return nil
@@ -270,7 +270,7 @@ func setCgs() {
 			return nil
 		}
 		if cg.In {
-			AddListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式。", cg.ID))
+			AddListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", cg.ID))
 		}
 		cgs = append(cgs, cg)
 		return nil

@@ -15,6 +15,7 @@ import (
 
 var authBucket = MakeBucket("auths")
 var auths = []*Auth{}
+var password = ""
 
 func init() {
 	storage.Watch(sillyGirl, "name", func(old, new, key string) *storage.Final {
@@ -34,13 +35,18 @@ func init() {
 		}
 		return nil
 	})
-	var password = sillyGirl.GetString("password")
+	password = sillyGirl.GetString("password")
 	var name = sillyGirl.GetString("name", "傻妞")
-	if password == "" {
-		password = utils.GenUUID()
-		console.Info("可视化面板临时账号密码：%s %s", name, password)
-	}
+	// if password == "" {
+	// password = utils.GenUUID()
+	// console.Info("可视化面板临时账号密码：%s %s", name, password)
+	// }
 	storage.Watch(sillyGirl, "password", func(old, new, key string) *storage.Final {
+		if new == "" {
+			return &storage.Final{
+				Now: new,
+			}
+		}
 		password, _ = EncryptByAes([]byte(new))
 		return &storage.Final{
 			Now: password,
@@ -183,6 +189,9 @@ func checkTempAuth(uuid string) bool {
 }
 
 func RequireAuth(c *gin.Context) {
+	if password == "" {
+		return
+	}
 	token, _ := c.Cookie("token")
 	_, err := CheckAuth(token)
 	if err != nil && !checkTempAuth(token) {

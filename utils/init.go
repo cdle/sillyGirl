@@ -19,7 +19,6 @@ import (
 	// "github.com/cdle/sillyGirl/core/logs"
 	"github.com/cdle/sillyGirl/core/logs"
 	"github.com/google/uuid"
-	"gopkg.in/yaml.v2"
 )
 
 var SlaveMode bool
@@ -71,12 +70,19 @@ var Int64 = func(s interface{}) int64 {
 }
 
 func init() {
+	err := KillPeer()
+	if err != nil {
+		logs.Warn("结束进程失败：", err)
+	}
+	err = os.WriteFile(GetPidFile(), []byte(fmt.Sprintf("%d", os.Getpid())), 0o644)
+	if err != nil {
+		logs.Warn("写入进程ID失败：", err)
+	}
 	for _, arg := range os.Args {
 		if arg == "-d" {
 			Daemon()
 		}
 	}
-	KillPeer()
 }
 
 var GetDataHome = func() string {
@@ -85,6 +91,12 @@ var GetDataHome = func() string {
 			os.MkdirAll(`C:\ProgramData\sillyGirl\`, os.ModePerm)
 		}
 		return `C:\ProgramData\sillyGirl\`
+	} else if runtime.GOOS == "darwin" {
+		i := ExecPath + "/.sillyGirl/"
+		if _, err := os.Stat(i); err != nil {
+			os.MkdirAll(i, os.ModePerm)
+		}
+		return i
 	} else {
 		if _, err := os.Stat(`/etc/sillyGirl/`); err != nil {
 			os.MkdirAll(`/etc/sillyGirl/`, os.ModePerm)
@@ -93,36 +105,40 @@ var GetDataHome = func() string {
 	}
 }
 
-func KillPeer() {
-	pids, err := ppid()
-	if err == nil {
-		if len(pids) == 0 {
-			return
-		} else {
-			exec.Command("sh", "-c", "kill -9 "+strings.Join(pids, " ")).Output()
-		}
-	} else {
-		return
+func KillProcess(pid int) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "linux", "darwin":
+		cmd = exec.Command("kill", "-TERM", strconv.Itoa(pid))
+	case "windows":
+		cmd = exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid))
+	default:
+		return fmt.Errorf("unsupported operating system: %v", runtime.GOOS)
 	}
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if _, ok := err.(*exec.ExitError); ok {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to kill process %d: %v", pid, err)
+	}
+	return nil
+}
+
+func KillPeer() error {
+	id, err := GetPidFromFile(GetPidFile())
+	if err != nil {
+		return err
+	}
+	if id != 0 {
+		return KillProcess(id)
+	}
+	return nil
 }
 
 var ProcessName = getProcessName()
-
-func ppid() ([]string, error) {
-	pid := fmt.Sprint(os.Getpid())
-	pids := []string{}
-	rtn, err := exec.Command("sh", "-c", "pidof "+ProcessName).Output()
-	if err != nil {
-		return pids, err
-	}
-	re := regexp.MustCompile(`[\d]+`)
-	for _, v := range re.FindAll(rtn, -1) {
-		if string(v) != pid {
-			pids = append(pids, string(v))
-		}
-	}
-	return pids, nil
-}
 
 var ExecPath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 
@@ -134,18 +150,26 @@ var getProcessName = func() string {
 }
 
 var GetPidFile = func() string {
-	if runtime.GOOS == "windows" {
-		return fmt.Sprintf("%s\\%s", ExecPath, "sillyGirl.pid")
-	}
-	return "/var/run/sillyGirl.pid"
+	return GetDataHome() + "sillyGirl.pid"
 }
 
-var Runnings = []func(){}
+func GetPidFromFile(pidFile string) (int, error) {
+	if _, err := os.Stat(pidFile); err != nil {
+		return 0, nil
+	}
+	data, err := ioutil.ReadFile(pidFile)
+	if err != nil {
+		return 0, err
+	}
+	pidStr := strings.TrimSpace(string(data))
+	pid, err := strconv.Atoi(pidStr)
+	if err != nil {
+		return 0, err
+	}
+	return pid, nil
+}
 
 func Daemon() {
-	for _, bs := range Runnings {
-		bs()
-	}
 	args := os.Args[1:]
 	execArgs := make([]string, 0)
 	l := len(args)
@@ -164,7 +188,7 @@ func Daemon() {
 		panic(err)
 	}
 	logs.Info("程序以静默形式运行")
-	err = os.WriteFile(GetPidFile(), []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
+	// err = os.WriteFile(GetPidFile(), []byte(fmt.Sprintf("%d", proc.Process.Pid)), 0o644)
 	if err != nil {
 		logs.Info(err)
 	}
@@ -234,31 +258,6 @@ func MonitorGoroutine() {
 func JsonMarshal(v interface{}) (d []byte) {
 	d, _ = json.Marshal(v)
 	return
-}
-
-func ReadYaml(confDir string, conf interface{}, _ string) {
-	path := confDir + "config.yaml"
-	if _, err := os.Stat(confDir); err != nil {
-		os.MkdirAll(confDir, os.ModePerm)
-	}
-	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0777)
-	if err != nil {
-		return
-	}
-	s, _ := ioutil.ReadAll(f)
-	if len(s) == 0 {
-		return
-	}
-	f.Close()
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		logs.Warn("解析配置文件%s读取错误: %v", path, err)
-		return
-	}
-	if yaml.Unmarshal(content, conf) != nil {
-		logs.Warn("解析配置文件%s出错: %v", path, err)
-		return
-	}
 }
 
 func Str2Ints(str string) []int {

@@ -180,7 +180,7 @@ func (f *Factory) Init(botplt, botid string) {
 	if botid != "" {
 		botid = fmt.Sprintf("(%s)", botid)
 	}
-	console.Log("%s机器人%s已初始化。", botplt, botid)
+	console.Log("%s机器人%s已初始化", botplt, botid)
 }
 
 func (f *Factory) IsAdapter(botid string) bool {
@@ -208,7 +208,7 @@ func (f *Factory) Destroy() {
 	} else {
 		botid = f.botid
 	}
-	console.Log("%s机器人%s已销毁。", strings.ToUpper(f.botplt), botid)
+	console.Log("%s机器人%s已销毁", strings.ToUpper(f.botplt), botid)
 }
 
 func (f *Factory) Push(msg map[string]string) (string, error) {

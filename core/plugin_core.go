@@ -112,7 +112,7 @@ func initPlugins() {
 					break
 				} else {
 					return &storage.Final{
-						Error: errors.New("订阅源异常。"),
+						Error: errors.New("订阅源异常"),
 					}
 				}
 			}
@@ -127,7 +127,7 @@ func initPlugins() {
 				su.SetValue("author", "佚名")
 			}
 			if su.GetValue("description") == "" {
-				su.SetValue("description", "🐒这个人很懒什么都没有留下。")
+				su.SetValue("description", "🐒这个人很懒什么都没有留下")
 			} //module
 			title := su.GetValue("title")
 			if title == "" {
@@ -183,7 +183,7 @@ func initPlugins() {
 			if su.script != new {
 				fin.Message = su.script
 			} else if title != (&ScriptUtils{script: old}).GetValue("title") {
-				fin.Message = "标题变更。"
+				fin.Message = "标题变更"
 			}
 			new = su.script
 		}
@@ -435,7 +435,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		err = err2
 	}
 	if err == nil && len(rules) == 0 && cron != "" {
-		err = fmt.Errorf("无效的脚本%s。", title)
+		err = fmt.Errorf("无效的脚本%s", title)
 	}
 	if web {
 		onStart = true
@@ -472,8 +472,6 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				vm.Set("message", goja.Undefined())
 				vm.Set("res", goja.Undefined())
 				vm.Set("req", goja.Undefined())
-				vm.Set("response", goja.Undefined())
-				vm.Set("request", goja.Undefined())
 				vm.Set("sender", ss)
 				vm.Set("s", ss)
 				vm.Set("InitAdapter", func(plt, botid string) *Factory {

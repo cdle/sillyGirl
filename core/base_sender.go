@@ -521,7 +521,7 @@ func (s *BaseSender) Await(message common.Sender, callback func(common.Sender) i
 							return v
 						}
 					}
-					c.Result <- fmt.Sprintf("请从%s中选择一个。", strings.Join(vv, "、"))
+					c.Result <- fmt.Sprintf("请从%s中选择一个", strings.Join(vv, "、"))
 				} else if vv, ok := result.(Range); ok {
 					ct := s.GetContent()
 					n := utils.Int(ct)
@@ -531,7 +531,7 @@ func (s *BaseSender) Await(message common.Sender, callback func(common.Sender) i
 							return n
 						}
 					}
-					c.Result <- fmt.Sprintf("请从%d~%d中选择一个整数。", vv[0], vv[1])
+					c.Result <- fmt.Sprintf("请从%d~%d中选择一个整数", vv[0], vv[1])
 				} else {
 					c.Result <- result
 					return s.GetContent()

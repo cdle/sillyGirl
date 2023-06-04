@@ -26,7 +26,7 @@ func CheckPluginAddress(address string) error {
 	rr := RequestPluginResult{}
 	json.Unmarshal(data, &rr)
 	if !rr.Success {
-		return errors.New("无效的地址。")
+		return errors.New("无效的地址")
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ func publicScript(str string) string {
 		su.SetValue("author", "佚名")
 	}
 	if su.GetValue("description") == "" {
-		su.SetValue("description", "🐒这个人很懒什么都没有留下。")
+		su.SetValue("description", "🐒这个人很懒什么都没有留下")
 	}
 	if su.GetValue("public") == "true" {
 		su.SetValue("public", "false")

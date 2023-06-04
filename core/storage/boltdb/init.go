@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"runtime"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -56,29 +55,22 @@ func Get(key string) string {
 var Buckets = []Bucket{}
 
 func InitsillyGirl() storage.Bucket {
-	var err error
-	if runtime.GOOS == "darwin" {
-		db, err = bolt.Open("./sillyGirl.db", 0600, nil)
+	bd := utils.GetDataHome() + "sillyGirl.db"
+	_, err := os.Stat(bd)
+	if err != nil {
+		f, err := os.Create(bd)
 		if err != nil {
-			panic(err)
-		}
-	} else {
-		bd := utils.GetDataHome() + "sillyGirl.db"
-		_, err := os.Stat(bd)
-		if err != nil {
-			f, err := os.Create(bd)
-			if err != nil {
-				logs.Info("傻妞无法创建数据文件 %s ，请手动创建。", bd)
-				os.Exit(0)
-			}
-			f.Close()
-		}
-		db, err = bolt.Open(bd, 0600, nil)
-		if err != nil {
-			logs.Info("傻妞无法创建数据文件 %s ，请手动创建。", bd)
+			logs.Info("傻妞无法创建数据文件 %s ，请手动创建", bd)
 			os.Exit(0)
 		}
+		f.Close()
 	}
+	db, err = bolt.Open(bd, 0600, nil)
+	if err != nil {
+		logs.Info("傻妞无法创建数据文件 %s ，请手动创建", bd)
+		os.Exit(0)
+	}
+
 	v := &Bucket{
 		name: "sillyGirl",
 	}

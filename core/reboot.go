@@ -18,7 +18,7 @@ func initReboot() {
 			if tp == "fake" {
 				return
 			}
-			msg := "重启完成。"
+			msg := "重启完成"
 			for i := 0; i < 10; i++ {
 				dapter, _ := GetAdapter(tp, "")
 				if dapter != nil {

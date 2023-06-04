@@ -100,9 +100,6 @@ func init() {
 					}, func(vm *goja.Runtime) {
 						vm.Set("res", res)
 						vm.Set("req", req)
-						vm.Set("response", res)
-						vm.Set("request", req)
-
 					})
 				}
 			}
@@ -261,7 +258,7 @@ func init() {
 			}
 		}
 
-		c.String(404, "页面被喵咪劫走了。") //
+		c.String(404, "页面被喵咪劫走了") //
 		//开启代理模式
 
 		// handleHTTP(c.Writer, c.Request)
@@ -288,7 +285,7 @@ func init() {
 		var ch = make(chan error, 1)
 		srvs = append(srvs, srv)
 		go func() {
-			logs.Info("Http服务(%s)重新运行。", port)
+			logs.Info("Http服务(%s)重新运行", port)
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				logs.Error("Http服务(%s)运行失败：%s", port, err.Error())
 				ch <- err
@@ -304,7 +301,7 @@ func init() {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			if err := srvs[0].Shutdown(ctx); err == nil {
-				logs.Info("Http服务(%s)关闭。", old)
+				logs.Info("Http服务(%s)关闭", old)
 			}
 			srvs = srvs[1:]
 		}
@@ -313,42 +310,11 @@ func init() {
 		}
 	})
 	go func() {
-		logs.Info("Http服务(%s)开始运行。", port)
+		logs.Info("Http服务(%s)开始运行", port)
 		if err := srvs[0].ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logs.Error("Http服务运行失败：%s。", err.Error())
+			logs.Error("Http服务运行失败：%s", err.Error())
 		}
 	}()
-}
-
-// var httpProxys = MakeBucket("httpProxys")
-
-func handleHTTP(w http.ResponseWriter, req *http.Request) {
-	// console.Info("%s", utils.JsonMarshal(req.Header))
-	// u, err := url.Parse("addr")
-	// if err != nil {
-	// 	core.Logs.Warn("can't connect to the http proxy:", err)
-	// 	return
-	// }
-	// Transport = &http.Transport{Proxy: http.ProxyURL(u)}
-	// resp, err := Transport.RoundTrip(req)
-	// fmt.Println("====")
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
-	defer resp.Body.Close()
-	copyHeader(w.Header(), resp.Header)
-	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
-}
-
-func copyHeader(dst, src http.Header) {
-	for k, vv := range src {
-		for _, v := range vv {
-			dst.Add(k, v)
-		}
-	}
 }
 
 type Req struct {

@@ -389,7 +389,7 @@ func AddCommand(cmds []*common.Function) {
 				})
 				if err == nil {
 					cmds[j].CronId = int(cronId)
-					// console["log"]("脚本%s添加定时器。", cmds[j].Title)
+					// console["log"]("脚本%s添加定时器", cmds[j].Title)
 				} else {
 					console.Error("脚本%s定时器错误，%v", cmds[j].Title, err)
 				}

@@ -377,6 +377,9 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 		}()
 		return promise
 	})
+	vm.Set("request", func(wts ...interface{}) interface{} {
+		return fetch(vm, nil, nil, wts...)
+	})
 	// for _, method := range []string{"get", "post", "delete", "put", "fetch"} {
 	// 	vm.Set(method, )
 	// }
@@ -398,7 +401,6 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 		}()
 		return promise
 	})
-	vm.Set("request", request)
 	vm.Set("getReplyMessage", func(plt string, bots_id []string) *goja.Promise {
 		return GetReplyMessage(vm, plt, bots_id)
 	})
