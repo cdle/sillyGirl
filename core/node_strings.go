@@ -80,6 +80,31 @@ func (sender *Strings) DecodeQueryString(querystring string) map[string]interfac
 	return params
 }
 
+func (sender *Strings) HideCQEmoji(text string) map[string]interface{} {
+	i := 0
+	var ms = map[string]string{}
+	text = regexp.MustCompile(`\[CQ:(\w+)(.*?)\]`).ReplaceAllStringFunc(text, func(s string) string {
+		v := fmt.Sprintf("#%d#", i)
+		i++
+		ms[v] = s
+		return v
+	})
+	text = emoji.ReplaceEmojisWithFunc(text, func(e emoji.Emoji) string {
+		v := fmt.Sprintf("#%d#", i)
+		i++
+		ms[v] = e.Character
+		return v
+	})
+	return map[string]interface{}{
+		"text": text,
+		"recover": func(text string) string {
+			return regexp.MustCompile(`#\d{1,4}#`).ReplaceAllStringFunc(text, func(s string) string {
+				return ms[s]
+			})
+		},
+	}
+}
+
 // 将含有 CQ码 的文本解析成文本和 CQ 对象数组
 func (sender *Strings) ParseCQText(text string) []interface{} {
 	cqRegex := regexp.MustCompile(`\[CQ:(\w+)(.*?)\]`)
@@ -171,4 +196,8 @@ func (sender *Strings) ReplaceEmojis(str string, f func([]string) string) string
 // `\[emoji=([0-9A-Z]{4})\]`
 func (sender *Strings) ReplaceToEmojis(str string, pattern string) string {
 	return emoji.ReplaceToEmojis(str, pattern)
+}
+
+func (sender *Strings) ExtractAddress(input string) string {
+	return regexp.MustCompile(`http[s]?://[\w.]+:?\d*`).FindString(input)
 }
