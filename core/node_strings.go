@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/cdle/sillyGirl/emoji"
 )
 
 type Strings struct {
@@ -158,4 +160,15 @@ func convertParams(params map[string]interface{}) map[string]string {
 		}
 	}
 	return result
+}
+
+func (sender *Strings) ReplaceEmojis(str string, f func([]string) string) string {
+	return emoji.ReplaceEmojisWithFunc(str, func(e emoji.Emoji) string {
+		return f(e.CodePoint2)
+	})
+}
+
+// `\[emoji=([0-9A-Z]{4})\]`
+func (sender *Strings) ReplaceToEmojis(str string, pattern string) string {
+	return emoji.ReplaceToEmojis(str, pattern)
 }
