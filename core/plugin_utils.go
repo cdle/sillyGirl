@@ -404,6 +404,12 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 	vm.Set("getReplyMessage", func(plt string, bots_id []string) *goja.Promise {
 		return GetReplyMessage(vm, plt, bots_id)
 	})
+	vm.Set("Script", func(str string) interface{} {
+		if str == "" {
+			str = uuid
+		}
+		return Script(str)
+	})
 }
 
 func EncryptPlugin(script string) string {

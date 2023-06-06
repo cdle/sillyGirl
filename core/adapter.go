@@ -497,30 +497,40 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			// "uuid":       utils.GenUUID(),
 		}
 		if sender.f.reply == nil {
-			matched := false
+			var any *common.Function
+			var one *common.Function
 			for _, function := range Functions {
-				if function.Reply != nil && function.Reply.Platform == platform && (len(function.Reply.BotsID) == 0 || Contains(function.Reply.BotsID, platform)) {
-					message_id := ""
-					function.Handle(&Faker{
-						Type: "*",
-					}, func(vm *goja.Runtime) {
-						obj := vm.NewObject()
-						for k, v := range msg {
-							obj.Set(k, v)
-						}
-						proxy := vm.NewProxy(obj, &goja.ProxyTrapConfig{
-							Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-								message_id = fmt.Sprint(value.Export())
-								return true
-							},
-						})
-						vm.Set("msg", proxy)
-						vm.Set("message", proxy)
-					})
-					return message_id, nil
+				if function.Reply != nil && function.Reply.Platform == platform {
+					if len(function.Reply.BotsID) == 0 {
+						any = function
+					} else if Contains(function.Reply.BotsID, sender.f.botid) {
+						one = function
+					}
 				}
 			}
-			if !matched {
+			if one == nil && any != nil {
+				one = any
+			}
+			if one != nil {
+				message_id := ""
+				one.Handle(&Faker{
+					Type: "*",
+				}, func(vm *goja.Runtime) {
+					obj := vm.NewObject()
+					for k, v := range msg {
+						obj.Set(k, v)
+					}
+					proxy := vm.NewProxy(obj, &goja.ProxyTrapConfig{
+						Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+							message_id = fmt.Sprint(value.Export())
+							return true
+						},
+					})
+					vm.Set("msg", proxy)
+					vm.Set("message", proxy)
+				})
+				return message_id, nil
+			} else {
 				c := MsgChan{
 					Msg:  msg,
 					Chan: make(chan string),

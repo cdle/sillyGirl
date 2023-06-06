@@ -81,6 +81,9 @@ func publicScript(str string) string {
 	if su.GetValue("title") == "" {
 		su.SetValue("title", "无名脚本")
 	}
+	if su.GetValue("message") == "" {
+		su.DeleteValue("message")
+	}
 	create_at := su.GetValue("create_at")
 	if _, err := time.Parse("2006-01-02 15:04:05", create_at); create_at == "" || err != nil {
 		su.SetValue("create_at", time.Now().Format("2006-01-02 15:04:05"))

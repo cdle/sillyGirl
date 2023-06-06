@@ -3,7 +3,6 @@
 一个不太有用的机器人，不生产消息，只搬运消息。
 
 ## 特性
-
 - 简单易用的消息搬运功能。
 - 简单强大的自定义回复功能。
 - 完整支持 ECMAScript 5.1 的插件系统，基于 [otto](https://github.com/robertkrimen/otto)。
@@ -520,3 +519,7 @@ md5(string): string; //加密
 running(): boolean; //服务是否运行
 uuid(): string; //生成uuid
 ```
+
+### 项目赞助
+打开微信扫一扫，深入了解作者~
+![](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)
