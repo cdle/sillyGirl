@@ -450,7 +450,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				err := recover()
 				if err != nil {
 					console.Error("脚本错误：", err)
-					s.Reply(fmt.Sprint(err))
+					// s.Reply(fmt.Sprint(err))
 				}
 			}()
 			if err2 != nil {
