@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/cdle/sillyGirl/emoji"
+	"github.com/cdle/sillyGirl/utils"
 )
 
 type Strings struct {
@@ -200,4 +201,8 @@ func (sender *Strings) ReplaceToEmojis(str string, pattern string) string {
 
 func (sender *Strings) ExtractAddress(input string) string {
 	return regexp.MustCompile(`http[s]?://[\w.]+:?\d*`).FindString(input)
+}
+
+func (sender *Strings) Unique(str ...interface{}) []string {
+	return utils.Unique(str...)
 }

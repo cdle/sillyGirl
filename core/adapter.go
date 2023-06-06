@@ -67,13 +67,13 @@ var BotsLocker sync.RWMutex
 var ErrNotFind = errors.New("adapter not find")
 
 func DestroyAdapterByUUID(uuid string) {
-	BotsLocker.RLock()
-	defer BotsLocker.RUnlock()
-	for i := range Bots {
-		if Bots[i].uuid == uuid {
-			go Bots[i].Destroy()
-		}
-	}
+	// BotsLocker.RLock()
+	// defer BotsLocker.RUnlock()
+	// for i := range Bots {
+	// 	if Bots[i].uuid == uuid {
+	// 		go Bots[i].Destroy()
+	// 	}
+	// }
 }
 
 func GetAdapter(botplt string, bots_id ...string) (*Factory, error) {

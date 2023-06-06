@@ -81,7 +81,7 @@ func publicScript(str string) string {
 	if su.GetValue("title") == "" {
 		su.SetValue("title", "无名脚本")
 	}
-	if su.GetValue("message") == "" {
+	if su.GetValue("message") != "" {
 		su.DeleteValue("message")
 	}
 	create_at := su.GetValue("create_at")

@@ -308,24 +308,82 @@ func IsZeroOrEmpty(str string) bool {
 	return str == "0" || str == "" || str == "nil"
 }
 
+// func Unique(strs ...interface{}) []string {
+// 	m := make(map[string]bool)
+// 	var result []string
+// 	for _, arg := range strs {
+// 		switch arg := arg.(type) {
+// 		case []string:
+// 			for _, v := range arg {
+// 				if _, ok := m[v]; !ok {
+// 					m[v] = true
+// 					result = append(result, v)
+// 				}
+// 			}
+// 		case string:
+// 			if _, ok := m[arg]; !ok {
+// 				m[arg] = true
+// 				result = append(result, arg)
+// 			}
+// 		}
+// 	}
+// 	return result
+// }
+
 func Unique(strs ...interface{}) []string {
-	m := make(map[string]bool)
 	var result []string
 	for _, arg := range strs {
+		var toAppend []string
 		switch arg := arg.(type) {
 		case []string:
 			for _, v := range arg {
-				if _, ok := m[v]; !ok {
-					m[v] = true
-					result = append(result, v)
+				if !contains(result, v) && !contains(toAppend, v) {
+					toAppend = append(toAppend, v)
+				}
+			}
+		case []interface{}:
+			for _, v := range arg {
+				if !contains(result, v.(string)) && !contains(toAppend, v.(string)) {
+					toAppend = append(toAppend, v.(string))
 				}
 			}
 		case string:
-			if _, ok := m[arg]; !ok {
-				m[arg] = true
-				result = append(result, arg)
+			if !contains(result, arg) {
+				toAppend = append(toAppend, arg)
 			}
+		case [][]string:
+			subResult := Unique(flatten(arg)...)
+			for _, v := range subResult {
+				if !contains(result, v) && !contains(toAppend, v) {
+					toAppend = append(toAppend, v)
+				}
+			}
+		default:
+			// Unsupported type
+			continue
 		}
+		result = append(result, toAppend...)
+	}
+	return result
+}
+
+func contains(strs []string, s string) bool {
+	for _, v := range strs {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
+
+func flatten(arr [][]string) []interface{} {
+	var result []interface{}
+	for _, subarr := range arr {
+		var subresult []interface{}
+		for _, v := range subarr {
+			subresult = append(subresult, v)
+		}
+		result = append(result, subresult)
 	}
 	return result
 }
