@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
 	_ "github.com/cdle/sillyGirl/adapters/qq"
-	_ "github.com/cdle/sillyGirl/adapters/web"
+	"github.com/cdle/sillyGirl/adapters/web"
 	"github.com/cdle/sillyGirl/core"
 
 	"github.com/cdle/sillyGirl/utils"
@@ -16,6 +19,7 @@ import (
 var sillyGirl = core.MakeBucket("sillyGirl")
 
 func main() {
+
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 	time.Local = loc
 	core.Init()
@@ -41,6 +45,24 @@ func main() {
 			continue
 		}
 	}
+	go func() { //弹出浏览器
+		if runtime.GOOS != "windows" {
+			return
+		}
+		time.Sleep(time.Second * 3)
+		if web.GetUserNumber() == 0 {
+			app := core.MakeBucket("app")
+			port := app.GetInt("port", 8080)
+			url := fmt.Sprintf("http://localhost:%d/admin", port)
+			cmd := exec.Command("cmd", "/c", "start", url)
+			stdout, err := cmd.Output()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(string(stdout))
+		}
+	}()
 	if !d {
 		t := false
 		for _, arg := range os.Args {

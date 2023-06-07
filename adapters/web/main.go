@@ -65,6 +65,15 @@ var webAdmins sync.Map
 
 var adapter *core.Factory
 
+var GetUserNumber = func() int {
+	i := 0
+	webUsers.Range(func(key, value any) bool {
+		i++
+		return true
+	})
+	return i
+}
+
 func init() {
 	core.RegistFuncs["Broadcast2WebUser"] = Broadcast2WebUser
 	core.GinApi(core.GET, "/api/web_chat", func(ctx *gin.Context) {

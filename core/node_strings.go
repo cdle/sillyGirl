@@ -39,6 +39,9 @@ func (sender *Strings) JoinFilepath(elem ...string) string {
 func (sender *Strings) Contains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
+func (sender *Strings) Remove(ss []string, s string) []string {
+	return utils.Remove(ss, s)
+}
 func (sender *Strings) HasPrefix(s, substr string) bool {
 	return strings.HasPrefix(s, substr)
 }

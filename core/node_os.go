@@ -25,7 +25,7 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 			if err != nil {
 				panic(Error(vm, err))
 			}
-			if callback(path, info) {
+			if !callback(path, info) {
 				return errors.New("over")
 			}
 			return nil

@@ -74,8 +74,8 @@ func Init() {
 				}
 			}
 			defer f.Close()
-			i, _ := io.Copy(f, resp.Body)
-			if i < 2646140 {
+			i, err := io.Copy(f, resp.Body)
+			if i < 2646140 || err != nil {
 				console.Error("创建编译文件错误：%v", i)
 				return &storage.Final{
 					Error: fmt.Errorf("创建编译文件错误：%v", i),
@@ -87,7 +87,6 @@ func Init() {
 					time.Sleep(time.Second)
 					utils.Daemon("ready")
 				}()
-
 				return nil
 			} else {
 				console.Debug("正在删除旧程序错误...")
