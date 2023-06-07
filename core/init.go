@@ -46,8 +46,8 @@ func Init() {
 				}
 			}
 			console.Debug("正在从 cdle/binary 获取最新版本 %s 编译文件...", latest_version)
-			qurl := "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_linux_" + runtime.GOARCH + "_" + latest_version
-			if runtime.GOARCH == "windows" {
+			qurl := "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_" + runtime.GOOS + "_" + runtime.GOARCH + "_" + latest_version
+			if runtime.GOOS == "windows" {
 				qurl += ".exe"
 			}
 			resp, err := http.Get(qurl)
@@ -73,6 +73,7 @@ func Init() {
 					Error: fmt.Errorf("创建编译文件错误：%v", err),
 				}
 			}
+			defer f.Close()
 			i, _ := io.Copy(f, resp.Body)
 			if i < 2646140 {
 				console.Error("创建编译文件错误：%v", i)
@@ -81,7 +82,13 @@ func Init() {
 				}
 			}
 			if runtime.GOOS == "windows" {
-				utils.Daemon("ready")
+				console.Log("正在准备重启...")
+				go func() {
+					time.Sleep(time.Second)
+					utils.Daemon("ready")
+				}()
+
+				return nil
 			} else {
 				console.Debug("正在删除旧程序错误...")
 				if err = os.RemoveAll(filename); err != nil {

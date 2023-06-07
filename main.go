@@ -41,7 +41,6 @@ func main() {
 			continue
 		}
 	}
-
 	if !d {
 		t := false
 		for _, arg := range os.Args {
