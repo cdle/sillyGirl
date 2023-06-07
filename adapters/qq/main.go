@@ -186,26 +186,37 @@ func init() {
 				return true
 			})
 			adapter.SetReplyHandler(func(msg map[string]string) string {
+				if debug {
+					logs.Debug("QQ发送消息：", string(utils.JsonMarshal(msg)))
+				}
 				if utils.IsZeroOrEmpty(msg[core.CHAT_ID]) {
+					params := map[string]interface{}{
+						"user_id": msg[core.USER_ID],
+						"message": msg[core.CONETNT],
+					}
+					if debug {
+						logs.Debug("QQ实际私聊：", string(utils.JsonMarshal(params)))
+					}
 					id, err := qqcon.WriteJSON(CallApi{
 						Action: "send_private_msg",
-						Params: map[string]interface{}{
-							"user_id": msg[core.USER_ID],
-							"message": msg[core.CONETNT],
-						},
+						Params: params,
 					})
 					if err != nil {
 						core.Logs.Warn("QQ发送私聊消息错误：", err)
 					}
 					return id
 				} else {
+					params := map[string]interface{}{
+						"group_id": msg[core.CHAT_ID],
+						"user_id":  msg[core.USER_ID],
+						"message":  msg[core.CONETNT],
+					}
+					if debug {
+						logs.Debug("QQ实际群聊：", string(utils.JsonMarshal(params)))
+					}
 					id, err := qqcon.WriteJSON(CallApi{
 						Action: "send_group_msg",
-						Params: map[string]interface{}{
-							"group_id": msg[core.CHAT_ID],
-							"user_id":  msg[core.USER_ID],
-							"message":  msg[core.CONETNT],
-						},
+						Params: params,
 					})
 					if err != nil {
 						core.Logs.Warn("QQ发送群组消息错误：", err)
