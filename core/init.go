@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"regexp"
 	"runtime"
@@ -48,40 +50,29 @@ func Init() {
 			if runtime.GOARCH == "windows" {
 				qurl += ".exe"
 			}
-			req := httplib.Get(qurl)
-			req.SetTimeout(time.Minute*5, time.Minute*5)
-			data, err = req.Bytes()
+			resp, err := http.Get(qurl)
 			if err != nil {
 				console.Error("获取最新编译文件错误：%s", err)
 				return &storage.Final{
 					Error: fmt.Errorf("升级时貌似网络不太行啊：%v", err),
 				}
 			}
-			if len(data) < 2646140 {
-				console.Error("获取最新编译文件错误：%v", len(data))
-				return &storage.Final{
-					Error: fmt.Errorf("升级时貌似网络不太行啊！%v", len(data)),
-				}
-			}
+			defer resp.Body.Close()
 			console.Debug("正在创建编译文件...")
 			filename := utils.ExecPath + "/" + utils.ProcessName
 			ready := strings.Replace(filename, ".exe", ".ready.exe", -1)
-			if f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777); err != nil {
+			f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			if err != nil {
 				console.Error("创建编译文件错误：%v", err)
 				return &storage.Final{
 					Error: fmt.Errorf("创建编译文件错误：%v", err),
 				}
-			} else {
-				_, err := f.Write(data)
-				f.Close()
-				if err != nil {
-					des := err.Error()
-					if err = os.WriteFile(ready, data, 0777); err != nil {
-						console.Error("写入编译文件错误：%s || %s", des, err)
-						return &storage.Final{
-							Error: fmt.Errorf("写入编译文件错误：%s || %s", des, err),
-						}
-					}
+			}
+			i, _ := io.Copy(f, resp.Body)
+			if i < 2646140 {
+				console.Error("创建编译文件错误：%v", i)
+				return &storage.Final{
+					Error: fmt.Errorf("创建编译文件错误：%v", i),
 				}
 			}
 			if runtime.GOOS == "windows" {
