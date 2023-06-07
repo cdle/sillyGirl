@@ -200,11 +200,11 @@ func Daemon(str ...string) {
 		first = str[0]
 	}
 	args := os.Args[1:]
-	if first == "ready" {
+	if first == "ready" { //原->准备
 		os.Args[0] = strings.Replace(os.Args[0], ".exe", ".ready.exe", -1)
 		args = append(args, "-r")
 	}
-	if first == "reset" {
+	if first == "reset" { //准备->原
 		os.Args[0] = strings.Replace(os.Args[0], ".ready.exe", ".exe", -1)
 	}
 	execArgs := make([]string, 0)
