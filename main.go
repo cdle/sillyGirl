@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 	"time"
 
 	_ "github.com/cdle/sillyGirl/adapters/qq"
@@ -19,7 +18,6 @@ import (
 var sillyGirl = core.MakeBucket("sillyGirl")
 
 func main() {
-
 	loc, _ := time.LoadLocation("Asia/Shanghai")
 	time.Local = loc
 	core.Init()
@@ -30,19 +28,6 @@ func main() {
 	for _, arg := range os.Args {
 		if arg == "-d" {
 			d = true
-		}
-		if arg == "-r" { //准备程序->原程序
-			rfix := ".ready.exe"
-			ofix := ".exe"
-			if strings.Contains(os.Args[0], rfix) {
-				err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, rfix, ofix, -1))
-				if err == nil {
-					utils.Daemon("reset")
-				}
-			} else {
-				os.Remove(strings.ReplaceAll(os.Args[0], ofix, rfix))
-			}
-			continue
 		}
 	}
 	go func() { //弹出浏览器

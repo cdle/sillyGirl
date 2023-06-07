@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/dop251/goja"
 )
@@ -41,5 +42,7 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 		}
 		return dir
 	})
+	jsos.Set("name", runtime.GOOS)
+	jsos.Set("arch", runtime.GOARCH)
 	return jsos
 }

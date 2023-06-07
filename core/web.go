@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -43,6 +44,21 @@ func Cors() gin.HandlerFunc {
 var Server *gin.Engine
 
 func init() {
+	for _, arg := range os.Args { //处理升级
+		if arg == "-r" { //准备程序->原程序
+			rfix := ".ready.exe"
+			ofix := ".exe"
+			if strings.Contains(os.Args[0], rfix) {
+				err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, rfix, ofix, -1))
+				if err == nil {
+					utils.Daemon("reset")
+				}
+			} else {
+				os.Remove(strings.ReplaceAll(os.Args[0], ofix, rfix))
+			}
+			continue
+		}
+	}
 	gin.SetMode(gin.ReleaseMode)
 	Server = gin.New()
 	// Server.Use(gin.Recovery())
