@@ -18,6 +18,19 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 		}
 		return data
 	})
+	jsos.Set("readFileSync", func(path string) string {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			panic(Error(vm, err))
+		}
+		return string(data)
+	})
+	jsos.Set("writeFileSync", func(path, content string) {
+		err := os.WriteFile(path, []byte(content), 0644)
+		if err != nil {
+			panic(Error(vm, err))
+		}
+	})
 	jsos.Set("walkFilePath", func(root string, callback func(path string, info os.FileInfo) bool) {
 		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 			if !running() {
