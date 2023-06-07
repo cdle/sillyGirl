@@ -49,6 +49,7 @@ func init() {
 	Server.Use(Cors())
 	Server.Use(gzip.Gzip(gzip.DefaultCompression))
 	Server.GET("/api/file/:filename", FindFile)
+	Server.GET("/api/decode/:random", Base642Binary)
 	Server.NoRoute(func(c *gin.Context) {
 		if c.Request.URL.Path != "/api/web_chat" {
 			logs.Debug(c.Request.URL.Path)
@@ -317,7 +318,9 @@ func init() {
 		// logs.Info("Http服务(%s)开始运行", port)
 		logs.Info("管理员面板:")
 		logs.Info("  > 本机: http://localhost:%s", port)
-		logs.Info("  > 局域网: http://%s:%s", getLocalIP(), port)
+		local_ip := getLocalIP()
+		sillyGirl.Set("local_ip", local_ip)
+		logs.Info("  > 局域网: http://%s:%s", local_ip, port)
 		if err := srvs[0].ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logs.Error("Http服务运行失败：%s", err.Error())
 		}

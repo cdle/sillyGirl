@@ -109,7 +109,7 @@ func CancelPluginCrons(uuid string) {
 	}
 }
 
-func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
+func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func() bool) {
 	vm.Set("Bucket", func(name string) interface{} {
 		return vm.NewProxy(MakeBucketObject(vm, uuid, on_start, MakeBucket(name)), &goja.ProxyTrapConfig{
 			Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
@@ -433,6 +433,9 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool) {
 			},
 		}
 	})
+
+	osjs := getJsOs(vm, running)
+	vm.Set("os", osjs)
 }
 
 func EncryptPlugin(script string) string {

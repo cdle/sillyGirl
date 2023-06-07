@@ -136,12 +136,12 @@ func init() {
 				if ar[0] == "plugins" && false { //todo
 					data[bk] = halfDeEct(MakeBucket(ar[0]).GetString(ar[1]))
 				} else {
-					data[bk] = MakeBucket(ar[0]).GetString(ar[1])
+					data[bk] = TransformBucketKeyValue(MakeBucket(ar[0]).GetString(ar[1]))
 				}
 			}
 			if len(ar) == 1 {
 				MakeBucket(ar[0]).Foreach(func(b1, b2 []byte) error {
-					data[bk+"."+string(b1)] = string(b2)
+					data[bk+"."+string(b1)] = TransformBucketKeyValue(string(b2))
 					return nil
 				})
 			}
@@ -176,7 +176,7 @@ func init() {
 		for bk, v := range updates {
 			ar := strings.Split(bk, ".")
 			if len(ar) == 2 {
-				msg, err := MakeBucket(ar[0]).Set(ar[1], v)
+				msg, err := SetBucketKeyValue(MakeBucket(ar[0]), ar[1], v)
 				if msg != "" {
 					messages[bk] = msg
 				}

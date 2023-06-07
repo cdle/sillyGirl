@@ -459,7 +459,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			}
 			loop := eventloop.NewEventLoop()
 			loop.Run(func(vm *goja.Runtime) {
-				SetPluginMethod(vm, uuid, onStart)
+				SetPluginMethod(vm, uuid, onStart, running)
 				ss := &SenderJsIplm{
 					Message:    s,
 					Vm:         vm,

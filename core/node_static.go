@@ -1,10 +1,14 @@
 package core
 
 import (
+	"encoding/base64"
+	"fmt"
+	"image"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -49,4 +53,40 @@ func FindFile(c *gin.Context) {
 	})
 	// 如果文件不存在，返回404错误
 	c.AbortWithStatus(http.StatusNotFound)
+}
+
+// Server.GET("/api/file/:filename", FindFile)
+// 	Server.GET("/api/decode/:random", Base642Binary)
+
+func Base642Binary(c *gin.Context) {
+	random := c.Param("random")
+	s, ok := temp.Get("base64_" + random).(string)
+	if !ok {
+		c.String(http.StatusBadRequest, "Invalid input")
+		return
+	}
+	input := strings.TrimPrefix(s, "base64://")
+	data, err := base64.StdEncoding.DecodeString(input)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Invalid input")
+		return
+	}
+	// 解析图片格式
+	_, format, err := image.DecodeConfig(strings.NewReader(string(data)))
+	fmt.Println(format, err)
+	if err != nil {
+		c.Header("Content-Type", "application/octet-stream")
+	} else {
+		// 根据图片格式设置响应头
+		switch format {
+		case "jpeg":
+			c.Header("Content-Type", "image/jpeg")
+		case "png":
+			c.Header("Content-Type", "image/png")
+		default:
+			c.Header("Content-Type", "application/octet-stream")
+			return
+		}
+	}
+	c.Data(http.StatusOK, "application/octet-stream", data)
 }

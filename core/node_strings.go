@@ -3,10 +3,13 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cdle/sillyGirl/emoji"
 	"github.com/cdle/sillyGirl/utils"
@@ -15,8 +18,32 @@ import (
 type Strings struct {
 }
 
+func (sender *Strings) Random(length int, substr string) string {
+	ws := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	if substr != "" {
+		ws = substr
+	}
+	rand.Seed(time.Now().UnixNano())
+	letters := []rune(ws)
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
+func (sender *Strings) JoinFilepath(elem ...string) string {
+	return filepath.Join(elem...)
+}
+
 func (sender *Strings) Contains(s, substr string) bool {
 	return strings.Contains(s, substr)
+}
+func (sender *Strings) HasPrefix(s, substr string) bool {
+	return strings.HasPrefix(s, substr)
+}
+func (sender *Strings) HasSuffix(s, substr string) bool {
+	return strings.HasSuffix(s, substr)
 }
 
 func (sender *Strings) Replace(s string, old string, new string, n int) string {
