@@ -60,7 +60,12 @@ func Init() {
 			defer resp.Body.Close()
 			console.Debug("正在创建编译文件...")
 			filename := utils.ExecPath + "/" + utils.ProcessName
-			ready := strings.Replace(filename, ".exe", ".ready.exe", -1)
+			ready := ""
+			if runtime.GOOS == "windows" {
+				ready = strings.Replace(filename, ".exe", ".ready.exe", -1)
+			} else {
+				ready += ".ready"
+			}
 			f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 			if err != nil {
 				console.Error("创建编译文件错误：%v", err)
