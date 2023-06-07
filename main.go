@@ -29,13 +29,14 @@ func main() {
 		}
 		if arg == "-r" { //准备程序->原程序
 			rfix := ".ready.exe"
+			ofix := ".exe"
 			if strings.Contains(os.Args[0], rfix) {
-				err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, rfix, ".exe", -1))
+				err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, rfix, ofix, -1))
 				if err == nil {
 					utils.Daemon("reset")
 				}
 			} else {
-				os.Remove(strings.ReplaceAll(os.Args[0], ".exe", rfix))
+				os.Remove(strings.ReplaceAll(os.Args[0], ofix, rfix))
 			}
 			continue
 		}

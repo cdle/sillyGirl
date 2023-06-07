@@ -84,7 +84,7 @@ func Init() {
 					}
 				}
 			}
-			if runtime.GOOS == "window" {
+			if runtime.GOOS == "windows" {
 				utils.Daemon("ready")
 			} else {
 				console.Debug("正在删除旧程序错误...")
