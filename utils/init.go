@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -169,8 +170,43 @@ func GetPidFromFile(pidFile string) (int, error) {
 	return pid, nil
 }
 
-func Daemon() {
+func CopyFile(src string, dst string) error {
+	// 打开源文件
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// 创建目标文件，如果目标文件已存在则覆盖
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	// 将源文件内容复制到目标文件
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Daemon(str ...string) {
+	first := ""
+	if len(str) > 0 {
+		first = str[0]
+	}
 	args := os.Args[1:]
+	if first == "ready" {
+		os.Args[0] = strings.Replace(os.Args[0], ".exe", ".ready.exe", -1)
+		args = append(args, "-r")
+	}
+	if first == "reset" {
+		os.Args[0] = strings.Replace(os.Args[0], ".ready.exe", ".exe", -1)
+	}
 	execArgs := make([]string, 0)
 	l := len(args)
 	for i := 0; i < l; i++ {

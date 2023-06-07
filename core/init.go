@@ -5,7 +5,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
-	"syscall"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/adapter/httplib"
@@ -65,8 +65,8 @@ func Init() {
 			}
 			console.Debug("正在创建编译文件...")
 			filename := utils.ExecPath + "/" + utils.ProcessName
-			ready := filename + ".ready"
-			if f, err := os.OpenFile(ready, syscall.O_CREAT, 0777); err != nil {
+			ready := strings.Replace(filename, ".exe", ".ready.exe", -1)
+			if f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777); err != nil {
 				console.Error("创建编译文件错误：%v", err)
 				return &storage.Final{
 					Error: fmt.Errorf("创建编译文件错误：%v", err),
@@ -84,11 +84,15 @@ func Init() {
 					}
 				}
 			}
-			console.Debug("正在删除旧程序错误...")
-			if err = os.RemoveAll(filename); err != nil {
-				console.Error("删除旧程序错误：%v", err)
-				return &storage.Final{
-					Error: fmt.Errorf("删除旧程序错误：%v", err),
+			if runtime.GOOS == "window" {
+				utils.Daemon("ready")
+			} else {
+				console.Debug("正在删除旧程序错误...")
+				if err = os.RemoveAll(filename); err != nil {
+					console.Error("删除旧程序错误：%v", err)
+					return &storage.Final{
+						Error: fmt.Errorf("删除旧程序错误：%v", err),
+					}
 				}
 			}
 			console.Debug("正在移动新程序错误...")

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/cdle/sillyGirl/adapters/qq"
@@ -25,6 +26,13 @@ func main() {
 	for _, arg := range os.Args {
 		if arg == "-d" {
 			d = true
+		}
+		if arg == "-r" && strings.Contains(os.Args[0], ".ready.exe") { //准备程序还原程序
+			err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, "ready.exe", ".exe", -1))
+			if err == nil {
+				utils.Daemon("reset")
+			}
+			continue
 		}
 	}
 	if !d {

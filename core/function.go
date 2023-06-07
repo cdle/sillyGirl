@@ -233,13 +233,13 @@ func initToHandleMessage() {
 						}
 						s.Reply("ok")
 					case "reply":
-						if data := noReplyGroups.GetBytes(cid); len(data) != 0 {
-							info := &GroupInfo{}
-							if info.Enable {
-								info.Enable = !info.Enable
-								noReplyGroups.Set(cid, utils.JsonMarshal(info))
-							}
-						}
+						// if data := noReplyGroups.GetBytes(cid); len(data) != 0 {
+						info := &GroupInfo{}
+						// if info.Enable {
+						// 	info.Enable = !info.Enable
+						noReplyGroups.Set(cid, utils.JsonMarshal(info))
+						// }
+						// }
 						s.Reply("ok")
 					case "noreply", "unreply":
 						if data := noReplyGroups.GetBytes(cid); len(data) == 0 {
