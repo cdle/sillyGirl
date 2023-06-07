@@ -27,14 +27,20 @@ func main() {
 		if arg == "-d" {
 			d = true
 		}
-		if arg == "-r" && strings.Contains(os.Args[0], ".ready.exe") { //准备程序->原程序
-			err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, "ready.exe", ".exe", -1))
-			if err == nil {
-				utils.Daemon("reset")
+		if arg == "-r" { //准备程序->原程序
+			rfix := ".ready.exe"
+			if strings.Contains(os.Args[0], rfix) {
+				err := utils.CopyFile(utils.ProcessName, strings.Replace(utils.ProcessName, rfix, ".exe", -1))
+				if err == nil {
+					utils.Daemon("reset")
+				}
+			} else {
+				os.Remove(strings.ReplaceAll(os.Args[0], ".exe", rfix))
 			}
 			continue
 		}
 	}
+
 	if !d {
 		t := false
 		for _, arg := range os.Args {
