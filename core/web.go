@@ -48,6 +48,7 @@ func init() {
 	// Server.Use(gin.Recovery())
 	Server.Use(Cors())
 	Server.Use(gzip.Gzip(gzip.DefaultCompression))
+	Server.GET("/api/file/:filename", FindFile)
 	Server.NoRoute(func(c *gin.Context) {
 		if c.Request.URL.Path != "/api/web_chat" {
 			logs.Debug(c.Request.URL.Path)

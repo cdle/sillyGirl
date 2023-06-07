@@ -205,6 +205,7 @@ func initPlugins() {
 				CancelPluginWebs(key)
 				CancelPluginlistening(key)
 				CancelHttpListen(key)
+				remStatic(key)
 				storage.DisableHandle(key)
 				if new != "" {
 					AddCommand([]*common.Function{f})

@@ -240,12 +240,15 @@ func init() {
 			for {
 				_, data, err := ws.ReadMessage()
 				if err != nil {
+
 					ws.Close()
 					break
 				}
+
 				if debug {
 					logs.Debug("QQ接收消息：", string(data))
 				}
+
 				{
 					res := &GroupList{}
 					json.Unmarshal(data, res)
@@ -282,6 +285,7 @@ func init() {
 				if msg.SelfID == msg.UserID {
 					continue
 				}
+
 				msg.RawMessage = strings.ReplaceAll(msg.RawMessage, "\\r", "\n")
 				msg.RawMessage = regexp.MustCompile(`[\n\r]+`).ReplaceAllString(msg.RawMessage, "\n")
 				content := msg.RawMessage
@@ -297,10 +301,12 @@ func init() {
 					"message_id": fmt.Sprint(msg.MessageID),
 					"content":    content,
 				}
+
 				if debug {
 					logs.Debug("QQ处理消息：", string(utils.JsonMarshal(_msg)))
 				}
-				adapter.Receive(msg)
+				adapter.Receive(_msg)
+
 			}
 		})
 	}()
