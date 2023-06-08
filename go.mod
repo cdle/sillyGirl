@@ -11,6 +11,7 @@ require (
 	github.com/beego/beego/v2 v2.1.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/buger/jsonparser v1.1.1
+	github.com/clbanning/mxj v1.8.4
 	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58
 	github.com/dop251/goja v0.0.0-20230605162241-28ee0ee714f3
 	github.com/dop251/goja_nodejs v0.0.0-20230602164024-804a84515562
@@ -61,6 +62,6 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0
+	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
