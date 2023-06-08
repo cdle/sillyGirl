@@ -1,18 +1,14 @@
 package core
 
 import (
-	"bytes"
 	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 
+	"github.com/axgle/mahonia"
 	"github.com/dop251/goja"
-	"golang.org/x/net/html/charset"
-	"golang.org/x/text/encoding/ianaindex"
-	"golang.org/x/text/transform"
 )
 
 func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
@@ -24,48 +20,80 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 		}
 		return data
 	})
-	jsos.Set("readFileSync", func(path string) string {
+
+	jsos.Set("readFileSync", func(path string, decode string) string {
 		// 读取文件内容
 		content, err := ioutil.ReadFile(path)
 		if err != nil {
 			panic(Error(vm, err))
 		}
-
-		// 从文件内容中自动检测编码
-		encoding, _, _ := charset.DetermineEncoding(content, "")
-
-		// 创建一个将编码转换为 UTF-8 的转换器
-		utf8Reader := transform.NewReader(bytes.NewReader(content), encoding.NewDecoder())
-
-		// 读取转换后的 UTF-8 数据
-		utf8Content, err := ioutil.ReadAll(utf8Reader)
-		if err != nil {
-			panic(Error(vm, err))
+		if decode == "" || decode == "utf-8" {
+			return string(content)
 		}
-		return string(utf8Content)
+		srcCoder := mahonia.NewDecoder(decode)
+		srcResult := srcCoder.ConvertString(string(content))
+		return srcResult
+		// return ConvertToString(string(content), decode, "utf-8")
+		// if decode == "" {
+		// 	return string(content)
+		// }
+		// coder := mahonia.NewEncoder(decode)
+		// return coder.ConvertString(string(content))
+
+		// // 从文件内容中自动检测编码
+		// encoding, name, _ := charset.DetermineEncoding(content, "")
+		// logs.Debug("name", name)
+
+		// // 创建一个将编码转换为 UTF-8 的转换器
+		// utf8Reader := transform.NewReader(bytes.NewReader(content), encoding.NewDecoder())
+
+		// // 读取转换后的 UTF-8 数据
+		// utf8Content, err := ioutil.ReadAll(utf8Reader)
+		// if err != nil {
+		// 	panic(Error(vm, err))
+		// }
+		// return string(utf8Content)
 	})
 
 	jsos.Set("writeFileSync", func(path, content string, encode string) {
-
-		encode = strings.ToLower(encode)
-		if encode == "" {
-			encode = "utf-8"
-		}
-		// 将UTF-8编码的文本转换为指定编码
-		index := ianaindex.MIME
-		enc, err := index.Encoding(encode)
-		if err != nil {
-			panic(Error(vm, err))
-		}
-		converted, _, err := transform.String(enc.NewEncoder(), content)
-		if err != nil {
-			panic(Error(vm, err))
+		converted := ""
+		if encode == "" || encode == "utf-8" {
+			converted = content
+		} else {
+			tagCoder := mahonia.NewEncoder(encode)
+			converted = tagCoder.ConvertString(content)
 		}
 		// 覆盖写入文件
-		err = os.WriteFile(path, []byte(converted), 0644)
+		err := os.WriteFile(path, []byte(converted), 0644)
 		if err != nil {
 			panic(Error(vm, err))
 		}
+		// if encode == "" {
+		// 	encode = "utf-8"
+		// }
+		// if encode == "utf-8" {
+		// 	// 覆盖写入文件
+		// 	err := os.WriteFile(path, []byte(content), 0644)
+		// 	if err != nil {
+		// 		panic(Error(vm, err))
+		// 	}
+		// 	return
+		// }
+		// // 将UTF-8编码的文本转换为指定编码
+		// index := ianaindex.MIME
+		// enc, err := index.Encoding(encode)
+		// if err != nil {
+		// 	panic(Error(vm, err))
+		// }
+		// converted, _, err := transform.String(enc.NewEncoder(), content)
+		// if err != nil {
+		// 	panic(Error(vm, err))
+		// }
+		// // 覆盖写入文件
+		// err = os.WriteFile(path, []byte(converted), 0644)
+		// if err != nil {
+		// 	panic(Error(vm, err))
+		// }
 	})
 	jsos.Set("walkFilePath", func(root string, callback func(path string, info os.FileInfo) bool) {
 		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -94,4 +122,23 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 	jsos.Set("name", runtime.GOOS)
 	jsos.Set("arch", runtime.GOARCH)
 	return jsos
+}
+
+func ConvertToString(src string, srcCode string, tagCode string) string {
+	if srcCode == tagCode {
+		return src
+	}
+	srcResult := ""
+	if srcCode == "utf-8" {
+		srcResult = src
+	} else {
+		srcCoder := mahonia.NewDecoder(srcCode)
+		srcResult = srcCoder.ConvertString(src)
+	}
+	if tagCode == "utf-8" {
+		return srcResult
+	}
+	tagCoder := mahonia.NewEncoder(tagCode)
+	result := tagCoder.ConvertString(srcResult)
+	return result
 }
