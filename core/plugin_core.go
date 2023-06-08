@@ -183,7 +183,7 @@ func initPlugins() {
 			if su.script != new {
 				fin.Message = su.script
 			} else if title != (&ScriptUtils{script: old}).GetValue("title") {
-				fin.Message = "标题变更"
+				fin.Message = "标题变更。"
 			}
 			new = su.script
 		}
