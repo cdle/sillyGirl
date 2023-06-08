@@ -57,6 +57,7 @@ type Factory struct {
 	ctx           context.Context
 	cancel        context.CancelFunc
 	destroid      bool
+	errorTimes    int
 }
 
 type Bot [2]string //botplt botid
@@ -181,6 +182,41 @@ func (f *Factory) Init(botplt, botid string) {
 		botid = fmt.Sprintf("(%s)", botid)
 	}
 	console.Log("%s机器人%s已初始化", botplt, botid)
+	go func() {
+		if f.uuid != "" {
+			su := &ScriptUtils{
+				script: plugins.GetString(f.uuid),
+			}
+			str := su.GetValue("message")
+			if str == "" {
+				return
+			}
+			ss := regexp.MustCompile(`\S+`).FindAllString(str, -1)
+			if len(ss) == 0 {
+				return
+			}
+			if ss[0] != f.botplt {
+				ss = []string{f.botplt}
+			}
+			nss := utils.Unique(ss, f.botid)
+			nstr := strings.Join(nss, " ")
+			if str != nstr {
+				su.SetValue("message", nstr)
+				plugins.Set(f.uuid, su.script)
+			}
+		}
+	}()
+}
+
+func (f *Factory) Fail() {
+	f.errorTimes++
+	if f.errorTimes > 5 {
+		f.Destroy()
+	}
+}
+
+func (f *Factory) Success() {
+	f.errorTimes = 0
 }
 
 func (f *Factory) IsAdapter(botid string) bool {
@@ -209,6 +245,35 @@ func (f *Factory) Destroy() {
 		botid = f.botid
 	}
 	console.Log("%s机器人%s已销毁", strings.ToUpper(f.botplt), botid)
+	go func() {
+		if f.uuid != "" {
+			su := &ScriptUtils{
+				script: plugins.GetString(f.uuid),
+			}
+			str := su.GetValue("message")
+			if str == "" {
+				return
+			}
+			ss := regexp.MustCompile(`\S+`).FindAllString(str, -1)
+			if len(ss) == 0 {
+				return
+			}
+			if ss[0] != f.botplt {
+				ss = []string{f.botplt}
+			}
+			nss := utils.Unique(utils.Remove(ss, f.botid))
+			if len(nss) == 1 {
+				su.DeleteValue("message")
+				plugins.Set(f.uuid, su.script)
+			} else {
+				nstr := strings.Join(nss, " ")
+				if str != nstr {
+					su.SetValue("message", nstr)
+					plugins.Set(f.uuid, su.script)
+				}
+			}
+		}
+	}()
 }
 
 func (f *Factory) Push(msg map[string]string) (string, error) {
@@ -528,6 +593,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 					})
 					vm.Set("msg", proxy)
 					vm.Set("message", proxy)
+					vm.Set("adapter", sender.f)
 				})
 				return message_id, nil
 			} else {
