@@ -172,7 +172,8 @@ func (f *Factory) Init(botplt, botid string) {
 	f.demo = &CustomSender{
 		f: f,
 	}
-	if _, ok := Bots[[2]string{botplt, botid}]; ok {
+	if v, ok := Bots[[2]string{botplt, botid}]; ok {
+		v.Destroy()
 		console.Warn("%s机器人%s因冲突销毁！", botplt, botid)
 	}
 	Bots[[2]string{botplt, botid}] = f
@@ -188,12 +189,9 @@ func (f *Factory) Init(botplt, botid string) {
 				script: plugins.GetString(f.uuid),
 			}
 			str := su.GetValue("message")
-			if str == "" {
-				return
-			}
 			ss := regexp.MustCompile(`\S+`).FindAllString(str, -1)
 			if len(ss) == 0 {
-				return
+				ss = []string{f.botplt}
 			}
 			if ss[0] != f.botplt {
 				ss = []string{f.botplt}
@@ -208,11 +206,12 @@ func (f *Factory) Init(botplt, botid string) {
 	}()
 }
 
-func (f *Factory) Fail() {
+func (f *Factory) Fail() int {
 	f.errorTimes++
 	if f.errorTimes > 5 {
-		f.Destroy()
+		go f.Destroy()
 	}
+	return f.errorTimes
 }
 
 func (f *Factory) Success() {

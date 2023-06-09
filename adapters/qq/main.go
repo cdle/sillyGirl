@@ -238,6 +238,7 @@ func init() {
 			}()
 
 			for {
+				//{"self_id":"17745270","status":{"online":true,"good":false},"time":1686281911,"post_type":"meta_event","meta_event_type":"heartbeat","interval":3000}
 				_, data, err := ws.ReadMessage()
 				if err != nil {
 

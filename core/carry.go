@@ -230,6 +230,7 @@ func init() {
 							if ncg.In {
 								if ncg.Enable {
 									AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
+									AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", ncg.ID))
 								} else {
 									RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", ncg.ID))
 								}
@@ -248,6 +249,7 @@ func init() {
 				tmp = append(tmp, ncg)
 				if ncg.In && ncg.Enable {
 					AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
+					AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", ncg.ID))
 				}
 			} else {
 				return nil
@@ -271,6 +273,7 @@ func setCgs() {
 		}
 		if cg.In {
 			AddListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", cg.ID))
+			AddNoReplyGroups(cg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", cg.ID))
 		}
 		cgs = append(cgs, cg)
 		return nil
