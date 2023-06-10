@@ -36,6 +36,33 @@ func (sender *Strings) JoinFilepath(elem ...string) string {
 	return filepath.Join(elem...)
 }
 
+func (sender *Strings) Trim(s, cutset string) string {
+	return strings.Trim(s, cutset)
+}
+func (sender *Strings) TrimLeft(s, cutset string) string {
+	return strings.TrimLeft(s, cutset)
+}
+
+func (sender *Strings) TrimRight(s, cutset string) string {
+	return strings.TrimRight(s, cutset)
+}
+
+func (sender *Strings) Filename(path string) string {
+	re := regexp.MustCompile(`[\\/]+`)
+	parts := re.Split(path, -1)
+	filename := parts[len(parts)-1]
+	return filename
+}
+
+func (sender *Strings) Dir(path string) string {
+	re := regexp.MustCompile(`[\\/]+`)
+	parts := re.Split(path, -1)
+	filename := parts[len(parts)-1]
+	dir := path[:len(path)-len(filename)]
+	dir = filepath.Clean(dir)
+	return dir
+}
+
 func (sender *Strings) Contains(s, substr string) bool {
 	return strings.Contains(s, substr)
 }

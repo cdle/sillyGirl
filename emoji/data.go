@@ -4,7 +4,46 @@ package emoji
 
 var (
 	emojiMap = map[string]Emoji{
-
+		"❶": {	
+			Character:   "❶",
+			CodePoint:   "2776",
+		},
+		"❷": {	
+			Character:   "❷",
+			CodePoint:   "2777",
+		},
+		"❸": {	
+			Character:   "❸",
+			CodePoint:   "2778",
+		},
+		"❹": {	
+			Character:   "❹",
+			CodePoint:   "2779",
+		},
+		"❺": {	
+			Character:   "❺",
+			CodePoint:   "277A",
+		},
+		"❻": {	
+			Character:   "❻",
+			CodePoint:   "277B",
+		},
+		"❼": {	
+			Character:   "❼",
+			CodePoint:   "277C",
+		},
+		"❽": {	
+			Character:   "❽",
+			CodePoint:   "277D",
+		},
+		"❾": {	
+			Character:   "❾",
+			CodePoint:   "277E",
+		},
+		"❿": {	
+			Character:   "❿",
+			CodePoint:   "277F",
+		},
 		"#⃣": {
 			Slug:        "keycap-#",
 			Character:   "#⃣",

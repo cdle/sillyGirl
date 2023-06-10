@@ -31,7 +31,7 @@ func FindFile(c *gin.Context) {
 	statics.Range(func(_, value any) bool {
 		path := value.(string)
 		// 拼接文件路径
-		filepath := filepath.Join(path, filename)
+		filepath := strings.ReplaceAll(filepath.Join(path, filename), "\\/", "\\")
 		// 判断文件是否存在
 		_, err := os.Stat(filepath)
 		if err == nil {
@@ -48,6 +48,8 @@ func FindFile(c *gin.Context) {
 			// 返回文件内容
 			c.Data(http.StatusOK, contentType, file)
 			return false
+		} else {
+			console.Log(err)
 		}
 		return true
 	})

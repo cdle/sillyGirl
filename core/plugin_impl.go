@@ -235,6 +235,23 @@ func (sender *SenderJsIplm) Param(i interface{}) string {
 	return ""
 }
 
+func (sender *SenderJsIplm) GetAllMatch() [][]string {
+	return sender.Message.GetAllMatch()
+}
+
+func (sender *SenderJsIplm) Params(i int) []string {
+	if i == 0 {
+		i = 1
+	}
+	ss := []string{}
+	for _, v := range sender.Message.GetAllMatch() {
+		ss = append(ss, v[i-1])
+	}
+	return ss
+}
+
+// GetAllMatch
+
 func (Sender *SenderJsIplm) Get(i interface{}) string {
 	return Sender.Param(i)
 }

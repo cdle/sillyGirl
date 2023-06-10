@@ -40,8 +40,7 @@ func init() {
 	}
 }
 
-func ConvertRegex(input string) (string, int) {
-	count := strings.Count(input, "%s")
+func ConvertRegex(input string) string {
 	// 定义要转义的字符集合
 	escapeSet := []string{"\\", "[", "]", "(", ")", "{", "}", ".", "*", "+", "?", "^", "$", "|"}
 
@@ -58,37 +57,21 @@ func ConvertRegex(input string) (string, int) {
 	replaced := strings.ReplaceAll(input, pattern, replaceStr)
 
 	// 返回转换结果和是否大写的标记
-	return replaced, count
+	return replaced
 }
 
 // \[emoji=[0-9A-Z]{4}\]
-func ReplaceToEmojis(str string, format string) string {
-	pattern, count := ConvertRegex(format)
-	if count == 1 {
-		str = regexp.MustCompile("[0-9]"+pattern+pattern).ReplaceAllStringFunc(str, func(s string) string {
-			if !strings.EqualFold(strings.ToUpper(s[1:]), strings.ToUpper(fmt.Sprintf(format+format, "FE0F", "20E3"))) { //"[emoji=FE0F][emoji=20E3]"
-				return s
-			}
-			return fmt.Sprintf(format, fmt.Sprintf("%04X", s[0])) + s[1:]
-		})
-	} else if count == 2 {
-		str = regexp.MustCompile("[0-9]"+pattern).ReplaceAllStringFunc(str, func(s string) string {
-			if !strings.EqualFold(strings.ToUpper(s[1:]), strings.ToUpper(fmt.Sprintf(format, "FE0F", "20E3"))) { //"[emoji=FE0F][emoji=20E3]"
-				return s
-			}
-			return fmt.Sprintf(format, fmt.Sprintf("%04X", s[0]), "0000") + s[1:]
-		})
-	} else {
-		return str
-	}
+func ReplaceToEmojis(str string, pattern string) string {
+	format := pattern
+	pattern = ConvertRegex(pattern)
+	str = regexp.MustCompile("[0-9]"+pattern+pattern).ReplaceAllStringFunc(str, func(s string) string {
+		if !strings.EqualFold(strings.ToUpper(s[1:]), strings.ToUpper(fmt.Sprintf(format+format, "FE0F", "20E3"))) { //"[emoji=FE0F][emoji=20E3]"
+			return s
+		}
+		return fmt.Sprintf(format, fmt.Sprintf("%04X", s[0])) + s[1:]
+	})
 	res := str
 	h := func(ssr *[]string) string {
-		for i := range *ssr {
-			if (*ssr)[i] == "0000" {
-				s := append((*ssr)[:i], (*ssr)[i+1:]...)
-				ssr = &s
-			}
-		}
 		chs := []string{}
 		ch := ""
 		l := 100
@@ -106,22 +89,14 @@ func ReplaceToEmojis(str string, format string) string {
 		}
 		if ch != "" {
 			chs = append(chs, ch)
-			if len(lft) != 0 {
-				ch = ""
-				l = 100
-				*ssr = lft
-				lft = []string{}
-				goto again
-			}
-		} else {
-			for _, hex := range *ssr {
-				r, err := HexToRune(hex)
-				if err == nil {
-					chs = append(chs, string([]rune{r}))
-				}
-			}
 		}
-
+		if len(lft) != 0 && ch != "" {
+			ch = ""
+			l = 100
+			*ssr = lft
+			lft = []string{}
+			goto again
+		}
 		return strings.Join(chs, "")
 	}
 	sss := regexp.MustCompile(pattern).FindAllStringSubmatchIndex(str, -1)
@@ -130,8 +105,7 @@ func ReplaceToEmojis(str string, format string) string {
 	e := -1
 	for i := range sss {
 		ss := sss[i]
-		a, b := ss[0], ss[1] //, ss[2], ss[3]
-		// fmt.Println(str[a:b], str[c:d])
+		a, b, c, d := ss[0], ss[1], ss[2], ss[3]
 
 		//结算
 		if e != a && len(ssr) != 0 {
@@ -143,15 +117,11 @@ func ReplaceToEmojis(str string, format string) string {
 		}
 
 		ssrs = append(ssrs, str[a:b])
-		k := []int{}
-		for _, j := range ss[2:] {
-			k = append(k, j)
-			if len(k) == 2 {
-				ssr = append(ssr, strings.ToUpper(str[k[0]:k[1]]))
-				k = []int{}
-			}
-		}
-		// ssr = append(ssr, strings.ToUpper(str[c:d]))
+		// if upper {
+		// 	ssr = append(ssr, str[c:d])
+		// } else {
+		ssr = append(ssr, strings.ToUpper(str[c:d]))
+		// }
 		e = b
 	}
 	if len(ssr) != 0 {

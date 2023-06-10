@@ -238,7 +238,6 @@ func init() {
 			}()
 
 			for {
-				//{"self_id":"17745270","status":{"online":true,"good":false},"time":1686281911,"post_type":"meta_event","meta_event_type":"heartbeat","interval":3000}
 				_, data, err := ws.ReadMessage()
 				if err != nil {
 
@@ -295,14 +294,13 @@ func init() {
 				content = strings.Replace(content, "&#93;", "]", -1)
 				content = strings.Trim(content, " ")
 				_msg := map[string]interface{}{
-					"user_id":    fmt.Sprint(msg.UserID),
+					"user_id":    utils.Itoa(msg.UserID),
 					"chat_id":    core.ChatID(msg.GroupID),
 					"user_name":  msg.Sender.Nickname,
 					"chat_name":  "",
-					"message_id": fmt.Sprint(msg.MessageID),
+					"message_id": utils.Itoa(msg.MessageID),
 					"content":    content,
 				}
-
 				if debug {
 					logs.Debug("QQ处理消息：", string(utils.JsonMarshal(_msg)))
 				}

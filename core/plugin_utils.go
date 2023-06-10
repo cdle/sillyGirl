@@ -248,25 +248,6 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 			return o
 		})
 
-		vm.Set("Express", func() *goja.Object {
-			o := vm.NewObject()
-			methods := []string{"get", "post", "delete", "put", "fetch"}
-			for i := range methods {
-				method := methods[i]
-				o.Set(method, func(path string, handles ...func(*Request, *Response)) {
-					webs = append(webs, Web{
-						uuid:    uuid,
-						method:  strings.ToUpper(method),
-						path:    path,
-						handles: handles,
-					})
-				})
-			}
-			o.Set("static", func(path string) {
-				addStatic(uuid, path)
-			})
-			return o
-		})
 		// registry.RegisterNativeModule("express", func(runtime *goja.Runtime, module *goja.Object) {
 		// 	o := module.Get("exports").(*goja.Object)
 		// 	methods := []string{"get", "post", "delete", "put", "fetch"}
@@ -331,6 +312,25 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		// 	}()
 		// }
 	}
+	vm.Set("Express", func() *goja.Object {
+		o := vm.NewObject()
+		methods := []string{"get", "post", "delete", "put", "fetch"}
+		for i := range methods {
+			method := methods[i]
+			o.Set(method, func(path string, handles ...func(*Request, *Response)) {
+				webs = append(webs, Web{
+					uuid:    uuid,
+					method:  strings.ToUpper(method),
+					path:    path,
+					handles: handles,
+				})
+			})
+		}
+		o.Set("static", func(path string) {
+			addStatic(uuid, path)
+		})
+		return o
+	})
 	registry.Enable(vm)
 	vm.SetFieldNameMapper(myFieldNameMapper{})
 	// vm.Set("sleep", sleep)

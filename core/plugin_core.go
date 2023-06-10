@@ -259,6 +259,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var origin = "自定义"
 	var http *common.Http
 	var message *common.Reply
+	var FindAll bool
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
 	).FindAllStringSubmatch(data, -1)
@@ -366,6 +367,8 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			admin = strings.TrimSpace(res[2]) == "true"
 		case "disable":
 			disable = strings.TrimSpace(res[2]) == "true"
+		case "findall":
+			FindAll = strings.TrimSpace(res[2]) == "true"
 		case "priority":
 			priority = utils.Int(strings.TrimSpace(res[2]))
 		case "title", "name", "show":
@@ -549,6 +552,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		Running:     onStart,
 		Reply:       message,
 		Http:        http,
+		FindAll:     FindAll,
 	}
 	running = func() bool {
 		return f.Running
@@ -562,13 +566,13 @@ func ChatID(p interface{}) string {
 		if p == 0 {
 			return ""
 		} else {
-			return fmt.Sprint(p)
+			return utils.Itoa(p)
 		}
 	case string:
 		return p
 	case nil:
 		return ""
 	default:
-		return fmt.Sprint(p)
+		return utils.Itoa(p)
 	}
 }

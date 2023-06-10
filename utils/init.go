@@ -423,3 +423,20 @@ func flatten(arr [][]string) []interface{} {
 	}
 	return result
 }
+
+func Itoa(i interface{}) string {
+	switch i := i.(type) {
+	case int:
+		return strconv.Itoa(i)
+	case int32:
+		return strconv.Itoa(int(i))
+	case int64:
+		return strconv.Itoa(int(i))
+	case int16:
+		return strconv.Itoa(int(i))
+	case string:
+		return i
+	default:
+		return fmt.Sprint(i)
+	}
+}
