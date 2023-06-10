@@ -307,6 +307,49 @@ func (sender *Strings) Longest(args ...interface{}) string {
 					longest = s.(string)
 				}
 			}
+		case [][]string:
+			for _, s := range v {
+				longest = sender.Longest(s)
+			}
+		case [][]interface{}:
+			for _, s := range v {
+				longest = sender.Longest(s)
+			}
+
+		}
+	}
+	return longest
+}
+
+func (sender *Strings) Shortest(args ...interface{}) string {
+	var longest string
+	for _, arg := range args {
+		switch v := arg.(type) {
+		case string:
+			if len(v) < len(longest) {
+				longest = v
+			}
+		case []string:
+			for _, s := range v {
+				if len(s) < len(longest) {
+					longest = s
+				}
+			}
+		case []interface{}:
+			for _, s := range v {
+				if len(s.(string)) < len(longest) {
+					longest = s.(string)
+				}
+			}
+		case [][]string:
+			for _, s := range v {
+				longest = sender.Shortest(s)
+			}
+		case [][]interface{}:
+			for _, s := range v {
+				longest = sender.Shortest(s)
+			}
+
 		}
 	}
 	return longest

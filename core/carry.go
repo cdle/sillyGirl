@@ -34,8 +34,9 @@ var carryCounter int64
 func init() {
 	AddCommand([]*common.Function{
 		{
-			Rules:  []string{`raw [\s\S]+`},
-			Hidden: true,
+			Rules:    []string{`raw [\s\S]+`},
+			Hidden:   true,
+			Priority: 9999,
 			Handle: func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
 				var bot_id = s.GetBotID()
 				var platform = s.GetImType()
