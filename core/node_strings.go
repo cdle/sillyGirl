@@ -63,9 +63,32 @@ func (sender *Strings) Dir(path string) string {
 	return dir
 }
 
-func (sender *Strings) Contains(s, substr string) bool {
-	return strings.Contains(s, substr)
+func (sender *Strings) Contains(s string, substr interface{}) bool {
+	switch substr := substr.(type) {
+	case string:
+		return strings.Contains(s, substr)
+	case []string:
+		for _, sub := range substr {
+			return strings.Contains(s, sub)
+		}
+		return false
+	case []interface{}:
+		for _, sub := range substr {
+			return strings.Contains(s, sub.(string))
+		}
+		return false
+	}
+	return false
 }
+
+func (sender *Strings) ToLower(s string) string {
+	return strings.ToLower(s)
+}
+
+func (sender *Strings) ToUpper(s string) string {
+	return strings.ToUpper(s)
+}
+
 func (sender *Strings) Remove(ss []string, s string) []string {
 	return utils.Remove(ss, s)
 }
@@ -262,4 +285,29 @@ func (sender *Strings) ExtractAddress(input string) string {
 
 func (sender *Strings) Unique(str ...interface{}) []string {
 	return utils.Unique(str...)
+}
+
+func (sender *Strings) Longest(args ...interface{}) string {
+	var longest string
+	for _, arg := range args {
+		switch v := arg.(type) {
+		case string:
+			if len(v) > len(longest) {
+				longest = v
+			}
+		case []string:
+			for _, s := range v {
+				if len(s) > len(longest) {
+					longest = s
+				}
+			}
+		case []interface{}:
+			for _, s := range v {
+				if len(s.(string)) > len(longest) {
+					longest = s.(string)
+				}
+			}
+		}
+	}
+	return longest
 }
