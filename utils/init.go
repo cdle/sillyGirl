@@ -436,6 +436,10 @@ func Itoa(i interface{}) string {
 		return strconv.Itoa(int(i))
 	case string:
 		return i
+	case float32:
+		return strconv.Itoa(int(i))
+	case float64:
+		return strconv.Itoa(int(i))
 	default:
 		return fmt.Sprint(i)
 	}
