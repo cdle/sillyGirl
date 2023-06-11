@@ -36,6 +36,30 @@ func (sender *Strings) JoinFilepath(elem ...string) string {
 	return filepath.Join(elem...)
 }
 
+func ForeachObject(m map[string]interface{}, callback func(key, value interface{}) bool) bool {
+	for k, v := range m {
+		switch v := v.(type) {
+		case map[string]interface{}:
+			if ForeachObject(v, callback) {
+				return true
+			}
+		case []interface{}:
+			for _, u := range v {
+				if um, ok := u.(map[string]interface{}); ok {
+					if ForeachObject(um, callback) {
+						return true
+					}
+				}
+			}
+		case string:
+			if callback(k, v) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (sender *Strings) Trim(s, cutset string) string {
 	return strings.Trim(s, cutset)
 }
@@ -66,15 +90,21 @@ func (sender *Strings) Dir(path string) string {
 func (sender *Strings) Contains(s string, substr interface{}) bool {
 	switch substr := substr.(type) {
 	case string:
-		return strings.Contains(s, substr)
+		if strings.Contains(s, substr) {
+			return true
+		}
 	case []string:
 		for _, sub := range substr {
-			return strings.Contains(s, sub)
+			if strings.Contains(s, sub) {
+				return true
+			}
 		}
 		return false
 	case []interface{}:
 		for _, sub := range substr {
-			return strings.Contains(s, sub.(string))
+			if strings.Contains(s, sub.(string)) {
+				return true
+			}
 		}
 		return false
 	}
@@ -141,21 +171,23 @@ func (sender *Strings) EncodeQueryString(params map[string]interface{}) string {
 }
 
 func (sender *Strings) DecodeQueryString(querystring string) map[string]interface{} {
-	values, err := url.ParseQuery(querystring)
+	u, err := url.Parse(querystring)
+
 	if err != nil {
 		panic(err)
 	}
 	params := make(map[string]interface{})
-	for key, values := range values {
+	for key, values := range u.Query() {
 		if len(values) > 0 {
 			value := values[0]
-			if intValue, err := strconv.Atoi(value); err == nil {
-				params[key] = intValue
-			} else if boolValue, err := strconv.ParseBool(value); err == nil {
-				params[key] = boolValue
-			} else {
-				params[key] = value
-			}
+			// if intValue, err := strconv.Atoi(value); err == nil {
+			// 	params[key] = intValue
+			// } else if boolValue, err := strconv.ParseBool(value); err == nil {
+			// 	params[key] = boolValue
+			// } else {
+			// 	params[key] = value
+			// }
+			params[key] = value
 		}
 	}
 	return params

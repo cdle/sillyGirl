@@ -1,7 +1,9 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/dop251/goja"
 )
@@ -10,6 +12,24 @@ func MakeHeadersObject(vm *goja.Runtime, header http.Header) *goja.Object {
 	obj := vm.NewObject()
 	obj.Set("get", func(name string) string {
 		return header.Get(name)
+	})
+
+	obj.Set("gets", func(name string) []string {
+		return header.Values(name)
+	})
+
+	obj.Set("values", func(name string) []string {
+		return header.Values(name)
+	})
+
+	obj.Set("cookie", func(name string) string {
+		for _, v := range header.Values("Set-Cookie") {
+			res := regexp.MustCompile(fmt.Sprintf("%s=([^;]+)", name)).FindStringSubmatch(v)
+			if len(res) > 0 {
+				return res[1]
+			}
+		}
+		return ""
 	})
 
 	obj.Set("has", func(name string) bool {

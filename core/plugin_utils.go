@@ -437,6 +437,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	osjs := getJsOs(vm, running)
 	vm.Set("os", osjs)
 	vm.Set("fs", osjs)
+	vm.Set("forObject", ForeachObject)
 }
 
 func EncryptPlugin(script string) string {

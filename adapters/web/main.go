@@ -76,28 +76,29 @@ var GetUserNumber = func() int {
 
 func init() {
 	core.RegistFuncs["Broadcast2WebUser"] = Broadcast2WebUser
-	core.GinApi(core.GET, "/api/web_chat", func(ctx *gin.Context) {
-		if adapter == nil {
-			adapter = &core.Factory{}
-			adapter.Init("web", "default")
-			adapter.SetIsAdmin(func(s string) bool {
-				isAdmin, ok := webAdmins.Load(s)
-				if ok {
-					return isAdmin.(bool)
-				}
-				return false
-			})
-			adapter.SetReplyHandler(func(msg map[string]string) string {
-				message := WebMessage{
-					UserID:  msg[core.USER_ID],
-					Images:  []string{},
-					Type:    "chat",
-					Content: msg[core.CONETNT],
-				}
-				sendWebMessage(&message)
-				return ""
-			})
+	adapter = &core.Factory{}
+	adapter.Init("web", "default")
+	adapter.SetIsAdmin(func(s string) bool {
+		isAdmin, ok := webAdmins.Load(s)
+		if ok {
+			return isAdmin.(bool)
 		}
+		return false
+	})
+	adapter.SetReplyHandler(func(msg map[string]string) string {
+		message := WebMessage{
+			UserID:  msg[core.USER_ID],
+			Images:  []string{},
+			Type:    "chat",
+			Content: msg[core.CONETNT],
+		}
+		sendWebMessage(&message)
+		return ""
+	})
+	core.GinApi(core.GET, "/api/web_chat", func(ctx *gin.Context) {
+		// if adapter == nil {
+
+		// }
 		rid := ctx.Query("rid")
 		ctt := ctx.Query("ctt")
 		token, _ := ctx.Cookie("token")
