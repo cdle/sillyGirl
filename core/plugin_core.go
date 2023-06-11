@@ -260,6 +260,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var http *common.Http
 	var message *common.Reply
 	var FindAll bool
+	var hasForm bool
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
 	).FindAllStringSubmatch(data, -1)
@@ -423,6 +424,8 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			encrypt = strings.TrimSpace(res[2]) == "true"
 		case "on_start":
 			onStart = strings.TrimSpace(res[2]) == "true"
+		case "form":
+			hasForm = true
 		}
 	}
 	script := ""
@@ -444,9 +447,9 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	if web {
 		onStart = true
 	}
-	if icon == "" {
-		icon = "https://joeschmoe.io/api/v1/random?t=" + fmt.Sprint(time.Now().Nanosecond())
-	}
+	// if icon == "" {
+	// 	icon = "https://joeschmoe.io/api/v1/random?t=" + fmt.Sprint(time.Now().Nanosecond())
+	// }
 	var running func() bool
 	f := &common.Function{
 		Handle: func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
@@ -553,6 +556,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		Reply:       message,
 		Http:        http,
 		FindAll:     FindAll,
+		HasForm:     hasForm,
 	}
 	running = func() bool {
 		return f.Running

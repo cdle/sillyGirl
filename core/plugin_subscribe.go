@@ -170,6 +170,12 @@ func initWebPluginList() {
 						// if rr.Data[i].MachineID == machine_id {
 						// 	rr.Data[i].MachineID = ""
 						// }
+						if rr.Data[i].Icon == "" {
+							rr.Data[i].Icon = "https://blog.example.com/huli.jpeg"
+						}
+						if fc[j].Running {
+							rr.Data[i].Running = fc[j].Running
+						}
 					}
 				}
 			}

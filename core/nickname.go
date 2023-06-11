@@ -42,6 +42,9 @@ func init() {
 				group = false
 			}
 		}
+		if keyword == "" && strings.Contains(ctx.Request.URL.String(), "ukeyword") {
+			group = false
+		}
 		platform := ctx.Query("platform")
 		data := []NicklabeL{}
 		data2 := []NicklabeL{}
