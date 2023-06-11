@@ -32,9 +32,10 @@ type Function struct {
 	Encrypt bool `json:"encrypt"`
 	OnStart bool `json:"on_start"`
 	PluginPublisher
-	Running bool   `json:"-"`
-	Http    *Http  `json:"-"`
-	Reply   *Reply `json:"-"`
+	Running   bool   `json:"-"`
+	Http      *Http  `json:"-"`
+	Reply     *Reply `json:"-"`
+	Downloads int    `json:"downloads"`
 }
 type Filter struct {
 	BlackMode bool

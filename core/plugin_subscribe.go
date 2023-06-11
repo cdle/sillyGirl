@@ -105,19 +105,12 @@ func initPluginList() {
 	// }
 }
 
+var plugin_downloads = MakeBucket("plugin_downloads")
+
 func initWebPluginList() {
 	storage.Watch(sillyGirl, "plugin_subcribe_addresses", func(old, new, key string) *storage.Final {
 		plugin_subcribe_addresses = new
 		return nil
-	})
-	GinApi(GET, "/api/plugins/download", func(c *gin.Context) {
-		uuid := c.Query("uuid")
-		for _, f := range Functions {
-			if f.UUID == uuid && f.Public {
-				c.String(200, publicScript(plugins.GetString(f.UUID)))
-				return
-			}
-		}
 	})
 	GinApi(GET, "/api/plugins/list.json", func(ctx *gin.Context) {
 		current := utils.Int(ctx.Query("current"))
@@ -196,6 +189,7 @@ func GetPublicResponse() *RequestPluginResult {
 	for _, f := range Functions {
 		if f.Public {
 			fs = append(fs, f)
+			f.Downloads = plugin_downloads.GetInt(f.UUID)
 		}
 	}
 	rr.Total = len(fs)
