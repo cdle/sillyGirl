@@ -173,7 +173,7 @@ func (f *Factory) Init(botplt, botid string) {
 		f: f,
 	}
 	if v, ok := Bots[[2]string{botplt, botid}]; ok {
-		v.Destroy()
+		go v.Destroy()
 		console.Warn("%s机器人%s因冲突销毁！", botplt, botid)
 	}
 	Bots[[2]string{botplt, botid}] = f

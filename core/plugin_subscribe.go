@@ -157,6 +157,7 @@ func initWebPluginList() {
 				}
 			}
 			for i := range rr.Data {
+				rr.Data[i].Running = false
 				for j := range fc {
 					if rr.Data[i].UUID == fc[j].UUID {
 						if rr.Data[i].Version != fc[j].Version {
@@ -174,7 +175,7 @@ func initWebPluginList() {
 							rr.Data[i].Icon = "https://blog.example.com/huli.jpeg"
 						}
 						if fc[j].Running {
-							rr.Data[i].Running = fc[j].Running
+							rr.Data[i].Running = true
 						}
 					}
 				}
