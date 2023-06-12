@@ -21,6 +21,8 @@ type RequestPluginResult struct {
 	Data    []*common.Function `json:"data"`
 	Page    int                `json:"page"`
 	Total   int                `json:"total"`
+	Tab1    int                `json:"tab1"`
+	Tab2    int                `json:"tab2"`
 	Time    time.Time          `json:"time"`
 }
 
@@ -115,8 +117,9 @@ func initWebPluginList() {
 	GinApi(GET, "/api/plugins/list.json", func(ctx *gin.Context) {
 		current := utils.Int(ctx.Query("current"))
 		pageSize := utils.Int(ctx.Query("pageSize"))
+		activeKey := ctx.Query("activeKey")
 		init := ctx.Query("init")
-		title := ctx.Query("title")
+		keyword := ctx.Query("keyword")
 		rr := RequestPluginResult{
 			Success: true,
 		}
@@ -124,19 +127,48 @@ func initWebPluginList() {
 			pageSize = 10
 		}
 		rr.Page = current
+		rr.Data = []*common.Function{}
 		if current != 0 {
 			var list []*common.Function
-			if title == "" {
+			if keyword == "" {
 				list = plugin_list
 			} else {
 				for _, f := range plugin_list {
-					if strings.Contains(f.Title, title) || strings.Contains(f.Organization, title) {
+					if strings.Contains(f.Title, keyword) || strings.Contains(f.Organization, keyword) {
 						list = append(list, f)
 					}
 				}
 			}
 			if current == 1 && init != "false" {
 				initPluginList()
+			}
+			rr.Total = len(list)
+			tab1 := []*common.Function{}
+			tab2 := []*common.Function{}
+			fc := []*common.Function{}
+			fc = append(fc, Functions...)
+			for i := range list {
+				ded := false
+				for j := range fc {
+					if list[i].UUID == fc[j].UUID {
+						ded = true
+						break
+					}
+				}
+				if ded {
+					tab1 = append(tab1, list[i])
+				} else {
+					tab2 = append(tab2, list[i])
+				}
+			}
+			if activeKey != "tab2" {
+				list = tab1
+				rr.Tab1 = len(list)
+				rr.Tab2 = rr.Total - len(list)
+			} else {
+				list = tab2
+				rr.Tab2 = len(list)
+				rr.Tab1 = rr.Total - len(list)
 			}
 			rr.Total = len(list)
 			begin := (current - 1) * pageSize
@@ -148,8 +180,7 @@ func initWebPluginList() {
 				begin = end
 			}
 			rr.Data = append(rr.Data, list[begin:end]...)
-			fc := []*common.Function{}
-			fc = append(fc, Functions...)
+
 			publics := []string{}
 			for _, f := range Functions {
 				if f.Public && f.UUID != "" {

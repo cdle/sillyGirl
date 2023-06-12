@@ -16,7 +16,7 @@ func getPaterner(uuid, path string) {
 	}
 	if address != "" {
 		for _, f := range ls {
-			if f.Address == address && f.Title == path {
+			if f.Address == address && (f.Title == path || f.UUID == path) {
 				data = plugins.GetBytes(f.UUID)
 				if data != nil {
 					return
@@ -25,7 +25,7 @@ func getPaterner(uuid, path string) {
 		}
 		if data == nil {
 			for _, l := range ls {
-				if l.Address == address && l.Title == path {
+				if l.Address == address && (l.Title == path || l.UUID == path) {
 					data = fetchScript(l.Address, l.UUID)
 					if data == nil {
 						console.Warn("无法从订阅源获取 %s 的协作脚本 %s ", GetScriptNameByUUID(uuid), path)
