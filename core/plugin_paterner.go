@@ -1,6 +1,10 @@
 package core
 
+import "regexp"
+
 func getPaterner(uuid, path string) {
+	var ss = regexp.MustCompile(`\S+`).FindAllString(path, -1)
+	path = ss[0]
 	var data []byte
 	var address = ""
 	ls := plugin_list
