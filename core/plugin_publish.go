@@ -45,7 +45,7 @@ func initPluginPublish() {
 			Address: address,
 			// MachineID: GetMachineID(),
 		}))
-		sublink := fmt.Sprintf("sub://%s", str)
+		sublink := fmt.Sprintf("link://%s", str)
 		return &storage.Final{
 			Now:     sublink,
 			Message: sublink,
