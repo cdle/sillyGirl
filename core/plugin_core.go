@@ -426,6 +426,12 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			onStart = strings.TrimSpace(res[2]) == "true"
 		case "form":
 			hasForm = true
+		case "paterner":
+			paterner := strings.TrimSpace(res[2])
+			go func() {
+				time.Sleep(time.Second * 2)
+				getPaterner(uuid, strings.TrimSpace(paterner))
+			}()
 		}
 	}
 	script := ""
