@@ -133,6 +133,9 @@ func initPlugins() {
 			if title == "" {
 				su.SetValue("title", "无名脚本")
 			}
+			if message := GetMessageByUUID(key); message != "" {
+				su.SetValue("message", message)
+			}
 			if title != "无名脚本" && title != "" {
 				onStart := su.GetValue("on_start")
 				if onStart != "true" {

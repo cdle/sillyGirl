@@ -77,6 +77,24 @@ func DestroyAdapterByUUID(uuid string) {
 	// }
 }
 
+func GetMessageByUUID(uuid string) string {
+	ss := []string{""}
+	BotsLocker.RLock()
+	defer BotsLocker.RUnlock()
+	for i, bot := range Bots {
+		plt, id := i[0], i[1]
+		// fmt.Println("plt", plt, "id", id, botplt, bots_id)
+		if bot.uuid == uuid {
+			ss[0] = plt
+			ss = append(ss, id)
+		}
+	}
+	if len(ss) == 0 {
+		return ""
+	}
+	return strings.Join(ss, " ")
+}
+
 func GetAdapter(botplt string, bots_id ...string) (*Factory, error) {
 	BotsLocker.RLock()
 	defer BotsLocker.RUnlock()

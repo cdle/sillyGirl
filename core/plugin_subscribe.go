@@ -131,7 +131,7 @@ func initWebPluginList() {
 		if current != 0 {
 			var list []*common.Function
 			if keyword == "" {
-				list = plugin_list
+				list = append(list, plugin_list...)
 			} else {
 				for _, f := range plugin_list {
 					if strings.Contains(f.Title, keyword) || strings.Contains(f.Organization, keyword) {
