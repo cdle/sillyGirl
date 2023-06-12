@@ -31,7 +31,7 @@ var CarryGroups = MakeBucket("CarryGroups")
 var carryCounter int64
 
 // LOGIC
-func init() {
+func initCarry() {
 	AddCommand([]*common.Function{
 		{
 			Rules:    []string{`raw [\s\S]+`},
@@ -198,10 +198,7 @@ func init() {
 			},
 		},
 	})
-}
 
-// VAR Watch
-func init() {
 	setCgs()
 	storage.Watch(CarryGroups, nil, func(old, new, key string) *storage.Final {
 		console.Log("已更新搬运数据")

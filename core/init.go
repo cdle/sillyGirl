@@ -18,6 +18,7 @@ import (
 var DataHome = utils.GetDataHome()
 
 func Init() {
+
 	sillyGirl = MakeBucket("sillyGirl")
 	_, err := os.Stat(DataHome)
 	if err != nil {
@@ -27,6 +28,8 @@ func Init() {
 	initToHandleMessage()
 	sillyGirl.Set("compiled_at", compiled_at)
 	console.Log("编译版本：%s", compiled_at)
+	initWeb()
+	initCarry()
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
 	storage.Watch(sillyGirl, "compiled_at", func(old, new, key string) *storage.Final {
 		if old != new {
@@ -148,4 +151,5 @@ func Init() {
 	initWebPluginList()
 	go initPluginList()
 	initPluginPublish()
+
 }

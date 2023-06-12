@@ -43,7 +43,7 @@ func Cors() gin.HandlerFunc {
 
 var Server *gin.Engine
 
-func init() {
+func initWeb() {
 	for _, arg := range os.Args { //处理升级
 		if arg == "-r" { //准备程序->原程序
 			rfix := ".ready.exe"
@@ -351,13 +351,14 @@ func init() {
 			Now: new,
 		}
 	})
+
+	// logs.Info("Http服务(%s)开始运行", port)
+	logs.Info("管理员面板:")
+	logs.Info("  > 本机: http://localhost:%s", port)
+	local_ip := getLocalIP()
+	logs.Info("  > 局域网: http://%s:%s", local_ip, port)
+	sillyGirl.Set("local_ip", local_ip)
 	go func() {
-		// logs.Info("Http服务(%s)开始运行", port)
-		logs.Info("管理员面板:")
-		logs.Info("  > 本机: http://localhost:%s", port)
-		local_ip := getLocalIP()
-		sillyGirl.Set("local_ip", local_ip)
-		logs.Info("  > 局域网: http://%s:%s", local_ip, port)
 		if err := srvs[0].ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logs.Error("Http服务运行失败：%s", err.Error())
 		}
