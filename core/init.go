@@ -69,7 +69,7 @@ func Init() {
 			} else {
 				ready += ".ready"
 			}
-			f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			f, err := os.OpenFile(ready, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 			if err != nil {
 				console.Error("创建编译文件错误：%v", err)
 				return &storage.Final{

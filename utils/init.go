@@ -179,7 +179,7 @@ func CopyFile(src string, dst string) error {
 	defer srcFile.Close()
 
 	// 创建目标文件，如果目标文件已存在则覆盖
-	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
 		return err
 	}
