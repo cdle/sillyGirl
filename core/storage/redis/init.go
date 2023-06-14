@@ -177,6 +177,31 @@ func Get(key string) string {
 	return v
 }
 
+func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
+	new := ""
+	msg := ""
+	k := fmt.Sprint(key)
+	switch value := value.(type) {
+	case []byte:
+		new = string(value)
+	case string:
+		new = value
+	case nil:
+	default:
+		new = fmt.Sprint(value)
+	}
+	if !utils.SlaveMode {
+		if new == "" {
+			return msg, db.HDel(ctx, bucket.name, k).Err()
+		} else {
+			return msg, db.HSet(ctx, bucket.name, k, new).Err()
+		}
+	} else {
+		return toMaster(bucket.name, k, new)
+	}
+
+}
+
 func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 	new := ""
 	msg := ""

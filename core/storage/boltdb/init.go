@@ -113,6 +113,37 @@ func (bucket *Bucket) Delete() error {
 	return err
 }
 
+func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
+	new := ""
+	msg := ""
+	k := fmt.Sprint(key)
+	switch value := value.(type) {
+	case []byte:
+		new = string(value)
+	case string:
+		new = value
+	case nil:
+	default:
+		new = fmt.Sprint(value)
+	}
+	return msg, db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(bucket.name))
+		if err != nil {
+			return err
+		}
+		if new == "" {
+			if err := b.Delete([]byte(k)); err != nil {
+				return err
+			}
+		} else {
+			if err := b.Put([]byte(k), []byte(new)); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 	new := ""
 	msg := ""

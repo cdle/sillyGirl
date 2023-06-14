@@ -21,6 +21,7 @@ var DisableHandle = func(uuid string) {
 
 type Bucket interface {
 	Set(interface{}, interface{}) (string, error)
+	Set2(interface{}, interface{}) (string, error)
 	Copy(string) Bucket
 	IsEmpty() (bool, error)
 	Size() (int64, error)

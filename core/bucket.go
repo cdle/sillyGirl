@@ -27,7 +27,6 @@ var sillyGirl = MakeBucket("sillyGirl")
 // }
 
 var MakeBucketlocker sync.Mutex
-var app storage.Bucket
 
 func MakeBucket(name string) storage.Bucket {
 	MakeBucketlocker.Lock()
@@ -45,7 +44,8 @@ func MakeBucket(name string) storage.Bucket {
 		// 	Set = redis.Set
 		// 	logs.Info("已使用redis进行数据存储")
 		// }
-		app = bkt
+		var app = bkt
+		isredis := false
 		if def := bkt.GetString("storage"); def == "redis" {
 			func() {
 				defer func() {
@@ -53,6 +53,8 @@ func MakeBucket(name string) storage.Bucket {
 					if err != nil {
 						// console.Warn("redis异常，已默认启用boltdb进行数据存储")
 						bkt = app
+					} else {
+						isredis = true
 					}
 				}()
 				bkt = redis.InitsillyGirl(app.GetString("redis_addr"), app.GetString("redis_password"))
@@ -63,24 +65,32 @@ func MakeBucket(name string) storage.Bucket {
 			}
 			logs.Info("默认使用boltdb进行数据存储")
 		}
-
-		storage.Watch(app, "storage", func(old, new, _ string) *storage.Final {
-			if new != "redis" {
-				return nil
-			}
-			message := "Redis连接成功，重启生效！"
-			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
-			if err != nil {
-				message = "Redis连接失败，操作无效：" + err.Error()
-				return &storage.Final{
-					Error: errors.New(message),
+		storage.Watch(bkt, "storage", func(old, new, key string) *storage.Final {
+			if isredis {
+				if new == "boltdb" {
+					app.Set2(key, new)
+					return &storage.Final{
+						Message: "重启生效！",
+					}
 				}
 			} else {
-				return &storage.Final{
-					Message: message,
+				if new != "redis" {
+					return nil
+				}
+				message := "Redis连接成功，重启生效！"
+				err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+				if err != nil {
+					message = "Redis连接失败，操作无效：" + err.Error()
+					return &storage.Final{
+						Error: errors.New(message),
+					}
+				} else {
+					return &storage.Final{
+						Message: message,
+					}
 				}
 			}
-
+			return nil
 		})
 		storage.Watch(app, "redis_addr", func(old, new, _ string) *storage.Final {
 			message := "Redis连接成功，重启生效！"
