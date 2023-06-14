@@ -18,7 +18,6 @@ import (
 var DataHome = utils.GetDataHome()
 
 func Init() {
-
 	sillyGirl = MakeBucket("sillyGirl")
 	_, err := os.Stat(DataHome)
 	if err != nil {

@@ -1,11 +1,11 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/cdle/sillyGirl/core/logs"
 	"github.com/cdle/sillyGirl/core/storage"
@@ -19,33 +19,86 @@ var bkt storage.Bucket
 var HttpPort string
 var sillyGirl = MakeBucket("sillyGirl")
 
-var Get = func(key string) string {
-	return ""
-}
-var Set = func(key, value string, expiration time.Duration) error {
-	return nil
-}
+// var Get = func(key string) string {
+// 	return ""
+// }
+// var Set = func(key, value string, expiration time.Duration) error {
+// 	return nil
+// }
 
 var MakeBucketlocker sync.Mutex
+var app storage.Bucket
 
 func MakeBucket(name string) storage.Bucket {
 	MakeBucketlocker.Lock()
 	defer MakeBucketlocker.Unlock()
 	if bkt == nil {
 		// utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
-		utils.SlaveMode = Config.SlaveMode
-		HttpPort = Config.HttpPort
-		if !Config.EnableRedis {
-			bkt = boltdb.InitsillyGirl()
-			Get = boltdb.Get
-			Set = boltdb.Set
-			logs.Info("默认使用boltdb进行数据存储")
+		// if !Config.EnableRedis {
+		bkt = boltdb.InitsillyGirl()
+		// Get = boltdb.Get
+		// Set = boltdb.Set
+		// logs.Info("默认使用boltdb进行数据存储")
+		// } else {
+		// 	bkt = redis.InitsillyGirl(Config.RedisAddr, Config.RedisPassword)
+		// 	Get = redis.Get
+		// 	Set = redis.Set
+		// 	logs.Info("已使用redis进行数据存储")
+		// }
+		app = bkt
+		if def := bkt.GetString("storage"); def == "redis" {
+			func() {
+				defer func() {
+					err := recover()
+					if err != nil {
+						// console.Warn("redis异常，已默认启用boltdb进行数据存储")
+						bkt = app
+					}
+				}()
+				bkt = redis.InitsillyGirl(app.GetString("redis_addr"), app.GetString("redis_password"))
+				bkt.Set("storage", "redis")
+
+			}()
 		} else {
-			bkt = redis.InitsillyGirl(Config.RedisAddr, Config.RedisPassword)
-			Get = redis.Get
-			Set = redis.Set
-			logs.Info("已使用redis进行数据存储")
+			if def != "boltdb" {
+				bkt.Set("storage", "boltdb")
+			}
+			logs.Info("默认使用boltdb进行数据存储")
 		}
+
+		storage.Watch(app, "storage", func(old, new, _ string) *storage.Final {
+			if new != "redis" {
+				return nil
+			}
+			message := "Redis连接成功，重启生效！"
+			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+			if err != nil {
+				message = "Redis连接失败，操作无效：" + err.Error()
+			}
+			return &storage.Final{
+				Error: errors.New(message),
+			}
+		})
+		storage.Watch(app, "redis_addr", func(old, new, _ string) *storage.Final {
+			message := "Redis连接成功，重启生效！"
+			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+			if err != nil {
+				message = "Redis连接失败：" + err.Error()
+			}
+			return &storage.Final{
+				Message: message,
+			}
+		})
+		storage.Watch(app, "redis_password", func(old, new, _ string) *storage.Final {
+			message := "Redis连接成功，重启生效！"
+			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+			if err != nil {
+				message = "Redis连接失败：" + err.Error()
+			}
+			return &storage.Final{
+				Message: message,
+			}
+		})
 		for _, name := range bkt.Buckets() {
 			b := bkt.Copy(name)
 			keys, err := b.Keys()
@@ -53,6 +106,7 @@ func MakeBucket(name string) storage.Bucket {
 				b.Delete()
 			}
 		}
+
 	}
 	if name == "" {
 		name = "sillyGirl"

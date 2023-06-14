@@ -23,6 +23,7 @@ type RequestPluginResult struct {
 	Total   int                `json:"total"`
 	Tab1    int                `json:"tab1"`
 	Tab2    int                `json:"tab2"`
+	Tab3    int                `json:"tab3"`
 	Time    time.Time          `json:"time"`
 }
 
@@ -145,30 +146,50 @@ func initWebPluginList() {
 			rr.Total = len(list)
 			tab1 := []*common.Function{}
 			tab2 := []*common.Function{}
+			tab3 := []*common.Function{}
 			fc := []*common.Function{}
 			fc = append(fc, Functions...)
 			for i := range list {
 				ded := false
 				for j := range fc {
 					if list[i].UUID == fc[j].UUID {
+						// v1, err1 := version.NewVersion(list[i].Version)
+						// v2, err2 := version.NewVersion(fc[j].Version)
+						// if err1 == nil && err2 == nil {
+						// 	if v2.Compare(v1) > 0 {
+						// 		tab3 = append(tab3, list[i])
+						// 	}
+						// } else if err1 != nil && err2 != nil {
+						// 	tab3 = append(tab3, list[i])
+						// }
+						if list[i].Version != fc[j].Version {
+							tab3 = append(tab3, list[i])
+						}
 						ded = true
 						break
 					}
 				}
 				if ded {
-					tab1 = append(tab1, list[i])
+					tab1 = append(tab1, list[i]) //已安装
 				} else {
 					tab2 = append(tab2, list[i])
 				}
 			}
-			if activeKey != "tab2" {
-				list = tab1
-				rr.Tab1 = len(list)
-				rr.Tab2 = rr.Total - len(list)
-			} else {
+			if activeKey == "tab2" {
 				list = tab2
-				rr.Tab2 = len(list)
-				rr.Tab1 = rr.Total - len(list)
+				rr.Tab1 = len(tab1)
+				rr.Tab2 = len(tab2)
+				rr.Tab3 = len(tab3)
+			} else if activeKey == "tab3" {
+				list = tab3
+				rr.Tab1 = len(tab1)
+				rr.Tab2 = len(tab2)
+				rr.Tab3 = len(tab3)
+			} else {
+				list = tab1
+				rr.Tab1 = len(tab1)
+				rr.Tab2 = len(tab2)
+				rr.Tab3 = len(tab3)
 			}
 			rr.Total = len(list)
 			begin := (current - 1) * pageSize

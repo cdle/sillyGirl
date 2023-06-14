@@ -13,6 +13,7 @@ import (
 
 	"github.com/beego/beego/v2/client/httplib"
 	"github.com/buger/jsonparser"
+	"github.com/cdle/sillyGirl/core/logs"
 	"github.com/cdle/sillyGirl/core/storage"
 	"github.com/cdle/sillyGirl/utils"
 
@@ -69,18 +70,37 @@ func (bucket *Bucket) Type() string {
 	return "redis"
 }
 
+func Try(RedisAddr, RedisPassword string) error {
+	db := redis.NewClient(&redis.Options{
+		Addr:        RedisAddr,
+		Password:    RedisPassword, // no password set
+		DB:          0,             // use default DB
+		DialTimeout: time.Second * 5,
+	})
+	err := db.Get(context.Background(), "666").Err()
+	if err == nil {
+		db.Close()
+	}
+	return err
+}
+
 func InitsillyGirl(RedisAddr, RedisPassword string) storage.Bucket {
 	db = redis.NewClient(&redis.Options{
-		Addr:     RedisAddr,
-		Password: RedisPassword, // no password set
-		DB:       0,             // use default DB
+		Addr:        RedisAddr,
+		Password:    RedisPassword, // no password set
+		DB:          0,             // use default DB
+		DialTimeout: time.Second * 5,
 	})
-	if db == nil {
-		panic("redis is not ok")
+
+	err := db.Get(context.Background(), "666").Err()
+	if err != nil {
+		logs.Error("redis错误", err)
+		panic(err)
 	}
 	sillyGirl = &Bucket{
 		name: "sillyGirl",
 	}
+
 	port := sillyGirl.GetString("port", "8080")
 	if utils.SlaveMode {
 		is, _ := db.ConfigGet(ctx, "slaveof").Result()
