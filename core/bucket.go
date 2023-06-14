@@ -99,6 +99,8 @@ func MakeBucket(name string) storage.Bucket {
 				err := redis.Try(new, app.GetString("redis_password"))
 				if err != nil {
 					message = "Redis连接失败：" + err.Error()
+				} else {
+					app.Set2("storage", "redis")
 				}
 				return &storage.Final{
 					Message: message,
@@ -109,6 +111,8 @@ func MakeBucket(name string) storage.Bucket {
 				err := redis.Try(app.GetString("redis_addr"), new)
 				if err != nil {
 					message = "Redis连接失败：" + err.Error()
+				} else {
+					app.Set2("storage", "redis")
 				}
 				return &storage.Final{
 					Message: message,
