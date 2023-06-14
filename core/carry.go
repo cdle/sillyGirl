@@ -434,14 +434,14 @@ func init() {
 		var cg = CarryGroup{
 			ID: chat_id,
 		}
-		err = CarryGroups.First(&cg)
-		if err != nil {
-			ctx.JSON(200, map[string]interface{}{
-				"success":      false,
-				"errorMessage": err.Error(),
-			})
-			return
-		}
+		CarryGroups.First(&cg)
+		// if err != nil {
+		// 	ctx.JSON(200, map[string]interface{}{
+		// 		"success":      false,
+		// 		"errorMessage": err.Error(),
+		// 	})
+		// 	return
+		// }
 		for key, value := range updateData {
 			switch key {
 			case "in":
