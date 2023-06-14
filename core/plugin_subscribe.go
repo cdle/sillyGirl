@@ -153,15 +153,6 @@ func initWebPluginList() {
 				ded := false
 				for j := range fc {
 					if list[i].UUID == fc[j].UUID {
-						// v1, err1 := version.NewVersion(list[i].Version)
-						// v2, err2 := version.NewVersion(fc[j].Version)
-						// if err1 == nil && err2 == nil {
-						// 	if v2.Compare(v1) > 0 {
-						// 		tab3 = append(tab3, list[i])
-						// 	}
-						// } else if err1 != nil && err2 != nil {
-						// 	tab3 = append(tab3, list[i])
-						// }
 						if list[i].Version != fc[j].Version {
 							tab3 = append(tab3, list[i])
 						}
@@ -209,6 +200,7 @@ func initWebPluginList() {
 				}
 			}
 			for i := range rr.Data {
+				rr.Data[i].HasForm = false
 				rr.Data[i].Running = false
 				for j := range fc {
 					if rr.Data[i].UUID == fc[j].UUID {
@@ -220,11 +212,11 @@ func initWebPluginList() {
 						if Contains(publics, rr.Data[i].UUID) {
 							rr.Data[i].Status = 6
 						}
-						// if rr.Data[i].MachineID == machine_id {
-						// 	rr.Data[i].MachineID = ""
-						// }
 						if rr.Data[i].Icon == "" {
 							rr.Data[i].Icon = "https://blog.example.com/huli.jpeg"
+						}
+						if fc[j].HasForm {
+							rr.Data[i].HasForm = true
 						}
 						if fc[j].Running {
 							rr.Data[i].Running = true
