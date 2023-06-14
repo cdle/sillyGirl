@@ -55,6 +55,7 @@ func MakeBucket(name string) storage.Bucket {
 						bkt = app
 					} else {
 						isredis = true
+						logs.Info("已使用redis进行数据存储")
 					}
 				}()
 				bkt = redis.InitsillyGirl(app.GetString("redis_addr"), app.GetString("redis_password"))
@@ -92,26 +93,28 @@ func MakeBucket(name string) storage.Bucket {
 			}
 			return nil
 		})
-		storage.Watch(app, "redis_addr", func(old, new, _ string) *storage.Final {
-			message := "Redis连接成功，重启生效！"
-			err := redis.Try(new, app.GetString("redis_password"))
-			if err != nil {
-				message = "Redis连接失败：" + err.Error()
-			}
-			return &storage.Final{
-				Message: message,
-			}
-		})
-		storage.Watch(app, "redis_password", func(old, new, _ string) *storage.Final {
-			message := "Redis连接成功，重启生效！"
-			err := redis.Try(app.GetString("redis_addr"), new)
-			if err != nil {
-				message = "Redis连接失败：" + err.Error()
-			}
-			return &storage.Final{
-				Message: message,
-			}
-		})
+		if !isredis {
+			storage.Watch(app, "redis_addr", func(old, new, _ string) *storage.Final {
+				message := "Redis连接成功，重启生效！"
+				err := redis.Try(new, app.GetString("redis_password"))
+				if err != nil {
+					message = "Redis连接失败：" + err.Error()
+				}
+				return &storage.Final{
+					Message: message,
+				}
+			})
+			storage.Watch(app, "redis_password", func(old, new, _ string) *storage.Final {
+				message := "Redis连接成功，重启生效！"
+				err := redis.Try(app.GetString("redis_addr"), new)
+				if err != nil {
+					message = "Redis连接失败：" + err.Error()
+				}
+				return &storage.Final{
+					Message: message,
+				}
+			})
+		}
 		for _, name := range bkt.Buckets() {
 			b := bkt.Copy(name)
 			keys, err := b.Keys()

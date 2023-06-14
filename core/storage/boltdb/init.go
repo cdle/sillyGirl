@@ -376,12 +376,12 @@ func (bucket *Bucket) First(i interface{}) error {
 			b := tx.Bucket([]byte(bucket.name))
 			if b == nil {
 				err = errors.New("bucket not find")
-				return nil
+				return err
 			}
 			data := b.Get([]byte(fmt.Sprint(v)))
 			if len(data) == 0 {
 				err = errors.New("record not find")
-				return nil
+				return err
 			}
 			return json.Unmarshal(data, i)
 		})
