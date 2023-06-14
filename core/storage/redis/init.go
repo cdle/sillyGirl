@@ -77,7 +77,7 @@ func Try(RedisAddr, RedisPassword string) error {
 		DB:          0,             // use default DB
 		DialTimeout: time.Second * 5,
 	})
-	err := db.Get(context.Background(), "666").Err()
+	err := db.HSet(context.Background(), "sillyGirl", "storage", "redis").Err()
 	if err == nil {
 		db.Close()
 	}
@@ -92,7 +92,7 @@ func InitsillyGirl(RedisAddr, RedisPassword string) storage.Bucket {
 		DialTimeout: time.Second * 5,
 	})
 
-	err := db.Get(context.Background(), "666").Err()
+	err := db.HSet(context.Background(), "sillyGirl", "storage", "redis").Err()
 	if err != nil {
 		logs.Error("redis错误", err)
 		panic(err)

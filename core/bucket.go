@@ -56,8 +56,6 @@ func MakeBucket(name string) storage.Bucket {
 					}
 				}()
 				bkt = redis.InitsillyGirl(app.GetString("redis_addr"), app.GetString("redis_password"))
-				bkt.Set("storage", "redis")
-
 			}()
 		} else {
 			if def != "boltdb" {
@@ -74,14 +72,19 @@ func MakeBucket(name string) storage.Bucket {
 			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
 			if err != nil {
 				message = "Redis连接失败，操作无效：" + err.Error()
+				return &storage.Final{
+					Error: errors.New(message),
+				}
+			} else {
+				return &storage.Final{
+					Message: message,
+				}
 			}
-			return &storage.Final{
-				Error: errors.New(message),
-			}
+
 		})
 		storage.Watch(app, "redis_addr", func(old, new, _ string) *storage.Final {
 			message := "Redis连接成功，重启生效！"
-			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+			err := redis.Try(new, app.GetString("redis_password"))
 			if err != nil {
 				message = "Redis连接失败：" + err.Error()
 			}
@@ -91,7 +94,7 @@ func MakeBucket(name string) storage.Bucket {
 		})
 		storage.Watch(app, "redis_password", func(old, new, _ string) *storage.Final {
 			message := "Redis连接成功，重启生效！"
-			err := redis.Try(app.GetString("redis_addr"), app.GetString("redis_password"))
+			err := redis.Try(app.GetString("redis_addr"), new)
 			if err != nil {
 				message = "Redis连接失败：" + err.Error()
 			}
