@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cdle/sillyGirl/mongodb"
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
@@ -438,6 +439,11 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("os", osjs)
 	vm.Set("fs", osjs)
 	vm.Set("forObject", ForeachObject)
+	vm.Set("MongoClient", func(uri string) interface{} {
+		return &mongodb.MongoClient{
+			Uri: uri,
+		}
+	})
 }
 
 func EncryptPlugin(script string) string {

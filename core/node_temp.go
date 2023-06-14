@@ -40,6 +40,9 @@ func (s *PersistentKeyValueStore) Set(key string, value interface{}, dur int) er
 		ExpiredAt: expiredAt,
 	}
 	go func() {
+		defer func() {
+			recover()
+		}()
 		jsonBytes, err := json.Marshal(s.data)
 		if err == nil {
 			ioutil.WriteFile(tempPath, jsonBytes, 0644)
