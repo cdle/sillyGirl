@@ -365,24 +365,22 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	})
 	vm.Set("fetch", func(wts ...interface{}) interface{} {
 		promise, resolve, reject := vm.NewPromise()
-		func() {
-			func() {
-				v := recover()
-				if v != nil {
-					if err, ok := v.(error); ok {
-						reject(Error(vm, err))
-					} else {
-						reject(Error(vm, fmt.Sprint(v)))
-					}
-
-				}
-			}()
-			fetch(vm, resolve, reject, wts...)
+		go func() {
+			obj, err := fetch(vm, wts...)
+			if err != nil {
+				reject(err)
+			} else {
+				resolve(obj)
+			}
 		}()
 		return promise
 	})
 	vm.Set("request", func(wts ...interface{}) interface{} {
-		return fetch(vm, nil, nil, wts...)
+		obj, err := fetch(vm, wts...)
+		if err != nil {
+			panic(Error(vm, err))
+		}
+		return obj
 	})
 	// for _, method := range []string{"get", "post", "delete", "put", "fetch"} {
 	// 	vm.Set(method, )

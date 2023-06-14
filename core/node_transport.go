@@ -12,7 +12,7 @@ import (
 
 func GetTransport(proxyUrl string, user, password string) (*http.Transport, error) {
 	var auth *proxy.Auth
-	if user != "" && password != "" {
+	if user != "" || password != "" {
 		auth = &proxy.Auth{User: user, Password: password}
 	}
 	switch {

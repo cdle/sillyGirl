@@ -11,12 +11,11 @@ import (
 
 // type Reason map[string]interface{}
 
-func MakeResponseObject(vm *goja.Runtime, reject func(reason interface{}), resp *http.Response, responseType string) *goja.Object {
+func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType string) (*goja.Object, error) {
 	obj := vm.NewObject()
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		reject(Error(vm, err))
-		return obj
+	if err != nil { ///////
+		return obj, err
 	}
 	var body interface{}
 	if Contains([]string{"blob", "arraybuffer"}, responseType) {
@@ -26,11 +25,8 @@ func MakeResponseObject(vm *goja.Runtime, reject func(reason interface{}), resp 
 	} else if responseType == "json" {
 		var v interface{}
 		err := json.Unmarshal(data, &v)
-		if err != nil {
-			// console.Error("response body is not json data")
-			// panic("response body is not json data")
-			// reject()
-			defer reject(Error(vm, "response body is not json data"))
+		if err != nil { /////
+			return obj, err
 		} else {
 			body = v
 		}
@@ -89,5 +85,5 @@ func MakeResponseObject(vm *goja.Runtime, reject func(reason interface{}), resp 
 			return true
 		},
 	}))
-	return obj
+	return obj, nil
 }

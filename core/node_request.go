@@ -14,8 +14,7 @@ import (
 	"github.com/goccy/go-json"
 )
 
-func fetch(vm *goja.Runtime, resolve func(result interface{}), reject func(reason interface{}), wts ...interface{}) interface{} {
-	var block = resolve == nil
+func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
 	var method = "get"
 	var url = ""
 	var req *http.Request
@@ -93,22 +92,14 @@ func fetch(vm *goja.Runtime, resolve func(result interface{}), reject func(reaso
 						var err error
 						transport, err = GetTransport(url, user, password)
 						if err != nil {
-							info := "proxy config error " + err.Error()
-							console.Error()
-							if block {
-								panic(Error(vm, info))
-							} else {
-								reject(Error(vm, info))
-								// return nil
-							}
-							return nil
+							return nil, err
 						}
 					}
 				}
 			}
 		}
 		method = strings.ToUpper(method)
-
+		var err error
 		if len(formData) > 0 {
 			data := u.Values{}
 			for key, value := range formData {
@@ -125,10 +116,16 @@ func fetch(vm *goja.Runtime, resolve func(result interface{}), reject func(reaso
 				}
 			}
 
-			req, _ = http.NewRequest(method, url, strings.NewReader(data.Encode()))
+			req, err = http.NewRequest(method, url, strings.NewReader(data.Encode()))
+			if err != nil {
+				return nil, err
+			}
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		} else {
-			req, _ = http.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
+			req, err = http.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
+			if err != nil {
+				return nil, err
+			}
 			if isJsonBody {
 				req.Header.Set("Content-Type", "application/json")
 			}
@@ -158,41 +155,30 @@ func fetch(vm *goja.Runtime, resolve func(result interface{}), reject func(reaso
 		}
 	}
 	rsp, err = client.Do(req)
-	if err == nil {
-		defer rsp.Body.Close()
-		rspObj = vm.NewProxy(MakeResponseObject(vm, reject, rsp, responseType), &goja.ProxyTrapConfig{
-			Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
-				obj := target.Get(property)
-				if obj != nil {
-					return obj
-				}
-				switch property {
-				case "statusText", "statusMessage":
-					return vm.ToValue("")
-				case "statusCode":
-					return target.Get("status")
-				// case "body":
-				// 	return vm.ToValue(target.Get("getBody").Export().(func() interface{})())
-				case "then":
-					return goja.Undefined()
-				}
-				console.Error("response has no property " + property)
-				return goja.Undefined()
-			},
-		})
-		if block {
-			return rspObj
-		} else {
-			resolve(rspObj)
-
-		}
-	} else {
-		if block {
-			return rspObj
-		} else {
-			reject(Error(vm, err))
-
-		}
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	defer rsp.Body.Close()
+	obj, err := MakeResponseObject(vm, rsp, responseType)
+	rspObj = vm.NewProxy(obj, &goja.ProxyTrapConfig{
+		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
+			obj := target.Get(property)
+			if obj != nil {
+				return obj
+			}
+			switch property {
+			case "statusText", "statusMessage":
+				return vm.ToValue("")
+			case "statusCode":
+				return target.Get("status")
+			// case "body":
+			// 	return vm.ToValue(target.Get("getBody").Export().(func() interface{})())
+			case "then":
+				return goja.Undefined()
+			}
+			console.Error("response has no property " + property)
+			return goja.Undefined()
+		},
+	})
+	return rspObj, err
 }
