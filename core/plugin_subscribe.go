@@ -183,6 +183,10 @@ func initWebPluginList() {
 				rr.Tab3 = len(tab3)
 			}
 			rr.Total = len(list)
+			if len(list) == 0 {
+				ctx.JSON(200, rr)
+				return
+			}
 			if last := (rr.Total + pageSize - 1) / pageSize; current > last {
 				current = last
 			}
