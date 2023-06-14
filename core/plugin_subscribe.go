@@ -130,6 +130,9 @@ func initWebPluginList() {
 		rr.Page = current
 		rr.Data = []*common.Function{}
 		if current != 0 {
+			if current == 1 && init != "false" {
+				initPluginList()
+			}
 			var list []*common.Function
 			if keyword == "" {
 				list = append(list, plugin_list...)
@@ -139,9 +142,6 @@ func initWebPluginList() {
 						list = append(list, f)
 					}
 				}
-			}
-			if current == 1 && init != "false" {
-				initPluginList()
 			}
 			rr.Total = len(list)
 			tab1 := []*common.Function{}
@@ -183,6 +183,9 @@ func initWebPluginList() {
 				rr.Tab3 = len(tab3)
 			}
 			rr.Total = len(list)
+			if last := (rr.Total + pageSize - 1) / pageSize; current > last {
+				current = last
+			}
 			begin := (current - 1) * pageSize
 			end := (current) * pageSize
 			if end > rr.Total {
@@ -192,7 +195,6 @@ func initWebPluginList() {
 				begin = end
 			}
 			rr.Data = append(rr.Data, list[begin:end]...)
-
 			publics := []string{}
 			for _, f := range Functions {
 				if f.Public && f.UUID != "" {
