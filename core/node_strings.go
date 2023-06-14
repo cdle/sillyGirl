@@ -218,6 +218,19 @@ func (sender *Strings) HideCQEmoji(text string) map[string]interface{} {
 	}
 }
 
+func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{}) string {
+	var sb strings.Builder
+	sb.WriteString("[CQ:" + cqType)
+	for k, v := range params {
+		sb.WriteString(",")
+		sb.WriteString(k)
+		sb.WriteString("=")
+		sb.WriteString(fmt.Sprintf("%v", v))
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
 // 将含有 CQ码 的文本解析成文本和 CQ 对象数组
 func (sender *Strings) ParseCQText(text string) []interface{} {
 	cqRegex := regexp.MustCompile(`\[CQ:(\w+)(.*?)\]`)
