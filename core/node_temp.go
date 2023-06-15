@@ -40,6 +40,8 @@ func (s *PersistentKeyValueStore) Set(key string, value interface{}, dur int) er
 		ExpiredAt: expiredAt,
 	}
 	go func() {
+		s.RLock()
+		defer s.RUnlock()
 		defer func() {
 			recover()
 		}()

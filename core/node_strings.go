@@ -218,6 +218,7 @@ func (sender *Strings) HideCQEmoji(text string) map[string]interface{} {
 	}
 }
 
+// 构建CQ码
 func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{}) string {
 	var sb strings.Builder
 	sb.WriteString("[CQ:" + cqType)
