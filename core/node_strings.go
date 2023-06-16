@@ -122,6 +122,10 @@ func (sender *Strings) ToUpper(s string) string {
 func (sender *Strings) Remove(ss []string, s string) []string {
 	return utils.Remove(ss, s)
 }
+
+func (sender *Strings) Append(ss []string, s string) []string {
+	return append(ss, s)
+}
 func (sender *Strings) HasPrefix(s, substr string) bool {
 	return strings.HasPrefix(s, substr)
 }
@@ -129,11 +133,29 @@ func (sender *Strings) HasSuffix(s, substr string) bool {
 	return strings.HasSuffix(s, substr)
 }
 
-func (sender *Strings) Replace(s string, old string, new string, n int) string {
-	if n == 0 {
-		n = -1
+func (sender *Strings) Replace(s_ interface{}, old string, new string, n int) interface{} {
+	switch s := s_.(type) {
+	case string:
+		if n == 0 {
+			n = -1
+		}
+		return strings.Replace(s, old, new, n)
+	case []string:
+		for i := range s {
+			if s[i] == old {
+				s[i] = new
+			}
+		}
+		return s
+	case []interface{}:
+		for i := range s {
+			if s[i] == old {
+				s[i] = new
+			}
+		}
+		return s
 	}
-	return strings.Replace(s, old, new, n)
+	return ""
 }
 
 func (sender *Strings) ReplaceAll(s string, old string, new string) string {

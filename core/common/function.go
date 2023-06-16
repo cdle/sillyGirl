@@ -37,6 +37,7 @@ type Function struct {
 	Reply     *Reply `json:"-"`
 	Downloads int    `json:"downloads"`
 	HasForm   bool   `json:"has_form"`
+	Carry     bool   `json:"carry"`
 }
 type Filter struct {
 	BlackMode bool

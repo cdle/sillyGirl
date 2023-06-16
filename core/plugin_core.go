@@ -264,6 +264,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var message *common.Reply
 	var FindAll bool
 	var hasForm bool
+	var carry bool
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
 	).FindAllStringSubmatch(data, -1)
@@ -423,6 +424,8 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 			module = strings.TrimSpace(res[2]) == "true"
 		case "web":
 			web = strings.TrimSpace(res[2]) == "true"
+		case "carry":
+			carry = strings.TrimSpace(res[2]) == "true"
 		case "encrypt":
 			encrypt = strings.TrimSpace(res[2]) == "true"
 		case "on_start":
@@ -566,6 +569,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		Http:        http,
 		FindAll:     FindAll,
 		HasForm:     hasForm,
+		Carry:       carry,
 	}
 	running = func() bool {
 		return f.Running
