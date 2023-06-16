@@ -440,6 +440,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("MongoClient", func(uri string) interface{} {
 		return &mongodb.MongoClient{
 			Uri: uri,
+			Vm:  vm,
 		}
 	})
 }

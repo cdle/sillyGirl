@@ -55,7 +55,6 @@ type Collection struct {
 func (cl *Collection) InsertOne(insert map[string]interface{}) interface{} {
 	result, err := cl.collection.InsertOne(context.Background(), insert)
 	if err != nil {
-
 		panic(cl.Vm.NewGoError(err))
 	}
 	return result
