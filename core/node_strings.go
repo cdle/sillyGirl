@@ -90,9 +90,7 @@ func (sender *Strings) Dir(path string) string {
 func (sender *Strings) Contains(s string, substr interface{}) bool {
 	switch substr := substr.(type) {
 	case string:
-		if strings.Contains(s, substr) {
-			return true
-		}
+		return strings.Contains(s, substr)
 	case []string:
 		for _, sub := range substr {
 			if strings.Contains(s, sub) {
@@ -166,6 +164,10 @@ func (sender *Strings) Split(s string, sep string, n int) []string {
 	return strings.SplitN(s, sep, n)
 }
 
+func (sender *Strings) BuildQuery(params map[string]interface{}) string {
+	return sender.EncodeQueryString(params)
+}
+
 func (sender *Strings) EncodeQueryString(params map[string]interface{}) string {
 	var buf bytes.Buffer
 	for key, value := range params {
@@ -190,6 +192,10 @@ func (sender *Strings) EncodeQueryString(params map[string]interface{}) string {
 		}
 	}
 	return buf.String()
+}
+
+func (sender *Strings) ParseQuery(querystring string) map[string]interface{} {
+	return sender.DecodeQueryString(querystring)
 }
 
 func (sender *Strings) DecodeQueryString(querystring string) map[string]interface{} {
@@ -245,7 +251,7 @@ func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{})
 	var sb strings.Builder
 	sb.WriteString("[CQ:" + cqType)
 	for k, v := range params {
-		sb.WriteString(",")
+		sb.WriteString(", ")
 		sb.WriteString(k)
 		sb.WriteString("=")
 		sb.WriteString(fmt.Sprintf("%v", v))

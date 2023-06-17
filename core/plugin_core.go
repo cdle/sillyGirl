@@ -199,9 +199,10 @@ func initPlugins() {
 			if Functions[i].UUID == key {
 				DestroyAdapterByUUID(key)
 				Functions[i].Running = false
-				if Functions[i].CronId != 0 {
-					C.Remove(cron.EntryID(Functions[i].CronId))
-
+				if len(Functions[i].CronIds) != 0 {
+					for _, id := range Functions[i].CronIds {
+						C.Remove(cron.EntryID(id))
+					}
 				}
 				Functions = append(Functions[:i], Functions[i+1:]...)
 				CancelPluginCrons(key)
@@ -244,7 +245,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var imType *common.Filter
 	var userId *common.Filter
 	var groupId *common.Filter
-	var cron string
+	var cron = map[string]string{}
 	var admin bool
 	var disable bool
 	var priority int
@@ -365,9 +366,6 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				BlackMode: true,
 				Items:     item,
 			}
-		case "cron", "crontab":
-			cron = strings.TrimSpace(res[2])
-			cron = strings.ReplaceAll(cron, `\/`, "/")
 		case "admin":
 			admin = strings.TrimSpace(res[2]) == "true"
 		case "disable":
@@ -438,6 +436,12 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				time.Sleep(time.Second * 2)
 				getPaterner(uuid, strings.TrimSpace(paterner))
 			}()
+		default:
+			cron_ := strings.TrimSpace(res[2])
+			cron_ = strings.ReplaceAll(cron_, `\/`, "/")
+			if strings.HasPrefix(res[1], "cron") {
+				cron[res[1]] = cron_
+			}
 		}
 	}
 	script := ""
@@ -453,9 +457,9 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	if err == nil && err2 != nil {
 		err = err2
 	}
-	if err == nil && len(rules) == 0 && cron != "" {
-		err = fmt.Errorf("无效的脚本%s", title)
-	}
+	// if err == nil && len(rules) == 0 && cron != "" {
+	// 	err = fmt.Errorf("无效的脚本%s", title)
+	// }
 	if web {
 		onStart = true
 	}

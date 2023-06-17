@@ -269,9 +269,13 @@ func setCgs() {
 		if err != nil {
 			return nil
 		}
-		if cg.In {
-			AddListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", cg.ID))
-			AddNoReplyGroups(cg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", cg.ID))
+		if cg.In && cg.Enable {
+			name := cg.ChatName
+			if name == "" {
+				name = cg.ID
+			}
+			AddListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", name))
+			AddNoReplyGroups(cg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", name))
 		}
 		cgs = append(cgs, cg)
 		return nil

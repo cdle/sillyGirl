@@ -11,11 +11,11 @@ type Function struct {
 	FindAll     bool                                             `json:"-"`
 	Admin       bool                                             `json:"-"`
 	Handle      func(Sender, func(vm *goja.Runtime)) interface{} `json:"-"`
-	Cron        string                                           `json:"cron"`
+	Cron        map[string]string                                `json:"cron"`
 	Priority    int                                              `json:"-"`
 	Disable     bool                                             `json:"-"`
 	Hidden      bool                                             `json:"-"`
-	CronId      int                                              `json:"-"`
+	CronIds     []int                                            `json:"-"`
 	Origin      string                                           `json:"-"`
 	UUID        string                                           `json:"id"`
 	Title       string                                           `json:"title"`

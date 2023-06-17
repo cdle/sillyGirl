@@ -376,24 +376,30 @@ func AddCommand(cmds []*common.Function) {
 		}
 		fmtRule(cmds[j])
 		{
-			if cmds[j].Cron != "" && !cmds[j].Disable && !cmds[j].Module && !cmds[j].OnStart {
-				cron := strings.TrimSpace(cmds[j].Cron)
-				if len(regexp.MustCompile(`\S+`).FindAllString(cron, -1)) == 5 {
-					cmds[j].Cron = "0 " + cron
-				}
-				cronId, err := C.AddFunc(cmds[j].Cron, func() {
-					cmds[j].Handle(&Faker{
-						Admin: true,
-						Type:  "cron",
-					}, nil)
-				})
-				if err == nil {
-					cmds[j].CronId = int(cronId)
-					// console["log"]("脚本%s添加定时器", cmds[j].Title)
-				} else {
-					console.Error("脚本%s定时器错误，%v", cmds[j].Title, err)
+			if !cmds[j].Disable && !cmds[j].Module && !cmds[j].OnStart {
+				for plt, Cron := range cmds[j].Cron {
+					plt := plt
+					cron := strings.TrimSpace(Cron)
+					if len(regexp.MustCompile(`\S+`).FindAllString(cron, -1)) == 5 {
+						Cron = "0 " + Cron
+					}
+					cronId, err := C.AddFunc(Cron, func() {
+						cmds[j].Handle(&Faker{
+							Admin: true,
+							Type:  plt,
+						}, nil)
+					})
+					if err == nil {
+						cmds[j].CronIds = append(cmds[j].CronIds, int(cronId))
+						// console["log"]("脚本%s添加定时器", cmds[j].Title)
+					} else {
+						console.Error("脚本%s定时器错误，%v", cmds[j].Title, err)
+					}
 				}
 			}
+			// if cmds[j].Cron != "" && !cmds[j].Disable && !cmds[j].Module && !cmds[j].OnStart {
+
+			// }
 		}
 		{
 			lf := len(Functions)

@@ -260,20 +260,29 @@ func (sender *SenderJsIplm) IsAdmin() bool {
 	return sender.Message.IsAdmin()
 }
 
-func (sender *SenderJsIplm) Reply(text string) *goja.Promise {
-	promise, resolve, reject := sender.Vm.NewPromise()
-	go func() {
-		if text == "" {
-			resolve("")
-			return
-		}
-		i, err := sender.Message.Reply(text)
-		if err != nil {
-			reject(err.Error())
-		}
-		resolve(i)
-	}()
-	return promise
+func (sender *SenderJsIplm) Reply(text string) interface{} {
+	// promise, resolve, reject := sender.Vm.NewPromise()
+	// go func() {
+	// 	defer func() {
+	// 		recover()
+	// 	}()
+	// 	if text == "" {
+	// 		resolve("")
+	// 		return
+	// 	}
+	// 	i, err := sender.Message.Reply(text)
+	// 	if err != nil {
+	// 		reject(err.Error())
+	// 		return
+	// 	}
+	// 	resolve(i)
+	// }()
+	// return promise
+	i, err := sender.Message.Reply(text)
+	if err != nil {
+		panic(Error(sender.Vm, err))
+	}
+	return i
 }
 
 func (sender *SenderJsIplm) HoldOn(str ...string) string {
