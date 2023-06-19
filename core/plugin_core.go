@@ -169,8 +169,8 @@ func initPlugins() {
 						su.DeleteValue("platform")
 					}
 				} else {
-					su.DeleteValue("rule")
-					su.DeleteValue("cron")
+					// su.DeleteValue("rule")
+					// su.DeleteValue("cron")
 					su.DeleteValue("web")
 					su.DeleteValue("admin")
 					su.DeleteValue("priority")

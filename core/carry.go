@@ -213,7 +213,11 @@ func initCarry() {
 					for i, cg := range tmp {
 						if cg.ID == ocg.ID {
 							tmp = append(tmp[:i], tmp[i+1:]...)
-							RemListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", cg.ID))
+							name := cg.ChatName
+							if name == "" {
+								name = cg.ID
+							}
+							RemListenOnGroup(cg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", name))
 							break
 						}
 					}
@@ -225,15 +229,19 @@ func initCarry() {
 					for i, cg := range tmp {
 						if cg.ID == ocg.ID {
 							tmp[i] = ncg
+							name := ncg.ChatName
+							if name == "" {
+								name = ncg.ID
+							}
 							if ncg.In {
 								if ncg.Enable {
-									AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
-									AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", ncg.ID))
+									AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", name))
+									AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", name))
 								} else {
-									RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", ncg.ID))
+									RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", name))
 								}
 							} else {
-								RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", ncg.ID))
+								RemListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)关闭监听模式", name))
 							}
 							break
 						}
@@ -246,8 +254,12 @@ func initCarry() {
 			if ncg.ID != "" {
 				tmp = append(tmp, ncg)
 				if ncg.In && ncg.Enable {
-					AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", ncg.ID))
-					AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", ncg.ID))
+					name := ncg.ChatName
+					if name == "" {
+						name = ncg.ID
+					}
+					AddListenOnGroup(ncg.ID, fmt.Sprintf("已为采集群(%s)开启监听模式", name))
+					AddNoReplyGroups(ncg.ID, fmt.Sprintf("已为采集群(%s)开启禁言模式", name))
 				}
 			} else {
 				return nil

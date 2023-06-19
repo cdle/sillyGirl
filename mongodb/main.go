@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -96,8 +97,31 @@ func (cl *Collection) FindOneAndUpdate(filter interface{}, update interface{}) i
 	return result
 }
 
-func (cl *Collection) Find(filter interface{}) interface{} {
-	cur, err := cl.collection.Find(context.Background(), filter)
+func (cl *Collection) Find(filter interface{}, params map[string]interface{}) interface{} {
+	opts := []*options.FindOptions{}
+	count := false
+	if v, ok := params["sort"]; ok {
+		opt := options.Find()
+		opt.SetSort(v)
+		opts = append(opts, opt)
+	}
+	if _, ok := params["count"]; ok {
+		count = true
+	} else {
+		if v, ok := params["skip"]; ok {
+			opt := options.Find()
+			opt.SetSkip(utils.Int64(v))
+			opts = append(opts, opt)
+		}
+		if v, ok := params["limit"]; ok {
+			opt := options.Find()
+			opt.SetLimit(utils.Int64(v))
+			opts = append(opts, opt)
+		}
+	}
+	// opts.SetSkip((pageNumber - 1) * pageSize)
+	// opts.SetLimit(pageSize)
+	cur, err := cl.collection.Find(context.Background(), filter, opts...)
 	if err != nil {
 		panic(cl.Vm.NewGoError(err))
 	}
@@ -113,6 +137,13 @@ func (cl *Collection) Find(filter interface{}) interface{} {
 	}
 	if err := cur.Err(); err != nil {
 		panic(cl.Vm.NewGoError(err))
+	}
+	if count {
+		v, _ := cl.collection.CountDocuments(context.Background(), filter)
+		return map[string]interface{}{
+			"count":   v,
+			"results": results,
+		}
 	}
 	return results
 }
