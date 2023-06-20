@@ -351,6 +351,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		Minute: time.Minute,
 		Hour:   time.Hour,
 		Day:    time.Hour * 24,
+		Month:  1,
 	})
 	vm.Set("Regexp", Regexp)
 	vm.Set("Form", func(...interface{}) {

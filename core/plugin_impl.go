@@ -473,10 +473,15 @@ type TimeJsImpl struct {
 	Minute time.Duration
 	Hour   time.Duration
 	Day    time.Duration
+	Month  int
 }
 
 func (t *TimeJsImpl) Now() time.Time {
 	return time.Now()
+}
+
+func (t *TimeJsImpl) Date(year int, month int, day int, hour int, min int, sec int, nsec int) time.Time {
+	return time.Date(year, time.Month(month), day, hour, min, sec, nsec, loc)
 }
 
 func (t *TimeJsImpl) Sleep(i int) {

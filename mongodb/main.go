@@ -107,17 +107,21 @@ func (cl *Collection) Find(filter interface{}, params map[string]interface{}) in
 	}
 	if _, ok := params["count"]; ok {
 		count = true
-	} else {
-		if v, ok := params["skip"]; ok {
-			opt := options.Find()
-			opt.SetSkip(utils.Int64(v))
-			opts = append(opts, opt)
-		}
-		if v, ok := params["limit"]; ok {
-			opt := options.Find()
-			opt.SetLimit(utils.Int64(v))
-			opts = append(opts, opt)
-		}
+	}
+	if v, ok := params["skip"]; ok {
+		opt := options.Find()
+		opt.SetSkip(utils.Int64(v))
+		opts = append(opts, opt)
+	}
+	if v, ok := params["limit"]; ok {
+		opt := options.Find()
+		opt.SetLimit(utils.Int64(v))
+		opts = append(opts, opt)
+	}
+	if v, ok := params["projection"]; ok {
+		opt := options.Find()
+		opt.SetProjection(v)
+		opts = append(opts, opt)
 	}
 	// opts.SetSkip((pageNumber - 1) * pageSize)
 	// opts.SetLimit(pageSize)

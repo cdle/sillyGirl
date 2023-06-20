@@ -29,7 +29,7 @@ type RequestPluginResult struct {
 
 var plugin_list = []*common.Function{}
 
-var cdle_sublink = "link://T4EywWN46ztYBhHNdOl6TjL4plwqQWRUoqr8w0KFmMqAdblZX3/xtrZARf3VKKQmH6iQNfyWvB2bqf6P1n/CMh1KLHLbTvUzh9zBQS2u9GeYwAp0APEZvQV1O6pb5g9V/dd6TLH54ssD92DAuMa1xw=="
+var cdle_sublink = "link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJm0P+mI/G3ruO7AC04guqqKKa29VOvTGR7ATUJGYayRBpG2RFq+6ZPK3vcu6KCDGvRE3S43Gj42EXfvs04M6s4"
 
 func initPluginList() {
 	list := []*common.Function{}

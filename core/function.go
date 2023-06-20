@@ -376,7 +376,7 @@ func AddCommand(cmds []*common.Function) {
 		}
 		fmtRule(cmds[j])
 		{
-			if !cmds[j].Disable && !cmds[j].Module && !cmds[j].OnStart {
+			if !cmds[j].Disable && !cmds[j].Module {
 				for plt, Cron := range cmds[j].Cron {
 					plt := plt
 					cron := strings.TrimSpace(Cron)
@@ -585,7 +585,7 @@ func HandleMessage(sender common.Sender) {
 		}
 	}
 	for _, function := range Functions {
-		if function.Disable || function.Module || function.OnStart {
+		if function.Disable || function.Module {
 			continue
 		}
 		imType := sender.GetImType()

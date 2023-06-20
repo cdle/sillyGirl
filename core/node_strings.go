@@ -18,6 +18,81 @@ import (
 type Strings struct {
 }
 
+func (sender *Strings) Diff(a, b []interface{}) []interface{} {
+	m := make(map[interface{}]bool)
+	c := make([]interface{}, 0)
+	for _, v := range b {
+		m[v] = true
+	}
+	for _, v := range a {
+		if !m[v] {
+			c = append(c, v)
+		}
+	}
+	return c
+}
+
+// 寻找所有共同拥有的连续最长字符串
+func (sender *Strings) Intersects(sa, sb string) []string {
+	var common []string
+	for i := 0; i < len(sa); i++ {
+		for j := i + 1; j <= len(sa); j++ {
+			substr := sa[i:j]
+			if len(substr) > 0 && strings.Contains(sb, substr) && !Contains(common, substr) {
+				common = append(common, substr)
+			}
+		}
+	}
+	return common
+}
+
+func (sender *Strings) Intersect(a, b interface{}) interface{} {
+	// 判断是否为字符串类型
+	if sa, ok := a.(string); ok {
+		if sb, ok := b.(string); ok {
+			// 如果是字符串类型，则寻找共同拥有的最长字符串
+			var longest string
+			for i := 0; i < len(sa); i++ {
+				for j := i + 1; j <= len(sa); j++ {
+					substr := sa[i:j]
+					if strings.Contains(sb, substr) && len(substr) > len(longest) {
+						longest = substr
+					}
+				}
+			}
+			return longest
+		}
+	}
+
+	// 否则，使用普通的交集算法
+	m := make(map[interface{}]bool)
+	c := make([]interface{}, 0)
+	for _, v := range a.([]interface{}) {
+		m[v] = true
+	}
+	for _, v := range b.([]interface{}) {
+		if m[v] {
+			c = append(c, v)
+		}
+	}
+	return c
+}
+
+func (sender *Strings) Union(a, b []interface{}) []interface{} {
+	m := make(map[interface{}]bool)
+	c := make([]interface{}, 0)
+	for _, v := range a {
+		m[v] = true
+		c = append(c, v)
+	}
+	for _, v := range b {
+		if !m[v] {
+			c = append(c, v)
+		}
+	}
+	return c
+}
+
 func (sender *Strings) Random(length int, substr string) string {
 	ws := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	if substr != "" {

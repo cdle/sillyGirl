@@ -31,6 +31,7 @@ func init() {
 			ar := strings.Split(bk, ".")
 			if len(ar) == 2 {
 				if ar[0] == "plugins" && false { //todo
+
 					// data[bk] = halfDeEct(MakeBucket(ar[0]).GetString(ar[1]))
 				} else {
 					// data[bk] = MakeBucket(ar[0]).GetString(ar[1])
@@ -133,8 +134,8 @@ func init() {
 		for _, bk := range arr {
 			ar := strings.Split(bk, ".")
 			if len(ar) == 2 {
-				if ar[0] == "plugins" && false { //todo
-					data[bk] = halfDeEct(MakeBucket(ar[0]).GetString(ar[1]))
+				if ar[0] == "plugins" && IsCdle { //todo
+					data[bk] = DecryptPlugin(halfDeEct(MakeBucket(ar[0]).GetString(ar[1])))
 				} else {
 					data[bk] = TransformBucketKeyValue(MakeBucket(ar[0]).GetString(ar[1]))
 				}
