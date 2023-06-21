@@ -260,25 +260,8 @@ func (sender *SenderJsIplm) IsAdmin() bool {
 	return sender.Message.IsAdmin()
 }
 
-func (sender *SenderJsIplm) Reply(text string) interface{} {
-	// promise, resolve, reject := sender.Vm.NewPromise()
-	// go func() {
-	// 	defer func() {
-	// 		recover()
-	// 	}()
-	// 	if text == "" {
-	// 		resolve("")
-	// 		return
-	// 	}
-	// 	i, err := sender.Message.Reply(text)
-	// 	if err != nil {
-	// 		reject(err.Error())
-	// 		return
-	// 	}
-	// 	resolve(i)
-	// }()
-	// return promise
-	i, err := sender.Message.Reply(text)
+func (sender *SenderJsIplm) Reply(texts ...interface{}) interface{} {
+	i, err := sender.Message.Reply(texts...)
 	if err != nil {
 		panic(Error(sender.Vm, err))
 	}

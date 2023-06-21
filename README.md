@@ -3,6 +3,7 @@
 一个不太有用的机器人，不生产消息，只搬运消息。
 
 ## 特性
+
 - 简单易用的消息搬运功能。
 - 简单强大的自定义回复功能。
 - 完整支持 ECMAScript 5.1 的插件系统，基于 [otto](https://github.com/robertkrimen/otto)。
@@ -291,7 +292,7 @@ interface Sender {
   isAdmin(): boolean; //判断消息是否来自管理员
   getPlatform(): string; //获取消息平台
   getBotId(): string; //获取机器人ID
-  reply(content: string) Promise<string>; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
+  reply(content: string): string; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
   recallMessage(meesageId: string | string[]): Promise<boolean>; //撤回消息
   kick(user_id: string): Promise<boolean>; //移出群聊
   unkick(user_id: string): Promise<boolean>; //取消移出群聊
@@ -384,7 +385,7 @@ interface Message{
 
 class Adapter(botplt: string, botid: string) {
   isAdapter(botid: string): boolean; //判断id是否为机器人
-  push(message: Message): [messageId: string[], error: string]; //推送消息，无视禁言设置
+  push(message: Message): string; //推送消息，无视禁言设置
   getReplyMessage(): Promise<message: Message>; //获取一条回复消息，实际发送成功后，如果有id，请设置 message.message_id
   setReplyHandler(func: (message: Message): string): void; //设置回复事件处理方法，方法中返回消息ID，不推荐使用。
   receive(message: Message): Sender; //接收一个消息，并返回一个Sender对象
@@ -523,5 +524,6 @@ uuid(): string; //生成uuid
 ```
 
 ### 项目赞助
+
 打开微信扫一扫，深入了解作者~
 ![](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)

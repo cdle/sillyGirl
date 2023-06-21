@@ -190,8 +190,11 @@ func (f *Factory) Init(botplt, botid string) {
 	f.demo = &CustomSender{
 		f: f,
 	}
-	if _, ok := Bots[[2]string{botplt, botid}]; ok {
-		// go v.Destroy()
+	if v, ok := Bots[[2]string{botplt, botid}]; ok {
+		if v.uuid != f.uuid {
+			go v.Destroy()
+		}
+		//
 		console.Warn("%s机器人%s因冲突销毁！", botplt, botid)
 	}
 	Bots[[2]string{botplt, botid}] = f
@@ -549,17 +552,21 @@ type PUSH string
 
 func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	var push = false
-	var content = ""
 	var platform = sender.f.botplt
 	var bot_id = sender.f.botid
+	var args = []interface{}{}
 	for _, item := range msgs {
 		switch item := item.(type) {
 		case PUSH:
 			push = true
 		case string:
-			content = item
+			args = append(args, item)
 		}
 	}
+	if len(args) == 0 {
+		return "", errors.New("no content")
+	}
+	content := utils.FormatLog(args[0], args[1:]...)
 	if !push {
 		if IsNoReplyGroup(sender) {
 			return "", errors.New("is no reply group")
