@@ -70,6 +70,19 @@ func (cl *Collection) FindOne(filter interface{}) interface{} {
 	return result
 }
 
+func (cl *Collection) Aggregate(pipeline interface{}) interface{} {
+	cursor, err := cl.collection.Aggregate(context.Background(), pipeline)
+	if err != nil {
+		panic(cl.Vm.NewGoError(err))
+	}
+	var results = []map[string]interface{}{}
+	cursor.All(context.Background(), &results)
+	if err != nil {
+		panic(cl.Vm.NewGoError(err))
+	}
+	return results
+}
+
 func (cl *Collection) FindOneAndDelete(filter interface{}) interface{} {
 	var result = map[string]interface{}{}
 	err := cl.collection.FindOneAndDelete(context.Background(), filter).Decode(result)
@@ -150,6 +163,14 @@ func (cl *Collection) Find(filter interface{}, params map[string]interface{}) in
 		}
 	}
 	return results
+}
+
+func (cl *Collection) CountDocuments(filter interface{}) int64 {
+	v, err := cl.collection.CountDocuments(context.Background(), filter)
+	if err != nil {
+		panic(cl.Vm.NewGoError(err))
+	}
+	return v
 }
 
 func (cl *Collection) UpdateOne(filter, update interface{}, params map[string]interface{}) interface{} {

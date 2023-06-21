@@ -145,8 +145,8 @@ func initCarry() {
 				var scripts = []string{}
 				//执行采集脚本
 				fs := Functions
-				for i := range fs {
-					for j := range from.Scripts {
+				for j := range from.Scripts {
+					for i := range fs {
 						if fs[i].UUID == from.Scripts[j] && !Contains(scripts, fs[i].UUID) {
 							fs[i].Handle(s, nil)
 							content = s.GetContent()

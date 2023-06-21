@@ -3,6 +3,7 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"math/rand"
 	"net/url"
 	"path/filepath"
@@ -32,18 +33,34 @@ func (sender *Strings) Diff(a, b []interface{}) []interface{} {
 	return c
 }
 
-// 寻找所有共同拥有的连续最长字符串
-func (sender *Strings) Intersects(sa, sb string) []string {
-	var common []string
-	for i := 0; i < len(sa); i++ {
-		for j := i + 1; j <= len(sa); j++ {
-			substr := sa[i:j]
-			if len(substr) > 0 && strings.Contains(sb, substr) && !Contains(common, substr) {
-				common = append(common, substr)
+func similarity(str1, str2 string) int {
+	str1 = strings.ToLower(str1)
+	str2 = strings.ToLower(str2)
+	ml := 2
+	ws := []string{}
+	tp := []rune{}
+	for _, r := range str2 {
+		tp = append(tp, r)
+		if !strings.Contains(str1, string(tp)) {
+			tp = tp[:len(tp)-1]
+			if len(tp) > ml {
+				ws = append(ws, string(tp))
 			}
+			tp = []rune{r}
 		}
 	}
-	return common
+	if strings.Contains(str1, string(tp)) {
+		ws = append(ws, string(tp))
+	}
+	return len(strings.Join(ws, ""))
+}
+
+func (sender *Strings) Similarity(str1, str2 string) float64 {
+	max := math.Max(
+		float64(similarity(str1, str2))/float64(len(str2)),
+		float64(similarity(str2, str1))/float64(len(str1)),
+	)
+	return max
 }
 
 func (sender *Strings) Intersect(a, b interface{}) interface{} {
