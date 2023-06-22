@@ -339,9 +339,12 @@ func (sender *Strings) HideCQEmoji(text string) map[string]interface{} {
 }
 
 // 构建CQ码
-func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{}) string {
+func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{}, prefix string) string {
+	if prefix == "" {
+		prefix = "CQ"
+	}
 	var sb strings.Builder
-	sb.WriteString("[CQ:" + cqType)
+	sb.WriteString("[" + prefix + ":" + cqType)
 	for k, v := range params {
 		sb.WriteString(", ")
 		sb.WriteString(k)
@@ -353,8 +356,11 @@ func (sender *Strings) BuildCQCode(cqType string, params map[string]interface{})
 }
 
 // 将含有 CQ码 的文本解析成文本和 CQ 对象数组
-func (sender *Strings) ParseCQText(text string) []interface{} {
-	cqRegex := regexp.MustCompile(`\[CQ:(\w+)(.*?)\]`)
+func (sender *Strings) ParseCQText(text string, prefix string) []interface{} {
+	if prefix == "" {
+		prefix = "CQ"
+	}
+	cqRegex := regexp.MustCompile(`\[` + prefix + `:(\w+)(.*?)\]`)
 	cqMatches := cqRegex.FindAllStringSubmatch(text, -1)
 	result := make([]interface{}, 0, len(cqMatches)*2+1)
 	// 依次解析 CQ 码和文本
@@ -396,14 +402,17 @@ type CQ struct {
 }
 
 // 将 CQ 对象数组转换回原始文本
-func (sender *Strings) StringifyCQText(cqList []interface{}) string {
+func (sender *Strings) StringifyCQText(cqList []interface{}, prefix string) string {
+	if prefix == "" {
+		prefix = "CQ"
+	}
 	var sb strings.Builder
 	for _, item := range cqList {
 		switch item := item.(type) {
 		case string:
 			sb.WriteString(item)
 		case CQ:
-			sb.WriteString(fmt.Sprintf("[CQ:%s", item.Type))
+			sb.WriteString(fmt.Sprintf("["+prefix+":%s", item.Type))
 			for k, v := range item.Params {
 				sb.WriteString(fmt.Sprintf(",%s=%s", k, v))
 			}
@@ -413,7 +422,7 @@ func (sender *Strings) StringifyCQText(cqList []interface{}) string {
 				Type:   item["Type"].(string),
 				Params: convertParams(item["Params"].(map[string]interface{})),
 			}
-			sb.WriteString(fmt.Sprintf("[CQ:%s", cq.Type))
+			sb.WriteString(fmt.Sprintf("["+prefix+":%s", cq.Type))
 			for k, v := range cq.Params {
 				sb.WriteString(fmt.Sprintf(",%s=%s", k, v))
 			}
