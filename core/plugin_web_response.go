@@ -8,6 +8,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
+	"github.com/gorilla/websocket"
 )
 
 type Response struct {
@@ -26,9 +27,11 @@ type Response struct {
 	isJson     bool
 	status     int
 	isRedirect bool
+	conn       *websocket.Conn
 }
 
 func (r *Response) Send(gv goja.Value) *Response {
+
 	gve := gv.Export()
 	switch gve := gve.(type) {
 	case string:
@@ -41,6 +44,11 @@ func (r *Response) Send(gv goja.Value) *Response {
 		} else {
 			r.content += fmt.Sprint(gve)
 		}
+	}
+	if r.conn != nil {
+		r.conn.WriteMessage(1, []byte(r.content))
+		r.content = ""
+		return r
 	}
 	return r
 }
@@ -67,6 +75,11 @@ func (r *Response) Json(ps ...interface{}) *Response {
 		r.isJson = true
 	} else {
 		r.content += fmt.Sprint(data)
+	}
+	if r.conn != nil {
+		r.conn.WriteMessage(1, d)
+		r.content = ""
+		return r
 	}
 	return r
 }

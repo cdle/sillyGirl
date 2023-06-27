@@ -85,12 +85,12 @@ func initWebBot() {
 			}
 			return false
 		})
-		adapter.SetReplyHandler(func(msg map[string]string) string {
+		adapter.SetReplyHandler(func(msg map[string]interface{}) string {
 			message := WebMessage{
-				UserID:  msg[core.USER_ID],
+				UserID:  msg[core.USER_ID].(string),
 				Images:  []string{},
 				Type:    "chat",
-				Content: msg[core.CONETNT],
+				Content: msg[core.CONETNT].(string),
 			}
 			sendWebMessage(&message)
 			return ""

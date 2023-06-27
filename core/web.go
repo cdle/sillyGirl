@@ -122,6 +122,10 @@ func initWeb() {
 			uuid = utils.GenUUID()
 			c.SetCookie("uuid", uuid, 8640000, "/", "", false, true)
 		}
+		if IsWebSocketRequest(c.Request) {
+			handleWebsocket(c)
+			return
+		}
 		var req = &Request{
 			c:    c,
 			uuid: uuid,
@@ -129,7 +133,6 @@ func initWeb() {
 		var res = &Response{
 			c: c,
 		}
-
 		for _, function := range Functions {
 			if function.Http != nil {
 				path := function.Http.Path

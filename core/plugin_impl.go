@@ -256,6 +256,24 @@ func (Sender *SenderJsIplm) Get(i interface{}) string {
 	return Sender.Param(i)
 }
 
+func (Sender *SenderJsIplm) GetVar(key string) interface{} {
+	return Sender.Message.GetVar(key)
+}
+
+func (Sender *SenderJsIplm) SetVar(key string, value interface{}) {
+	Sender.Message.SetVar(key, value)
+}
+
+func (Sender *SenderJsIplm) SetVars(kvs map[string]interface{}) {
+	for k, v := range kvs {
+		Sender.SetVar(k, v)
+	}
+}
+
+func (Sender *SenderJsIplm) GetVars() map[string]interface{} {
+	return Sender.Message.GetExpandMessageInfo()
+}
+
 func (sender *SenderJsIplm) IsAdmin() bool {
 	return sender.Message.IsAdmin()
 }

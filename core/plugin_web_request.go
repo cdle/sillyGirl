@@ -35,6 +35,7 @@ type Request struct {
 	handled    bool
 	uuid       string
 	bodyData   []byte
+	_event     string
 }
 
 func (r *Request) Body() string {
@@ -57,6 +58,10 @@ func (r *Request) Json() interface{} {
 
 func (r *Request) Ip() string {
 	return r.c.ClientIP()
+}
+
+func (r *Request) Event() string {
+	return r._event
 }
 
 func (r *Request) OriginalUrl() string {

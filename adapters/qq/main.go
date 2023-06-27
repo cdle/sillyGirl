@@ -185,11 +185,11 @@ func init() {
 				})
 				return true
 			})
-			adapter.SetReplyHandler(func(msg map[string]string) string {
+			adapter.SetReplyHandler(func(msg map[string]interface{}) string {
 				if debug {
 					logs.Debug("QQ发送消息：", string(utils.JsonMarshal(msg)))
 				}
-				if utils.IsZeroOrEmpty(msg[core.CHAT_ID]) {
+				if utils.IsZeroOrEmpty(msg[core.CHAT_ID].(string)) {
 					params := map[string]interface{}{
 						"user_id": msg[core.USER_ID],
 						"message": msg[core.CONETNT],

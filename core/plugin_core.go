@@ -496,6 +496,16 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 				vm.Set("res", goja.Undefined())
 				vm.Set("req", goja.Undefined())
 				vm.Set("sender", ss)
+				vm.Set("run", func(uuid string) bool { //执行子脚本
+					fs := Functions
+					for i := range fs {
+						if fs[i].UUID == uuid {
+							fs[i].Handle(s, nil)
+							return true
+						}
+					}
+					return false
+				})
 				vm.Set("s", ss)
 				vm.Set("InitAdapter", func(plt, botid string) *Factory {
 					f := &Factory{

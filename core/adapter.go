@@ -36,7 +36,7 @@ type CustomSender struct {
 
 type MsgChan struct {
 	Chan chan string
-	Msg  map[string]string
+	Msg  map[string]interface{}
 }
 
 type Factory struct {
@@ -45,7 +45,7 @@ type Factory struct {
 	uuid          string
 	msgChan       chan MsgChan
 	demo          *CustomSender
-	reply         func(map[string]string) string
+	reply         func(map[string]interface{}) string
 	lm            chan bool
 	nm            int64
 	recallMessage func(interface{}) bool
@@ -307,8 +307,8 @@ func (f *Factory) Push(msg map[string]string) (string, error) {
 	return sender.Reply(msg[CONETNT], PUSH(""))
 }
 
-func (f *Factory) SetReplyHandler(function func(map[string]string) string) {
-	f.reply = func(m map[string]string) string {
+func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) {
+	f.reply = func(m map[string]interface{}) string {
 		if f.uuid != "" {
 			mutex := GetMutex(f.uuid)
 			mutex.Lock()
@@ -417,7 +417,7 @@ func (f *Factory) GetReplyMessage() *goja.Promise {
 	return promise
 }
 
-func (f *Factory) Send(function func(map[string]string) string) {
+func (f *Factory) Send(function func(map[string]interface{}) string) {
 	f.SetReplyHandler(function)
 }
 
@@ -485,22 +485,34 @@ func (f *Factory) Receive(wt interface{}) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
 	props := wt.(map[string]interface{})
+	emf := map[string]interface{}{}
 	for i := range props {
+		h := false
 		switch strings.ToLower(i) {
 		case "content":
 			sender.details.Content = fmt.Sprint(props[i])
+			h = true
 		case "message_id", "messageId":
 			sender.details.MessageID = fmt.Sprint(props[i])
+			h = true
 		case "user_id", "userId":
 			sender.details.UserID = fmt.Sprint(props[i])
+			h = true
 		case "chat_id", "chatId", "group_id", "groupId", "group_code", "groupCode":
 			sender.details.ChatID = fmt.Sprint(props[i])
+			h = true
 		case "user_name", "userName":
 			sender.details.Username = fmt.Sprint(props[i])
+			h = true
 		case "chat_name", "chatName", "groupName", "group_name":
 			sender.details.Chatname = fmt.Sprint(props[i])
+			h = true
+		}
+		if !h {
+			emf[i] = props[i]
 		}
 	}
+	sender.SetExpandMessageInfo(emf)
 	if sender.details.Content != "" {
 		Messages <- sender
 	}
@@ -577,13 +589,16 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	content = strings.ReplaceAll(content, "\r", "\n")
 	content = regexp.MustCompile("[\n]{3,}").ReplaceAllString(content, "\n\n")
 	if content != "" {
-		msg := map[string]string{
+		msg := map[string]interface{}{
 			"message_id": sender.GetMessageID(),
 			"content":    content,
 			"user_id":    sender.GetUserID(),
 			"chat_id":    sender.GetChatID(),
 			"bot_id":     bot_id,
 			// "uuid":       utils.GenUUID(),
+		}
+		for k, v := range sender.GetExpandMessageInfo() {
+			msg[k] = v
 		}
 		if sender.f.reply == nil {
 			var any *common.Function

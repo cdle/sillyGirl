@@ -44,6 +44,10 @@ type Sender interface {
 	Stop()
 	SetMark(interface{})
 	GetMark() interface{}
+	SetExpandMessageInfo(map[string]interface{})
+	GetExpandMessageInfo() map[string]interface{}
+	SetVar(string, interface{})
+	GetVar(string) interface{}
 	SetLevel(int)
 	GetLevel() int
 }

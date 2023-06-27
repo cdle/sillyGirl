@@ -159,6 +159,7 @@ type BaseSender struct {
 	mark           interface{}
 	params         []string
 	level          int
+	emf            map[string]interface{}
 }
 
 func (sender *BaseSender) SetLevel(l int) {
@@ -175,6 +176,40 @@ func (sender *BaseSender) SetMark(mark interface{}) {
 
 func (sender *BaseSender) GetMark() interface{} {
 	return sender.mark
+}
+
+func (sender *BaseSender) SetExpandMessageInfo(emf map[string]interface{}) {
+	if sender.emf == nil {
+		sender.emf = map[string]interface{}{}
+	}
+	for key, value := range emf {
+		sender.emf[key] = value
+	}
+}
+
+func (sender *BaseSender) GetExpandMessageInfo() map[string]interface{} {
+	if sender.emf == nil {
+		sender.emf = map[string]interface{}{}
+	}
+	return sender.emf
+}
+
+func (sender *BaseSender) SetVar(key string, value interface{}) {
+	if sender.emf == nil {
+		sender.emf = map[string]interface{}{}
+	}
+	sender.emf[key] = value
+}
+
+func (sender *BaseSender) GetVar(key string) interface{} {
+	if sender.emf == nil {
+		sender.emf = map[string]interface{}{}
+	}
+	v, ok := sender.emf[key]
+	if !ok {
+		return nil
+	}
+	return v
 }
 
 func (sender *BaseSender) SetMatch(ss []string) {
