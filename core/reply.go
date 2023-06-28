@@ -243,3 +243,35 @@ func parseReply2(str string) string {
 		// return ""
 	})
 }
+
+func parseReply3(str string, f func(string, string)) string {
+	ks := map[string]bool{}
+	re := regexp.MustCompile(`\$\{\s*([^{}]+)\s*\}`)
+	return re.ReplaceAllStringFunc(str, func(match string) string {
+		script := match[2 : len(match)-1]
+		script = regexp.MustCompile(`(\w+)\.(\w+)`).ReplaceAllStringFunc(script, func(match string) string {
+			parts := strings.Split(match, ".")
+			k := fmt.Sprintf(`%s.%s`, parts[0], parts[1])
+			if _, ok := ks[k]; !ok {
+				ks[k] = true
+				f(parts[0], parts[1])
+			}
+			return fmt.Sprintf(`Bucket("%s")["%s"]`, parts[0], parts[1])
+		})
+		vm := goja.New()
+		vm.Set("Bucket", func(name string) interface{} {
+			return JsBucket(vm, name, "", false)
+		})
+		v, err := vm.RunString(script)
+		if err == nil {
+			return v.String()
+		}
+		return match
+		// b_k := strings.Split(bk, ".")
+		// if len(b_k) != 3 {
+		// 	return fmt.Sprintf("${%s}", bk)
+		// }
+		// return MakeBucket(b_k[1]).GetString(b_k[2])
+		// return ""
+	})
+}

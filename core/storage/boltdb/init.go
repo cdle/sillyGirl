@@ -158,6 +158,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 		new = fmt.Sprint(value)
 	}
 	var handles []func(string, string, string) *storage.Final
+	var endFuncs = []func(){}
 	for _, listen := range storage.Listens {
 		if listen.Name == bucket.name && (listen.Key == key || listen.Key == "*") {
 			handles = append(handles, listen.Handle)
@@ -165,6 +166,9 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 	}
 	if len(handles) > 0 {
 		old := bucket.GetString(key)
+		if old == new {
+			return msg, nil
+		}
 		for _, handle := range handles {
 			fin := handle(old, new, k)
 			if fin != nil {
@@ -177,10 +181,13 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 				if fin.Now != "" {
 					new = fin.Now
 				}
+				if fin.EndFunc != nil {
+					endFuncs = append(endFuncs, fin.EndFunc)
+				}
 			}
 		}
 	}
-	return msg, db.Update(func(tx *bolt.Tx) error {
+	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucket.name))
 		if err != nil {
 			return err
@@ -196,6 +203,12 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 		}
 		return nil
 	})
+	if err == nil {
+		for _, f := range endFuncs {
+			f()
+		}
+	}
+	return msg, err
 }
 
 func (bucket *Bucket) GetString(kv ...interface{}) string {

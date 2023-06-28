@@ -44,6 +44,7 @@ type Final struct {
 	Now     string
 	Message string
 	Error   error
+	EndFunc func()
 }
 
 func Watch(bucket Bucket, key interface{}, handle func(old string, new string, key string) *Final, uuid ...string) {

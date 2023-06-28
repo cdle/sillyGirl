@@ -217,6 +217,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 	}
 	if !utils.SlaveMode {
 		var handles []func(string, string, string) *storage.Final
+		var endFuncs = []func(){}
 		for _, listen := range storage.Listens {
 			if listen.Name == bucket.name && (listen.Key == key || listen.Key == "*") {
 				handles = append(handles, listen.Handle)
@@ -239,14 +240,24 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 					if fin.Now != "" {
 						new = fin.Now
 					}
+					if fin.EndFunc != nil {
+						endFuncs = append(endFuncs, fin.EndFunc)
+					}
 				}
 			}
 		}
+		var err error
 		if new == "" {
-			return msg, db.HDel(ctx, bucket.name, k).Err()
+			err = db.HDel(ctx, bucket.name, k).Err()
 		} else {
-			return msg, db.HSet(ctx, bucket.name, k, new).Err()
+			err = db.HSet(ctx, bucket.name, k, new).Err()
 		}
+		if err == nil {
+			for _, f := range endFuncs {
+				f()
+			}
+		}
+		return msg, err
 	} else {
 		return toMaster(bucket.name, k, new)
 	}

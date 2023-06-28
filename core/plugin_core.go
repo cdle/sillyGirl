@@ -83,9 +83,12 @@ func CancelPluginlistening(uuid string) {
 
 func initPlugins() {
 	plugins.Foreach(func(key, data []byte) error {
-		f, err := initPlugin(string(data), string(key))
+		f, cbs, err := initPlugin(string(data), string(key))
 		if err != nil {
 			console.Error("初始化插件%s错误: %v", key, err)
+		}
+		for _, cb := range cbs {
+			cb()
 		}
 		AddCommand([]*common.Function{f})
 		// os.WriteFile(fmt.Sprintf("%s/%s.js", pluginPath, f.Title), data, 0600)
@@ -101,7 +104,7 @@ func initPlugins() {
 					continue
 				}
 				script := string(fetchScript(p.Address, key))
-				if f, _ := initPlugin(script, p.UUID); f.CreateAt != "" {
+				if f, _, _ := initPlugin(script, p.UUID); f.CreateAt != "" {
 					fin = &storage.Final{
 						Now: script,
 					}
@@ -117,7 +120,11 @@ func initPlugins() {
 				}
 			}
 		}
+
 		if new != "" {
+			if new == "reload" {
+				new = old
+			}
 			fin = &storage.Final{}
 			su := &ScriptUtils{script: new}
 			if version := su.GetValue("version"); version == "" || regexp.MustCompile(`v\d+\.\d+\.\d`).FindString(version) != version {
@@ -190,7 +197,7 @@ func initPlugins() {
 			}
 			new = su.script
 		}
-		f, err := initPlugin(new, key)
+		f, cbs, err := initPlugin(new, key)
 		if err != nil && new != "" {
 			console.Error(err)
 		}
@@ -219,12 +226,15 @@ func initPlugins() {
 						console.Log("已重载 %s.js", f.Title)
 					}
 				} else {
-					of, _ := initPlugin(old, key)
+					of, _, _ := initPlugin(old, key)
 					console.Log("已卸载 %s.js", of.Title)
 				}
 				apd = true
 				break
 			}
+		}
+		for _, cb := range cbs {
+			cb()
 		}
 		if !apd {
 			AddCommand([]*common.Function{f})
@@ -239,7 +249,8 @@ func initPlugins() {
 	})
 }
 
-func initPlugin(data string, uuid string) (*common.Function, error) {
+func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
+	var cbs = []func(){}
 	var err error
 	var rules []string
 	var imType *common.Filter
@@ -266,6 +277,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	var FindAll bool
 	var hasForm bool
 	var carry bool
+	ks := map[string]bool{}
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
 	).FindAllStringSubmatch(data, -1)
@@ -273,6 +285,21 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 		switch res[1] {
 		case "rule", "match", "regex", "pattern":
 			rule := strings.TrimSpace(res[2])
+			rule = parseReply3(rule, func(s1, s2 string) {
+				k := s1 + "." + s2
+				if _, ok := ks[k]; !ok {
+					cbs = append(cbs, func() {
+						storage.Watch(MakeBucket(s1), s2, func(old, new, key string) *storage.Final {
+							return &storage.Final{
+								EndFunc: func() {
+									plugins.Set(uuid, "reload")
+								},
+							}
+						}, uuid)
+					})
+					ks[k] = true
+				}
+			})
 			_rs := []string{}
 		FR:
 			ress := regexp.MustCompile(`\[([^\s\[\]]+)\]`).FindAllStringSubmatch(rule, -1)
@@ -467,6 +494,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	// 	icon = "https://joeschmoe.io/api/v1/random?t=" + fmt.Sprint(time.Now().Nanosecond())
 	// }
 	var running func() bool
+
 	f := &common.Function{
 		Handle: func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
 			defer func() {
@@ -588,7 +616,7 @@ func initPlugin(data string, uuid string) (*common.Function, error) {
 	running = func() bool {
 		return f.Running
 	}
-	return f, err
+	return f, cbs, err
 }
 
 func ChatID(p interface{}) string {
