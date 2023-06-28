@@ -72,3 +72,22 @@ func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket stora
 // 		},
 // 	})
 // })
+
+func JsBucket(vm *goja.Runtime, name string, uuid string, on_start bool) goja.Proxy {
+	return vm.NewProxy(MakeBucketObject(vm, uuid, on_start, MakeBucket(name)), &goja.ProxyTrapConfig{
+		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
+			obj := target.Get(property)
+			if obj != nil {
+				return obj
+			}
+			result := target.Get("get").Export().(func(...interface{}) interface{})(property)
+			return vm.ToValue(result)
+		},
+		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+			result := target.Get("set").Export().(func(interface{}, interface{}) error)(
+				property, value.Export(),
+			)
+			return result == nil
+		},
+	})
+}

@@ -229,6 +229,7 @@ func initWebPluginList() {
 						}
 					}
 				}
+				rr.Data[i].Description = parseReply2(rr.Data[i].Description)
 			}
 			ctx.JSON(200, rr)
 			return

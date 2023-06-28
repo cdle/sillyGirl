@@ -112,24 +112,8 @@ func CancelPluginCrons(uuid string) {
 
 func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func() bool) {
 	vm.Set("Bucket", func(name string) interface{} {
-		return vm.NewProxy(MakeBucketObject(vm, uuid, on_start, MakeBucket(name)), &goja.ProxyTrapConfig{
-			Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
-				obj := target.Get(property)
-				if obj != nil {
-					return obj
-				}
-				result := target.Get("get").Export().(func(...interface{}) interface{})(property)
-				return vm.ToValue(result)
-			},
-			Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-				result := target.Get("set").Export().(func(interface{}, interface{}) error)(
-					property, value.Export(),
-				)
-				return result == nil
-			},
-		})
+		return JsBucket(vm, name, uuid, on_start)
 	})
-
 	sillyGirlJsIplm := func(call goja.ConstructorCall) *goja.Object {
 		userId := fmt.Sprintf("%d", rand.Int63())
 		call.This.Set("isSlaveMode", func() bool {
