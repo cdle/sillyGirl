@@ -360,10 +360,15 @@ func initWeb() {
 	})
 
 	// logs.Info("Http服务(%s)开始运行", port)
+
 	logs.Info("管理员面板:")
-	logs.Info("  > 本机: http://localhost:%s", port)
+	logs.Info("  > 本机: http://localhost:%s/admin", port)
 	local_ip := getLocalIP()
-	logs.Info("  > 局域网: http://%s:%s", local_ip, port)
+	logs.Info("  > 局域网: http://%s:%s/admin", local_ip, port)
+	ip := sillyGirl.GetString("ip")
+	if ip != "" {
+		logs.Info("  > 广域网: http://%s:%s/admin", ip, port)
+	}
 	sillyGirl.Set("local_ip", local_ip)
 	go func() {
 		if err := srvs[0].ListenAndServe(); err != nil && err != http.ErrServerClosed {

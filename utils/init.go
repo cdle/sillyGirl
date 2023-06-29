@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -443,4 +444,36 @@ func Itoa(i interface{}) string {
 	default:
 		return fmt.Sprint(i)
 	}
+}
+
+func GetPublicIP() (string, error) {
+	var ip string
+
+	// 使用 ipapi.co 获取公网IP地址
+	resp, err := http.Get("https://ipapi.co/ip/")
+	if err == nil {
+		defer resp.Body.Close()
+		ipBytes, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			ip = string(ipBytes)
+		}
+	}
+
+	// 使用 ifconfig.co 获取公网IP地址
+	if ip == "" {
+		resp, err = http.Get("https://ifconfig.co/ip")
+		if err == nil {
+			defer resp.Body.Close()
+			ipBytes, err := ioutil.ReadAll(resp.Body)
+			if err == nil {
+				ip = string(ipBytes)
+			}
+		}
+	}
+
+	if ip == "" {
+		return "", fmt.Errorf("获取IP地址失败")
+	}
+
+	return ip, nil
 }

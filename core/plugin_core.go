@@ -535,12 +535,12 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 					return false
 				})
 				vm.Set("s", ss)
-				vm.Set("InitAdapter", func(plt, botid string) *Factory {
+				vm.Set("InitAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
 					f := &Factory{
 						uuid: uuid,
 						vm:   vm,
 					}
-					f.Init(plt, botid, nil)
+					f.Init(plt, botid, params)
 					return f
 				})
 				vm.Set("initAdapter", func(plt, botid string) *Factory {
