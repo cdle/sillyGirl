@@ -540,7 +540,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 						uuid: uuid,
 						vm:   vm,
 					}
-					f.Init(plt, botid)
+					f.Init(plt, botid, nil)
 					return f
 				})
 				vm.Set("initAdapter", func(plt, botid string) *Factory {
@@ -548,7 +548,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 						uuid: uuid,
 						vm:   vm,
 					}
-					f.Init(plt, botid)
+					f.Init(plt, botid, nil)
 					return f
 				})
 				getAdapter := func(plt, botid string) map[string]interface{} {

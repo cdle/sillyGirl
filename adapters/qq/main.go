@@ -150,7 +150,7 @@ func init() {
 				chans: make(map[string]chan string),
 			}
 			adapter := &core.Factory{}
-			adapter.Init("qq", botID)
+			adapter.Init("qq", botID, nil)
 			defer adapter.Destroy()
 			adapter.SetGroupKick(func(uid string, gid string, reject_add_request bool) bool {
 				qqcon.WriteJSON(CallApi{

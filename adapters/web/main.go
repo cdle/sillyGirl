@@ -77,7 +77,7 @@ var GetUserNumber = func() int {
 func initWebBot() {
 	if adapter == nil {
 		adapter = &core.Factory{}
-		adapter.Init("web", "default")
+		adapter.Init("web", "default", nil)
 		adapter.SetIsAdmin(func(s string) bool {
 			isAdmin, ok := webAdmins.Load(s)
 			if ok {

@@ -39,6 +39,13 @@ type MsgChan struct {
 	Msg  map[string]interface{}
 }
 
+type GMsgChan struct {
+	Chan       chan map[string]interface{}
+	Msgs       []map[string]interface{}
+	UpdateTime time.Time
+	sync.Mutex
+}
+
 type Factory struct {
 	botid         string
 	botplt        string
@@ -59,6 +66,8 @@ type Factory struct {
 	destroid      bool
 	errorTimes    int
 	Res           *Response
+	umod          bool //类似订阅号一对一被动消息模式
+	gmsgChan      sync.Map
 }
 
 type Bot [2]string //botplt botid
@@ -181,7 +190,12 @@ func GetAdapterBotPlts() []string {
 	return bot_plts
 }
 
-func (f *Factory) Init(botplt, botid string) {
+func (f *Factory) Init(botplt, botid string, params map[string]interface{}) {
+	if params != nil {
+		if _, ok := params["umod"]; ok {
+			f.umod = true
+		}
+	}
 	f.ctx, f.cancel = context.WithCancel(context.Background())
 	BotsLocker.Lock()
 	defer BotsLocker.Unlock()
@@ -388,19 +402,84 @@ func GetReplyMessage(vm *goja.Runtime, plt string, bots_id []string) *goja.Promi
 	return promise
 }
 
-func (f *Factory) GetReplyMessage() *goja.Promise {
-	promise, resolve, reject := f.vm.NewPromise()
-	go func() {
+func (f *Factory) GetReplyMessage() interface{} {
+	select {
+	case <-f.ctx.Done():
+		logs.Debug("%s adapter %s destroied", f.botplt, f.botid)
+		panic(Error(f.vm, "adapter destroied"))
+	case mc := <-f.msgChan:
+		obj := f.vm.NewObject()
+		for k, v := range mc.Msg {
+			obj.Set(k, v)
+		}
+		return f.vm.NewProxy(obj, &goja.ProxyTrapConfig{
+			Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+				if property == "message_id" {
+					select {
+					case <-mc.Chan:
+						return false
+					case <-time.After(time.Millisecond):
+					}
+					mc.Chan <- fmt.Sprint(value.Export())
+				}
+				return true
+			},
+		})
+	}
+}
+
+func (f *Factory) GetUserMessages(user_id string, timeout int) []map[string]interface{} {
+	if timeout == 0 {
+		timeout = 2000
+	}
+	msgs := []map[string]interface{}{}
+	v, loaded := f.gmsgChan.LoadOrStore(user_id, &GMsgChan{})
+	ch := v.(*GMsgChan)
+	if !loaded {
+		// console.Debug("接收创建：", ch.Chan)
+		ch.Chan = make(chan map[string]interface{})
+	} else {
+		// console.Debug("接收加载：", ch.Chan)
+	}
+	if len(ch.Msgs) != 0 {
+		ch.Lock()
+		msgs = append(msgs, ch.Msgs...)
+		// console.Debug("数组接收：", msgs)
+		ch.Msgs = nil
+		ch.Unlock()
+		timeout = 1
+	}
+	for {
+		select {
+		case msg := <-ch.Chan:
+			msgs = append(msgs, msg)
+			timeout = 1
+			// console.Debug("管道接收：", msgs)
+		case <-time.After(time.Millisecond * time.Duration(timeout)):
+			// console.Debug("无消息")
+			goto HELL
+		}
+	}
+HELL:
+	return msgs
+}
+
+func (f *Factory) GetMessages(timeout int) []interface{} {
+	if timeout == 0 {
+		timeout = 2000
+	}
+	msgs := []interface{}{}
+	for {
 		select {
 		case <-f.ctx.Done():
 			logs.Debug("%s adapter %s destroied", f.botplt, f.botid)
-			reject("adapter destroied")
+			panic(Error(f.vm, "adapter destroied"))
 		case mc := <-f.msgChan:
 			obj := f.vm.NewObject()
 			for k, v := range mc.Msg {
 				obj.Set(k, v)
 			}
-			resolve(f.vm.NewProxy(obj, &goja.ProxyTrapConfig{
+			msgs = append(msgs, f.vm.NewProxy(obj, &goja.ProxyTrapConfig{
 				Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
 					if property == "message_id" {
 						select {
@@ -413,9 +492,13 @@ func (f *Factory) GetReplyMessage() *goja.Promise {
 					return true
 				},
 			}))
+			timeout = 1
+		case <-time.After(time.Millisecond * time.Duration(timeout)):
+			goto HELL
 		}
-	}()
-	return promise
+	}
+HELL:
+	return msgs
 }
 
 func (f *Factory) Send(function func(map[string]interface{}) string) {
@@ -590,10 +673,11 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	content = strings.ReplaceAll(content, "\r", "\n")
 	content = regexp.MustCompile("[\n]{3,}").ReplaceAllString(content, "\n\n")
 	if content != "" {
+		user_id := sender.GetUserID()
 		msg := map[string]interface{}{
 			"message_id": sender.GetMessageID(),
 			"content":    content,
-			"user_id":    sender.GetUserID(),
+			"user_id":    user_id,
 			"chat_id":    sender.GetChatID(),
 			"bot_id":     bot_id,
 			// "uuid":       utils.GenUUID(),
@@ -601,7 +685,27 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 		for k, v := range sender.GetExpandMessageInfo() {
 			msg[k] = v
 		}
-		if sender.f.reply == nil {
+		if sender.f.umod { //订阅号模式
+			v, loaded := sender.f.gmsgChan.LoadOrStore(user_id, &GMsgChan{})
+			ch := v.(*GMsgChan)
+			if !loaded {
+				// console.Debug("发送创建：", ch.Chan)
+				ch.Chan = make(chan map[string]interface{})
+			} else {
+				// console.Debug("发送加载：", ch.Chan)
+			}
+			select {
+			case ch.Chan <- msg:
+				// console.Debug("管道发送：", msg, ch.Chan)
+			case <-time.After(time.Second):
+				ch.Lock()
+				defer ch.Unlock()
+				ch.Msgs = append(ch.Msgs, msg)
+				// console.Debug("数组发送：", msg)
+			}
+			return "", nil
+		}
+		if sender.f.reply == nil { //未设置回复函数
 			var any *common.Function
 			var one *common.Function
 			for _, function := range Functions {
@@ -636,7 +740,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 					vm.Set("adapter", sender.f)
 				})
 				return message_id, nil
-			} else {
+			} else { //存储消息
 				c := MsgChan{
 					Msg:  msg,
 					Chan: make(chan string),
