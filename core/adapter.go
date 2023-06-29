@@ -191,11 +191,13 @@ func GetAdapterBotPlts() []string {
 }
 
 func (f *Factory) Init(botplt, botid string, params map[string]interface{}) {
+	// fmt.Println(params)
 	if params != nil {
 		if _, ok := params["umod"]; ok {
 			f.umod = true
 		}
 	}
+	// fmt.Println("umod", f.umod)
 	f.ctx, f.cancel = context.WithCancel(context.Background())
 	BotsLocker.Lock()
 	defer BotsLocker.Unlock()

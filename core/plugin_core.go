@@ -543,12 +543,12 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 					f.Init(plt, botid, params)
 					return f
 				})
-				vm.Set("initAdapter", func(plt, botid string) *Factory {
+				vm.Set("initAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
 					f := &Factory{
 						uuid: uuid,
 						vm:   vm,
 					}
-					f.Init(plt, botid, nil)
+					f.Init(plt, botid, params)
 					return f
 				})
 				getAdapter := func(plt, botid string) map[string]interface{} {
