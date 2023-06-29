@@ -36,6 +36,7 @@ type Request struct {
 	uuid       string
 	bodyData   []byte
 	_event     string
+	Mark       interface{}
 }
 
 func (r *Request) Body() string {

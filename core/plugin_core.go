@@ -272,7 +272,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	var encrypt bool
 	var onStart bool
 	var origin = "自定义"
-	var http *common.Http
+	var https = []*common.Http{}
 	var message *common.Reply
 	var FindAll bool
 	var hasForm bool
@@ -416,10 +416,10 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 		case "http":
 			ss := regexp.MustCompile(`[\S]+`).FindAllString(strings.TrimSpace(res[2]), -1)
 			if len(ss) == 2 {
-				http = &common.Http{
+				https = append(https, &common.Http{
 					Path:   ss[1],
 					Method: strings.ToUpper(ss[0]),
-				}
+				})
 			} else {
 				console.Warn("http param is not 2")
 			}
@@ -608,7 +608,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 		Origin:      origin,
 		Running:     onStart,
 		Reply:       message,
-		Http:        http,
+		Https:       https,
 		FindAll:     FindAll,
 		HasForm:     hasForm,
 		Carry:       carry,

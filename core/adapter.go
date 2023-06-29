@@ -58,6 +58,7 @@ type Factory struct {
 	cancel        context.CancelFunc
 	destroid      bool
 	errorTimes    int
+	Res           *Response
 }
 
 type Bot [2]string //botplt botid
@@ -493,13 +494,13 @@ func (f *Factory) Receive(wt interface{}) *CustomSender {
 			sender.details.Content = fmt.Sprint(props[i])
 			h = true
 		case "message_id", "messageId":
-			sender.details.MessageID = fmt.Sprint(props[i])
+			sender.details.MessageID = utils.Itoa(props[i])
 			h = true
 		case "user_id", "userId":
-			sender.details.UserID = fmt.Sprint(props[i])
+			sender.details.UserID = utils.Itoa(props[i])
 			h = true
 		case "chat_id", "chatId", "group_id", "groupId", "group_code", "groupCode":
-			sender.details.ChatID = fmt.Sprint(props[i])
+			sender.details.ChatID = ChatID(props[i])
 			h = true
 		case "user_name", "userName":
 			sender.details.Username = fmt.Sprint(props[i])

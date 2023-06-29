@@ -206,6 +206,7 @@ func init() {
 					}
 					return id
 				} else {
+					// {"params":{"user_id":"798731886","message":"2023-06-29 13:44:05","group_id":"178583761"},"action":"send_group_msg"}
 					params := map[string]interface{}{
 						"group_id": msg[core.CHAT_ID],
 						"user_id":  msg[core.USER_ID],

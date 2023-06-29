@@ -84,6 +84,12 @@ func (r *Response) Json(ps ...interface{}) *Response {
 	return r
 }
 
+func (r *Response) Close() {
+	if r.conn != nil {
+		r.conn.Close()
+	}
+}
+
 func (r *Response) Header(str, value string) *Response {
 	r.c.Header(str, value)
 	return r

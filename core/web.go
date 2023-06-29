@@ -134,20 +134,24 @@ func initWeb() {
 			c: c,
 		}
 		for _, function := range Functions {
-			if function.Http != nil {
-				path := function.Http.Path
-				method := function.Http.Method
-				if c.Request.URL.Path == path && c.Request.Method == method {
-					req.handled = true
-					function.Handle(&Faker{
-						Type: "*",
-					}, func(vm *goja.Runtime) {
-						vm.Set("res", res)
-						vm.Set("req", req)
-					})
+			if len(function.Https) != 0 {
+				for _, http := range function.Https {
+					path := http.Path
+					method := http.Method
+					if c.Request.URL.Path == path && c.Request.Method == method {
+						req.handled = true
+						function.Handle(&Faker{
+							Type: "*",
+						}, func(vm *goja.Runtime) {
+							vm.Set("res", res)
+							vm.Set("req", req)
+						})
+						goto HELL
+					}
 				}
 			}
 		}
+	HELL:
 
 		if req.handled {
 			if res.isRedirect {
