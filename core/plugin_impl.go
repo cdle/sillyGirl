@@ -41,6 +41,7 @@ type SenderJsIplm struct {
 }
 
 type Console struct {
+	UUID string
 }
 
 var console = &Console{}
@@ -77,6 +78,7 @@ func (c *Console) Warn(v ...interface{}) {
 	}
 	log := utils.FormatLog(v[0], v[1:]...)
 	logs.Warn(log)
+	WritePluginMessage(c.UUID, "warn", log)
 	Broadcast2WebUser(log, "warn")
 }
 
@@ -86,6 +88,7 @@ func (c *Console) Error(v ...interface{}) {
 	}
 	log := utils.FormatLog(v[0], v[1:]...)
 	logs.Error(log)
+	WritePluginMessage(c.UUID, "error", log)
 	Broadcast2WebUser(log, "error")
 }
 

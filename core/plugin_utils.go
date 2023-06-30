@@ -322,7 +322,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("md5", utils.Md5)
 	vm.Set("image", utils.ToImageQrcode)
 	vm.Set("video", utils.ToVideoQrcode)
-	vm.Set("console", console)
+	vm.Set("console", &Console{UUID: uuid})
 	vm.Set("sillyGirl", sillyGirlJsIplm)
 	vm.Set("call", func(str string) interface{} {
 		return RegistFuncs[str]

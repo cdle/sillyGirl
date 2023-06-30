@@ -210,6 +210,7 @@ func initWebPluginList() {
 				rr.Data[i].Running = false
 				for j := range fc {
 					if rr.Data[i].UUID == fc[j].UUID {
+						rr.Data[i].Messages = GetPluginMessage(rr.Data[i].UUID)
 						if rr.Data[i].Version != fc[j].Version {
 							rr.Data[i].Status = 1
 						} else {
