@@ -24,7 +24,10 @@ func CheckPluginAddress(address string) error {
 	}
 	data, _ := httplib.Get(address).Bytes()
 	rr := RequestPluginResult{}
-	json.Unmarshal(data, &rr)
+	err := json.Unmarshal(data, &rr)
+	if IsCdle {
+		console.Error(err, address, string(data))
+	}
 	if !rr.Success {
 		return errors.New("无效的地址")
 	}

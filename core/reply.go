@@ -204,18 +204,18 @@ func init() {
 
 var REPLY = MakeBucket("reply")
 
-// 能处理字符：你好，我是${ user.name }
-func parseReply(str string) string {
-	re := regexp.MustCompile(`\$\{\s*([^\s{}]+)\s*\}`)
-	return re.ReplaceAllStringFunc(str, func(match string) string {
-		bk := match[2 : len(match)-1]
-		b_k := strings.Split(bk, ".")
-		if len(b_k) != 3 {
-			return fmt.Sprintf("${%s}", bk)
-		}
-		return MakeBucket(b_k[1]).GetString(b_k[2])
-	})
-}
+// // 能处理字符：你好，我是${ user.name }
+// func parseReply(str string) string {
+// 	re := regexp.MustCompile(`\$\{\s*([^\s{}]+)\s*\}`)
+// 	return re.ReplaceAllStringFunc(str, func(match string) string {
+// 		bk := match[2 : len(match)-1]
+// 		b_k := strings.Split(bk, ".")
+// 		if len(b_k) != 3 {
+// 			return fmt.Sprintf("${%s}", bk)
+// 		}
+// 		return MakeBucket(b_k[1]).GetString(b_k[2])
+// 	})
+// }
 
 // 能处理字符：你好，我是${ user.name ?? 6 }
 func parseReply2(str string) string {

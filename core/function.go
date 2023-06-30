@@ -579,7 +579,7 @@ func HandleMessage(sender common.Sender) {
 		if err == nil {
 			if reg.FindString(content) != "" {
 				//todo 支持JS语法
-				output := parseReply(reply.Value)
+				output := parseReply2(reply.Value)
 				sender.Reply(output)
 			}
 		}

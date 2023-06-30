@@ -573,6 +573,9 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 				vm.Set("uuid", func() string {
 					return uuid
 				})
+				vm.Set("genUuid", func() string {
+					return utils.GenUUID()
+				})
 				vm.Set("UUID", func() string {
 					return uuid
 				})
