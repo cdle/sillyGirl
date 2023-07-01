@@ -432,15 +432,18 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	})
 	vm.Set("importJs", func(file string) error {
 		file = strings.Replace(file, ".js", "", -1)
-		for _, f := range Functions {
-			if f.Title == file {
-				vm.RunString(plugins.GetString(f.UUID))
-				return nil
-			}
+		s, id, ok := getPaterner(uuid, file)
+		if !ok {
+			panic(Error(vm, "无法通过importJs导入"+file))
 		}
-		pluginConsole(uuid).Error("无法通过importJs导入" + file + ".js")
-		panic(Error(vm, "无法通过importJs导入"+file))
+		_, err := vm.RunString(s)
+		if err != nil {
+			pluginConsole(id).Error(err)
+			panic(Error(vm, "通过importJs导入"+file+"错误："+err.Error()))
+		}
+		return nil
 	})
+	vm.Set("crypto", &Crypto{})
 }
 
 func EncryptPlugin(script string) string {

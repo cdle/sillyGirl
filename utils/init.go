@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -459,6 +460,10 @@ func GetPublicIP() (string, error) {
 		}
 	}
 
+	if !IsIPv4(ip) {
+		ip = ""
+	}
+
 	// 使用 ifconfig.co 获取公网IP地址
 	if ip == "" {
 		resp, err = http.Get("https://ifconfig.co/ip")
@@ -475,5 +480,14 @@ func GetPublicIP() (string, error) {
 		return "", fmt.Errorf("获取IP地址失败")
 	}
 
+	if !IsIPv4(ip) {
+		return "", fmt.Errorf("获取IP地址失败")
+	}
+
 	return ip, nil
+}
+
+func IsIPv4(ip string) bool {
+	parsedIP := net.ParseIP(ip)
+	return parsedIP != nil && parsedIP.To4() != nil
 }

@@ -584,7 +584,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 				}
 				_, err := vm.RunProgram(prg)
 				if err != nil {
-					console.Error(strings.ReplaceAll(strings.ReplaceAll(err.Error(), "node_modules/", ""), "github.com/dop251/goja_nodejs/require", ""))
+					pluginConsole(uuid).Error(strings.ReplaceAll(strings.ReplaceAll(err.Error(), "node_modules/", ""), "github.com/dop251/goja_nodejs/require", ""))
 				}
 			})
 			return nil
