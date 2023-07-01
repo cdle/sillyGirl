@@ -7,7 +7,7 @@ import (
 func (sender *Strings) ParseXml(str string) map[string]interface{} {
 	m, err := mxj.NewMapXml([]byte(str))
 	if err != nil {
-		console.Error("xml解析错误：", err)
+		pluginConsole(sender.UUID).Error("xml解析错误：", err)
 	}
 	return m
 }
@@ -15,7 +15,7 @@ func (sender *Strings) ParseXml(str string) map[string]interface{} {
 func (sender *Strings) Xml(m map[string]interface{}) string {
 	xmlStr, err := mxj.Map(m).Xml()
 	if err != nil {
-		console.Error("xml编码错误：", err)
+		pluginConsole(sender.UUID).Error("xml编码错误：", err)
 	}
 	return string(xmlStr)
 }

@@ -17,6 +17,7 @@ import (
 )
 
 type Strings struct {
+	UUID string
 }
 
 func (sender *Strings) Diff(a, b []interface{}) []interface{} {

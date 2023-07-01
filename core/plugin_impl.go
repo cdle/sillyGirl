@@ -47,6 +47,12 @@ type Console struct {
 var console = &Console{}
 var Logs = &Console{}
 
+func pluginConsole(uuid string) *Console {
+	return &Console{
+		UUID: uuid,
+	}
+}
+
 func Broadcast2WebUser(content, class string) {
 	if (RegistFuncs["Broadcast2WebUser"]) == nil {
 		return
@@ -417,7 +423,7 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 						defer func() {
 							err := recover()
 							if err != nil {
-								console.Error("%v at %v", err, GetScriptNameByUUID(sender.UUID))
+								pluginConsole(sender.UUID).Error("%v at %v", err, GetScriptNameByUUID(sender.UUID))
 							}
 						}()
 						// fmt.Println(newJsSender)

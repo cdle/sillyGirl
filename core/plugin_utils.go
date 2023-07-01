@@ -214,7 +214,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 					defer func() {
 						err := recover()
 						if err != nil {
-							console.Error("C.AddFunc err: %v", err)
+							pluginConsole(uuid).Error("C.AddFunc err: %v", err)
 						}
 					}()
 					f()
@@ -255,7 +255,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 						defer func() {
 							err := recover()
 							if err != nil {
-								console.Error("gofor running error:", err)
+								pluginConsole(uuid).Error("gofor running error:", err)
 							}
 						}()
 						return running()
@@ -266,7 +266,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 						defer func() {
 							err := recover()
 							if err != nil {
-								console.Error("gofor error:", err)
+								pluginConsole(uuid).Error("gofor error:", err)
 							}
 						}()
 						handle()
@@ -328,7 +328,9 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		return RegistFuncs[str]
 	})
 	vm.Set("fmt", &Fmt{})
-	vm.Set("strings", &Strings{})
+	vm.Set("strings", &Strings{
+		UUID: uuid,
+	})
 	// vm.Set("Bucket", BucketJsImpl)
 	vm.Set("time", &TimeJsImpl{
 		Second: time.Second,
@@ -427,6 +429,17 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 			Uri: uri,
 			Vm:  vm,
 		}
+	})
+	vm.Set("importJs", func(file string) error {
+		file = strings.Replace(file, ".js", "", -1)
+		for _, f := range Functions {
+			if f.Title == file {
+				vm.RunString(plugins.GetString(f.UUID))
+				return nil
+			}
+		}
+		pluginConsole(uuid).Error("无法通过importJs导入" + file + ".js")
+		panic(Error(vm, "无法通过importJs导入"+file))
 	})
 }
 

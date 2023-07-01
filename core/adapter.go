@@ -334,7 +334,7 @@ func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) 
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").SetReply error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetReply error:", err)
 			}
 		}()
 		return function(m)
@@ -512,7 +512,7 @@ func (f *Factory) SetRecallMessage(function func(interface{}) bool) {
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").recall error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").recall error:", err)
 			}
 		}()
 		return function(i)
@@ -524,7 +524,7 @@ func (f *Factory) SetGroupKick(function func(uid string, gid string, reject_add_
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").GroupKick error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").GroupKick error:", err)
 			}
 		}()
 		return function(uid, gid, reject_add_request)
@@ -536,7 +536,7 @@ func (f *Factory) SetGroupBan(function func(uid string, gid string, duration int
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").SetGroupBan error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetGroupBan error:", err)
 			}
 		}()
 		return function(uid, gid, duration)
@@ -548,7 +548,7 @@ func (f *Factory) SetGroupUnban(function func(uid string, gid string) bool) {
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").SetgroupUnban error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetgroupUnban error:", err)
 			}
 		}()
 		return function(uid, gid)
@@ -560,7 +560,7 @@ func (f *Factory) SetIsAdmin(function func(string) bool) {
 		defer func() {
 			err := recover()
 			if err != nil {
-				console.Error("Sender(\""+f.botplt+"\").SetAdmin error:", err)
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetAdmin error:", err)
 			}
 		}()
 		return function(uid)

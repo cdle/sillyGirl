@@ -199,7 +199,7 @@ func initPlugins() {
 		}
 		f, cbs, err := initPlugin(new, key)
 		if err != nil && new != "" {
-			console.Error(err)
+			pluginConsole(key).Error(err)
 		}
 		apd := false
 		for i := range Functions {
@@ -500,7 +500,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 			defer func() {
 				err := recover()
 				if err != nil {
-					console.Error("脚本错误：", err)
+					pluginConsole(uuid).Error("脚本错误：", err)
 					// s.Reply(fmt.Sprint(err))
 				}
 			}()
