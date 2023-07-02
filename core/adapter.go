@@ -662,7 +662,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 		}
 	}
 	if len(args) == 0 {
-		return "", errors.New("no content")
+		return "", nil //errors.New("s.reply has no content")
 	}
 	content := utils.FormatLog(args[0], args[1:]...)
 	if !push {
