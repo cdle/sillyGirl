@@ -347,9 +347,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	// 字符串转Base64编码
 	vm.Set("stringToBase64", stringToBase64)
 	vm.Set("base64ToString", base64ToString)
-	vm.Set("Buffer", func(call goja.ConstructorCall) *goja.Object {
-		return Buffer(vm, call)
-	})
+	vm.Set("Buffer", &BufferObj{vm: vm})
 	vm.Set("fetch", func(wts ...interface{}) interface{} {
 		promise, resolve, reject := vm.NewPromise()
 		go func() {
@@ -443,7 +441,9 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		}
 		return nil
 	})
-	vm.Set("crypto", &Crypto{})
+	vm.Set("crypto", &Crypto{
+		vm: vm,
+	})
 }
 
 func EncryptPlugin(script string) string {

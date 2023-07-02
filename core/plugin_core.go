@@ -81,7 +81,13 @@ func CancelPluginlistening(uuid string) {
 	}
 }
 
+var debug = sillyGirl.GetBool("debug", false)
+
 func initPlugins() {
+	storage.Watch(sillyGirl, "debug", func(old, new, key string) *storage.Final {
+		debug = new == "true"
+		return nil
+	})
 	plugins.Foreach(func(key, data []byte) error {
 		f, cbs, err := initPlugin(string(data), string(key))
 		if err != nil {
@@ -497,13 +503,15 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 
 	f := &common.Function{
 		Handle: func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
-			defer func() {
-				err := recover()
-				if err != nil {
-					pluginConsole(uuid).Error("脚本错误：", err)
-					// s.Reply(fmt.Sprint(err))
-				}
-			}()
+			if !debug {
+				defer func() {
+					err := recover()
+					if err != nil {
+						pluginConsole(uuid).Error("脚本错误：", err)
+						// s.Reply(fmt.Sprint(err))
+					}
+				}()
+			}
 			if err2 != nil {
 				panic(err2)
 			}
