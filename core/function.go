@@ -506,14 +506,17 @@ func HandleMessage(sender common.Sender) {
 						return true
 					}
 				} else { //群聊时
-					if u != c.UserID { //群员发言
+					if c.UserID != "" && u != c.UserID { //群员发言
 						if !c.ListenGroup { //未设置允许群员加入拒绝
 							return true
 						}
 					}
 				}
+			} else { //私聊监听
+				if c.UserID != "" && u != c.UserID { //其他用户
+					return true
+				}
 			}
-
 			for i := range c.Function.Rules {
 				reg, err := regexp.Compile(c.Function.Rules[i])
 				if err != nil {

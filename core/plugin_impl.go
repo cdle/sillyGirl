@@ -402,10 +402,11 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 	}
 	if persistent {
 		options = append(options, "persistent")
-	}
-	if !persistent {
+	} else if len(carry.AllowPlatforms) == 0 {
 		carry.AllowPlatforms = []string{sender.GetPlatform()}
 	}
+	carry.UserID = sender.GetUserID()
+	carry.ChatID = sender.GetChatID()
 	carry.UUID = sender.UUID
 	options = append(options, carry)
 	var newJsSender *SenderJsIplm

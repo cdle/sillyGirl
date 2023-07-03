@@ -499,6 +499,7 @@ func (s *BaseSender) Await(message common.Sender, callback func(common.Sender) i
 			c = param
 		}
 	}
+	// c.UserID
 	c.Message = message
 	if len(c.Function.Rules) == 0 {
 		c.Function.Rules = []string{`raw [\s\S]+`}
