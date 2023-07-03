@@ -47,27 +47,23 @@ type GMsgChan struct {
 }
 
 type Factory struct {
-	botid         string
-	botplt        string
-	uuid          string
-	msgChan       chan MsgChan
-	demo          *CustomSender
-	reply         func(map[string]interface{}) string
-	lm            chan bool
-	nm            int64
-	recallMessage func(interface{}) bool
-	groupKick     func(uid string, gid string, reject_add_request bool) bool
-	groupBan      func(uid string, gid string, duration int) bool
-	groupUnban    func(uid string, gid string) bool
-	isAdmin       func(string) bool
-	vm            *goja.Runtime
-	ctx           context.Context
-	cancel        context.CancelFunc
-	destroid      bool
-	errorTimes    int
-	Res           *Response
-	umod          bool //类似订阅号一对一被动消息模式
-	gmsgChan      sync.Map
+	botid      string
+	botplt     string
+	uuid       string
+	msgChan    chan MsgChan
+	demo       *CustomSender
+	reply      func(map[string]interface{}) string
+	lm         chan bool
+	nm         int64
+	isAdmin    func(string) bool
+	vm         *goja.Runtime
+	ctx        context.Context
+	cancel     context.CancelFunc
+	destroid   bool
+	errorTimes int
+	Res        *Response
+	umod       bool //类似订阅号一对一被动消息模式
+	gmsgChan   sync.Map
 }
 
 type Bot [2]string //botplt botid
@@ -507,54 +503,6 @@ func (f *Factory) Send(function func(map[string]interface{}) string) {
 	f.SetReplyHandler(function)
 }
 
-func (f *Factory) SetRecallMessage(function func(interface{}) bool) {
-	f.recallMessage = func(i interface{}) bool {
-		defer func() {
-			err := recover()
-			if err != nil {
-				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").recall error:", err)
-			}
-		}()
-		return function(i)
-	}
-}
-
-func (f *Factory) SetGroupKick(function func(uid string, gid string, reject_add_request bool) bool) {
-	f.groupKick = func(uid string, gid string, reject_add_request bool) bool {
-		defer func() {
-			err := recover()
-			if err != nil {
-				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").GroupKick error:", err)
-			}
-		}()
-		return function(uid, gid, reject_add_request)
-	}
-}
-
-func (f *Factory) SetGroupBan(function func(uid string, gid string, duration int) bool) {
-	f.groupBan = func(uid string, gid string, duration int) bool {
-		defer func() {
-			err := recover()
-			if err != nil {
-				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetGroupBan error:", err)
-			}
-		}()
-		return function(uid, gid, duration)
-	}
-}
-
-func (f *Factory) SetGroupUnban(function func(uid string, gid string) bool) {
-	f.groupUnban = func(uid string, gid string) bool {
-		defer func() {
-			err := recover()
-			if err != nil {
-				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetgroupUnban error:", err)
-			}
-		}()
-		return function(uid, gid)
-	}
-}
-
 func (f *Factory) SetIsAdmin(function func(string) bool) {
 	f.isAdmin = func(uid string) bool {
 		defer func() {
@@ -576,7 +524,7 @@ func (f *Factory) Receive(wt interface{}) *CustomSender {
 		h := false
 		switch strings.ToLower(i) {
 		case "content":
-			sender.details.Content = fmt.Sprint(props[i])
+			sender.details.Content = strings.TrimSpace(fmt.Sprint(props[i]))
 			h = true
 		case "message_id", "messageId":
 			sender.details.MessageID = utils.Itoa(props[i])
@@ -783,21 +731,18 @@ func (sender *CustomSender) Copy() common.Sender {
 }
 
 func (sender *CustomSender) RecallMessage(ps ...interface{}) error {
-	if sender.f.recallMessage == nil {
-		return nil
-	}
 	for _, p := range ps {
 		switch p := p.(type) {
 		case string:
-			sender.f.recallMessage(p)
+			sender.Reply(mystr.BuildCQCode("delete", H{"id": p}, ""))
 		case []string:
 			for _, v := range p {
-				sender.f.recallMessage(v)
+				sender.Reply(mystr.BuildCQCode("delete", H{"id": v}, ""))
 			}
 		case [][]string:
 			for _, v := range p {
 				for _, v2 := range v {
-					sender.f.recallMessage(v2)
+					sender.Reply(mystr.BuildCQCode("delete", H{"id": v2}, ""))
 				}
 			}
 		}
@@ -806,24 +751,15 @@ func (sender *CustomSender) RecallMessage(ps ...interface{}) error {
 }
 
 func (sender *CustomSender) GroupKick(uid string, reject_add_request bool) {
-	if sender.f.groupKick == nil {
-		return
-	}
-	sender.f.groupKick(uid, sender.GetChatID(), reject_add_request)
+	sender.Reply(mystr.BuildCQCode("kick", H{"user_id": uid, "chat_id": sender.GetChatID(), "forever": reject_add_request}, ""))
 }
 
 func (sender *CustomSender) GroupBan(uid string, duration int) {
-	if sender.f.groupBan == nil {
-		return
-	}
-	sender.f.groupBan(uid, sender.GetChatID(), duration)
+	sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": duration}, ""))
 }
 
 func (sender *CustomSender) GroupUnban(uid string) {
-	if sender.f.groupUnban == nil {
-		return
-	}
-	sender.f.groupUnban(uid, sender.GetChatID())
+	sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": 0}, ""))
 }
 
 func (sender *CustomSender) IsAdmin() bool {

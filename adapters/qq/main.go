@@ -152,39 +152,39 @@ func init() {
 			adapter := &core.Factory{}
 			adapter.Init("qq", botID, nil)
 			defer adapter.Destroy()
-			adapter.SetGroupKick(func(uid string, gid string, reject_add_request bool) bool {
-				qqcon.WriteJSON(CallApi{
-					Action: "set_group_kick",
-					Params: map[string]interface{}{
-						"group_id":           utils.Int(gid),
-						"user_id":            utils.Int(uid),
-						"reject_add_request": reject_add_request,
-					},
-				})
-				return true
-			})
-			adapter.SetGroupBan(func(uid string, gid string, duration int) bool {
-				qqcon.WriteJSON(CallApi{
-					Action: "set_group_ban",
-					Params: map[string]interface{}{
-						"group_id": utils.Int(gid),
-						"user_id":  utils.Int(uid),
-						"duration": duration,
-					},
-				})
-				return true
-			})
-			adapter.SetGroupUnban(func(uid string, gid string) bool {
-				qqcon.WriteJSON(CallApi{
-					Action: "set_group_ban",
-					Params: map[string]interface{}{
-						"group_id": utils.Int(gid),
-						"user_id":  utils.Int(uid),
-						"duration": 1,
-					},
-				})
-				return true
-			})
+			// adapter.SetGroupKick(func(uid string, gid string, reject_add_request bool) bool {
+			// 	qqcon.WriteJSON(CallApi{
+			// 		Action: "set_group_kick",
+			// 		Params: map[string]interface{}{
+			// 			"group_id":           utils.Int(gid),
+			// 			"user_id":            utils.Int(uid),
+			// 			"reject_add_request": reject_add_request,
+			// 		},
+			// 	})
+			// 	return true
+			// })
+			// adapter.SetGroupBan(func(uid string, gid string, duration int) bool {
+			// 	qqcon.WriteJSON(CallApi{
+			// 		Action: "set_group_ban",
+			// 		Params: map[string]interface{}{
+			// 			"group_id": utils.Int(gid),
+			// 			"user_id":  utils.Int(uid),
+			// 			"duration": duration,
+			// 		},
+			// 	})
+			// 	return true
+			// })
+			// adapter.SetGroupUnban(func(uid string, gid string) bool {
+			// 	qqcon.WriteJSON(CallApi{
+			// 		Action: "set_group_ban",
+			// 		Params: map[string]interface{}{
+			// 			"group_id": utils.Int(gid),
+			// 			"user_id":  utils.Int(uid),
+			// 			"duration": 1,
+			// 		},
+			// 	})
+			// 	return true
+			// })
 			adapter.SetReplyHandler(func(msg map[string]interface{}) string {
 				if debug {
 					logs.Debug("QQ发送消息：", string(utils.JsonMarshal(msg)))

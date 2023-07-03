@@ -523,6 +523,12 @@ running(): boolean; //服务是否运行
 uuid(): string; //生成uuid
 ```
 
+### 拓展 CQ 码命令
+
+[CQ:delete,id=message_id]
+[CQ:kick,user_id,chat_id,forever=true]
+[CQ:ban,user_id,chat_id,duration=0]
+
 ### 项目赞助
 
 打开微信扫一扫，深入了解作者~

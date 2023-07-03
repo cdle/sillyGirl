@@ -16,9 +16,13 @@ import (
 	"github.com/cdle/sillyGirl/utils"
 )
 
+var mystr = &Strings{}
+
 type Strings struct {
 	UUID string
 }
+
+type H map[string]interface{}
 
 func (sender *Strings) Diff(a, b []interface{}) []interface{} {
 	m := make(map[interface{}]bool)

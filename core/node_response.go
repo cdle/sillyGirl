@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -26,7 +27,7 @@ func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType stri
 		var v interface{}
 		err := json.Unmarshal(data, &v)
 		if err != nil { /////
-			return obj, err
+			return obj, errors.New("请求返回数据不是json格式：" + string(data))
 		} else {
 			body = v
 		}
