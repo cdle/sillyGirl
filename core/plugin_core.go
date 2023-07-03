@@ -507,7 +507,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 				defer func() {
 					err := recover()
 					if err != nil {
-						pluginConsole(uuid).Error("脚本错误：", err)
+						pluginConsole(uuid).Error(err)
 						// s.Reply(fmt.Sprint(err))
 					}
 				}()
@@ -627,7 +627,17 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	running = func() bool {
 		return f.Running
 	}
+
 	return f, cbs, err
+}
+
+func GetFunctionByUUID(uuid string) *common.Function {
+	for _, f := range Functions {
+		if f.UUID == uuid {
+			return f
+		}
+	}
+	return nil
 }
 
 func ChatID(p interface{}) string {
