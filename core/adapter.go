@@ -59,11 +59,12 @@ type Factory struct {
 	vm         *goja.Runtime
 	ctx        context.Context
 	cancel     context.CancelFunc
-	destroid   bool
+	destroid   bool ////已关闭
 	errorTimes int
 	Res        *Response
 	umod       bool //类似订阅号一对一被动消息模式
 	gmsgChan   sync.Map
+	sync.RWMutex
 }
 
 type Bot [2]string //botplt botid
@@ -267,6 +268,11 @@ func (f *Factory) IsAdapter(botid string) bool {
 func (f *Factory) Destroy() {
 	BotsLocker.Lock()
 	defer BotsLocker.Unlock()
+	f.Lock()
+	defer f.Unlock()
+	if f.destroid {
+		return
+	}
 	f.destroid = true
 	f.cancel()
 	close(f.msgChan)

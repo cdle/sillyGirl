@@ -432,12 +432,14 @@ func AddCommand(cmds []*common.Function) {
 }
 
 func HandleMessage(sender common.Sender) {
-	defer func() {
-		err := recover()
-		if err != nil {
-			console.Error("HandleMessage error: %v", err)
-		}
-	}()
+	if !debug {
+		defer func() {
+			err := recover()
+			if err != nil {
+				console.Error("HandleMessage error: %v", err)
+			}
+		}()
+	}
 	num := atomic.AddUint64(&total, 1)
 	defer atomic.AddUint64(&finished, 1)
 	ct := sender.GetContent()

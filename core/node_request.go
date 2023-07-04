@@ -49,7 +49,10 @@ func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
 					if f, ok := props[i].(func(i goja.FunctionCall) goja.Value); ok {
 						url = f(goja.FunctionCall{}).ToString().String()
 					} else {
-						url = props[i].(string)
+						if props[i] == nil {
+							panic(Error(vm, "无效的url请求地址nil"))
+						}
+						url = fmt.Sprint(props[i])
 					}
 				case "json":
 					if props[i].(bool) {
