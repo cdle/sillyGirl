@@ -214,7 +214,7 @@ func initPlugins() {
 				Functions[i].Running = false
 				if len(Functions[i].CronIds) != 0 {
 					for _, id := range Functions[i].CronIds {
-						C.Remove(cron.EntryID(id))
+						CRON.Remove(cron.EntryID(id))
 					}
 				}
 				Functions = append(Functions[:i], Functions[i+1:]...)

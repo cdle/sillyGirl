@@ -319,6 +319,7 @@ type CarryGroup struct {
 
 // CARRY API
 func init() {
+
 	GinApi(GET, "/api/carry/groups", RequireAuth, func(ctx *gin.Context) {
 		current := utils.Int(ctx.Query("current"))
 		pageSize := utils.Int(ctx.Query("pageSize"))
@@ -362,6 +363,41 @@ func init() {
 		ctx.JSON(200, map[string]interface{}{
 			"success": true,
 			"data":    names,
+		})
+	})
+	GinApi(GET, "/api/proxy/scripts", RequireAuth, func(ctx *gin.Context) {
+		var scripts = map[string]string{}
+		functions := Functions
+		for _, function := range functions {
+			if function.UUID != "" {
+				scripts[function.UUID] = function.Title + ".js"
+			}
+		}
+		ctx.JSON(200, map[string]interface{}{
+			"success": true,
+			"data":    scripts,
+		})
+	})
+	var isNumeric = func(keyword string) bool {
+		for _, c := range keyword {
+			if c != '.' && (c < '0' || c > '9') {
+				return false
+			}
+		}
+		return true
+	}
+	GinApi(GET, "/api/proxy/rules", RequireAuth, func(ctx *gin.Context) {
+		keyword := ctx.Query("keyword")
+		var scripts = map[string]string{}
+		scripts[keyword] = keyword
+		if strings.HasSuffix(keyword, ".") && !isNumeric(keyword) {
+			for _, suffix := range []string{"com", "cn"} {
+				scripts[keyword+suffix] = keyword + suffix
+			}
+		}
+		ctx.JSON(200, map[string]interface{}{
+			"success": true,
+			"data":    scripts,
 		})
 	})
 	GinApi(GET, "/api/carry/group_selects", RequireAuth, func(ctx *gin.Context) {

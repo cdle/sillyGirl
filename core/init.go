@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"regexp"
@@ -33,14 +35,43 @@ func Init() {
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
 	storage.Watch(sillyGirl, "compiled_at", func(old, new, key string) *storage.Final {
 		if old != new {
+			var transport *http.Transport
+			instance, err := GetProxyTransport("https://raw.githubusercontent.com", "", nil)
+			if err != nil {
+				console.Error("升级代理错误：%s", err)
+				return &storage.Final{
+					Error: fmt.Errorf("升级代理错误：：%s", err),
+				}
+			}
+			if instance != nil {
+				defer instance.Close()
+			}
+			if instance != nil {
+				transport = &http.Transport{
+					Dial: func(string, string) (net.Conn, error) {
+						return instance, nil
+					},
+					MaxIdleConns:          100,
+					IdleConnTimeout:       90 * time.Second,
+					TLSHandshakeTimeout:   10 * time.Second,
+					ExpectContinueTimeout: 1 * time.Second,
+				}
+			}
+			var client = &http.Client{}
+			if transport != nil {
+				client.Transport = transport
+			}
 			console.Debug("正在从 cdle/binary 获取版本号...")
-			data, err := httplib.Get("https://raw.githubusercontent.com/cdle/binary/main/compile_time.go").Bytes()
+			req, _ := http.NewRequest("GET", "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go", strings.NewReader(""))
+			resp, err := client.Do(req)
 			if err != nil {
 				console.Error("获取版本号错误：%s", err)
 				return &storage.Final{
 					Error: fmt.Errorf("貌似网络不太行啊：%s", err),
 				}
 			}
+			defer resp.Body.Close()
+			var data, _ = ioutil.ReadAll(resp.Body)
 			latest_version := regexp.MustCompile(`\d{13}`).FindString(string(data))
 			if latest_version <= compiled_at {
 				console.Debug("当前版本 %s 已是最新，无需升级", compiled_at)
@@ -48,12 +79,17 @@ func Init() {
 					Message: fmt.Sprintf("当前版本 %s 已是最新，无需升级", compiled_at),
 				}
 			}
+			client = &http.Client{}
+			if transport != nil {
+				client.Transport = transport
+			}
 			console.Debug("正在从 cdle/binary 获取最新版本 %s 编译文件...", latest_version)
 			qurl := "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_" + runtime.GOOS + "_" + runtime.GOARCH + "_" + latest_version
 			if runtime.GOOS == "windows" {
 				qurl += ".exe"
 			}
-			resp, err := http.Get(qurl)
+			req, _ = http.NewRequest("GET", qurl, strings.NewReader(""))
+			resp, err = client.Do(req)
 			if err != nil {
 				console.Error("获取最新编译文件错误：%s", err)
 				return &storage.Final{

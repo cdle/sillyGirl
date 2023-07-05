@@ -3,18 +3,20 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"net/http"
 	u "net/url"
 	"strconv"
 	"strings"
 	"time"
 
+	C "github.com/Dreamacro/clash/constant"
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
 )
 
-func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
+func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, error) {
 	var method = "get"
 	var url = ""
 	var req *http.Request
@@ -31,6 +33,7 @@ func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
 	// var useproxy bool
 	var timeout time.Duration = 0
 	var login = false
+	var instance C.Conn
 	for _, wt := range wts {
 		switch wt := wt.(type) {
 		case string:
@@ -79,30 +82,63 @@ func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
 				case "form":
 					formData = props[i].(map[string]interface{})
 				case "proxy":
-					var url, user, password string
-					for k, v := range props[i].(map[string]interface{}) {
-						if k == "url" {
-							url = fmt.Sprint(v)
-						}
-						if k == "user" {
-							user = fmt.Sprint(v)
-						}
-						if k == "password" {
-							password = fmt.Sprint(v)
-						}
+					var err error
+					var params = props[i].(map[string]interface{})
+					if _, ok := params["name"]; !ok {
+						params["name"] = "临时"
 					}
-					if url != "" {
-						var err error
-						transport, err = GetTransport(url, user, password)
-						if err != nil {
-							return nil, err
-						}
+					instance, err = GetProxyTransport(url, uuid, params)
+					if err != nil {
+						panic(Error(vm, err))
 					}
+					if instance != nil {
+						defer instance.Close()
+					}
+
+					// var url, user, password string
+					// for k, v := range props[i].(map[string]interface{}) {
+					// 	if k == "url" {
+					// 		url = fmt.Sprint(v)
+					// 	}
+					// 	if k == "user" {
+					// 		user = fmt.Sprint(v)
+					// 	}
+					// 	if k == "password" {
+					// 		password = fmt.Sprint(v)
+					// 	}
+					// }
+					// if url != "" {
+					// 	var err error
+					// 	transport, err = GetTransport(url, user, password)
+					// 	if err != nil {
+					// 		return nil, err
+					// 	}
+					// }
 				}
 			}
 		}
-		method = strings.ToUpper(method)
 		var err error
+		if instance == nil {
+			instance, err = GetProxyTransport(url, uuid, nil)
+			if err != nil {
+				panic(Error(vm, err))
+			}
+			if instance != nil {
+				defer instance.Close()
+			}
+		}
+		if instance != nil {
+			transport = &http.Transport{
+				Dial: func(string, string) (net.Conn, error) {
+					return instance, nil
+				},
+				MaxIdleConns:          100,
+				IdleConnTimeout:       90 * time.Second,
+				TLSHandshakeTimeout:   10 * time.Second,
+				ExpectContinueTimeout: 1 * time.Second,
+			}
+		}
+		method = strings.ToUpper(method)
 		if len(formData) > 0 {
 			data := u.Values{}
 			for key, value := range formData {
@@ -118,7 +154,6 @@ func fetch(vm *goja.Runtime, wts ...interface{}) (interface{}, error) {
 					data.Set(key, fmt.Sprintf("%v", v))
 				}
 			}
-
 			req, err = http.NewRequest(method, url, strings.NewReader(data.Encode()))
 			if err != nil {
 				return nil, err

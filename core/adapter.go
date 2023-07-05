@@ -613,6 +613,10 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			push = true
 		case string:
 			args = append(args, item)
+		default:
+			if item != nil {
+				args = append(args, fmt.Sprint(item))
+			}
 		}
 	}
 	if len(args) == 0 {

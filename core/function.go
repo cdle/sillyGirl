@@ -383,7 +383,7 @@ func AddCommand(cmds []*common.Function) {
 					if len(regexp.MustCompile(`\S+`).FindAllString(cron, -1)) == 5 {
 						Cron = "0 " + Cron
 					}
-					cronId, err := C.AddFunc(Cron, func() {
+					cronId, err := CRON.AddFunc(Cron, func() {
 						cmds[j].Handle(&Faker{
 							Admin: true,
 							Type:  plt,

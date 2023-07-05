@@ -105,7 +105,7 @@ func CancelPluginCrons(uuid string) {
 	v, ok := crons.Load(uuid)
 	if ok {
 		for _, id := range *v.(*[]cron.EntryID) {
-			C.Remove(id)
+			CRON.Remove(id)
 		}
 	}
 }
@@ -207,7 +207,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 				if len(regexp.MustCompile(`\S+`).FindAllString(cron, -1)) == 5 {
 					cron = "0 " + cron
 				}
-				id, err := C.AddFunc(cron, func() {
+				id, err := CRON.AddFunc(cron, func() {
 					// mutex := GetMutex(uuid)
 					// mutex.Lock()
 					// defer mutex.Unlock()
@@ -228,7 +228,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 				}
 			})
 			o.Set("remove", func(id cron.EntryID) {
-				C.Remove(id)
+				CRON.Remove(id)
 			})
 			return o
 		})
@@ -351,7 +351,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("fetch", func(wts ...interface{}) interface{} {
 		promise, resolve, reject := vm.NewPromise()
 		go func() {
-			obj, err := fetch(vm, wts...)
+			obj, err := fetch(vm, uuid, wts...)
 			if err != nil {
 				reject(err)
 			} else {
@@ -361,7 +361,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		return promise
 	})
 	vm.Set("request", func(wts ...interface{}) interface{} {
-		obj, err := fetch(vm, wts...)
+		obj, err := fetch(vm, uuid, wts...)
 		if err != nil {
 			panic(Error(vm, err))
 		}

@@ -312,11 +312,16 @@ func initWeb() {
 		// handleHTTP(c.Writer, c.Request)
 	})
 
-	port := sillyGirl.GetString("port", "8080")
+	port := sillyGirl.GetInt("port")
+	if port == 0 {
+		sillyGirl.Set("port", 8080)
+		port = 8080
+	}
 	srvs := []*http.Server{{
-		Addr:    ":" + port,
+		Addr:    ":" + fmt.Sprint(port),
 		Handler: Server,
 	}}
+
 	storage.Watch(sillyGirl, "port", func(old, new, key string) *storage.Final {
 		if new == "" {
 			new = "8080"
@@ -334,9 +339,9 @@ func initWeb() {
 		srvs = append(srvs, srv)
 
 		go func() {
-			logs.Info("Http服务(%s)重新运行", port)
+			logs.Info("Http服务(%d)重新运行", port)
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				logs.Error("Http服务(%s)运行失败：%s", port, err.Error())
+				logs.Error("Http服务(%d)运行失败：%s", port, err.Error())
 				ch <- err
 			}
 		}()
@@ -350,7 +355,7 @@ func initWeb() {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			if err := srvs[0].Shutdown(ctx); err == nil {
-				logs.Info("Http服务(%s)关闭", old)
+				logs.Info("Http服务(%d)关闭", old)
 			}
 			srvs = srvs[1:]
 		}
@@ -362,12 +367,12 @@ func initWeb() {
 	// logs.Info("Http服务(%s)开始运行", port)
 
 	logs.Info("管理员面板:")
-	logs.Info("  > 本机: http://localhost:%s/admin", port)
+	logs.Info("  > 本机: http://localhost:%d/admin", port)
 	local_ip := getLocalIP()
-	logs.Info("  > 局域网: http://%s:%s/admin", local_ip, port)
+	logs.Info("  > 局域网: http://%s:%d/admin", local_ip, port)
 	ip := sillyGirl.GetString("ip")
 	if ip != "" {
-		logs.Info("  > 广域网: http://%s:%s/admin", ip, port)
+		logs.Info("  > 广域网: http://%s:%d/admin", ip, port)
 	}
 	sillyGirl.Set("local_ip", local_ip)
 	go func() {

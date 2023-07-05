@@ -18,9 +18,12 @@ func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket stora
 		})
 		return rt
 	})
-	obj.Set("set", func(key, value interface{}) error {
-		_, err := SetBucketKeyValue(bucket, key, value)
-		return err
+	obj.Set("set", func(key, value interface{}) interface{} {
+		msg, err := SetBucketKeyValue(bucket, key, value)
+		if err != nil {
+			panic(Error(vm, err))
+		}
+		return msg
 	})
 	obj.Set("delete", func(key interface{}) error {
 		_, err := bucket.Set(key, "")
@@ -84,10 +87,10 @@ func JsBucket(vm *goja.Runtime, name string, uuid string, on_start bool) goja.Pr
 			return vm.ToValue(result)
 		},
 		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-			result := target.Get("set").Export().(func(interface{}, interface{}) error)(
+			target.Get("set").Export().(func(interface{}, interface{}) interface{})(
 				property, value.Export(),
 			)
-			return result == nil
+			return true
 		},
 	})
 }
