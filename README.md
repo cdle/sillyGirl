@@ -7,7 +7,7 @@
 - 简单易用的消息搬运功能。
 - 简单强大的自定义回复功能。
 - 完整支持 ECMAScript 5.1 的插件系统，基于 [otto](https://github.com/robertkrimen/otto)。
-- 支持通过内置的阉割版 `Express` / `fetch` ，接入互联网。
+- 支持通过内置的阉割版 `Express` / `request` ，接入互联网。
 - 内置 `Cron` ，轻松实现定时任务。
 - 持久化的 `Bucket` 存储模块。
 - 支持同时接入多个平台多个机器人，自己开发。
@@ -270,7 +270,7 @@ interface Sender {
   getUserName(): string; //获取用户昵称
   getChatId(): string; //获取群聊ID
   getChatName(): string; //获取群聊名称
-  getMessageId(): Promise<string>; //获取消息ID
+  getMessageId(): {message_id: string, error: string}; //获取消息ID
   getContent(): string; //获取消息内容
   continue(): void; //使消息继续往下匹配正则，消息正常第一次被匹配就会停止继续匹配
   setContent(content: string): void; //修改接收到的消息内容，可配合`continue`被其他规则匹配
@@ -345,30 +345,26 @@ interface Response {
 }
 ```
 
-### fetch
+### request
 
 由 `net/http` 封装而成，如有更多需求可以联系作者。
 
 ```ts
-function fetch(options: {
+function request(options: {
   url: string; //请求地址
   method: string; //请求方法
   headers: { [key: string]: string }; //请求头
   json: boolean; // 返回json对象，等价于 responseType: "json"
-  timeout: number;//超时参数，单位毫秒
-  form:  { [key: string]: any };//formData表单数据，优先于下面的body
+  timeout: number; //超时参数，单位毫秒
+  form: { [key: string]: any }; //formData表单数据，优先于下面的body
   body: any; // 请求体，支持字符串、二进制，对象自动转json字符串和添加相应请求头
   allow_redirects: boolean; // 是否允许重定向，默认允许
-  proxy: {
-    url: string, //代理地址，支持http、https、socks5
-    user: string, //
-    password: string, //
-  }
-}): Promise<response:{
+  proxy: {};
+}): {
   status: number; // 状态码，同statusCode
   headers: { [key: string]: string };
   body: any;
-}>
+};
 ```
 
 ### Adapter

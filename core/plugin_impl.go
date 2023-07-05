@@ -196,12 +196,8 @@ func (sender *SenderJsIplm) SetLevel(l int) {
 func (sender *SenderJsIplm) GetChatName() string {
 	return sender.Message.GetChatName()
 }
-func (sender *SenderJsIplm) GetMessageID() *goja.Promise {
-	promise, resolve, _ := sender.Vm.NewPromise()
-	go func() {
-		resolve(sender.Message.GetMessageID())
-	}()
-	return promise
+func (sender *SenderJsIplm) GetMessageID() string {
+	return sender.Message.GetMessageID()
 }
 
 func (sender *SenderJsIplm) GetMessageId() string {
@@ -289,10 +285,15 @@ func (sender *SenderJsIplm) IsAdmin() bool {
 
 func (sender *SenderJsIplm) Reply(texts ...interface{}) interface{} {
 	i, err := sender.Message.Reply(texts...)
+	var errstr interface{}
 	if err != nil {
-		panic(Error(sender.Vm, err))
+		// panic(Error(sender.Vm, err))
+		errstr = err.Error()
 	}
-	return i
+	return map[string]interface{}{
+		"message_id": i,
+		"error":      errstr,
+	}
 }
 
 func (sender *SenderJsIplm) HoldOn(str ...string) string {

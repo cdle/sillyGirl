@@ -714,7 +714,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 					return id, nil
 				case <-time.After(time.Second * 5):
 					close(c.Chan)
-					return "", errors.New("get message_id timeout")
+					return "", errors.New("获取消息ID超时")
 				}
 			}
 		} else {
