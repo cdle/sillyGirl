@@ -113,7 +113,8 @@ func GetProxyTransport(rawURL string, uuid string, params map[string]interface{}
 		return i, err
 	}
 	if len(plugins) != 0 {
-		i, err := plugins[0].Conn.DialContext(context.Background(), &addr)
+		p = plugins[0]
+		i, err := p.Conn.DialContext(context.Background(), &addr)
 		if err != nil {
 			err = fmt.Errorf("%s(%s)代理错误：%v", p.Type, p.Name, err)
 		}
@@ -172,6 +173,7 @@ func init() {
 			Proxies.Delete(key)
 			return nil
 		}
+
 		if strings.HasPrefix(new, "o:") {
 			err := json.Unmarshal([]byte(strings.Replace(new, "o:", "", 1)), &ncfg)
 			if err != nil {
@@ -184,6 +186,10 @@ func init() {
 			// 	Server: ncfg.Server,
 			// 	Port:   ncfg.Port,
 			// }
+		}
+		if ncfg.CreatedAt == 0 {
+			ncfg.CreatedAt = int(time.Now().Unix())
+			new = "o:" + string(utils.JsonMarshal(ncfg))
 		}
 		// ov, ok := Proxies.Load(nkey)
 		// if ok && (!IsDifferent(ocfg, ncfg, []string{"Name", "UUID", "Rules", "Plugins"}) || checkProxy(ov.(C.Proxy))) { //代理依旧有效
@@ -202,9 +208,10 @@ func init() {
 			}
 		}
 		ncfg.Conn = p
-		ncfg.CreatedAt = int(time.Now().Unix())
 		Proxies.Store(key, &ncfg)
-		return nil
+		return &storage.Final{
+			Now: new,
+		}
 	})
 }
 
