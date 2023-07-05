@@ -28,7 +28,7 @@ func init() {
 			return
 		}
 		for _, bk := range arr {
-			ar := strings.Split(bk, ".")
+			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
 				if ar[0] == "plugins" && false { //todo
 
@@ -132,7 +132,7 @@ func init() {
 		data := map[string]interface{}{}
 		arr := strings.Split(keys, ",")
 		for _, bk := range arr {
-			ar := strings.Split(bk, ".")
+			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
 				if ar[0] == "plugins" && IsCdle { //todo
 					data[bk] = DecryptPlugin(halfDeEct(MakeBucket(ar[0]).GetString(ar[1])))
@@ -175,7 +175,7 @@ func init() {
 		messages := map[string]interface{}{}
 		errors := map[string]interface{}{}
 		for bk, v := range updates {
-			ar := strings.Split(bk, ".")
+			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
 				msg, err := SetBucketKeyValue(MakeBucket(ar[0]), ar[1], v)
 				if msg != "" {
