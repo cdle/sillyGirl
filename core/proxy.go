@@ -93,6 +93,9 @@ func GetProxyTransport(rawURL string, uuid string, params map[string]interface{}
 	var plugins = []*ProxyConfig{}
 	Proxies.Range(func(key, value any) bool {
 		cfg := value.(*ProxyConfig)
+		if !cfg.Enable {
+			return true
+		}
 		if Contains(cfg.Rules, addr.Host) {
 			p = cfg
 			return false
