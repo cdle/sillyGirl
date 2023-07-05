@@ -135,7 +135,7 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 				MaxIdleConns:          100,
 				IdleConnTimeout:       90 * time.Second,
 				TLSHandshakeTimeout:   10 * time.Second,
-				ExpectContinueTimeout: 1 * time.Second,
+				ExpectContinueTimeout: 10 * time.Second,
 			}
 		}
 		method = strings.ToUpper(method)
