@@ -126,18 +126,16 @@ func init() {
 	proxies.Foreach(func(b1, b2 []byte) error {
 		new := string(b2)
 		var ncfg = ProxyConfig{}
+		var params = map[string]interface{}{}
 		if strings.HasPrefix(new, "o:") {
-			err := json.Unmarshal([]byte(strings.Replace(new, "o:", "", 1)), &ncfg)
+			var data = []byte(strings.Replace(new, "o:", "", 1))
+			err := json.Unmarshal(data, &ncfg)
+			json.Unmarshal(data, &params)
 			if err != nil {
 				console.Log("无法解析的代理数据：", err)
 				return nil
 			}
-			// ncfg.RuleMatcher, err = preprocessRules(ncfg.Rules)
-			if err != nil {
-				console.Log("无法处理的代理匹配规则：", err)
-				return nil
-			}
-			p, err := adapter.ParseProxy(structToMap(ncfg))
+			p, err := adapter.ParseProxy(params)
 			if err != nil {
 				console.Log("无法解析的代理：", err)
 				return nil

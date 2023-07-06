@@ -24,8 +24,10 @@ type RequestPluginResult struct {
 	Tab1    int                `json:"tab1"`
 	Tab2    int                `json:"tab2"`
 	Tab3    int                `json:"tab3"`
+	Tab     string             `json:"tab"`
 	Time    time.Time          `json:"time"`
 	Classes map[string]int     `json:"classes"`
+	Origins map[string]string  `json:"origins"`
 }
 
 var plugin_list = []*common.Function{}
@@ -117,12 +119,15 @@ func initWebPluginList() {
 		return nil
 	})
 	GinApi(GET, "/api/plugins/list.json", func(ctx *gin.Context) {
+		// ctx.QueryArray()
+		origins := ctx.QueryArray("origin[]")
 		current := utils.Int(ctx.Query("current"))
 		pageSize := utils.Int(ctx.Query("pageSize"))
 		activeKey := ctx.Query("activeKey")
 		init := ctx.Query("init")
 		keyword := ctx.Query("keyword")
 		class := ctx.Query("class")
+		mclass := ctx.Query("mclass")
 		rr := RequestPluginResult{
 			Success: true,
 		}
@@ -140,13 +145,33 @@ func initWebPluginList() {
 			}
 			var list []*common.Function
 			if keyword == "" {
-				list = append(list, plugin_list...)
-			} else {
-				for _, f := range plugin_list {
-					if strings.Contains(f.Title, keyword) || strings.Contains(f.Organization, keyword) {
-						list = append(list, f)
+				if len(origins) == 0 {
+					list = append(list, plugin_list...)
+
+				} else {
+					for _, f := range plugin_list {
+						if Contains(origins, f.Organization) {
+							list = append(list, f)
+						}
 					}
 				}
+			} else {
+				if len(origins) == 0 {
+					for _, f := range plugin_list {
+						if strings.Contains(f.Title, keyword) || strings.Contains(f.Organization, keyword) {
+							list = append(list, f)
+						}
+					}
+				} else {
+					for _, f := range plugin_list {
+						if strings.Contains(f.Title, keyword) || strings.Contains(f.Organization, keyword) {
+							if Contains(origins, f.Organization) {
+								list = append(list, f)
+							}
+						}
+					}
+				}
+
 			}
 			rr.Total = len(list)
 			tab1 := []*common.Function{}
@@ -165,6 +190,7 @@ func initWebPluginList() {
 					classes[class] = append(classes[class], list[i])
 				} else {
 					for _, class := range list[i].Classes {
+						class = strings.TrimRight(class, "类")
 						if _, ok := classes[class]; !ok {
 							classes[class] = []*common.Function{}
 						}
@@ -181,7 +207,11 @@ func initWebPluginList() {
 				list, _ = classes[class]
 			}
 			rr.Classes = classesNum
+			var origins = map[string]string{}
 			for i := range list { //处理第二分类
+				if list[i].Organization != "" {
+					origins[list[i].Organization] = list[i].Organization
+				}
 				ded := false
 				for j := range fc {
 					if list[i].UUID == fc[j].UUID {
@@ -198,7 +228,7 @@ func initWebPluginList() {
 					tab2 = append(tab2, list[i])
 				}
 			}
-
+			rr.Origins = origins
 			if activeKey == "tab2" {
 				list = tab2
 				rr.Tab1 = len(tab1)
@@ -215,6 +245,17 @@ func initWebPluginList() {
 				rr.Tab2 = len(tab2)
 				rr.Tab3 = len(tab3)
 			}
+			tab := ""
+			if mclass == "true" {
+				if rr.Tab2 > rr.Tab1 {
+					list = tab2
+					tab = "tab2"
+				} else {
+					list = tab1
+					tab = "tab1"
+				}
+			}
+			rr.Tab = tab
 			rr.Total = len(list)
 			if len(list) == 0 {
 				ctx.JSON(200, rr)
