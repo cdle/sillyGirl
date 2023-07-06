@@ -351,6 +351,17 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("fetch", func(wts ...interface{}) interface{} {
 		promise, resolve, reject := vm.NewPromise()
 		go func() {
+			defer func() {
+				err := recover()
+				if err != nil {
+					o, ok := err.(*goja.Object)
+					if ok {
+						(&Console{
+							UUID: uuid,
+						}).Error(o.Get("value"))
+					}
+				}
+			}()
 			obj, err := fetch(vm, uuid, wts...)
 			if err != nil {
 				reject(err)
