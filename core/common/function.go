@@ -39,6 +39,7 @@ type Function struct {
 	HasForm   bool        `json:"has_form"`
 	Carry     bool        `json:"carry"`
 	Messages  interface{} `json:"messages"`
+	Classes   []string    `json:"classes"`
 }
 type Filter struct {
 	BlackMode bool

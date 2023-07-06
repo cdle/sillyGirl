@@ -270,7 +270,7 @@ interface Sender {
   getUserName(): string; //获取用户昵称
   getChatId(): string; //获取群聊ID
   getChatName(): string; //获取群聊名称
-  getMessageId(): {message_id: string, error: string}; //获取消息ID
+  getMessageId(): string; //获取消息ID
   getContent(): string; //获取消息内容
   continue(): void; //使消息继续往下匹配正则，消息正常第一次被匹配就会停止继续匹配
   setContent(content: string): void; //修改接收到的消息内容，可配合`continue`被其他规则匹配
@@ -292,7 +292,7 @@ interface Sender {
   isAdmin(): boolean; //判断消息是否来自管理员
   getPlatform(): string; //获取消息平台
   getBotId(): string; //获取机器人ID
-  reply(content: string): string; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
+  reply(content: string): {message_id: string, error: string}; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
   recallMessage(meesageId: string | string[] | number): {error: string}; //撤回消息，number类型时为延时毫秒
   kick(user_id: string): {error: string}; //移出群聊
   unkick(user_id: string): {error: string}; //取消移出群聊
@@ -410,7 +410,7 @@ interface Bucket(name: string) {
   get(key: string, defaultValue: any): any; // 取值
   set(key: string, value: any): Error | null; // 设值
   watch(key: string, event: (old: any, new_: any, key: string) => void); // 设置监听器，key 值为 * 时将监听整个桶的存储事件
-  foreach(func: (key: string, value: any) => void): void; // 遍历值
+  getAll(): []; // 获取全部值
   delete(key: string): Error | null; // 删值
   empty(): Error | undefined; // 清空桶
   keys(): string[]; // 获取所有键名

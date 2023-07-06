@@ -283,6 +283,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	var FindAll bool
 	var hasForm bool
 	var carry bool
+	var classes = []string{}
 	ks := map[string]bool{}
 	ress := regexp.MustCompile(
 		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
@@ -345,6 +346,9 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 			} else {
 				rules = append(rules, rule)
 			}
+		case "class":
+			classes = append(classes, regexp.MustCompile(`[\S]+`).FindAllString(res[2], -1)...)
+			classes = utils.Unique(classes)
 		case "platform", "imType", "platform+", "imType+":
 			var item []string
 			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
@@ -399,6 +403,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 				BlackMode: true,
 				Items:     item,
 			}
+
 		case "admin":
 			admin = strings.TrimSpace(res[2]) == "true"
 		case "disable":
@@ -623,6 +628,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 		FindAll:     FindAll,
 		HasForm:     hasForm,
 		Carry:       carry,
+		Classes:     classes,
 	}
 	running = func() bool {
 		return f.Running

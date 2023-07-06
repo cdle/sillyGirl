@@ -25,6 +25,7 @@ type RequestPluginResult struct {
 	Tab2    int                `json:"tab2"`
 	Tab3    int                `json:"tab3"`
 	Time    time.Time          `json:"time"`
+	Classes map[string]int     `json:"classes"`
 }
 
 var plugin_list = []*common.Function{}
@@ -121,11 +122,15 @@ func initWebPluginList() {
 		activeKey := ctx.Query("activeKey")
 		init := ctx.Query("init")
 		keyword := ctx.Query("keyword")
+		class := ctx.Query("class")
 		rr := RequestPluginResult{
 			Success: true,
 		}
 		if pageSize == 0 {
 			pageSize = 10
+		}
+		if class == "" {
+			class = "全部"
 		}
 		rr.Page = current
 		rr.Data = []*common.Function{}
@@ -149,7 +154,34 @@ func initWebPluginList() {
 			tab3 := []*common.Function{}
 			fc := []*common.Function{}
 			fc = append(fc, Functions...)
+			classes := map[string][]*common.Function{}
+			classesNum := map[string]int{}
 			for i := range list {
+				if len(list[i].Classes) == 0 {
+					class := "未分类"
+					if _, ok := classes[class]; !ok {
+						classes[class] = []*common.Function{}
+					}
+					classes[class] = append(classes[class], list[i])
+				} else {
+					for _, class := range list[i].Classes {
+						if _, ok := classes[class]; !ok {
+							classes[class] = []*common.Function{}
+						}
+						classes[class] = append(classes[class], list[i])
+					}
+				}
+			}
+
+			for class, fs := range classes {
+				classesNum[class] = len(fs)
+			}
+			classesNum["全部"] = len(list)
+			if class != "全部" {
+				list, _ = classes[class]
+			}
+			rr.Classes = classesNum
+			for i := range list { //处理第二分类
 				ded := false
 				for j := range fc {
 					if list[i].UUID == fc[j].UUID {
@@ -166,6 +198,7 @@ func initWebPluginList() {
 					tab2 = append(tab2, list[i])
 				}
 			}
+
 			if activeKey == "tab2" {
 				list = tab2
 				rr.Tab1 = len(tab1)
@@ -232,6 +265,7 @@ func initWebPluginList() {
 				}
 				rr.Data[i].Description = parseReply2(rr.Data[i].Description)
 			}
+
 			ctx.JSON(200, rr)
 			return
 		}
