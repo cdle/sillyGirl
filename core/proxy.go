@@ -168,13 +168,16 @@ func init() {
 		// }
 		// var nkey = ProxyKey{}
 		var ncfg = ProxyConfig{}
+		var params = map[string]interface{}{}
 		if new == "" { //删除逻辑
 			Proxies.Delete(key)
 			return nil
 		}
 
 		if strings.HasPrefix(new, "o:") {
-			err := json.Unmarshal([]byte(strings.Replace(new, "o:", "", 1)), &ncfg)
+			var data = []byte(strings.Replace(new, "o:", "", 1))
+			err := json.Unmarshal(data, &ncfg)
+			json.Unmarshal(data, &params)
 			if err != nil {
 				return &storage.Final{
 					Error: err,
@@ -200,7 +203,7 @@ func init() {
 				Error: errors.New("不支持的代理匹配规则：" + err.Error()),
 			}
 		}
-		p, err := adapter.ParseProxy(structToMap(ncfg))
+		p, err := adapter.ParseProxy(params)
 		if err != nil {
 			return &storage.Final{
 				Error: err,
