@@ -151,24 +151,7 @@ func (sender *SenderJsIplm) GetPlatform() string {
 	return sender.Message.GetImType()
 }
 func (sender *SenderJsIplm) RecallMessage(p ...interface{}) {
-	np := []interface{}{}
-	var i = 0
-	for _, v := range p {
-		switch v.(type) {
-		case int, int32, int64, uint, int16:
-			i = utils.Int(v)
-		default:
-			np = append(np, v)
-		}
-	}
-	if i != 0 {
-		go func() {
-			sleep(i)
-			sender.Message.RecallMessage(np...)
-		}()
-	} else {
-		go sender.Message.RecallMessage(np...)
-	}
+	sender.Message.RecallMessage(p...)
 }
 func (sender *SenderJsIplm) GetUserName() string {
 	return sender.Message.GetUserName()
@@ -216,16 +199,28 @@ func (sender *SenderJsIplm) GetChatId() string {
 	return sender.Message.GetChatID()
 }
 
-func (sender *SenderJsIplm) Kick(uid string) {
-	sender.Message.GroupKick(uid, false)
+func (sender *SenderJsIplm) Kick(uid string) interface{} {
+	err := sender.Message.GroupKick(uid, false)
+	if err != nil {
+		return err.Error()
+	}
+	return nil
 }
 
-func (sender *SenderJsIplm) Unkick(uid string) {
-	sender.Message.GroupUnkick(uid)
+func (sender *SenderJsIplm) Unkick(uid string) interface{} {
+	err := sender.Message.GroupUnkick(uid)
+	if err != nil {
+		return err.Error()
+	}
+	return nil
 }
 
-func (sender *SenderJsIplm) Ban(uid string, duration int) {
-	sender.Message.GroupBan(uid, duration)
+func (sender *SenderJsIplm) Ban(uid string, duration int) interface{} {
+	err := sender.Message.GroupBan(uid, duration)
+	if err != nil {
+		return err.Error()
+	}
+	return nil
 }
 
 func (sender *SenderJsIplm) Param(i interface{}) string {

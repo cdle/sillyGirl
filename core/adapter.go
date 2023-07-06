@@ -740,36 +740,60 @@ func (sender *CustomSender) Copy() common.Sender {
 	return &new
 }
 
-func (sender *CustomSender) RecallMessage(ps ...interface{}) error {
+func (sender *CustomSender) RecallMessage(ps ...interface{}) {
+	recalls := []func(){}
+	var timeout int
 	for _, p := range ps {
 		switch p := p.(type) {
+		case int, int64:
+			timeout = utils.Int(p)
 		case string:
-			sender.Reply(mystr.BuildCQCode("delete", H{"id": p}, ""))
+			if p != "" {
+				recalls = append(recalls, func() {
+					sender.Reply(mystr.BuildCQCode("delete", H{"id": p}, ""))
+				})
+			}
 		case []string:
 			for _, v := range p {
-				sender.Reply(mystr.BuildCQCode("delete", H{"id": v}, ""))
+				if v != "" {
+					recalls = append(recalls, func() {
+						sender.Reply(mystr.BuildCQCode("delete", H{"id": v}, ""))
+					})
+				}
 			}
 		case [][]string:
 			for _, v := range p {
 				for _, v2 := range v {
-					sender.Reply(mystr.BuildCQCode("delete", H{"id": v2}, ""))
+					recalls = append(recalls, func() {
+						sender.Reply(mystr.BuildCQCode("delete", H{"id": v2}, ""))
+					})
 				}
 			}
 		}
 	}
-	return nil
+	go func() {
+		if timeout != 0 {
+			time.Sleep(time.Millisecond * time.Duration(timeout))
+		}
+		for _, recall := range recalls {
+			recall()
+		}
+	}()
 }
 
-func (sender *CustomSender) GroupKick(uid string, reject_add_request bool) {
-	sender.Reply(mystr.BuildCQCode("kick", H{"user_id": uid, "chat_id": sender.GetChatID(), "forever": reject_add_request}, ""))
+func (sender *CustomSender) GroupKick(uid string, reject_add_request bool) error {
+	_, err := sender.Reply(mystr.BuildCQCode("kick", H{"user_id": uid, "chat_id": sender.GetChatID(), "forever": reject_add_request}, ""))
+	return err
 }
 
-func (sender *CustomSender) GroupBan(uid string, duration int) {
-	sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": duration}, ""))
+func (sender *CustomSender) GroupBan(uid string, duration int) error {
+	_, err := sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": duration}, ""))
+	return err
 }
 
-func (sender *CustomSender) GroupUnban(uid string) {
-	sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": 0}, ""))
+func (sender *CustomSender) GroupUnban(uid string) error {
+	_, err := sender.Reply(mystr.BuildCQCode("ban", H{"user_id": uid, "chat_id": sender.GetChatID(), "duration": 0}, ""))
+	return err
 }
 
 func (sender *CustomSender) IsAdmin() bool {

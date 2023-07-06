@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/Dreamacro/clash/adapter"
 	C "github.com/Dreamacro/clash/constant"
@@ -32,14 +31,14 @@ type ProxyConfig struct {
 	Rules   []string `json:"rules"`
 	Plugins []string `json:"plugins"`
 
-	Cipher         string `json:"cipher,omitempty"`
-	Username       string `json:"username,omitempty"`
-	Password       string `json:"password,omitempty"`
-	SkipCertVerify bool   `json:"skip-cert-verify,omitempty"`
-	TLS            bool   `json:"tls,omitempty"`
-	CreatedAt      int    `json:"created_at,omitempty"`
-	Remark         string `json:"remark,omitempty"`
-	Enable         bool   `json:"enable,omitempty"`
+	// Cipher         string `json:"cipher,omitempty"`
+	// Username       string `json:"username,omitempty"`
+	// Password       string `json:"password,omitempty"`
+	// SkipCertVerify bool   `json:"skip-cert-verify,omitempty"`
+	// TLS            bool   `json:"tls,omitempty"`
+	// CreatedAt int    `json:"created_at,omitempty"`
+	// Remark    string `json:"remark,omitempty"`
+	Enable bool `json:"enable,omitempty"`
 	// UDP            bool              `json:"udp,omitempty"`
 	// Plugin string `json:"plugin,omitempty"`
 	// PluginOpts     map[string]string `json:"plugin-opts,omitempty"`
@@ -187,10 +186,10 @@ func init() {
 			// 	Port:   ncfg.Port,
 			// }
 		}
-		if ncfg.CreatedAt == 0 {
-			ncfg.CreatedAt = int(time.Now().Unix())
-			new = "o:" + string(utils.JsonMarshal(ncfg))
-		}
+		// if ncfg.CreatedAt == 0 {
+		// 	ncfg.CreatedAt = int(time.Now().Unix())
+		// 	new = "o:" + string(utils.JsonMarshal(ncfg))
+		// }
 		// ov, ok := Proxies.Load(nkey)
 		// if ok && (!IsDifferent(ocfg, ncfg, []string{"Name", "UUID", "Rules", "Plugins"}) || checkProxy(ov.(C.Proxy))) { //代理依旧有效
 		// 	return nil

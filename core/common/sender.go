@@ -6,7 +6,7 @@ type Sender interface {
 	GetBotID() string
 	GetImType() string
 	GetMessageID() string
-	RecallMessage(...interface{}) error
+	RecallMessage(...interface{})
 	GetUserName() string
 	GetChatName() string
 	IsReply() bool
@@ -33,10 +33,10 @@ type Sender interface {
 	ClearContinue()
 	Await(Sender, func(Sender) interface{}, ...interface{}) interface{}
 	Copy() Sender
-	GroupKick(uid string, reject_add_request bool)
-	GroupUnkick(uid string)
-	GroupBan(uid string, duration int)
-	GroupUnban(uid string)
+	GroupKick(uid string, reject_add_request bool) error
+	GroupUnkick(uid string) error
+	GroupBan(uid string, duration int) error
+	GroupUnban(uid string) error
 	AtLast()
 	UAtLast()
 	IsAtLast() bool

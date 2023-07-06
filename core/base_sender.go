@@ -140,12 +140,12 @@ func (sender *Faker) Copy() common.Sender {
 	return &new
 }
 
-func (sender *Faker) GroupKick(uid string, reject_add_request bool) {
-
+func (sender *Faker) GroupKick(uid string, reject_add_request bool) error {
+	return nil
 }
 
-func (sender *Faker) GroupBan(uid string, duration int) {
-
+func (sender *Faker) GroupBan(uid string, duration int) error {
+	return nil
 }
 
 type BaseSender struct {
@@ -299,8 +299,8 @@ func (sender *BaseSender) GetMessageID() string {
 	return ""
 }
 
-func (sender *BaseSender) RecallMessage(...interface{}) error {
-	return nil
+func (sender *BaseSender) RecallMessage(...interface{}) {
+
 }
 
 func (sender *BaseSender) GetUserID() string {
@@ -316,19 +316,20 @@ func (sender *BaseSender) GetImType() string {
 	return ""
 }
 
-func (sender *BaseSender) GroupKick(uid string, reject_add_request bool) {
-
+func (sender *BaseSender) GroupKick(uid string, reject_add_request bool) error {
+	return nil
 }
 
-func (sender *BaseSender) GroupUnkick(uid string) {
-
+func (sender *BaseSender) GroupUnkick(uid string) error {
+	return nil
 }
 
-func (sender *BaseSender) GroupBan(uid string, duration int) {
-
+func (sender *BaseSender) GroupBan(uid string, duration int) error {
+	return nil
 }
 
-func (sender *BaseSender) GroupUnban(uid string) {
+func (sender *BaseSender) GroupUnban(uid string) error {
+	return nil
 
 }
 

@@ -293,11 +293,11 @@ interface Sender {
   getPlatform(): string; //获取消息平台
   getBotId(): string; //获取机器人ID
   reply(content: string): string; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
-  recallMessage(meesageId: string | string[]): Promise<boolean>; //撤回消息
-  kick(user_id: string): Promise<boolean>; //移出群聊
-  unkick(user_id: string): Promise<boolean>; //取消移出群聊
-  ban(user_id: string, duration: number): Promise<boolean>; //禁言，并指定时长
-  unban(user_id: string): Promise<boolean>;  //取消禁言
+  recallMessage(meesageId: string | string[] | number): {error: string}; //撤回消息，number类型时为延时毫秒
+  kick(user_id: string): {error: string}; //移出群聊
+  unkick(user_id: string): {error: string}; //取消移出群聊
+  ban(user_id: string, duration: number): {error: string}; //禁言，并指定时长
+  unban(user_id: string): {error: string};  //取消禁言
 }
 ```
 
