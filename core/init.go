@@ -60,7 +60,7 @@ func Init() {
 	var updates = 0
 	storage.Watch(sillyGirl, "compiled_at", func(old, new, key string) *storage.Final {
 		if old != new {
-			if updates == 0 {
+			if updates == 1 {
 				return &storage.Final{
 					Message: "升级中，请耐心等待...",
 				}
