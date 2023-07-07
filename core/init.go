@@ -19,13 +19,15 @@ import (
 )
 
 var DataHome = utils.GetDataHome()
+var version = compiled_at
 
 func GetVersion() (string, error) {
 	v, e := httplib.Get("http://127.0.0.1:8765/api/version").String()
 	if len(v) == 13 {
-		sillyGirl.Set("version", v)
-		if v != compiled_at {
-			console.Log("发现到更新，版本号：", v)
+		if version != v && v != compiled_at {
+			sillyGirl.Set("version", v)
+			console.Log("发现更新，版本号", v)
+			version = v
 		}
 		return v, e
 	}
@@ -33,6 +35,15 @@ func GetVersion() (string, error) {
 }
 
 func Init() {
+	go func() {
+		for {
+			GetVersion()
+			if version != compiled_at {
+				break
+			}
+			time.Sleep(time.Minute * 5)
+		}
+	}()
 	initLoc()
 	sillyGirl = MakeBucket("sillyGirl")
 	_, err := os.Stat(DataHome)
