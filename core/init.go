@@ -66,6 +66,7 @@ func Init() {
 			var latest_version = ""
 
 			console.Debug("正在从 cdle/binary 获取版本号...")
+			proxy := false
 			qurl := "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go"
 			req, _ := http.NewRequest("GET", qurl, strings.NewReader(""))
 			resp, err := client.Do(req)
@@ -109,6 +110,7 @@ func Init() {
 
 		PROXY:
 			//使用免费代理下载
+			proxy = true
 			console.Info("正在重新尝试下载...")
 			qurl = "http://127.0.0.1:8765/api/download?version=" + compiled_at + "&goos=" + runtime.GOOS + "&goarch=" + runtime.GOARCH
 			resp, err = http.Get(qurl)
@@ -150,9 +152,12 @@ func Init() {
 			defer f.Close()
 			i, err := io.Copy(f, body)
 			if i < 2646140 || err != nil {
-				console.Error("创建编译文件错误：%v", i)
+				if !proxy {
+					goto PROXY
+				}
+				console.Error("创建编译文件错误：%v %v", i, err)
 				return &storage.Final{
-					Error: fmt.Errorf("创建编译文件错误：%v", i),
+					Error: fmt.Errorf("创建编译文件错误：%v %v", i, err),
 				}
 			}
 			if runtime.GOOS == "windows" {
