@@ -61,18 +61,24 @@ func Init() {
 			if transport != nil {
 				client.Transport = transport
 			}
+			var body io.Reader
+			var data []byte
+			var latest_version = ""
+
 			console.Debug("正在从 cdle/binary 获取版本号...")
-			req, _ := http.NewRequest("GET", "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go", strings.NewReader(""))
+			qurl := "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go"
+			req, _ := http.NewRequest("GET", qurl, strings.NewReader(""))
 			resp, err := client.Do(req)
 			if err != nil {
 				console.Error("获取版本号错误：%s", err)
-				return &storage.Final{
-					Error: fmt.Errorf("貌似网络不太行啊：%s", err),
-				}
+				// return &storage.Final{
+				// 	Error: fmt.Errorf("貌似网络不太行啊：%s", err),
+				// }
+				goto PROXY
 			}
 			defer resp.Body.Close()
-			var data, _ = ioutil.ReadAll(resp.Body)
-			latest_version := regexp.MustCompile(`\d{13}`).FindString(string(data))
+			data, _ = ioutil.ReadAll(resp.Body)
+			latest_version = regexp.MustCompile(`\d{13}`).FindString(string(data))
 			if latest_version <= compiled_at {
 				console.Debug("当前版本 %s 已是最新，无需升级", compiled_at)
 				return &storage.Final{
@@ -84,7 +90,7 @@ func Init() {
 				client.Transport = transport
 			}
 			console.Debug("正在从 cdle/binary 获取最新版本 %s 编译文件...", latest_version)
-			qurl := "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_" + runtime.GOOS + "_" + runtime.GOARCH + "_" + latest_version
+			qurl = "https://raw.githubusercontent.com/cdle/binary/master/sillyGirl_" + runtime.GOOS + "_" + runtime.GOARCH + "_" + latest_version
 			if runtime.GOOS == "windows" {
 				qurl += ".exe"
 			}
@@ -92,11 +98,40 @@ func Init() {
 			resp, err = client.Do(req)
 			if err != nil {
 				console.Error("获取最新编译文件错误：%s", err)
+				// return &storage.Final{
+				// 	Error: fmt.Errorf("升级时貌似网络不太行啊：%v", err),
+				// }
+				goto PROXY
+			}
+			defer resp.Body.Close()
+			body = resp.Body
+			goto CREATE
+
+		PROXY:
+			//使用免费代理下载
+			console.Info("正在重新尝试下载...")
+			qurl = "http://127.0.0.1:8765/api/download?version=" + compiled_at + "&goos=" + runtime.GOOS + "&goarch=" + runtime.GOARCH
+			resp, err = http.Get(qurl)
+			if err != nil {
 				return &storage.Final{
-					Error: fmt.Errorf("升级时貌似网络不太行啊：%v", err),
+					Error: fmt.Errorf("升级时貌似网络不太行啊"),
 				}
 			}
 			defer resp.Body.Close()
+			body = resp.Body
+			switch resp.Header.Get("Result") {
+			case "newest":
+				return &storage.Final{
+					Message: fmt.Sprintf("当前版本 %s 已是最新，无需升级", compiled_at),
+				}
+			case "fail":
+				return &storage.Final{
+					Error: fmt.Errorf("升级失败"),
+				}
+			case "ok":
+			}
+
+		CREATE:
 			console.Debug("正在创建编译文件...")
 			filename := utils.ExecPath + "/" + utils.ProcessName
 			ready := ""
@@ -113,7 +148,7 @@ func Init() {
 				}
 			}
 			defer f.Close()
-			i, err := io.Copy(f, resp.Body)
+			i, err := io.Copy(f, body)
 			if i < 2646140 || err != nil {
 				console.Error("创建编译文件错误：%v", i)
 				return &storage.Final{
