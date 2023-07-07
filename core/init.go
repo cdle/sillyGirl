@@ -1,6 +1,7 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -18,6 +19,18 @@ import (
 )
 
 var DataHome = utils.GetDataHome()
+
+func GetVersion() (string, error) {
+	v, e := httplib.Get("http://127.0.0.1:8765/api/version").String()
+	if len(v) == 13 {
+		sillyGirl.Set("version", v)
+		if v != compiled_at {
+			console.Log("发现到更新，版本号：", v)
+		}
+		return v, e
+	}
+	return v, errors.New("版本获取失败")
+}
 
 func Init() {
 	initLoc()
@@ -64,22 +77,31 @@ func Init() {
 			var body io.Reader
 			var data []byte
 			var latest_version = ""
+			var resp *http.Response
+			var req *http.Request
 
 			console.Debug("正在从 cdle/binary 获取版本号...")
 			proxy := false
 			qurl := "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go"
-			req, _ := http.NewRequest("GET", qurl, strings.NewReader(""))
-			resp, err := client.Do(req)
-			if err != nil {
-				console.Error("获取版本号错误：%s", err)
-				// return &storage.Final{
-				// 	Error: fmt.Errorf("貌似网络不太行啊：%s", err),
-				// }
-				goto PROXY
+
+			version, _ := GetVersion()
+			if version != "" {
+				latest_version = version
+			} else {
+				req, _ = http.NewRequest("GET", qurl, strings.NewReader(""))
+				resp, err = client.Do(req)
+				if err != nil {
+					console.Error("获取版本号错误：%s", err)
+					// return &storage.Final{
+					// 	Error: fmt.Errorf("貌似网络不太行啊：%s", err),
+					// }
+					goto PROXY
+				}
+				defer resp.Body.Close()
+				data, _ = ioutil.ReadAll(resp.Body)
+				latest_version = regexp.MustCompile(`\d{13}`).FindString(string(data))
 			}
-			defer resp.Body.Close()
-			data, _ = ioutil.ReadAll(resp.Body)
-			latest_version = regexp.MustCompile(`\d{13}`).FindString(string(data))
+
 			if latest_version <= compiled_at {
 				console.Debug("当前版本 %s 已是最新，无需升级", compiled_at)
 				return &storage.Final{

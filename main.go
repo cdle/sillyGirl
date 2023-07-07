@@ -23,6 +23,7 @@ func main() {
 		if err == nil {
 			app.Set("ip", ip)
 		}
+		core.GetVersion()
 	}()
 	core.Init()
 	if app.GetBool("anti_kasi") {
