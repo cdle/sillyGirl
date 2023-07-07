@@ -137,3 +137,8 @@ func (b *Buffer) Join(sep []byte, buffers ...[]byte) []byte {
 	}
 	return result
 }
+
+func bufferModule(vm *goja.Runtime, module *goja.Object) {
+	o := module.Get("exports").(*goja.Object)
+	o.Set("Buffer", &BufferObj{vm: vm})
+}

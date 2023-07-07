@@ -114,6 +114,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		return JsBucket(vm, name, uuid, on_start)
 	})
 	registry := require.NewRegistry(require.WithLoader(mapFileSystemSourceLoader(uuid)))
+
 	if on_start {
 		var ids = &[]cron.EntryID{}
 		crons.Store(uuid, ids)
@@ -156,21 +157,8 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 			return o
 		})
 
-		// registry.RegisterNativeModule("express", func(runtime *goja.Runtime, module *goja.Object) {
-		// 	o := module.Get("exports").(*goja.Object)
-		// 	methods := []string{"get", "post", "delete", "put", "fetch"}
-		// 	for i := range methods {
-		// 		method := methods[i]
-		// 		o.Set(method, func(path string, handles ...func(*Request, *Response)) {
-		// 			webs = append(webs, Web{
-		// 				uuid:    uuid,
-		// 				method:  strings.ToUpper(method),
-		// 				path:    path,
-		// 				handles: handles,
-		// 			})
-		// 		})
-		// 	}
-		// })
+		registry.RegisterNativeModule("crypto", cryptoModule)
+		registry.RegisterNativeModule("buffer", bufferModule)
 		vm.Set("gofor", func(running func() bool, handle func()) {
 			go func() {
 				for {

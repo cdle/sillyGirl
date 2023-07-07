@@ -350,47 +350,13 @@ func Convert(vm *goja.Runtime, data interface{}, fromFormat string, toFormat str
 	}
 }
 
-// panic: interface conversion: interface {} is *cipher.cfb, not *core.AesCipher [recovered]
-// panic: interface conversion: interface {} is *cipher.cfb, not *core.AesCipher
-
-// goroutine 15 [running]:
-// github.com/dop251/goja.(*Runtime).RunProgram.func1()
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/runtime.go:1491 +0x3b8
-// panic({0x1a5f6e0, 0xc0017a4780})
-// C:/Program Files/Go/src/runtime/panic.go:884 +0x213
-// github.com/dop251/goja.(*vm).handleThrow(0xc001312240, {0x1a5f6e0, 0xc0017a4780})
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:788 +0x497
-// github.com/dop251/goja.(*vm).runTryInner.func1()
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:830 +0x45
-// panic({0x1a5f6e0, 0xc0017a4780})
-// C:/Program Files/Go/src/runtime/panic.go:884 +0x213
-// github.com/cdle/sillyGirl/core.(*Hmac).Final(0x2?, {0xc0008266d4?, 0x1?})
-// C:/Users/Administrator/Desktop/sillyGirl/core/node_ crypto.go:90 +0x145
-// reflect.Value.call({0x1a8dfc0?, 0xc0017a43c0?, 0x1c5efb2f198?}, {0x1b85371, 0x4}, {0xc0009fc060, 0x1, 0x0?})
-// C:/Program Files/Go/src/reflect/value.go:586 +0xb0b
-// reflect.Value.Call({0x1a8dfc0?, 0xc0017a43c0?, 0xc000f687c0?}, {0xc0009fc060?, 0xc001076630?, 0x0?})
-// C:/Program Files/Go/src/reflect/value.go:370 +0xbc
-// github.com/dop251/goja.(*Runtime).wrapReflectFunc.func1({{0x2139e58, 0xc0017a43f0}, {0xc000110aa0, 0x1, 0x46}})
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/runtime.go:2056 +0x3dc
-// github.com/dop251/goja.(*nativeFuncObject).vmCall(0xc001784780, 0xc001312240, 0x1)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/func.go:559 +0x1af
-// github.com/dop251/goja.call.exec(0x5?, 0xc001312240)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:3366 +0x6a
-// github.com/dop251/goja.(*vm).run(0xc001312240)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:582 +0x62
-// github.com/dop251/goja.(*vm).runTryInner(0x1b16220?)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:834 +0x70
-// github.com/dop251/goja.(*vm).runTry(0xc001312240)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/vm.go:820 +0x1c9
-// github.com/dop251/goja.(*Runtime).RunProgram(0xc000b89c00, 0xc000ef1f20)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja@v0.0.0-20230605162241-28ee0ee714f3/runtime.go:1513 +0x48d
-// github.com/cdle/sillyGirl/core.initPlugin.func3.1(0xc000b89c00)
-// C:/Users/Administrator/Desktop/sillyGirl/core/plugin_core.go:585 +0x61d
-// github.com/dop251/goja_nodejs/eventloop.(*EventLoop).Run(0xc001583b00, 0xc00126df20)
-// C:/Users/Administrator/go/pkg/mod/github.com/dop251/goja_nodejs@v0.0.0-20230602164024-804a84515562/eventloop/eventloop.go:203 +0x37
-// github.com/cdle/sillyGirl/core.initPlugin.func3({0x2141bb8, 0xc001312120}, 0x0)
-// C:/Users/Administrator/Desktop/sillyGirl/core/plugin_core.go:511 +0x126
-// github.com/cdle/sillyGirl/core.AddCommand.func1(0xc000ac1d40)
-// C:/Users/Administrator/Desktop/sillyGirl/core/function.go:372 +0xcb
-// created by github.com/cdle/sillyGirl/core.AddCommand
-// C:/Users/Administrator/Desktop/sillyGirl/core/function.go:369 +0xfe
+func cryptoModule(vm *goja.Runtime, module *goja.Object) {
+	cryto := Crypto{
+		vm: vm,
+	}
+	o := module.Get("exports").(*goja.Object)
+	o.Set("createCipheriv", cryto.CreateCipheriv)
+	o.Set("createDecipheriv", cryto.CreateDecipheriv)
+	o.Set("createHash", cryto.CreateHash)
+	o.Set("createHmac", cryto.CreateHmac)
+}
