@@ -53,12 +53,22 @@ func Init() {
 	// utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	initToHandleMessage()
 	sillyGirl.Set("compiled_at", compiled_at)
-	console.Log("编译版本：%s", compiled_at)
+	console.Log("编译版本: %s", compiled_at)
 	initWeb()
 	initCarry()
 	sillyGirl.Set("started_at", time.Now().Format("2006-01-02 15:04:05"))
+	var updates = 0
 	storage.Watch(sillyGirl, "compiled_at", func(old, new, key string) *storage.Final {
 		if old != new {
+			if updates == 0 {
+				return &storage.Final{
+					Message: "升级中，请耐心等待...",
+				}
+			}
+			updates++
+			defer func() {
+				updates--
+			}()
 			var transport *http.Transport
 			instance, err := GetProxyTransport("https://raw.githubusercontent.com", "", nil)
 			if err != nil {
@@ -91,14 +101,15 @@ func Init() {
 			var resp *http.Response
 			var req *http.Request
 
-			console.Debug("正在从 cdle/binary 获取版本号...")
 			proxy := false
 			qurl := "https://raw.githubusercontent.com/cdle/binary/main/compile_time.go"
 
 			version, _ := GetVersion()
 			if version != "" {
+				console.Debug("正在从 github 获取版本号...")
 				latest_version = version
 			} else {
+				console.Debug("正在从 cdle/binary 获取版本号...")
 				req, _ = http.NewRequest("GET", qurl, strings.NewReader(""))
 				resp, err = client.Do(req)
 				if err != nil {

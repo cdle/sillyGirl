@@ -339,9 +339,9 @@ func initWeb() {
 		srvs = append(srvs, srv)
 
 		go func() {
-			logs.Info("Http服务(%d)重新运行", port)
+			logs.Info("Http服务(%v)重新运行", port)
 			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-				logs.Error("Http服务(%d)运行失败：%s", port, err.Error())
+				logs.Error("Http服务(%v)运行失败：%s", port, err.Error())
 				ch <- err
 			}
 		}()
@@ -369,10 +369,10 @@ func initWeb() {
 	logs.Info("管理员面板:")
 	logs.Info("  > 本机: http://localhost:%d/admin", port)
 	local_ip := getLocalIP()
-	logs.Info("  > 局域网: http://%s:%d/admin", local_ip, port)
+	logs.Info("  > 局域网: http://%v:%d/admin", local_ip, port)
 	ip := sillyGirl.GetString("ip")
 	if ip != "" {
-		logs.Info("  > 广域网: http://%s:%d/admin", ip, port)
+		logs.Info("  > 广域网: http://%v:%d/admin", ip, port)
 	}
 	sillyGirl.Set("local_ip", local_ip)
 	go func() {
