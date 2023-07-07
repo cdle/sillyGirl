@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"math/rand"
 	"regexp"
 	"strings"
 	"sync"
@@ -114,82 +113,6 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("Bucket", func(name string) interface{} {
 		return JsBucket(vm, name, uuid, on_start)
 	})
-	sillyGirlJsIplm := func(call goja.ConstructorCall) *goja.Object {
-		userId := fmt.Sprintf("%d", rand.Int63())
-		call.This.Set("isSlaveMode", func() bool {
-			return utils.SlaveMode
-		})
-		call.This.Set("uuid", func() string {
-			return uuid
-		})
-		call.This.Set("store", func(str string, v interface{}) {
-			store.Store(str, v)
-		})
-		call.This.Set("load", func(str string) interface{} {
-			v, _ := store.Load(str)
-			return v
-		})
-		call.This.Set("delete", func(str string) {
-			store.Delete(str)
-		})
-		call.This.Set("session", func(info interface{}) func(...int) interface{} {
-			msg := ""
-			imTpye := "carry"
-			var chatId string
-			switch info := info.(type) {
-			case string:
-				msg = info
-			default:
-				props := info.(map[string]interface{})
-				for i := range props {
-					switch strings.ToLower(i) {
-					case "imtype":
-						imTpye = props[i].(string)
-					case "platform":
-						imTpye = props[i].(string)
-					case "msg", "message":
-						msg = props[i].(string)
-					case "chatid", "chat_id":
-						chatId = fmt.Sprint(props[i].(string))
-					case "userid", "user_id":
-						userId = props[i].(string)
-					}
-				}
-			}
-			if msg == "" {
-				return nil
-			}
-			c := &Faker{
-				Type:    imTpye,
-				Message: msg,
-				Carry:   make(chan string),
-				UserID:  userId,
-				ChatID:  chatId,
-				Admin:   true,
-			}
-			Messages <- c
-			var f = func(i ...int) interface{} {
-				timeOut := 1000 * 100
-				if len(i) > 0 {
-					timeOut = i[0]
-				}
-				select {
-				case v, ok := <-c.Listen():
-					return map[string]interface{}{
-						"hasNext": ok,
-						"message": v,
-					}
-				case <-time.After(time.Millisecond * time.Duration(timeOut)):
-					return map[string]interface{}{
-						"hasNext": false,
-						"message": "已超时",
-					}
-				}
-			}
-			return f
-		})
-		return nil
-	}
 	registry := require.NewRegistry(require.WithLoader(mapFileSystemSourceLoader(uuid)))
 	if on_start {
 		var ids = &[]cron.EntryID{}
@@ -323,7 +246,6 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("image", utils.ToImageQrcode)
 	vm.Set("video", utils.ToVideoQrcode)
 	vm.Set("console", &Console{UUID: uuid})
-	vm.Set("sillyGirl", sillyGirlJsIplm)
 	vm.Set("call", func(str string) interface{} {
 		return RegistFuncs[str]
 	})

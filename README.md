@@ -303,7 +303,7 @@ interface Sender {
 
 ### Express `Request` / `Response`
 
-只能说是够用，有需求可联系作者。插件中通过 `Express()` 返回一个对象，或者`require("express")()`。
+只能说是够用，有需求可联系作者。插件中通过 `Express()` 返回一个对象。
 
 ```ts
 interface Request {
@@ -392,11 +392,9 @@ class Adapter(botplt: string, botid: string) {
   setIsAdmin(func: (user_id: string) => boolean): void; //设置用户是否是成员函数，默认自动实现
   destroy(): void;//销毁机器人
 }
-function getAdapter(platform: string, bot_id string): [Adapter: string, error: string]; //获取一个机器人
+function getAdapter(platform: string, bot_id string): {Adapter: string, error: string}; //获取一个机器人
 
-function getAdapters(platform: string, bot_ids ...string): [Adapter: string[], error: string]; //获取多个机器人
-
-function getAdapterBotsID(bot_id string): string[]; //获取一个平台的所有机器人
+function getAdapterBotsID(bot_id string): Adapter[]; //获取一个平台的所有机器人
 
 function getAdapterBotPlts(platform: string): string[]; //所有机器人平台
 ```

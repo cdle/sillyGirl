@@ -32,7 +32,15 @@ type RequestPluginResult struct {
 
 var plugin_list = []*common.Function{}
 
-var cdle_sublink = "link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJm0P+mI/G3ruO7AC04guqqKKa29VOvTGR7ATUJGYayRBpG2RFq+6ZPK3vcu6KCDGvRE3S43Gj42EXfvs04M6s4\nlink://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJYds3a/BticqD0hzidGsOysEx/RK/nKppChxMLb6QGczhWjGC/M2ETxWb+Jl+6q/x+LP4gy+ibeAEzatOYwdZMckI8nN/R6mY/HW2dyBtp0qH1ldICn6Wl+9YowLvvpLU=\nlink://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatL/GWakSkUWVNTd/jJS4YaqGXqvoJOxtEwVxbfBpmsMdTpKFr7K/+9MW/CJFpFsLFGM3yRxh2z8fVsDZUV6GoXei5QhOviIvo5ys7N5b6MRiEmbVATiiTEovz3IBg8nObQ="
+var cdle_sublink = `
+//傻妞官方
+link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJm0P+mI/G3ruO7AC04guqqKKa29VOvTGR7ATUJGYayRBpG2RFq+6ZPK3vcu6KCDGvRE3S43Gj42EXfvs04M6s4
+//大灰机
+link://T4EywWN46ztYBhHNdOl6ThvHulsS6Fo5vRI+WFDJEtMBltBIFj2gLoSSIFXLSRmeAwYxIkikr+TZUzuTr2QYZ7edh12jsIgAv3s0FR3pqace1TX5/6r2rcc52HlAkCPU
+//搬运中心
+link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJYds3a/BticqD0hzidGsOysEx/RK/nKppChxMLb6QGczhWjGC/M2ETxWb+Jl+6q/x+LP4gy+ibeAEzatOYwdZMckI8nN/R6mY/HW2dyBtp0qH1ldICn6Wl+9YowLvvpLU=
+//木子李
+link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatL/GWakSkUWVNTd/jJS4YaqGXqvoJOxtEwVxbfBpmsMdTpKFr7K/+9MW/CJFpFsLFGM3yRxh2z8fVsDZUV6GoXei5QhOviIvo5ys7N5b6MRiEmbVATiiTEovz3IBg8nObQ=`
 
 func initPluginList() {
 	list := []*common.Function{}
