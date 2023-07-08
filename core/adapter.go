@@ -683,7 +683,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			if one != nil {
 				message_id := ""
 				one.Handle(&Faker{
-					Type: "*",
+					Type: "message",
 				}, func(vm *goja.Runtime) {
 					obj := vm.NewObject()
 					for k, v := range msg {

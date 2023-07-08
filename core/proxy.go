@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Dreamacro/clash/adapter"
 	C "github.com/Dreamacro/clash/constant"
@@ -21,6 +23,7 @@ import (
 // }
 
 type ProxyConfig struct {
+	ID     string `json:"id"`
 	Type   string `json:"type"`
 	Server string `json:"server"`
 	Port   int    `json:"port"`
@@ -47,7 +50,7 @@ type ProxyConfig struct {
 	// Enable         bool     `json:"enable,omitempty"`
 	// ExcludeIPs     []string `json:"exclude-ip,omitempty"`
 	// ProxyGroups    []string `json:"proxy-groups,omitempty"`
-
+	Google []int `json:"google"`
 }
 
 var Proxies sync.Map
@@ -124,6 +127,7 @@ func GetProxyTransport(rawURL string, uuid string, params map[string]interface{}
 
 func init() {
 	proxies.Foreach(func(b1, b2 []byte) error {
+		key := string(b1)
 		new := string(b2)
 		var ncfg = ProxyConfig{}
 		var params = map[string]interface{}{}
@@ -144,7 +148,7 @@ func init() {
 			// fmt.Println("===", string(utils.JsonMarshal(ncfg)))
 			// fmt.Println(ncfg.RuleMatcher.Match("106.52.87.206"))
 			// fmt.Println(ncfg.RuleMatcher.Match("api.telegram.org"))
-			Proxies.Store(string(b1), &ncfg)
+			Proxies.Store(key, &ncfg)
 		}
 		return nil
 	})
@@ -215,49 +219,60 @@ func init() {
 	})
 }
 
-func structToMap(s interface{}) map[string]interface{} {
-	result := make(map[string]interface{})
-	d, _ := json.Marshal(s)
-	json.Unmarshal(d, &result)
-	return result
-}
+func checkProxy() {
+	proxies.Foreach(func(b1, b2 []byte) error {
+		go func(b1, b2 []byte) {
+			key := string(b1)
+			new := string(b2)
+			var ncfg = ProxyConfig{}
+			var params = map[string]interface{}{}
+			if strings.HasPrefix(new, "o:") {
+				var data = []byte(strings.Replace(new, "o:", "", 1))
+				err := json.Unmarshal(data, &ncfg)
+				json.Unmarshal(data, &params)
+				if err != nil {
+					return
+				}
+				var check = map[string]int64{}
+				for _, site := range []string{"https://google.com", "https://github.com"} {
+					func(site string) {
+						instance, err := GetProxyTransport(site, "", params)
+						if err != nil {
+							return
+						}
+						defer instance.Close()
+						var client = &http.Client{
+							Transport: &http.Transport{
+								Dial: func(string, string) (net.Conn, error) {
+									return instance, nil
+								},
+								MaxIdleConns:          100,
+								IdleConnTimeout:       90 * time.Second,
+								TLSHandshakeTimeout:   10 * time.Second,
+								ExpectContinueTimeout: 1 * time.Second,
+							},
+						}
+						req, err := http.NewRequest("GET", site, strings.NewReader(""))
+						if err != nil {
+							return
+						}
+						startTime := time.Now().UnixMilli()
+						resp, err := client.Do(req)
+						if err != nil {
+							return
+						}
+						endTime := time.Now().UnixMilli()
+						resp.Body.Close()
+						spend := endTime - startTime
+						check[site] = spend
 
-func IsDifferent(a, b interface{}, ignoreFields []string) bool {
-	aVal := reflect.ValueOf(a)
-	bVal := reflect.ValueOf(b)
-
-	if aVal.Kind() != reflect.Struct || bVal.Kind() != reflect.Struct {
-		// 如果不是 struct 类型，则返回 true（不同）
-		return true
-	}
-
-	// 获取 struct 的字段数
-	numFields := aVal.NumField()
-
-	// 遍历 struct 的所有字段，检查是否有不同
-	for i := 0; i < numFields; i++ {
-		aField := aVal.Field(i)
-		bField := bVal.Field(i)
-
-		// 获取字段名
-		fieldName := aVal.Type().Field(i).Name
-
-		// 如果字段名在 ignoreFields 中，则跳过比较
-		if Contains(ignoreFields, fieldName) {
-			continue
-		}
-
-		// 如果字段类型不同，则返回 true（不同）
-		if aField.Type() != bField.Type() {
-			return true
-		}
-
-		// 如果字段值不同，则返回 true（不同）
-		if !reflect.DeepEqual(aField.Interface(), bField.Interface()) {
-			return true
-		}
-	}
-
-	// 如果所有字段都相同，则返回 false（相同）
-	return false
+						console.Log(site, "resp.StatusCode", resp.StatusCode, "time", spend)
+					}(site)
+				}
+				params["check"] = check
+				proxies.Set2(key, "o:"+string(utils.JsonMarshal(params)))
+			}
+		}(b1, b2)
+		return nil
+	})
 }

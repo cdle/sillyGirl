@@ -25,6 +25,13 @@ func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket stora
 		}
 		return msg
 	})
+	obj.Set("set2", func(key, value interface{}) interface{} {
+		msg, err := SetBucketKeyValue2(bucket, key, value)
+		if err != nil {
+			panic(Error(vm, err))
+		}
+		return msg
+	})
 	obj.Set("delete", func(key interface{}) error {
 		_, err := bucket.Set(key, "")
 		return err
@@ -88,6 +95,25 @@ func JsBucket(vm *goja.Runtime, name string, uuid string, on_start bool) goja.Pr
 		},
 		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
 			target.Get("set").Export().(func(interface{}, interface{}) interface{})(
+				property, value.Export(),
+			)
+			return true
+		},
+	})
+}
+
+func JsBucket2(vm *goja.Runtime, name string, uuid string, on_start bool) goja.Proxy {
+	return vm.NewProxy(MakeBucketObject(vm, uuid, on_start, MakeBucket(name)), &goja.ProxyTrapConfig{
+		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
+			obj := target.Get(property)
+			if obj != nil {
+				return obj
+			}
+			result := target.Get("get").Export().(func(...interface{}) interface{})(property)
+			return vm.ToValue(result)
+		},
+		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+			target.Get("set2").Export().(func(interface{}, interface{}) interface{})(
 				property, value.Export(),
 			)
 			return true

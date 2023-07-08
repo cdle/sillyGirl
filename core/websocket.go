@@ -36,7 +36,7 @@ func handleWebsocket(c *gin.Context) {
 					}
 					req._event = "connect"
 					function.Handle(&Faker{
-						Type: "*",
+						Type: "websocket",
 					}, func(vm *goja.Runtime) {
 						vm.Set("res", res)
 						vm.Set("req", req)
@@ -63,7 +63,7 @@ func handleWebsocket(c *gin.Context) {
 								}
 							}
 							function.Handle(&Faker{
-								Type: "*",
+								Type: "websocket",
 							}, func(vm *goja.Runtime) {
 								vm.Set("res", res)
 								vm.Set("req", req)
@@ -79,7 +79,7 @@ func handleWebsocket(c *gin.Context) {
 							}
 						}
 						function.Handle(&Faker{
-							Type: "*",
+							Type: "websocket",
 						}, func(vm *goja.Runtime) {
 							vm.Set("res", res)
 							vm.Set("req", req)

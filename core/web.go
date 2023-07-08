@@ -141,7 +141,7 @@ func initWeb() {
 					if c.Request.URL.Path == path && c.Request.Method == method {
 						req.handled = true
 						function.Handle(&Faker{
-							Type: "*",
+							Type: "http",
 						}, func(vm *goja.Runtime) {
 							vm.Set("res", res)
 							vm.Set("req", req)

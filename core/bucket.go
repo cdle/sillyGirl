@@ -199,3 +199,22 @@ func SetBucketKeyValue(bucket storage.Bucket, key interface{}, value interface{}
 	}
 	return bucket.Set(key, new)
 }
+
+func SetBucketKeyValue2(bucket storage.Bucket, key interface{}, value interface{}) (string, error) {
+	new := ""
+	switch value := value.(type) {
+	case int, int64, int32, uint:
+		new = fmt.Sprintf("d:%d", value)
+	case float32, float64:
+		new = fmt.Sprintf("f:%f", value)
+	case string, []byte:
+		new = fmt.Sprintf("%s", value)
+	case bool:
+		new = fmt.Sprintf("b:%t", value)
+	case nil:
+		new = ""
+	default:
+		new = fmt.Sprintf("o:%s", utils.JsonMarshal(value))
+	}
+	return bucket.Set2(key, new)
+}

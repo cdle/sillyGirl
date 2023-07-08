@@ -130,7 +130,9 @@ func Init() {
 					Message: fmt.Sprintf("当前版本 %s 已是最新，无需升级", compiled_at),
 				}
 			}
-			client = &http.Client{}
+			client = &http.Client{
+				Timeout: 30 * time.Second,
+			}
 			if transport != nil {
 				client.Transport = transport
 			}
@@ -151,7 +153,6 @@ func Init() {
 			defer resp.Body.Close()
 			body = resp.Body
 			goto CREATE
-
 		PROXY:
 			//使用免费代理下载
 			proxy = true

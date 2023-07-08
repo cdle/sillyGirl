@@ -114,7 +114,8 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		return JsBucket(vm, name, uuid, on_start)
 	})
 	registry := require.NewRegistry(require.WithLoader(mapFileSystemSourceLoader(uuid)))
-
+	registry.RegisterNativeModule("crypto", cryptoModule)
+	registry.RegisterNativeModule("buffer", bufferModule)
 	if on_start {
 		var ids = &[]cron.EntryID{}
 		crons.Store(uuid, ids)
@@ -157,8 +158,6 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 			return o
 		})
 
-		registry.RegisterNativeModule("crypto", cryptoModule)
-		registry.RegisterNativeModule("buffer", bufferModule)
 		vm.Set("gofor", func(running func() bool, handle func()) {
 			go func() {
 				for {

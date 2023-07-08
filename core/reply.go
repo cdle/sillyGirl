@@ -244,6 +244,7 @@ func parseReply2(str string) string {
 	})
 }
 
+// rule 专用
 func parseReply3(str string, f func(string, string)) string {
 	ks := map[string]bool{}
 	re := regexp.MustCompile(`\$\{\s*([^{}]+)\s*\}`)
@@ -259,8 +260,11 @@ func parseReply3(str string, f func(string, string)) string {
 			return fmt.Sprintf(`Bucket("%s")["%s"]`, parts[0], parts[1])
 		})
 		vm := goja.New()
+		// vm.Set("Bucket", func(name string) interface{} {
+		// 	return JsBucket(vm, name, "", false)
+		// })
 		vm.Set("Bucket", func(name string) interface{} {
-			return JsBucket(vm, name, "", false)
+			return JsBucket2(vm, name, "", false)
 		})
 		v, err := vm.RunString(script)
 		if err == nil {
