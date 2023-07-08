@@ -8,7 +8,6 @@ import (
 	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
-	"github.com/gorilla/websocket"
 )
 
 type Response struct {
@@ -27,11 +26,10 @@ type Response struct {
 	isJson     bool
 	status     int
 	isRedirect bool
-	conn       *websocket.Conn
+	conn       *WsConn
 }
 
 func (r *Response) Send(gv goja.Value) *Response {
-
 	gve := gv.Export()
 	switch gve := gve.(type) {
 	case string:
@@ -46,7 +44,7 @@ func (r *Response) Send(gv goja.Value) *Response {
 		}
 	}
 	if r.conn != nil {
-		r.conn.WriteMessage(1, []byte(r.content))
+		r.conn.WriteMessage(1, []byte(r.content), nil)
 		r.content = ""
 		return r
 	}
@@ -58,14 +56,20 @@ func (r *Response) SendStatus(st int) *Response {
 	return r
 }
 
-func (r *Response) Json(ps ...interface{}) *Response {
+func (r *Response) Json(ps ...interface{}) interface{} {
 	var status int64 = 200
 	var data interface{}
+	var pattern map[string]interface{}
 	if len(ps) == 1 {
 		data = ps[0]
 	} else {
-		status = ps[0].(int64)
-		data = ps[1]
+		if v, ok := ps[1].(map[string]interface{}); ok {
+			data = ps[0]
+			pattern = v
+		} else {
+			status = ps[0].(int64)
+			data = ps[1]
+		}
 	}
 	d, err := json.Marshal(data)
 	f := string(d)
@@ -77,9 +81,9 @@ func (r *Response) Json(ps ...interface{}) *Response {
 		r.content += fmt.Sprint(data)
 	}
 	if r.conn != nil {
-		r.conn.WriteMessage(1, d)
+		_, result := r.conn.WriteMessage(1, d, pattern)
 		r.content = ""
-		return r
+		return result
 	}
 	return r
 }

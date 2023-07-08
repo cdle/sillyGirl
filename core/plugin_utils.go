@@ -364,6 +364,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	vm.Set("crypto", &Crypto{
 		vm: vm,
 	})
+	vm.Set("createNickName", CreateNickName)
 }
 
 func EncryptPlugin(script string) string {
