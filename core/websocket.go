@@ -111,7 +111,7 @@ func handleWebsocket(c *gin.Context) {
 					res.conn = wc
 					req._event = "connect"
 					wc.conn = ws
-					go function.Handle(&Faker{
+					function.Handle(&Faker{
 						Type: "websocket",
 					}, func(vm *goja.Runtime) {
 						vm.Set("res", res)
