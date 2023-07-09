@@ -111,13 +111,13 @@ func handleWebsocket(c *gin.Context) {
 					res.conn = wc
 					req._event = "connect"
 					wc.conn = ws
-					function.Handle(&Faker{
+					go function.Handle(&Faker{
 						Type: "websocket",
 					}, func(vm *goja.Runtime) {
 						vm.Set("res", res)
 						vm.Set("req", req)
 					})
-					// message
+					time.Sleep(time.Millisecond*500)
 					for {
 						_, data, err := ws.ReadMessage()
 						wc.patterns.Range(func(key, value any) bool {
