@@ -228,7 +228,7 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 	})
 	registry.Enable(vm)
 	vm.SetFieldNameMapper(myFieldNameMapper{})
-	// vm.Set("sleep", sleep)
+	vm.Set("sleep", sleep)
 	vm.Set("md5", utils.Md5)
 	vm.Set("image", utils.ToImageQrcode)
 	vm.Set("video", utils.ToVideoQrcode)

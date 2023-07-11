@@ -491,6 +491,9 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	script = halfDeEct(script)
 	script = strings.ReplaceAll(script, "new Sender", "Sender")
 	script = strings.ReplaceAll(script, "new Bucket", "Bucket")
+	// script = regexp.MustCompile(`import\s+\{\s*([^\}]+)\s*\}\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const {$1} = require('$2');")
+	// script = regexp.MustCompile(`import\s+\s*([^\}]+)\s*\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const $1 = require('$2');")
+
 	prg, err2 := goja.Compile(title+".js", script, false)
 	if err == nil && err2 != nil {
 		err = err2

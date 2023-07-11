@@ -152,6 +152,7 @@ func init() {
 		}
 		return nil
 	})
+	go checkProxy()
 	storage.Watch(proxies, "*", func(old, new, key string) *storage.Final {
 		_, err := uuid.Parse(key)
 		if err != nil {
@@ -213,6 +214,7 @@ func init() {
 		}
 		ncfg.Conn = p
 		Proxies.Store(key, &ncfg)
+		go checkProxy()
 		return &storage.Final{
 			Now: new,
 		}
@@ -265,7 +267,6 @@ func checkProxy() {
 						resp.Body.Close()
 						spend := endTime - startTime
 						check[site] = spend
-
 						console.Log(site, "resp.StatusCode", resp.StatusCode, "time", spend)
 					}(site)
 				}

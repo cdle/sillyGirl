@@ -511,13 +511,15 @@ Form([
 ### 其他
 
 ```ts
+支持 Crypto、Buffer
 sleep(millsec: number): void; //等待
 md5(string): string; //加密
 running(): boolean; //服务是否运行
-uuid(): string; //生成uuid
+uuid(): string; //获取脚本uuid
+genUuid(): string; //生成uuid
 ```
 
-### 拓展 CQ 码命令
+### 拓展 CQ 码
 
 [CQ:delete,id=message_id]
 [CQ:kick,user_id,chat_id,forever=true]
