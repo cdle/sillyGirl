@@ -521,6 +521,12 @@ func (f *Factory) SetIsAdmin(function func(string) bool) {
 	}
 }
 
+func (f *Factory) Sender() *CustomSender {
+	var demo = *f.demo
+	sender := &demo
+	return sender
+}
+
 func (f *Factory) Receive(wt interface{}) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
@@ -553,9 +559,9 @@ func (f *Factory) Receive(wt interface{}) *CustomSender {
 		}
 	}
 	sender.SetExpandMessageInfo(emf)
-	if sender.details.Content != "" {
-		Messages <- sender
-	}
+	// if sender.details.Content != "" {
+	Messages <- sender
+	// }
 	return sender
 }
 
@@ -601,6 +607,50 @@ func (sender *CustomSender) GetBotID() string {
 }
 
 type PUSH string
+
+func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, string) {
+	var platform = sender.f.botplt
+	var any *common.Function
+	var one *common.Function
+	var result interface{}
+	var err = ""
+	for _, function := range Functions {
+		if function.Reply != nil && function.Reply.Platform == platform {
+			if len(function.Reply.BotsID) == 0 {
+				any = function
+			} else if Contains(function.Reply.BotsID, sender.f.botid) {
+				one = function
+			}
+		}
+	}
+	if one == nil && any != nil {
+		one = any
+	}
+	if one != nil {
+		one.Handle(&Faker{
+			Type: "action",
+		}, func(vm *goja.Runtime) {
+			obj := vm.NewObject()
+			for k, v := range options {
+				obj.Set(k, v)
+			}
+			proxy := vm.NewProxy(obj, &goja.ProxyTrapConfig{
+				Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+					if property == "result" {
+						result = value
+					}
+					if property == "error" {
+						err = value.String()
+					}
+					return true
+				},
+			})
+			vm.Set("action", proxy)
+			vm.Set("adapter", sender.f)
+		})
+	}
+	return result, err
+}
 
 func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	var push = false
@@ -740,6 +790,14 @@ func (sender *CustomSender) Copy() common.Sender {
 	return &new
 }
 
+func (sender *CustomSender) Event() map[string]interface{} {
+	e := sender.GetVar("event")
+	if e == nil {
+		return nil
+	}
+	return e.(map[string]interface{})
+}
+
 func (sender *CustomSender) RecallMessage(ps ...interface{}) {
 	recalls := []func(){}
 	var timeout int
@@ -750,14 +808,20 @@ func (sender *CustomSender) RecallMessage(ps ...interface{}) {
 		case string:
 			if p != "" {
 				recalls = append(recalls, func() {
-					sender.Reply(mystr.BuildCQCode("delete", H{"id": p}, ""))
+					sender.Action(H{
+						"type":       "delete_message",
+						"message_id": p,
+					})
 				})
 			}
 		case []string:
 			for _, v := range p {
 				if v != "" {
 					recalls = append(recalls, func() {
-						sender.Reply(mystr.BuildCQCode("delete", H{"id": v}, ""))
+						sender.Action(H{
+							"type":       "delete_message",
+							"message_id": v,
+						})
 					})
 				}
 			}
@@ -765,7 +829,10 @@ func (sender *CustomSender) RecallMessage(ps ...interface{}) {
 			for _, v := range p {
 				for _, v2 := range v {
 					recalls = append(recalls, func() {
-						sender.Reply(mystr.BuildCQCode("delete", H{"id": v2}, ""))
+						sender.Action(H{
+							"type":       "delete_message",
+							"message_id": v2,
+						})
 					})
 				}
 			}

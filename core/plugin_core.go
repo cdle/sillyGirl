@@ -539,6 +539,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 				vm.Set("message", goja.Undefined())
 				vm.Set("res", goja.Undefined())
 				vm.Set("req", goja.Undefined())
+				vm.Set("action", goja.Undefined())
 				vm.Set("sender", ss)
 				vm.Set("run", func(uuid string) bool { //执行子脚本
 					fs := Functions

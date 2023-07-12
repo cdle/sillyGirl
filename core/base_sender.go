@@ -365,6 +365,14 @@ func (sender *BaseSender) Stop() {
 	panic("stop")
 }
 
+func (sender *BaseSender) Event() map[string]interface{} {
+	return nil
+}
+
+func (sender *BaseSender) Action(map[string]interface{}) (interface{}, string) {
+	return nil, ""
+}
+
 func (sender *BaseSender) IsAtLast() bool {
 	return sender.Atlast
 }

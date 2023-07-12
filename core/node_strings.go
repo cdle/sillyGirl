@@ -61,11 +61,29 @@ func similarity(str1, str2 string) int {
 }
 
 func (sender *Strings) Similarity(str1, str2 string) float64 {
+	if str1 == "" || str2 == "" {
+		return 0
+	}
 	max := math.Max(
 		float64(similarity(str1, str2))/float64(len(str2)),
 		float64(similarity(str2, str1))/float64(len(str1)),
 	)
-	return max
+	b := float64(len(str2)) / float64(len(str1))
+	if b > 1 {
+		b = 1 / b
+	}
+	return max * ((b + 1) / 2)
+}
+
+func (sender *Strings) HansSimilarity(str1, str2 string) float64 {
+	if str1 == str2 {
+		return 1
+	}
+	return sender.Similarity(str1, str2)
+}
+
+func (sender *Strings) ExtractHans(text string) []string {
+	return regexp.MustCompile(`[\p{Han}]+`).FindAllString(text, -1)
 }
 
 func (sender *Strings) Intersect(a, b interface{}) interface{} {

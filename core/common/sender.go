@@ -50,6 +50,8 @@ type Sender interface {
 	GetVar(string) interface{}
 	SetLevel(int)
 	GetLevel() int
+	Event() map[string]interface{}
+	Action(map[string]interface{}) (interface{}, string)
 }
 
 type FakerSenderParams struct {

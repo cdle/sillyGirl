@@ -30,11 +30,19 @@ var CarryGroups = MakeBucket("CarryGroups")
 
 var carryCounter int64
 
+type QMessage struct {
+	UserID    string        `json:"user_id"`
+	Content   string        `json:"content"`
+	MessageID string        `json:"message_id"`
+	From      common.Sender `json:"-"`
+	To        *Factory      `json:"-"`
+}
+
 // LOGIC
 func initCarry() {
 	AddCommand([]*common.Function{
 		{
-			Rules:    []string{`raw [\s\S]+`},
+			Rules:    []string{`raw [\s\S]*`},
 			Hidden:   true,
 			Priority: 9999,
 			Handle: func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
@@ -43,9 +51,27 @@ func initCarry() {
 				var chat_id = s.GetChatID()
 				var user_id = s.GetUserID()
 				var content = s.GetContent()
+				var message_id = s.GetMessageID()
 				var from *CarryGroup //判断当前消息来自采集源
 				var cgs = cgs
 				var uuid = fmt.Sprintf("%d. ", atomic.AddInt64(&carryCounter, 1))
+				var ss = &Strings{}
+				var event = s.Event()
+				if event != nil {
+					if event["type"] == "delete_message" {
+						queues.Range(func(key, value any) bool {
+							q := value.(*Queue)
+							for _, qm := range q.GetValues() {
+								if qm.From != nil && qm.From.GetMessageID() == event["message_id"] {
+									qm.To.Sender().RecallMessage(qm.MessageID)
+								}
+							}
+							return true
+						})
+					}
+					s.Continue()
+					return nil
+				}
 				for i := range cgs {
 					if chat_id == cgs[i].ID && cgs[i].In && cgs[i].Enable {
 						from = &cgs[i]
@@ -56,6 +82,22 @@ func initCarry() {
 					s.Continue()
 					return nil
 				}
+				//采集消息去重逻辑
+				q := NewQueue(chat_id, 50)
+				if from.Deduplication {
+					for _, qm := range q.GetValues() {
+						v := ss.HansSimilarity(qm.Content, content)
+						if v > 0.9 {
+							console.Debug("%s 忽略重复采集信息", uuid)
+							return nil
+						}
+					}
+				}
+				_ = q.Enqueue(&QMessage{
+					UserID:    user_id,
+					Content:   content,
+					MessageID: message_id,
+				})
 				bots_id := GetAdapterBotsID(platform)
 				if len(from.BotsID) == 0 && len(bots_id) != 0 {
 					from.BotsID = bots_id
@@ -187,10 +229,31 @@ func initCarry() {
 							console.Debug("%s 指定(%s)机器人都不在线，转发群(%s)已选择其他机器人(%s)推送", uuid, platform, chat_id, adapter.botid)
 						}
 						if adapter != nil {
-							adapter.Push(map[string]string{
+							//采集消息去重逻辑
+							q := NewQueue(chat_id, 50)
+							if outs[i].Deduplication {
+								for _, qm := range q.GetValues() {
+									v := ss.HansSimilarity(qm.Content, content)
+									if v > 0.9 {
+										console.Debug("%s 忽略重复转发信息", uuid)
+										continue
+									}
+								}
+							}
+							qm := &QMessage{
+								UserID:  user_id,
+								Content: content,
+								From:    s,
+								To:      adapter,
+							}
+							_ = q.Enqueue(qm)
+							message_id, err := adapter.Push(map[string]string{
 								CONETNT: content,
 								CHAT_ID: chat_id,
 							})
+							if err == nil {
+								qm.MessageID = message_id
+							}
 						}
 					}
 				}
@@ -299,27 +362,28 @@ func setCgs() {
 }
 
 type CarryGroup struct {
-	Index      int      `json:"id"`         //编号 顺序编号
-	In         bool     `json:"in"`         //搬进来 勾选按钮
-	Out        bool     `json:"out"`        //运出去 勾选按钮
-	From       []string `json:"from"`       //采集源
-	Allowed    []string `json:"allowed"`    //白名单模式
-	Prohibited []string `json:"prohibited"` //黑名单模式 Select选择器多选
-	ID         string   `json:"chat_id"`    //群组ID 文字表单
-	ChatName   string   `json:"chat_name"`  //群昵称 文字表单
-	Remark     string   `json:"remark"`     //备注
-	Platform   string   `json:"platform"`   //平台 Select选择器单选
-	Enable     bool     `json:"enable"`     //启用状态 开关
-	Include    []string `json:"include"`    //包含关键词 多个关键词用逗号隔开 用户复制粘贴过去后自动转换成多彩标签
-	Exclude    []string `json:"exclude"`    //排除关键词 包含关键词
-	CreatedAt  int      `json:"created_at"` //创建时间戳(秒)转换成日期
-	BotsID     []string `json:"bots_id"`    //工作机器人 多选
-	Scripts    []string `json:"scripts"`    //处理脚本
+	Index          int      `json:"id"`             //编号 顺序编号
+	In             bool     `json:"in"`             //搬进来 勾选按钮
+	Out            bool     `json:"out"`            //运出去 勾选按钮
+	From           []string `json:"from"`           //采集源
+	Allowed        []string `json:"allowed"`        //白名单模式
+	Prohibited     []string `json:"prohibited"`     //黑名单模式 Select选择器多选
+	ID             string   `json:"chat_id"`        //群组ID 文字表单
+	ChatName       string   `json:"chat_name"`      //群昵称 文字表单
+	Remark         string   `json:"remark"`         //备注
+	Platform       string   `json:"platform"`       //平台 Select选择器单选
+	Enable         bool     `json:"enable"`         //启用状态 开关
+	Include        []string `json:"include"`        //包含关键词 多个关键词用逗号隔开 用户复制粘贴过去后自动转换成多彩标签
+	Exclude        []string `json:"exclude"`        //排除关键词 包含关键词
+	CreatedAt      int      `json:"created_at"`     //创建时间戳(秒)转换成日期
+	BotsID         []string `json:"bots_id"`        //工作机器人 多选
+	Scripts        []string `json:"scripts"`        //处理脚本
+	Deduplication  bool     `json:"deduplication"`  //文本去重
+	Deduplication2 bool     `json:"deduplication2"` //图片去重
 }
 
 // CARRY API
 func init() {
-
 	GinApi(GET, "/api/carry/groups", RequireAuth, func(ctx *gin.Context) {
 		current := utils.Int(ctx.Query("current"))
 		pageSize := utils.Int(ctx.Query("pageSize"))
@@ -503,6 +567,14 @@ func init() {
 			case "out":
 				if out, ok := value.(bool); ok {
 					cg.Out = out
+				}
+			case "deduplication":
+				if deduplication, ok := value.(bool); ok {
+					cg.Deduplication = deduplication
+				}
+			case "deduplication2":
+				if deduplication, ok := value.(bool); ok {
+					cg.Deduplication2 = deduplication
 				}
 			case "from":
 				if from, ok := value.([]interface{}); ok {
