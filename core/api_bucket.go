@@ -190,9 +190,14 @@ func init() {
 					errors[bk] = err.Error()
 				}
 				changes[bk] = changed
+
 				if ar[0] == "plugins" && changed {
 					go func(uuid string, v interface{}) {
 						defer recover()
+						content := v.(string)
+						if content == "" || content == "install" {
+							return
+						}
 						_id := utils.GenUUID()
 						unix := fmt.Sprint(time.Now().Unix())
 						http.Post(
@@ -204,7 +209,7 @@ func init() {
 								"sign=" + utils.Md5(uuid+machine_id+unix+_id+"fuckatm"),
 							}, "&"),
 							"application/json",
-							bytes.NewBuffer([]byte(v.(string))))
+							bytes.NewBuffer([]byte(content)))
 					}(ar[1], v)
 				}
 			}
