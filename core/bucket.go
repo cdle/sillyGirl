@@ -181,7 +181,7 @@ func GetBucketKeyValue(bucket storage.Bucket, ps ...interface{}) interface{} {
 	return result
 }
 
-func SetBucketKeyValue(bucket storage.Bucket, key interface{}, value interface{}) (string, error) {
+func SetBucketKeyValue(bucket storage.Bucket, key interface{}, value interface{}) (string, bool, error) {
 	new := ""
 	switch value := value.(type) {
 	case int, int64, int32, uint:
@@ -200,7 +200,7 @@ func SetBucketKeyValue(bucket storage.Bucket, key interface{}, value interface{}
 	return bucket.Set(key, new)
 }
 
-func SetBucketKeyValue2(bucket storage.Bucket, key interface{}, value interface{}) (string, error) {
+func SetBucketKeyValue2(bucket storage.Bucket, key interface{}, value interface{}) (string, bool, error) {
 	new := ""
 	switch value := value.(type) {
 	case int, int64, int32, uint:

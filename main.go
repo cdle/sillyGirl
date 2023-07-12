@@ -16,14 +16,16 @@ import (
 )
 
 var app = core.MakeBucket("app")
+var ip = ""
 
 func main() {
+	ip = app.GetString("ip")
 	go func() {
-		ip, err := utils.GetPublicIP()
+		var err error
+		ip, err = utils.GetPublicIP()
 		if err == nil {
 			app.Set("ip", ip)
 		}
-
 	}()
 	core.Init()
 	if app.GetBool("anti_kasi") {

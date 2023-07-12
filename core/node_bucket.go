@@ -19,21 +19,21 @@ func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket stora
 		return rt
 	})
 	obj.Set("set", func(key, value interface{}) interface{} {
-		msg, err := SetBucketKeyValue(bucket, key, value)
+		msg, _, err := SetBucketKeyValue(bucket, key, value)
 		if err != nil {
 			panic(Error(vm, err))
 		}
 		return msg
 	})
 	obj.Set("set2", func(key, value interface{}) interface{} {
-		msg, err := SetBucketKeyValue2(bucket, key, value)
+		msg, _, err := SetBucketKeyValue2(bucket, key, value)
 		if err != nil {
 			panic(Error(vm, err))
 		}
 		return msg
 	})
 	obj.Set("delete", func(key interface{}) error {
-		_, err := bucket.Set(key, "")
+		_, _, err := bucket.Set(key, "")
 		return err
 	})
 	obj.Set("deleteAll", func() error {

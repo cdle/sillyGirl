@@ -138,7 +138,17 @@ func initWeb() {
 				for _, http := range function.Https {
 					path := http.Path
 					method := http.Method
-					if c.Request.URL.Path == path && c.Request.Method == method {
+					matched := false
+					if strings.HasPrefix(path, "^") {
+						reg, err := regexp.Compile(path)
+						if err != nil {
+							console.Error(err)
+							continue
+						}
+						req.ress = reg.FindAllStringSubmatch(c.Request.URL.Path, -1)
+						matched = len(req.ress) != 0
+					}
+					if (matched || c.Request.URL.Path == path) && (c.Request.Method == method || "ANY" == method) {
 						req.handled = true
 						function.Handle(&Faker{
 							Type: "http",

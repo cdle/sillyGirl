@@ -35,7 +35,7 @@ type Expire struct {
 }
 
 func Set(key string, value string, expiration time.Duration) error {
-	_, err := expirationA.Set(key, utils.JsonMarshal(&Expire{
+	_, _, err := expirationA.Set(key, utils.JsonMarshal(&Expire{
 		Value: value,
 		Time:  time.Now().Add(expiration),
 	}))
@@ -113,7 +113,7 @@ func (bucket *Bucket) Delete() error {
 	return err
 }
 
-func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
+func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, bool, error) {
 	new := ""
 	msg := ""
 	k := fmt.Sprint(key)
@@ -126,7 +126,7 @@ func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
 	default:
 		new = fmt.Sprint(value)
 	}
-	return msg, db.Update(func(tx *bolt.Tx) error {
+	return msg, true, db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucket.name))
 		if err != nil {
 			return err
@@ -144,9 +144,10 @@ func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
 	})
 }
 
-func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
+func (bucket *Bucket) Set(key interface{}, value interface{}) (string, bool, error) {
 	new := ""
 	msg := ""
+	var changed = false
 	k := fmt.Sprint(key)
 	switch value := value.(type) {
 	case []byte:
@@ -167,7 +168,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 	if len(handles) > 0 {
 		old := bucket.GetString(key)
 		if old == new {
-			return msg, nil
+			return msg, changed, nil
 		}
 		for _, handle := range handles {
 			fin := handle(old, new, k)
@@ -176,7 +177,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 					msg = fin.Message
 				}
 				if fin.Error != nil {
-					return msg, fin.Error
+					return msg, changed, fin.Error
 				}
 				if fin.Now != "" {
 					new = fin.Now
@@ -204,11 +205,12 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 		return nil
 	})
 	if err == nil {
+		changed = true
 		for _, f := range endFuncs {
 			f()
 		}
 	}
-	return msg, err
+	return msg, changed, err
 }
 
 func (bucket *Bucket) GetString(kv ...interface{}) string {

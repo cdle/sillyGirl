@@ -39,9 +39,12 @@ type Request struct {
 	Mark       interface{}
 }
 
-func (r *Request) Body() string {
+func (r *Request) Body(tp string) interface{} {
 	if len(r.bodyData) == 0 {
 		r.bodyData, _ = ioutil.ReadAll(r.c.Request.Body)
+	}
+	if tp == "bytes" {
+		return r.bodyData
 	}
 	return string(r.bodyData)
 }
@@ -146,7 +149,7 @@ func (r *Request) SetSession(k, v string) string {
 	json.Unmarshal(web_sessions.GetBytes(r.uuid), &j)
 	j[k] = v
 	j["time"] = time.Now().Unix()
-	_, err := web_sessions.Set(r.uuid, utils.JsonMarshal(j))
+	_, _, err := web_sessions.Set(r.uuid, utils.JsonMarshal(j))
 	if err != nil {
 		return err.Error()
 	}

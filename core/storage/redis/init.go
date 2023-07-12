@@ -30,11 +30,11 @@ type Bucket struct {
 	name string
 }
 
-var toMaster = func(bucket, key, value string) (string, error) {
+var toMaster = func(bucket, key, value string) (string, bool, error) {
 	req := httplib.Put(master + "/api/storage")
 	web_token := sillyGirl.GetString("web_token")
 	if web_token == "" {
-		return "", errors.New("请先在本体可视化登录！")
+		return "", false, errors.New("请先在本体可视化登录！")
 	}
 	token := strings.Split(web_token, "&")[0]
 	req.SetCookie(&http.Cookie{
@@ -47,7 +47,7 @@ var toMaster = func(bucket, key, value string) (string, error) {
 	})
 	data, err := req.Bytes()
 	if err != nil {
-		return "", errors.New("啊，与本体失联了~")
+		return "", false, errors.New("啊，与本体失联了~")
 	}
 	var message string
 	message, _ = jsonparser.GetString(data, "messages", key)
@@ -55,7 +55,7 @@ var toMaster = func(bucket, key, value string) (string, error) {
 	if errStr != "" {
 		err = errors.New(errStr)
 	}
-	return message, err
+	return message, true, err
 }
 
 var db *redis.Client
@@ -177,7 +177,7 @@ func Get(key string) string {
 	return v
 }
 
-func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
+func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, bool, error) {
 	new := ""
 	msg := ""
 	k := fmt.Sprint(key)
@@ -192,9 +192,9 @@ func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
 	}
 	if !utils.SlaveMode {
 		if new == "" {
-			return msg, db.HDel(ctx, bucket.name, k).Err()
+			return msg, true, db.HDel(ctx, bucket.name, k).Err()
 		} else {
-			return msg, db.HSet(ctx, bucket.name, k, new).Err()
+			return msg, true, db.HSet(ctx, bucket.name, k, new).Err()
 		}
 	} else {
 		return toMaster(bucket.name, k, new)
@@ -202,7 +202,8 @@ func (bucket *Bucket) Set2(key interface{}, value interface{}) (string, error) {
 
 }
 
-func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
+func (bucket *Bucket) Set(key interface{}, value interface{}) (string, bool, error) {
+	var changed = false
 	new := ""
 	msg := ""
 	k := fmt.Sprint(key)
@@ -226,7 +227,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 		if len(handles) > 0 {
 			old := bucket.GetString(key)
 			if old == new {
-				return msg, nil
+				return msg, changed, nil
 			}
 			for _, handle := range handles {
 				fin := handle(old, new, k)
@@ -235,7 +236,7 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 						msg = fin.Message
 					}
 					if fin.Error != nil {
-						return msg, fin.Error
+						return msg, changed, fin.Error
 					}
 					if fin.Now != "" {
 						new = fin.Now
@@ -253,15 +254,15 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, error) {
 			err = db.HSet(ctx, bucket.name, k, new).Err()
 		}
 		if err == nil {
+			changed = true
 			for _, f := range endFuncs {
 				f()
 			}
 		}
-		return msg, err
+		return msg, changed, err
 	} else {
 		return toMaster(bucket.name, k, new)
 	}
-
 }
 
 func (bucket *Bucket) GetString(kv ...interface{}) string {

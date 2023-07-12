@@ -26,7 +26,7 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 	var formData map[string]interface{}
 	// var isJson bool
 	var isJsonBody bool
-	var body string
+	var body []byte
 	var allow_redirects bool = true
 	var responseType = ""
 	// var err error
@@ -68,12 +68,17 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 				case "allowredirects":
 					allow_redirects = props[i].(bool)
 				case "body":
-					if v, ok := props[i].(string); !ok {
-						d, _ := json.Marshal(props[i])
-						body = string(d)
-						isJsonBody = true
-					} else {
+					switch v := props[i].(type) {
+					case string:
+						body = []byte(v)
+					case []byte:
 						body = v
+					case *Buffer:
+						body = v.value
+					default:
+						d, _ := json.Marshal(props[i])
+						body = d
+						isJsonBody = true
 					}
 				case "login":
 					login = true
@@ -160,7 +165,7 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 			}
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		} else {
-			req, err = http.NewRequest(method, url, bytes.NewBuffer([]byte(body)))
+			req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
 			if err != nil {
 				return nil, err
 			}
