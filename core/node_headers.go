@@ -73,7 +73,6 @@ func MakeHeadersObject(vm *goja.Runtime, header http.Header) *goja.Object {
 		}
 		return entries
 	})
-
 	obj.Set("forEach", func(callback func(value, name string)) {
 		for k, v := range header {
 			for _, value := range v {
@@ -81,6 +80,8 @@ func MakeHeadersObject(vm *goja.Runtime, header http.Header) *goja.Object {
 			}
 		}
 	})
-
+	for k, v := range header {
+		obj.Set(k, v[0])
+	}
 	return obj
 }
