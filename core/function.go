@@ -39,15 +39,15 @@ type GroupInfo struct {
 	Enable   bool   `json:"enable"`
 }
 
-var AddNoReplyGroups = func(code string, desc string) {
-	_, loaded := NoReplyGroups.LoadOrStore(code, true)
+var AddNoReplyGroups = func(code string, desc string, plt string) {
+	_, loaded := NoReplyGroups.LoadOrStore(code, plt)
 	if !loaded {
 		logs.Info(desc)
 	}
 }
 
-var AddListenOnGroup = func(code string, desc string) {
-	_, loaded := ListenOnGroups.LoadOrStore(code, true)
+var AddListenOnGroup = func(code string, desc string, plt string) {
+	_, loaded := ListenOnGroups.LoadOrStore(code, plt)
 	if !loaded {
 		logs.Info(desc)
 	}

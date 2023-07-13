@@ -365,6 +365,23 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		vm: vm,
 	})
 	vm.Set("createNickName", CreateNickName)
+	vm.Set("getListenOnGroups", func(plt string) []string {
+		groups := []string{}
+		ListenOnGroups.Range(func(key, value any) bool {
+			if value == plt {
+				groups = append(groups, key.(string))
+			}
+			return true
+		})
+		StaticListenOnGroups.Range(func(key, value any) bool {
+			if value == plt {
+				groups = append(groups, key.(string))
+			}
+			return true
+		})
+		groups = utils.Unique(groups)
+		return groups
+	})
 }
 
 func EncryptPlugin(script string) string {

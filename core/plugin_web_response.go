@@ -27,6 +27,7 @@ type Response struct {
 	status     int
 	isRedirect bool
 	conn       *WsConn
+	vm         *goja.Runtime
 }
 
 func (r *Response) Send(gv goja.Value) *Response {
@@ -81,7 +82,10 @@ func (r *Response) Json(ps ...interface{}) interface{} {
 		r.content += fmt.Sprint(data)
 	}
 	if r.conn != nil {
-		_, result := r.conn.WriteMessage(1, d, pattern)
+		err, result := r.conn.WriteMessage(1, d, pattern)
+		if err != nil {
+			panic(Error(r.vm, err))
+		}
 		r.content = ""
 		return result
 	}

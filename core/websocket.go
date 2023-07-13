@@ -50,7 +50,7 @@ func (wc *WsConn) WriteMessage(messageType int, data []byte, pattern map[string]
 		if v, ok := pattern["$timeout"]; ok {
 			timeout = utils.Int(v)
 			delete(pattern, "$timeout")
-		} //
+		}
 		wp.Value = pattern
 		key := atomic.AddInt64(&wc.Key, 1)
 		wp.Chan = make(chan map[string]interface{}, 1)
@@ -94,9 +94,7 @@ func handleWebsocket(c *gin.Context) {
 						c: c,
 						// uuid: uuid,
 					}
-					var res = &Response{
-						c: c,
-					}
+
 					var upGrader = websocket.Upgrader{
 						CheckOrigin: func(r *http.Request) bool {
 							return true
@@ -108,16 +106,20 @@ func handleWebsocket(c *gin.Context) {
 						return
 					}
 					wc := &WsConn{}
-					res.conn = wc
+
 					req._event = "connect"
 					wc.conn = ws
 					go function.Handle(&Faker{
 						Type: "websocket",
 					}, func(vm *goja.Runtime) {
-						vm.Set("res", res)
+						vm.Set("res", &Response{
+							c:    c,
+							conn: wc,
+							vm:   vm,
+						})
 						vm.Set("req", req)
 					})
-					time.Sleep(time.Millisecond*500)
+					time.Sleep(time.Millisecond * 500)
 					for {
 						_, data, err := ws.ReadMessage()
 						wc.patterns.Range(func(key, value any) bool {
@@ -174,7 +176,11 @@ func handleWebsocket(c *gin.Context) {
 							function.Handle(&Faker{
 								Type: "websocket",
 							}, func(vm *goja.Runtime) {
-								vm.Set("res", res)
+								vm.Set("res", &Response{
+									c:    c,
+									conn: wc,
+									vm:   vm,
+								})
 								vm.Set("req", req)
 							})
 							ws.Close()
@@ -190,7 +196,11 @@ func handleWebsocket(c *gin.Context) {
 						go function.Handle(&Faker{
 							Type: "websocket",
 						}, func(vm *goja.Runtime) {
-							vm.Set("res", res)
+							vm.Set("res", &Response{
+								c:    c,
+								conn: wc,
+								vm:   vm,
+							})
 							vm.Set("req", req)
 						})
 					}
