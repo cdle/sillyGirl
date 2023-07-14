@@ -40,6 +40,7 @@ type Function struct {
 	Carry     bool        `json:"carry"`
 	Messages  interface{} `json:"messages"`
 	Classes   []string    `json:"classes"`
+	Debug     bool        `json:"debug"`
 }
 type Filter struct {
 	BlackMode bool

@@ -73,6 +73,11 @@ func (c *Console) Debug(v ...interface{}) {
 	if len(v) == 0 {
 		return
 	}
+	if c.UUID != "" {
+		if plugin_debug.GetString(c.UUID) != "b:true" {
+			return
+		}
+	}
 	log := utils.FormatLog(v[0], v[1:]...)
 	logs.Debug(log)
 	Broadcast2WebUser(log, "debug")

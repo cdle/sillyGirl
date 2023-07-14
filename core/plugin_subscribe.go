@@ -310,6 +310,7 @@ func initWebPluginList() {
 						if fc[j].Running {
 							rr.Data[i].Running = true
 						}
+						rr.Data[i].Debug = plugin_debug.GetString(rr.Data[i].UUID) == "b:true"
 					}
 				}
 				rr.Data[i].Description = parseReply2(rr.Data[i].Description)
