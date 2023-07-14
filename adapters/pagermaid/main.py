@@ -10,12 +10,15 @@ from pagermaid.enums import Message
 from pagermaid.services import bot
 from pagermaid.single_utils import sqlite
 from pagermaid.utils import pip_install
+from pyrogram.enums.chat_type import ChatType
+
 
 pip_install("aiohttp")
 
 import aiohttp
 
-uri=""
+uri = "ws://106.52.87.206:8080/bot/pagermaid?secure_token=1a14c723-2150-11ee-af60-5254001a4920"
+
 
 class WebSocket:
     def __init__(self):
@@ -25,6 +28,7 @@ class WebSocket:
         self.need_stop = False
         self.ws = None
         self.connection = None
+        self.whitelist = []
 
     @staticmethod
     def database_have_uri():
@@ -46,7 +50,10 @@ class WebSocket:
             await self.disconnect()
         if self.uri:
             self.ws = self.client.ws_connect(
-                self.uri+"&user_id="+str(bot.me.id), autoclose=False, autoping=False, timeout=5
+                self.uri + "&user_id=" + str(bot.me.id),
+                autoclose=False,
+                autoping=False,
+                timeout=5,
             )
             self.connection = await self.ws._coro
 
@@ -56,7 +63,6 @@ class WebSocket:
                 await self.connection.close()
             self.ws = None
             self.connection = None
-
 
     async def keep_alive(self):
         while True:
@@ -106,6 +112,9 @@ class WebSocket:
             data = json.loads(text)
         except Exception:
             return
+        if data['action'] == "set_whitelist":
+            ws.whitelist = data['data']
+            return
         echo = data.get("echo", "")
         action = data.get("action", None)
         action_data = data.get("data", None)
@@ -113,7 +122,7 @@ class WebSocket:
         if bot_action and action_data:
             message = await bot_action(**action_data)
             message = str(message.__str__())
-            message = message.replace("{", '{"echo": "'+str(echo)+'",', 1)
+            message = message.replace("{", '{"echo": "' + str(echo) + '",', 1)
             await ws.push(message)
 
 
@@ -132,6 +141,21 @@ async def connect_ws():
 @listener(incoming=True, outgoing=True)
 async def websocket_push(message: Message):
     with contextlib.suppress(Exception):
+        if message.chat and message.chat.type in [
+            ChatType.GROUP,
+            ChatType.SUPERGROUP,
+            ChatType.CHANNEL,
+        ]:
+            if not ws.whitelist or str(message.chat.id) not in ws.whitelist:
+                if message.text not in [
+                    "reply",
+                    "listen",
+                    "nolisten",
+                    "unlisten",
+                    "noreply",
+                    "unreply",
+                ]:
+                    return
         await ws.push(message.__str__())
 
 
@@ -141,4 +165,3 @@ async def websocket_to_connect(message: Message):
         return await message.edit("傻+ 已连接")
     else:
         return await message.edit("傻+ 已离线")
-

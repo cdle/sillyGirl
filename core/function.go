@@ -182,6 +182,13 @@ func initListenReply() {
 }
 
 func initToHandleMessage() {
+	listen_admin := sillyGirl.GetBool("listen_admin", true)
+	storage.Watch(sillyGirl, "listen_admin", func(old, new, key string) *storage.Final {
+		if new == "false" {
+			listen_admin = false
+		}
+		return nil
+	})
 	Messages = make(chan common.Sender)
 	go func() {
 		for {
@@ -261,9 +268,11 @@ func initToHandleMessage() {
 				}
 				_, ok1 := ListenOnGroups.Load(cid)
 				if !ok1 {
-					_, ok2 := StaticListenOnGroups.Load(cid)
-					if !ok2 {
-						ignore = true
+					if !listen_admin || !isAdmin {
+						_, ok2 := StaticListenOnGroups.Load(cid)
+						if !ok2 {
+							ignore = true
+						}
 					}
 				}
 			} else {

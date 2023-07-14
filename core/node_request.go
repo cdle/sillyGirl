@@ -166,6 +166,7 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		} else {
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
+
 			if err != nil {
 				return nil, err
 			}
@@ -184,7 +185,6 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 	var rspObj goja.Proxy
 	var rsp *http.Response
 	var err error
-
 	var client = &http.Client{
 		Timeout: timeout,
 	}

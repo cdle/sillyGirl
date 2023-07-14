@@ -482,6 +482,7 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 			}
 		}
 	}
+
 	script := ""
 	if encrypt {
 		script = DecryptPlugin(string(data))
@@ -493,7 +494,9 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	script = strings.ReplaceAll(script, "new Bucket", "Bucket")
 	// script = regexp.MustCompile(`import\s+\{\s*([^\}]+)\s*\}\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const {$1} = require('$2');")
 	// script = regexp.MustCompile(`import\s+\s*([^\}]+)\s*\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const $1 = require('$2');")
-
+	if !hasForm {
+		hasForm = strings.Contains(script, "Form(")
+	}
 	prg, err2 := goja.Compile(title+".js", script, false)
 	if err == nil && err2 != nil {
 		err = err2

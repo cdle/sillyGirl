@@ -1,7 +1,9 @@
 package core
 
 import (
+	"bufio"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -12,11 +14,100 @@ import (
 
 // type Reason map[string]interface{}
 
+func readEvent(body io.Reader) (string, error) {
+	var event string
+
+	// 读取一行数据
+	reader := bufio.NewReader(body)
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		return event, err
+	}
+
+	// 去掉换行符
+	line = strings.TrimSuffix(line, "\n")
+
+	// 判断是否是事件行
+	if strings.HasPrefix(line, "data: ") {
+		event = strings.TrimPrefix(line, "data: ")
+	}
+
+	return event, nil
+}
+
 func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType string) (*goja.Object, error) {
 	obj := vm.NewObject()
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil { ///////
+
+	cjson := false
+
+	var data []byte
+	var err error
+
+	obj.Set("status", resp.StatusCode)
+	obj.Set("headers", vm.NewProxy(MakeHeadersObject(vm, resp.Header), &goja.ProxyTrapConfig{
+		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
+			obj := target.Get(property)
+			if obj != nil {
+				return obj
+			}
+			result := target.Get("get").Export().(func(name string) string)(property)
+			return vm.ToValue(result)
+		},
+		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
+			target.Get("set").Export().(func(name, value string))(
+				property, value.String(),
+			)
+			return true
+		},
+	}))
+
+	var dataCallback func(chunk interface{})
+	var endCallback func(chunk interface{})
+
+	obj.Set("on", func(event string, callback func(chunk interface{})) {
+		switch event {
+		case "data":
+			dataCallback = callback
+		case "json":
+			cjson = true
+			dataCallback = callback
+		case "end":
+			endCallback = callback
+		}
+	})
+
+	if resp.Header.Get("Content-Type") == "text/event-stream" {
+		events := []string{}
+		go func() {
+			for {
+				event, err := readEvent(resp.Body)
+				if err != nil {
+					if endCallback != nil {
+						endCallback(nil)
+					}
+					break
+				}
+				events = append(events, event)
+				if dataCallback != nil {
+					for i := range events {
+						if cjson {
+							var v interface{}
+							json.Unmarshal([]byte(events[i]), &v)
+							dataCallback(v)
+						} else {
+							dataCallback(events[i])
+						}
+					}
+					events = nil
+				}
+			}
+		}()
 		return obj, err
+	} else {
+		data, err = ioutil.ReadAll(resp.Body)
+		if err != nil { ///////
+			return obj, err
+		}
 	}
 	var body interface{}
 	if Contains([]string{"blob", "arraybuffer"}, responseType) {
@@ -69,22 +160,6 @@ func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType stri
 	obj.Set("text", func() string {
 		return string(data)
 	})
-	obj.Set("status", resp.StatusCode)
-	obj.Set("headers", vm.NewProxy(MakeHeadersObject(vm, resp.Header), &goja.ProxyTrapConfig{
-		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
-			obj := target.Get(property)
-			if obj != nil {
-				return obj
-			}
-			result := target.Get("get").Export().(func(name string) string)(property)
-			return vm.ToValue(result)
-		},
-		Set: func(target *goja.Object, property string, value, receiver goja.Value) (success bool) {
-			target.Get("set").Export().(func(name, value string))(
-				property, value.String(),
-			)
-			return true
-		},
-	}))
+
 	return obj, nil
 }
