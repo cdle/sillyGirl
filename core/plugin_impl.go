@@ -283,6 +283,14 @@ func (sender *SenderJsIplm) IsAdmin() bool {
 	return sender.Message.IsAdmin()
 }
 
+func (sender *SenderJsIplm) Action(options map[string]interface{}) interface{} {
+	result, err := sender.Message.Action(options)
+	return map[string]interface{}{
+		"result": result,
+		"error":  err,
+	}
+}
+
 func (sender *SenderJsIplm) Reply(texts ...interface{}) interface{} {
 	i, err := sender.Message.Reply(texts...)
 	var errstr interface{}

@@ -265,6 +265,10 @@ func (f *Factory) IsAdapter(botid string) bool {
 	return false
 }
 
+func (f *Factory) Masters() []string {
+	return strings.Split(strings.Trim(MakeBucket(f.botplt).GetString("masters"), "&"), "&")
+}
+
 func (f *Factory) Destroy() {
 	BotsLocker.Lock()
 	defer BotsLocker.Unlock()

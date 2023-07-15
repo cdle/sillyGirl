@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
@@ -17,19 +18,23 @@ import (
 func readEvent(body io.Reader) (string, error) {
 	var event string
 
-	// 读取一行数据
-	reader := bufio.NewReader(body)
-	line, err := reader.ReadString('\n')
-	if err != nil {
-		return event, err
+	scanner := bufio.NewScanner(body)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// 去掉换行符
+		line = strings.TrimSuffix(line, "\n")
+
+		// 判断是否是事件行
+		if strings.HasPrefix(line, "data: ") {
+			event = strings.TrimPrefix(line, "data: ")
+			break
+		}
 	}
 
-	// 去掉换行符
-	line = strings.TrimSuffix(line, "\n")
-
-	// 判断是否是事件行
-	if strings.HasPrefix(line, "data: ") {
-		event = strings.TrimPrefix(line, "data: ")
+	if err := scanner.Err(); err != nil {
+		return event, err
 	}
 
 	return event, nil
@@ -37,12 +42,8 @@ func readEvent(body io.Reader) (string, error) {
 
 func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType string) (*goja.Object, error) {
 	obj := vm.NewObject()
-
-	cjson := false
-
 	var data []byte
 	var err error
-
 	obj.Set("status", resp.StatusCode)
 	obj.Set("headers", vm.NewProxy(MakeHeadersObject(vm, resp.Header), &goja.ProxyTrapConfig{
 		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {
@@ -60,52 +61,57 @@ func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType stri
 			return true
 		},
 	}))
-
-	var dataCallback func(chunk interface{})
-	var endCallback func(chunk interface{})
-
-	obj.Set("on", func(event string, callback func(chunk interface{})) {
-		switch event {
-		case "data":
-			dataCallback = callback
-		case "json":
-			cjson = true
-			dataCallback = callback
-		case "end":
-			endCallback = callback
-		}
-	})
-
 	if resp.Header.Get("Content-Type") == "text/event-stream" {
-		events := []string{}
+		var evc = make(chan interface{}, 100)
+		var closed = false
 		go func() {
+			defer resp.Body.Close()
 			for {
 				event, err := readEvent(resp.Body)
 				if err != nil {
-					if endCallback != nil {
-						endCallback(nil)
-					}
+					evc <- err
 					break
 				}
-				events = append(events, event)
-				if dataCallback != nil {
-					for i := range events {
-						if cjson {
-							var v interface{}
-							json.Unmarshal([]byte(events[i]), &v)
-							dataCallback(v)
-						} else {
-							dataCallback(events[i])
-						}
-					}
-					events = nil
-				}
+				evc <- event
+			}
+			time.Sleep(time.Minute * 5)
+			if !closed {
+				close(evc)
+				evc = nil
+				closed = true
 			}
 		}()
+		obj.Set("on", func(event string) interface{} {
+			switch event {
+			case "data", "json":
+				var rs = <-evc
+				switch v := rs.(type) {
+				case error:
+					if !closed {
+						close(evc)
+						evc = nil
+						closed = true
+					}
+					panic(Error(vm, v))
+				case string:
+					if event == "json" {
+						var r interface{}
+						err := json.Unmarshal([]byte([]byte(v)), &r)
+						if err != nil {
+							panic(Error(vm, err))
+						}
+						return r
+					}
+					return v
+				}
+			}
+			return nil
+		})
 		return obj, err
 	} else {
+		defer resp.Body.Close()
 		data, err = ioutil.ReadAll(resp.Body)
-		if err != nil { ///////
+		if err != nil {
 			return obj, err
 		}
 	}

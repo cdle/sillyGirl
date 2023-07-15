@@ -99,26 +99,6 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 					if instance != nil {
 						defer instance.Close()
 					}
-
-					// var url, user, password string
-					// for k, v := range props[i].(map[string]interface{}) {
-					// 	if k == "url" {
-					// 		url = fmt.Sprint(v)
-					// 	}
-					// 	if k == "user" {
-					// 		user = fmt.Sprint(v)
-					// 	}
-					// 	if k == "password" {
-					// 		password = fmt.Sprint(v)
-					// 	}
-					// }
-					// if url != "" {
-					// 	var err error
-					// 	transport, err = GetTransport(url, user, password)
-					// 	if err != nil {
-					// 		return nil, err
-					// 	}
-					// }
 				}
 			}
 		}
@@ -201,7 +181,6 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 	if err != nil {
 		return nil, err
 	}
-	defer rsp.Body.Close()
 	obj, err := MakeResponseObject(vm, rsp, responseType)
 	rspObj = vm.NewProxy(obj, &goja.ProxyTrapConfig{
 		Get: func(target *goja.Object, property string, receiver goja.Value) (value goja.Value) {

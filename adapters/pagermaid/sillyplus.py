@@ -1,4 +1,5 @@
 import contextlib
+import io
 import json
 
 from asyncio import sleep
@@ -119,6 +120,9 @@ class WebSocket:
         action = data.get("action", None)
         action_data = data.get("data", None)
         bot_action = getattr(bot, action)
+        if action == "send_document":
+            action_data['document'] = io.BytesIO(str.encode(action_data['document']))
+
         if bot_action and action_data:
             message = await bot_action(**action_data)
             message = str(message.__str__())
@@ -146,7 +150,7 @@ async def websocket_push(message: Message):
             ChatType.SUPERGROUP,
             ChatType.CHANNEL,
         ]:
-            if not ws.whitelist or str(message.chat.id) not in ws.whitelist:
+            if not ws.whitelist or ((message.chat and str(message.chat.id) not in ws.whitelist) and (message.from_user and str(message.from_user.id) not in ws.whitelist)):
                 if message.text not in [
                     "reply",
                     "listen",
