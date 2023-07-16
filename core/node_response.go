@@ -3,7 +3,6 @@ package core
 import (
 	"bufio"
 	"errors"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -15,30 +14,23 @@ import (
 
 // type Reason map[string]interface{}
 
-func readEvent(body io.Reader) (string, error) {
-	var event string
+// func readEvent(body io.Reader) (string, error) {
+// 	var data []rune
+// 	bufReader := bufio.NewReader(body)
+// 	for {
+// 		r, _, err := bufReader.ReadRune()
+// 		if err != nil {
+// 			return "", err
+// 		}
+// 		if r != '\n' {
+// 			data = append(data, r)
+// 		} else {
 
-	scanner := bufio.NewScanner(body)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// 去掉换行符
-		line = strings.TrimSuffix(line, "\n")
-
-		// 判断是否是事件行
-		if strings.HasPrefix(line, "data: ") {
-			event = strings.TrimPrefix(line, "data: ")
-			break
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return event, err
-	}
-
-	return event, nil
-}
+// 			return strings.Replace(string(data), "data: ", "", 1), nil
+// 		}
+// 	}
+// 	panic(string(data))
+// }
 
 func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType string) (*goja.Object, error) {
 	obj := vm.NewObject()
@@ -66,14 +58,27 @@ func MakeResponseObject(vm *goja.Runtime, resp *http.Response, responseType stri
 		var closed = false
 		go func() {
 			defer resp.Body.Close()
+			// var data2 []rune
+			var data []rune
+			bufReader := bufio.NewReader(resp.Body)
 			for {
-				event, err := readEvent(resp.Body)
+				r, _, err := bufReader.ReadRune()
 				if err != nil {
 					evc <- err
 					break
 				}
-				evc <- event
+				// data2 = append(data2, r)
+				if r != '\n' {
+					data = append(data, r)
+				} else {
+					event := strings.TrimSpace(strings.Replace(string(data), "data: ", "", 1))
+					if event != "" {
+						evc <- event
+					}
+					data = nil
+				}
 			}
+			// fmt.Println(string(data2))
 			time.Sleep(time.Minute * 5)
 			if !closed {
 				close(evc)
