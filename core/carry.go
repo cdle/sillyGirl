@@ -505,7 +505,6 @@ func init() {
 			code := string(b1)
 			err := json.Unmarshal(b2, v)
 			if err == nil {
-				platforms = append(platforms, v.Platform)
 				if Contains(users, code) {
 					user_names = append(user_names, NicklabeL{
 						Label: fmt.Sprintf("%s(%s)", v.Value, code),
@@ -525,7 +524,6 @@ func init() {
 				"scripts":     scripts,
 			},
 		})
-
 	})
 	GinApi(POST, "/api/carry/group", RequireAuth, func(ctx *gin.Context) {
 		// 将请求的 JSON 数据解析为一个 map[string]interface{} 类型的变量
