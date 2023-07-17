@@ -28,21 +28,23 @@ type Sender struct {
 	ChatID   string `json:"chat_id"`
 	UserID   string `json:"user_id"`
 	Platfrom string `json:"platform"`
+	BotID    string `json:"bot_id"`
 }
 
 type Tasks struct {
-	Index     int      `json:"id"`       //编号 顺序编号
-	ID        string   `json:"task_id"`  //任务ID
-	Title     string   `json:"title"`    //任务名
-	Schedule  string   `json:"schedule"` //计划时间
-	Senders   []Sender `json:"senders"`  //发送人
-	Command   string   `json:"command"`  //消息指令
-	Scripts   []string `json:"scripts"`  //触发脚本
-	CronID    int      `json:"cron_id"`
-	CreatedAt int      `json:"created_at"` //创建时间戳(秒)转换成日期
-	Remark    string   `json:"remark"`
-	Enable    bool     `json:"enable"`
-	Handle    func()   `json:"-"`
+	Index     int           `json:"id"`       //编号 顺序编号
+	ID        string        `json:"task_id"`  //任务ID
+	Title     string        `json:"title"`    //任务名
+	Schedule  string        `json:"schedule"` //计划时间
+	Senders   []Sender      `json:"senders"`  //发送人
+	Command   string        `json:"command"`  //消息指令
+	Scripts   []string      `json:"scripts"`  //触发脚本
+	CronID    int           `json:"cron_id"`
+	CreatedAt int           `json:"created_at"` //创建时间戳(秒)转换成日期
+	Remark    string        `json:"remark"`
+	Enable    bool          `json:"enable"`
+	Handle    func()        `json:"-"`
+	Icons     []interface{} `json:"icons"`
 }
 
 var pts = []*Tasks{}
@@ -51,7 +53,7 @@ func RegistTasks(pt *Tasks) {
 	pt.Handle = func() {
 		content := pt.Command
 		for _, meta := range pt.Senders {
-			adapter, _ := GetAdapter(meta.Platfrom, "")
+			adapter, _ := GetAdapter(meta.Platfrom, meta.BotID)
 			if adapter != nil {
 				sender := adapter.Sender()
 				sender.SetFsps(&common.FakerSenderParams{
@@ -96,8 +98,8 @@ func init() {
 		return nil
 	})
 	sort.Sort(byCreatedAt2(pts))
-	for i := range cgs {
-		cgs[i].Index = i + 1
+	for i := range pts {
+		pts[i].Index = i + 1
 	}
 	storage.Watch(tasks, nil, func(old, new, key string) *storage.Final {
 		console.Log("已更新计划任务")
@@ -173,6 +175,22 @@ func init() {
 			begin = end
 		}
 		rr.Data = pts[begin:end]
+		for i := range rr.Data {
+			rr.Data[i].Icons = []interface{}{}
+			for _, script := range rr.Data[i].Scripts {
+				for _, f := range Functions {
+					if f.UUID == script {
+						if f.Icon != "" {
+							rr.Data[i].Icons = append(rr.Data[i].Icons, map[string]interface{}{
+								"link":  f.Icon,
+								"title": f.Title,
+							})
+							break
+						}
+					}
+				}
+			}
+		}
 		ctx.JSON(200, rr)
 	})
 	GinApi(POST, "/api/tasks", RequireAuth, func(ctx *gin.Context) {
@@ -230,6 +248,7 @@ func init() {
 						"success":      false,
 						"errorMessage": "Senders错误：" + err.Error(),
 					})
+					return
 				}
 				tp.Senders = ss
 			case "command":
@@ -319,28 +338,33 @@ func init() {
 			err := json.Unmarshal(b2, v)
 			if err == nil {
 				if v.Group {
-					if Contains(user_ids, code) {
-						user_names = append(user_names, NicklabeL{
-							Label: fmt.Sprintf("%s(%s)", v.Value, code),
-							Value: code,
-						})
-					}
-				} else {
 					if Contains(chat_ids, code) {
 						group_names = append(group_names, NicklabeL{
 							Label: fmt.Sprintf("%s(%s)", v.Value, code),
 							Value: code,
 						})
 					}
+				} else {
+					if Contains(user_ids, code) {
+						user_names = append(user_names, NicklabeL{
+							Label: fmt.Sprintf("%s(%s)", v.Value, code),
+							Value: code,
+						})
+					}
+
 				}
 			}
 			return nil
 		})
+		platforms := map[string][]string{}
+		for _, plt := range getPltsArray() {
+			platforms[plt] = GetAdapterBotsID(plt)
+		}
 		ctx.JSON(200, map[string]interface{}{
 			"success": true,
 			"data": map[string]interface{}{
 				"scripts":     scripts,
-				"platforms":   getPltsArray(),
+				"platforms":   platforms,
 				"user_names":  user_names,
 				"group_names": group_names,
 			},
