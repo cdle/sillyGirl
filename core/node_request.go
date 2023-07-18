@@ -3,10 +3,11 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net"
 	"net/http"
-	u "net/url"
-	"strconv"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -125,25 +126,57 @@ func fetch(vm *goja.Runtime, uuid string, wts ...interface{}) (interface{}, erro
 		}
 		method = strings.ToUpper(method)
 		if len(formData) > 0 {
-			data := u.Values{}
-			for key, value := range formData {
-				switch v := value.(type) {
-				case string:
-					data.Set(key, v)
-				case bool:
-					data.Set(key, strconv.FormatBool(v))
-				case int:
-					data.Set(key, strconv.Itoa(v))
-				// 可以根据需要添加其他类型的处理
-				default:
-					data.Set(key, fmt.Sprintf("%v", v))
+			// 创建一个新的 buffer
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+			func() {
+				defer writer.Close()
+				// defer func() {
+				// 	ch <- true
+				// }()
+				for key := range formData {
+					value := fmt.Sprint(formData[key])
+					// 添加文本上传字段
+					if !strings.HasPrefix(value, "url(") || !strings.HasSuffix(value, ")") {
+						fieldWriter, err := writer.CreateFormField(key)
+						if err != nil {
+							console.Error("cff", err)
+							return
+						}
+						if _, err := fieldWriter.Write([]byte(value)); err != nil {
+							console.Error("fw", err)
+							return
+						}
+						continue
+					} else {
+						url := strings.TrimPrefix(value, "url(")
+						url = strings.TrimSuffix(url, ")")
+						resp, err := http.Get(url)
+						if err != nil {
+							// console.Error("failed to download file %s: %v\n", url, err)
+							panic(Error(vm, "failed to download file %s: %v\n", url, err))
+							// return
+						}
+						defer resp.Body.Close()
+						part, err := writer.CreateFormFile(key, filepath.Base(url))
+						if err != nil {
+							panic(Error(vm, "failed to get file info for %s: %v\n", url, err))
+						}
+						// 复制管道中的内容到表单字段中
+						if _, err = io.Copy(part, resp.Body); err != nil {
+							panic(Error(vm, err))
+						}
+					}
 				}
-			}
-			req, err = http.NewRequest(method, url, strings.NewReader(data.Encode()))
+			}()
+			// 关闭表单写入器
+			req, err = http.NewRequest(method, url, payload)
+			// <-ch
+			// ch = nil
 			if err != nil {
 				return nil, err
 			}
-			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			req.Header.Set("Content-Type", writer.FormDataContentType())
 		} else {
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
 
