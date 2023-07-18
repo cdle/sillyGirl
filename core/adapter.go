@@ -319,7 +319,7 @@ func (f *Factory) Destroy() {
 	}()
 }
 
-func (f *Factory) Push(msg map[string]string) (string, error) {
+func (f *Factory) Push(msg map[string]string) map[string]string {
 	var demo = *f.demo
 	var sender = &demo
 	fsps := &common.FakerSenderParams{
@@ -327,7 +327,12 @@ func (f *Factory) Push(msg map[string]string) (string, error) {
 		ChatID: msg[CHAT_ID],
 	}
 	sender.SetFsps(fsps)
-	return sender.Reply(msg[CONETNT], PUSH(""))
+
+	message_id, err := sender.Reply(msg[CONETNT], PUSH(""))
+	return map[string]string{
+		"message_id": message_id,
+		"error":      ErrStr(err),
+	}
 }
 
 func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) {
@@ -525,10 +530,24 @@ func (f *Factory) SetIsAdmin(function func(string) bool) {
 	}
 }
 
-func (f *Factory) Sender() *CustomSender {
+func (f *Factory) Sender2() *CustomSender {
 	var demo = *f.demo
 	sender := &demo
 	return sender
+}
+
+func (f *Factory) Sender() interface{} {
+	var demo = *f.demo
+	sender := &demo
+	return &SenderJsIplm{
+		Message:    sender,
+		Vm:         f.vm,
+		Private:    "private",
+		Group:      "group",
+		Routine:    "routine",
+		Persistent: "persistent",
+		UUID:       f.uuid,
+	}
 }
 
 func (f *Factory) Receive(wt interface{}) *CustomSender {

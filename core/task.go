@@ -55,7 +55,7 @@ func RegistTasks(pt *Tasks) {
 		for _, meta := range pt.Senders {
 			adapter, _ := GetAdapter(meta.Platfrom, meta.BotID)
 			if adapter != nil {
-				sender := adapter.Sender()
+				sender := adapter.Sender2()
 				sender.SetFsps(&common.FakerSenderParams{
 					Content: content,
 					ChatID:  meta.ChatID,

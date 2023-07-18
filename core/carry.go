@@ -63,7 +63,7 @@ func initCarry() {
 							q := value.(*Queue)
 							for _, qm := range q.GetValues() {
 								if qm.From != nil && qm.From.GetMessageID() == event["message_id"] {
-									qm.To.Sender().RecallMessage(qm.MessageID)
+									qm.To.Sender2().RecallMessage(qm.MessageID)
 								}
 							}
 							return true
@@ -247,12 +247,12 @@ func initCarry() {
 								To:      adapter,
 							}
 							_ = q.Enqueue(qm)
-							message_id, err := adapter.Push(map[string]string{
+							v := adapter.Push(map[string]string{
 								CONETNT: content,
 								CHAT_ID: chat_id,
 							})
-							if err == nil {
-								qm.MessageID = message_id
+							if v["error"] == "" {
+								qm.MessageID = v["message_id"]
 							}
 						}
 					}

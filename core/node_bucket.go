@@ -5,6 +5,13 @@ import (
 	"github.com/dop251/goja"
 )
 
+func ErrStr(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}
+
 func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket storage.Bucket) *goja.Object {
 	obj := vm.NewObject()
 	obj.Set("get", func(v ...interface{}) interface{} {
@@ -19,25 +26,27 @@ func MakeBucketObject(vm *goja.Runtime, uuid string, on_start bool, bucket stora
 		return rt
 	})
 	obj.Set("set", func(key, value interface{}) interface{} {
-		msg, _, err := SetBucketKeyValue(bucket, key, value)
-		if err != nil {
-			panic(Error(vm, err))
+		msg, changed, err := SetBucketKeyValue(bucket, key, value)
+		return map[string]interface{}{
+			"message": msg,
+			"error":   ErrStr(err),
+			"changed": changed,
 		}
-		return msg
 	})
 	obj.Set("set2", func(key, value interface{}) interface{} {
-		msg, _, err := SetBucketKeyValue2(bucket, key, value)
-		if err != nil {
-			panic(Error(vm, err))
+		msg, changed, err := SetBucketKeyValue2(bucket, key, value)
+		return map[string]interface{}{
+			"message": msg,
+			"error":   ErrStr(err),
+			"changed": changed,
 		}
-		return msg
 	})
-	obj.Set("delete", func(key interface{}) error {
+	obj.Set("delete", func(key interface{}) string {
 		_, _, err := bucket.Set(key, "")
-		return err
+		return ErrStr(err)
 	})
-	obj.Set("deleteAll", func() error {
-		return bucket.Delete()
+	obj.Set("deleteAll", func() string {
+		return ErrStr(bucket.Delete())
 	})
 	obj.Set("keys", func() []string {
 		keys, err := bucket.Keys()

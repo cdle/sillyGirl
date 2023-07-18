@@ -211,7 +211,9 @@ func Init() {
 					time.Sleep(time.Second)
 					utils.Daemon("ready")
 				}()
-				return nil
+				return &storage.Final{
+					Message: "1秒重启升级！",
+				}
 			} else {
 				console.Debug("正在删除旧程序错误...")
 				if err = os.RemoveAll(filename); err != nil {
@@ -246,7 +248,7 @@ func Init() {
 				utils.Daemon()
 			}()
 			return &storage.Final{
-				Message: "马上重启！",
+				Message: "1秒重启！",
 			}
 		}
 		return nil
