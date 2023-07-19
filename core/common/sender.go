@@ -55,7 +55,8 @@ type Sender interface {
 }
 
 type FakerSenderParams struct {
-	Content string
-	UserID  string
-	ChatID  string
+	Content   string
+	UserID    string
+	ChatID    string
+	MessageID string
 }

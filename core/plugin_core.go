@@ -169,7 +169,7 @@ func initPlugins() {
 						} else {
 							su.DeleteValue("rule")
 							su.DeleteValue("cron")
-							su.DeleteValue("admin")
+							// su.DeleteValue("admin")
 							su.DeleteValue("priority")
 							su.DeleteValue("platform")
 						}
@@ -177,7 +177,7 @@ func initPlugins() {
 						su.DeleteValue("rule")
 						su.DeleteValue("cron")
 						su.DeleteValue("web")
-						su.DeleteValue("admin")
+						// su.DeleteValue("admin")
 						su.DeleteValue("priority")
 						su.DeleteValue("platform")
 					}
@@ -185,7 +185,7 @@ func initPlugins() {
 					// su.DeleteValue("rule")
 					// su.DeleteValue("cron")
 					su.DeleteValue("web")
-					su.DeleteValue("admin")
+					// su.DeleteValue("admin")
 					su.DeleteValue("priority")
 					su.DeleteValue("platform")
 					su.DeleteValue("module")

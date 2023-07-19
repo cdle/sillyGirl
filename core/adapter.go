@@ -326,8 +326,10 @@ func (f *Factory) Push(msg map[string]string) map[string]string {
 		UserID: msg[USER_ID],
 		ChatID: msg[CHAT_ID],
 	}
+	if v, ok := msg[MESSAGE_ID]; ok {
+		fsps.MessageID = v
+	}
 	sender.SetFsps(fsps)
-
 	message_id, err := sender.Reply(msg[CONETNT], PUSH(""))
 	return map[string]string{
 		"message_id": message_id,
@@ -616,6 +618,9 @@ func (sender *CustomSender) GetChatName() string {
 	return sender.details.Chatname
 }
 func (sender *CustomSender) GetMessageID() string {
+	if sender.Fsps.MessageID != "" {
+		return sender.Fsps.MessageID
+	}
 	return sender.details.MessageID
 }
 func (sender *CustomSender) GetReplySenderUserID() int {
