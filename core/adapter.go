@@ -532,17 +532,32 @@ func (f *Factory) SetIsAdmin(function func(string) bool) {
 	}
 }
 
-func (f *Factory) Sender2() *CustomSender {
+func (f *Factory) Sender2(options map[string]string) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
+	sender.SetID()
+	if options != nil {
+		fsp := &common.FakerSenderParams{}
+		if v, ok := options[CONETNT]; ok {
+			fsp.Content = v
+		}
+		if v, ok := options[USER_ID]; ok {
+			fsp.UserID = v
+		}
+		if v, ok := options[CHAT_ID]; ok {
+			fsp.ChatID = v
+		}
+		if v, ok := options[MESSAGE_ID]; ok {
+			fsp.MessageID = v
+		}
+		sender.SetFsps(fsp)
+	}
 	return sender
 }
 
 func (f *Factory) Sender() interface{} {
-	var demo = *f.demo
-	sender := &demo
 	return &SenderJsIplm{
-		Message:    sender,
+		Message:    f.Sender2(nil),
 		Vm:         f.vm,
 		Private:    "private",
 		Group:      "group",
@@ -552,10 +567,11 @@ func (f *Factory) Sender() interface{} {
 	}
 }
 
-func (f *Factory) Receive(wt interface{}) *CustomSender {
+func (f *Factory) Receive(props map[string]interface{}) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
-	props := wt.(map[string]interface{})
+	sender.SetID()
+	console.Log("senderId", sender.GetID())
 	emf := map[string]interface{}{}
 	for i := range props {
 		h := false
@@ -636,12 +652,12 @@ func (sender *CustomSender) GetBotID() string {
 
 type PUSH string
 
-func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, string) {
+func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, error) {
 	var platform = sender.f.botplt
 	var any *common.Function
 	var one *common.Function
 	var result interface{}
-	var err = ""
+	var err error
 	for _, function := range Functions {
 		if function.Reply != nil && function.Reply.Platform == platform {
 			if len(function.Reply.BotsID) == 0 {
@@ -668,7 +684,7 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 						result = value
 					}
 					if property == "error" {
-						err = value.String()
+						err = errors.New(value.String())
 					}
 					return true
 				},
@@ -896,4 +912,22 @@ func (sender *CustomSender) IsAdmin() bool {
 		return Contains(strings.Split(MakeBucket(sender.f.botplt).GetString("masters"), "&"), sender.GetUserID())
 	}
 	return sender.f.isAdmin(sender.GetUserID())
+}
+
+func (sender *CustomSender) GetID() string {
+	return sender.id
+}
+
+var test = "4d6371a8-2778-11ee-a3c2-821680fbbf6b"
+
+func (sender *CustomSender) SetID() {
+	if test != "" {
+		sender.id = test
+		test = ""
+	} else {
+		sender.id = utils.GenUUID()
+	}
+
+	sender.CreatedAt = time.Now()
+	senders.Store(sender.id, sender)
 }

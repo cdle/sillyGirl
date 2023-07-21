@@ -19,6 +19,8 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+var pluginLock = new(sync.Mutex)
+
 type myFieldNameMapper struct{}
 
 var mutexMap = make(map[string]*sync.Mutex)
@@ -89,7 +91,9 @@ func initPlugins() {
 		return nil
 	})
 	plugins.Foreach(func(key, data []byte) error {
-		f, cbs, err := initPlugin(string(data), string(key))
+		pluginLock.Lock()
+		defer pluginLock.Unlock()
+		f, cbs, err := initPlugin(string(data), string(key), "")
 		if err != nil {
 			console.Error("初始化插件%s错误: %v", key, err)
 		}
@@ -100,7 +104,7 @@ func initPlugins() {
 		// os.WriteFile(fmt.Sprintf("%s/%s.js", pluginPath, f.Title), data, 0600)
 		return nil
 	})
-	var pluginLock = new(sync.Mutex)
+
 	storage.Watch(plugins, nil, func(old, new, key string) (fin *storage.Final) {
 		pluginLock.Lock()
 		defer pluginLock.Unlock()
@@ -110,7 +114,7 @@ func initPlugins() {
 					continue
 				}
 				script := string(fetchScript(p.Address, key))
-				if f, _, _ := initPlugin(script, p.UUID); f.CreateAt != "" {
+				if f, _, _ := initPlugin(script, p.UUID, ""); f.CreateAt != "" {
 					fin = &storage.Final{
 						Now: script,
 					}
@@ -203,7 +207,7 @@ func initPlugins() {
 			}
 			new = su.script
 		}
-		f, cbs, err := initPlugin(new, key)
+		f, cbs, err := initPlugin(new, key, "")
 		if err != nil && new != "" {
 			pluginConsole(key).Error(err)
 		}
@@ -227,13 +231,13 @@ func initPlugins() {
 				if new != "" {
 					AddCommand([]*common.Function{f})
 					if old == "" {
-						console.Log("已加载 %s.js", f.Title)
+						console.Log("已加载 %s%s", f.Title, f.Suffix)
 					} else if !f.OnStart {
-						console.Log("已重载 %s.js", f.Title)
+						console.Log("已重载 %s%s", f.Title, f.Suffix)
 					}
 				} else {
-					of, _, _ := initPlugin(old, key)
-					console.Log("已卸载 %s.js", of.Title)
+					of, _, _ := initPlugin(old, key, "")
+					console.Log("已卸载 %s%s", of.Title, of.Suffix)
 				}
 				apd = true
 				break
@@ -255,236 +259,12 @@ func initPlugins() {
 	})
 }
 
-func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
-	var cbs = []func(){}
-	var err error
-	var rules []string
-	var imType *common.Filter
-	var userId *common.Filter
-	var groupId *common.Filter
-	var cron = map[string]string{}
-	var admin bool
-	var disable bool
-	var priority int
-	var title string
-	var public bool
-	var description string
-	var icon string
-	var version string = "v1.0.0"
-	var author string
-	var create_at string
-	var module bool
-	var web bool
-	var encrypt bool
-	var onStart bool
-	var origin = "自定义"
-	var https = []*common.Http{}
-	var message *common.Reply
-	var FindAll bool
-	var hasForm bool
-	var carry bool
-	var classes = []string{}
-	ks := map[string]bool{}
-	ress := regexp.MustCompile(
-		`\*\s?@([\d\w+-]+)\s+([^\n]+?)\n`,
-	).FindAllStringSubmatch(data, -1)
-	for _, res := range ress {
-		switch res[1] {
-		case "rule", "match", "regex", "pattern":
-			rule := strings.TrimSpace(res[2])
-			rule = parseReply3(rule, func(s1, s2 string) {
-				k := s1 + "." + s2
-				if _, ok := ks[k]; !ok {
-					cbs = append(cbs, func() {
-						storage.Watch(MakeBucket(s1), s2, func(old, new, key string) *storage.Final {
-							return &storage.Final{
-								EndFunc: func() {
-									plugins.Set(uuid, "reload")
-								},
-							}
-						}, uuid)
-					})
-					ks[k] = true
-				}
-			})
-			_rs := []string{}
-		FR:
-			ress := regexp.MustCompile(`\[([^\s\[\]]+)\]`).FindAllStringSubmatch(rule, -1)
-			if len(ress) != 0 {
-				res := ress[len(ress)-1]
-				var inner = res[1]
-				slice := strings.SplitN(inner, ":", 2)
-				name := slice[0]
-				ps := ""
-				if len(slice) == 2 {
-					ps = slice[1]
-				}
-				if strings.HasSuffix(name, "?") {
-					name = strings.TrimRight(name, "?")
-					rep := ""
-					if ps == "" {
-						rep = fmt.Sprintf("[%s]", name)
-					} else {
-						rep = fmt.Sprintf("[%s:%s]", name, ps)
-					}
-					for l := range _rs {
-						_rs[l] = strings.Replace(_rs[l], res[0], rep, 1)
-					}
-					rule1 := strings.Replace(rule, res[0], rep, 1)
-					if len(_rs) == 0 {
-						_rs = append(_rs, rule1)
-					}
-					rule = strings.Replace(rule, res[0], "", 1)
-					rule = regexp.MustCompile("\x20{2,}").ReplaceAllString(rule, " ")
-					rule = strings.TrimSpace(rule)
-					_rs = append(_rs, rule)
-					goto FR
-				}
-			}
-			if len(_rs) != 0 {
-				rules = append(rules, _rs...)
-			} else {
-				rules = append(rules, rule)
-			}
-		case "class":
-			classes = append(classes, regexp.MustCompile(`[\S]+`).FindAllString(res[2], -1)...)
-			classes = utils.Unique(classes)
-		case "platform", "imType", "platform+", "imType+":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			imType = &common.Filter{
-				BlackMode: false,
-				Items:     item,
-			}
-		case "platform-", "imType-":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			imType = &common.Filter{
-				BlackMode: true,
-				Items:     item,
-			}
-		case "userId", "userID", "uid", "userId+", "userID+", "uid+":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			userId = &common.Filter{
-				BlackMode: false,
-				Items:     item,
-			}
-		case "userId-", "userID-", "uid-":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			userId = &common.Filter{
-				BlackMode: true,
-				Items:     item,
-			}
-		case "groupId", "groupID", "groupCode", "chat_id", "chat_id+", "chatId", "chatID", "gid", "groupId+", "groupID+", "groupCode+", "chatId+", "chatID+", "gid+":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			groupId = &common.Filter{
-				BlackMode: false,
-				Items:     item,
-			}
-		case "groupId-", "groupID-", "groupCode-", "chatId-", "chat_id-", "chatID-", "gid-":
-			var item []string
-			for _, i := range regexp.MustCompile(`[\d\w-]+`).FindAllString(res[2], -1) {
-				item = append(item, strings.TrimSpace(i))
-			}
-			groupId = &common.Filter{
-				BlackMode: true,
-				Items:     item,
-			}
-
-		case "admin":
-			admin = strings.TrimSpace(res[2]) == "true"
-		case "disable":
-			disable = strings.TrimSpace(res[2]) == "true"
-		case "findall":
-			FindAll = strings.TrimSpace(res[2]) == "true"
-		case "priority":
-			priority = utils.Int(strings.TrimSpace(res[2]))
-		case "title", "name", "show":
-			title = strings.TrimSpace(res[2])
-		case "public":
-			public = strings.TrimSpace(res[2]) == "true"
-		case "description":
-			description = strings.TrimSpace(res[2])
-		case "icon":
-			icon = strings.TrimSpace(res[2])
-		case "version":
-			version = strings.TrimSpace(res[2])
-		case "author":
-			author = strings.TrimSpace(res[2])
-		case "http":
-			ss := regexp.MustCompile(`[\S]+`).FindAllString(strings.TrimSpace(res[2]), -1)
-			if len(ss) == 2 {
-				https = append(https, &common.Http{
-					Path:   ss[1],
-					Method: strings.ToUpper(ss[0]),
-				})
-			} else {
-				console.Warn("http param is not 2")
-			}
-		case "message":
-			ss := regexp.MustCompile(`[\S]+`).FindAllString(strings.TrimSpace(res[2]), -1)
-			if len(ss) > 1 {
-				if len(ss) == 2 && ss[1] == "*" {
-					message = &common.Reply{
-						Platform: ss[0],
-						BotsID:   []string{},
-					}
-				} else {
-					message = &common.Reply{
-						Platform: ss[0],
-						BotsID:   ss[1:],
-					}
-				}
-
-			} else {
-				console.Warn("message param is 0")
-			}
-		case "create_at":
-			create_at = strings.TrimSpace(res[2])
-		case "origin":
-			origin = strings.TrimSpace(res[2])
-		case "module":
-			module = strings.TrimSpace(res[2]) == "true"
-		case "web":
-			web = strings.TrimSpace(res[2]) == "true"
-		case "carry":
-			carry = strings.TrimSpace(res[2]) == "true"
-		case "encrypt":
-			encrypt = strings.TrimSpace(res[2]) == "true"
-		case "on_start":
-			onStart = strings.TrimSpace(res[2]) == "true"
-		case "form":
-			hasForm = true
-		case "paterner":
-			paterner := strings.TrimSpace(res[2])
-			go func() {
-				time.Sleep(time.Second * 2)
-				getPaterner(uuid, strings.TrimSpace(paterner))
-			}()
-		default:
-			cron_ := strings.TrimSpace(res[2])
-			cron_ = strings.ReplaceAll(cron_, `\/`, "/")
-			if strings.HasPrefix(res[1], "cron") {
-				cron[res[1]] = cron_
-			}
-		}
-	}
-
+func initPlugin(data string, uuid string, scriptType string) (*common.Function, []func(), error) {
+	f, cbs := pluginParse(data, uuid)
+	f.Suffix = ".js"
+	f.Type = "goja"
 	script := ""
-	if encrypt {
+	if f.Encrypt {
 		script = DecryptPlugin(string(data))
 	} else {
 		script = string(data)
@@ -494,152 +274,119 @@ func initPlugin(data string, uuid string) (*common.Function, []func(), error) {
 	script = strings.ReplaceAll(script, "new Bucket", "Bucket")
 	// script = regexp.MustCompile(`import\s+\{\s*([^\}]+)\s*\}\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const {$1} = require('$2');")
 	// script = regexp.MustCompile(`import\s+\s*([^\}]+)\s*\s*from\s*['"]([^'"]+)['"]\s*;`).ReplaceAllString(script, "const $1 = require('$2');")
-	if !hasForm {
-		hasForm = strings.Contains(script, "Form(")
-	}
-	prg, err2 := goja.Compile(title+".js", script, false)
+	var err error
+	prg, err2 := goja.Compile(f.Title+".js", script, false)
 	if err == nil && err2 != nil {
 		err = err2
 	}
 	// if err == nil && len(rules) == 0 && cron != "" {
 	// 	err = fmt.Errorf("无效的脚本%s", title)
 	// }
-	if web {
-		onStart = true
-	}
 	// if icon == "" {
 	// 	icon = "https://joeschmoe.io/api/v1/random?t=" + fmt.Sprint(time.Now().Nanosecond())
 	// }
 	var running func() bool
 
-	f := &common.Function{
-		Handle: func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
-			if !debug {
-				defer func() {
-					err := recover()
-					if err != nil {
-						pluginConsole(uuid).Error(err)
-						// s.Reply(fmt.Sprint(err))
-					}
-				}()
-			}
-			if err2 != nil {
-				panic(err2)
-			}
-			loop := eventloop.NewEventLoop()
-			loop.Run(func(vm *goja.Runtime) {
-				SetPluginMethod(vm, uuid, onStart, running)
-				ss := &SenderJsIplm{
-					Message:    s,
-					Vm:         vm,
-					Private:    "private",
-					Group:      "group",
-					Routine:    "routine",
-					Persistent: "persistent",
-					UUID:       uuid,
-				}
-				vm.Set("msg", goja.Undefined())
-				vm.Set("message", goja.Undefined())
-				vm.Set("res", goja.Undefined())
-				vm.Set("req", goja.Undefined())
-				vm.Set("action", goja.Undefined())
-				vm.Set("sender", ss)
-				vm.Set("run", func(uuid string) bool { //执行子脚本
-					fs := Functions
-					for i := range fs {
-						if fs[i].UUID == uuid {
-							fs[i].Handle(s, nil)
-							return true
-						}
-					}
-					return false
-				})
-				vm.Set("s", ss)
-				vm.Set("InitAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
-					f := &Factory{
-						uuid: uuid,
-						vm:   vm,
-					}
-					f.Init(plt, botid, params)
-					return f
-				})
-				vm.Set("initAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
-					f := &Factory{
-						uuid: uuid,
-						vm:   vm,
-					}
-					f.Init(plt, botid, params)
-					return f
-				})
-				getAdapter := func(plt, botid string) map[string]interface{} {
-					adapter, err := GetAdapter(plt, botid)
-					errstr := ""
-					if err != nil {
-						errstr = err.Error()
-					}
-					return map[string]interface{}{
-						"error":   errstr,
-						"adapter": adapter,
-					}
-				}
-				vm.Set("GetAdapter", getAdapter)
-				vm.Set("getAdapter", getAdapter)
-				vm.Set("getAdapterBotsID", GetAdapterBotsID)
-				vm.Set("getAdapterBotPlts", GetAdapterBotPlts)
-				vm.Set("GetAdapterBotsID", GetAdapterBotsID)
-				vm.Set("GetAdapterBotPlts", GetAdapterBotPlts)
-				vm.Set("running", running)
-				vm.Set("Running", running)
-				vm.Set("uuid", func() string {
-					return uuid
-				})
-				vm.Set("genUuid", func() string {
-					return utils.GenUUID()
-				})
-				vm.Set("genUUID", func() string {
-					return utils.GenUUID()
-				})
-				vm.Set("UUID", func() string {
-					return uuid
-				})
-				if set != nil {
-					set(vm)
-				}
-				_, err := vm.RunProgram(prg)
+	f.Handle = func(s common.Sender, set func(vm *goja.Runtime)) interface{} {
+		if !debug {
+			defer func() {
+				err := recover()
 				if err != nil {
-					pluginConsole(uuid).Error(strings.ReplaceAll(strings.ReplaceAll(err.Error(), "node_modules/", ""), "github.com/dop251/goja_nodejs/require", ""))
+					pluginConsole(uuid).Error(err)
+					// s.Reply(fmt.Sprint(err))
 				}
+			}()
+		}
+		if err2 != nil {
+			panic(err2)
+		}
+		loop := eventloop.NewEventLoop()
+		loop.Run(func(vm *goja.Runtime) {
+			SetPluginMethod(vm, uuid, f.OnStart, running)
+			ss := &SenderJsIplm{
+				Message:    s,
+				Vm:         vm,
+				Private:    "private",
+				Group:      "group",
+				Routine:    "routine",
+				Persistent: "persistent",
+				UUID:       uuid,
+			}
+			vm.Set("msg", goja.Undefined())
+			vm.Set("message", goja.Undefined())
+			vm.Set("res", goja.Undefined())
+			vm.Set("req", goja.Undefined())
+			vm.Set("action", goja.Undefined())
+			vm.Set("sender", ss)
+			vm.Set("run", func(uuid string) bool { //执行子脚本
+				fs := Functions
+				for i := range fs {
+					if fs[i].UUID == uuid {
+						fs[i].Handle(s, nil)
+						return true
+					}
+				}
+				return false
 			})
-			return nil
-		},
-		Rules:       rules,
-		ImType:      imType,
-		UserId:      userId,
-		GroupId:     groupId,
-		Cron:        cron,
-		Admin:       admin,
-		Priority:    priority,
-		Disable:     disable,
-		UUID:        uuid,
-		Title:       title,
-		Public:      public,
-		Description: description,
-		Icon:        icon,
-		Version:     version,
-		Author:      author,
-		CreateAt:    create_at,
-		Module:      module,
-		Encrypt:     encrypt,
-		OnStart:     onStart,
-		Origin:      origin,
-		Running:     onStart,
-		Reply:       message,
-		Https:       https,
-		FindAll:     FindAll,
-		HasForm:     hasForm,
-		Carry:       carry,
-		Classes:     classes,
+			vm.Set("s", ss)
+			vm.Set("InitAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
+				f := &Factory{
+					uuid: uuid,
+					vm:   vm,
+				}
+				f.Init(plt, botid, params)
+				return f
+			})
+			vm.Set("initAdapter", func(plt, botid string, params map[string]interface{}) *Factory {
+				f := &Factory{
+					uuid: uuid,
+					vm:   vm,
+				}
+				f.Init(plt, botid, params)
+				return f
+			})
+			getAdapter := func(plt, botid string) map[string]interface{} {
+				adapter, err := GetAdapter(plt, botid)
+				errstr := ""
+				if err != nil {
+					errstr = err.Error()
+				}
+				return map[string]interface{}{
+					"error":   errstr,
+					"adapter": adapter,
+				}
+			}
+			vm.Set("GetAdapter", getAdapter)
+			vm.Set("getAdapter", getAdapter)
+			vm.Set("getAdapterBotsID", GetAdapterBotsID)
+			vm.Set("getAdapterBotPlts", GetAdapterBotPlts)
+			vm.Set("GetAdapterBotsID", GetAdapterBotsID)
+			vm.Set("GetAdapterBotPlts", GetAdapterBotPlts)
+			vm.Set("running", running)
+			vm.Set("Running", running)
+			vm.Set("uuid", func() string {
+				return uuid
+			})
+			vm.Set("genUuid", func() string {
+				return utils.GenUUID()
+			})
+			vm.Set("genUUID", func() string {
+				return utils.GenUUID()
+			})
+			vm.Set("UUID", func() string {
+				return uuid
+			})
+			if set != nil {
+				set(vm)
+			}
+			_, err := vm.RunProgram(prg)
+			if err != nil {
+				pluginConsole(uuid).Error(strings.ReplaceAll(strings.ReplaceAll(err.Error(), "node_modules/", ""), "github.com/dop251/goja_nodejs/require", ""))
+			}
+		})
+		return nil
 	}
+
 	running = func() bool {
 		return f.Running
 	}

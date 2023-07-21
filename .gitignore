@@ -32,3 +32,5 @@ core/dist
 test
 .sillyGirl
 test*
+node_modules
+plugins

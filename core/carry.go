@@ -63,7 +63,7 @@ func initCarry() {
 							q := value.(*Queue)
 							for _, qm := range q.GetValues() {
 								if qm.From != nil && qm.From.GetMessageID() == event["message_id"] {
-									qm.To.Sender2().RecallMessage(qm.MessageID)
+									qm.To.Sender2(nil).RecallMessage(qm.MessageID)
 								}
 							}
 							return true
@@ -434,7 +434,7 @@ func init() {
 		functions := Functions
 		for _, function := range functions {
 			if function.UUID != "" {
-				scripts[function.UUID] = function.Title + ".js"
+				scripts[function.UUID] = function.Title + function.Suffix
 			}
 		}
 		ctx.JSON(200, map[string]interface{}{
@@ -496,7 +496,7 @@ func init() {
 		functions := Functions
 		for _, function := range functions {
 			if function.UUID != "" && ((len(function.Rules) == 0 && !function.OnStart && !function.Module && len(function.Https) == 0 && function.Reply == nil) || function.Carry) {
-				scripts[function.UUID] = function.Title + ".js"
+				scripts[function.UUID] = function.Title + function.Suffix
 			}
 		}
 		var user_names = []NicklabeL{}

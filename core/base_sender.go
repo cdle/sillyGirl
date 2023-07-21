@@ -160,6 +160,8 @@ type BaseSender struct {
 	params         []string
 	level          int
 	emf            map[string]interface{}
+	id             string
+	CreatedAt      time.Time
 }
 
 func (sender *BaseSender) SetLevel(l int) {
@@ -369,8 +371,22 @@ func (sender *BaseSender) Event() map[string]interface{} {
 	return nil
 }
 
-func (sender *BaseSender) Action(map[string]interface{}) (interface{}, string) {
-	return nil, ""
+func (sender *BaseSender) Action(map[string]interface{}) (interface{}, error) {
+	return nil, nil
+}
+
+func (sender *BaseSender) GetID() string {
+	return sender.id
+}
+
+func (sender *BaseSender) SetID() {
+	sender.id = utils.GenUUID()
+	sender.CreatedAt = time.Now()
+	senders.Store(sender.id, sender)
+}
+
+func (sender *BaseSender) GetTime() time.Time {
+	return sender.CreatedAt
 }
 
 func (sender *BaseSender) IsAtLast() bool {
@@ -581,7 +597,6 @@ func (s *BaseSender) Await(message common.Sender, callback func(common.Sender) i
 					c.Result <- result
 					return s.GetContent()
 				}
-
 			case error:
 				if handleErr != nil {
 					handleErr(s)

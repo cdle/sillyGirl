@@ -23,10 +23,10 @@ var sleep = func(i int) {
 func GetScriptNameByUUID(uuid string) string {
 	for _, f := range Functions {
 		if f.UUID == uuid {
-			return fmt.Sprintf("%s.js", f.Title)
+			return fmt.Sprintf("%s%s", f.Title, f.Suffix)
 		}
 	}
-	return "未知脚本.js"
+	return "未知脚本"
 }
 
 type SenderJsIplm struct {

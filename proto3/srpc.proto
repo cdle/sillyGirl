@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+option go_package = "srpc/";
+
+package srpc;
+
+message Empty {}
+
+message Default {
+  string value = 1;
+}
+
+message BucketSetRequest {
+  string name = 1;
+  string key = 2;
+  string value = 3;
+}
+
+message BucketSetResponse {
+  bool changed = 1;
+  string message = 2;
+}
+
+message BucketKeyRequest {
+  string name = 1;
+  string key = 2;
+}
+
+message BucketRequest {
+  string name = 1;
+}
+
+message BucketKeysResponse {
+  repeated string keys = 1;
+}
+
+message LenResponse {
+  int32 length = 1;
+}
+
+message BucketsResponse {
+  repeated string buckets = 1;
+}
+
+message SenderRequest {
+  string uuid = 1;
+}
+
+message ReplyRequest {
+  string uuid = 1;
+  string content = 2;
+}
+
+message SenderContentRequest {
+  string uuid = 1;
+  string content = 2;
+}
+
+message SenderListenRequest {
+  string uuid = 1;
+  repeated string rules = 2;
+  int32 timeout = 3;
+  bool listen_group = 4;
+  bool listen_private = 5;
+  bool require_admin = 6;
+  repeated string allow_platforms = 7;
+  repeated string prohibit_platforms = 8;
+  repeated string allow_users = 9;
+  repeated string prohibit_users = 10;
+  repeated string allow_groups = 11;
+  repeated string prohibit_groups = 12;
+}
+
+message AdapterRegistRequest {
+  string platform = 1;
+  string bot_id = 2;
+}
+
+message AdapterRequest {
+  string platform = 1;
+  string bot_id = 2;
+  string value = 3;
+}
+
+service SillyGirlService {
+  rpc BucketGet(BucketKeyRequest) returns (Default);
+  rpc BucketSet(BucketSetRequest) returns (BucketSetResponse);
+  rpc BucketDelete(BucketRequest) returns (Empty);
+  rpc BucketKeys(BucketRequest) returns (BucketKeysResponse);
+  rpc BucketLen(BucketRequest) returns (LenResponse);
+  rpc BucketGetAll(BucketRequest) returns (Default);
+  rpc BucketBuckets(Empty) returns (BucketsResponse);
+  rpc SenderGetUserId (SenderRequest) returns (Default);
+  rpc SenderGetUserName (SenderRequest) returns (Default);
+  rpc SenderGetChatId (SenderRequest) returns (Default);
+  rpc SenderGetChatName (SenderRequest) returns (Default);
+  rpc SenderGetMessageId (SenderRequest) returns (Default);
+  rpc SenderGetPlatform (SenderRequest) returns (Default);
+  rpc SenderGetBotId (SenderRequest) returns (Default);
+  rpc SenderGetContent (SenderRequest) returns (Default);
+  rpc SenderSetContent (SenderContentRequest) returns (Empty);
+  rpc SenderContinue (SenderRequest) returns (Empty);
+  rpc SenderListen (SenderListenRequest) returns (Default);
+  rpc SenderEvent (SenderRequest) returns (Default);
+  rpc SenderReply (ReplyRequest) returns (Default);
+  rpc SenderAction (ReplyRequest) returns (Default);
+  rpc AdapterRegist(stream AdapterRegistRequest) returns (stream Default);
+  rpc AdapterReceive(AdapterRequest) returns (Default);
+  rpc AdapterPush(AdapterRequest) returns (Default);
+  rpc AdapterDestroy(AdapterRequest) returns (Empty);
+  rpc AdapterSender(AdapterRequest) returns (Default);
+}

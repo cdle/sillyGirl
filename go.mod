@@ -17,6 +17,7 @@ require (
 	github.com/dop251/goja v0.0.0-20230605162241-28ee0ee714f3
 	github.com/dop251/goja_nodejs v0.0.0-20230602164024-804a84515562
 	github.com/elastic/go-elasticsearch/v6 v6.8.10
+	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/goccy/go-json v0.10.2
@@ -28,6 +29,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.11.7
 	golang.org/x/net v0.11.0
+	google.golang.org/grpc v1.41.0
 )
 
 require (
@@ -37,6 +39,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gofrs/uuid/v5 v5.0.0 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/pprof v0.0.0-20230602150820-91b7bce49751 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
@@ -56,6 +59,7 @@ require (
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20210917145530-b395a37504d4 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
@@ -80,5 +84,5 @@ require (
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/text v0.10.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
+	google.golang.org/protobuf v1.30.0
 )

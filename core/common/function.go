@@ -19,6 +19,8 @@ type Function struct {
 	Origin      string                                           `json:"-"`
 	UUID        string                                           `json:"id"`
 	Title       string                                           `json:"title"`
+	Type        string                                           `json:"type"`   //脚本类型
+	Suffix      string                                           `json:"suffix"` //脚本后缀
 	Description string                                           `json:"description"`
 	Public      bool                                             `json:"public"`
 	Icon        string                                           `json:"icon"`

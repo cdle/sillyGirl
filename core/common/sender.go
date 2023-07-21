@@ -1,6 +1,11 @@
 package common
 
+import "time"
+
 type Sender interface {
+	GetID() string
+	GetTime() time.Time
+	SetID()
 	GetUserID() string
 	GetChatID() string
 	GetBotID() string
@@ -51,7 +56,7 @@ type Sender interface {
 	SetLevel(int)
 	GetLevel() int
 	Event() map[string]interface{}
-	Action(map[string]interface{}) (interface{}, string)
+	Action(map[string]interface{}) (interface{}, error)
 }
 
 type FakerSenderParams struct {

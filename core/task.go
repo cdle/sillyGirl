@@ -55,7 +55,7 @@ func RegistTasks(pt *Tasks) {
 		for _, meta := range pt.Senders {
 			adapter, _ := GetAdapter(meta.Platfrom, meta.BotID)
 			if adapter != nil {
-				sender := adapter.Sender2()
+				sender := adapter.Sender2(nil)
 				sender.SetFsps(&common.FakerSenderParams{
 					Content: content,
 					ChatID:  meta.ChatID,
@@ -324,7 +324,7 @@ func init() {
 		functions := Functions
 		for _, function := range functions {
 			if function.UUID != "" {
-				scripts[function.UUID] = function.Title + ".js"
+				scripts[function.UUID] = function.Title + function.Suffix
 			}
 		}
 		var user_names = []NicklabeL{}

@@ -1,0 +1,13 @@
+protoc-gen-grpc --js_out=import_style=commonjs:. --grpc_out=. srpc.proto
+protoc-gen-grpc --ts_out=service=grpc-node:. --grpc_out=. srpc.proto
+
+protoc --go_out=. -I. --go-grpc_out=.  srpc.proto
+
+protoc --plugin=protoc-gen-ts=$(which protoc-gen-ts) --js_out=import_style=commonjs,binary:./ --ts_out=./ srpc.proto
+
+protoc --js_out=import_style=commonjs,binary:. --grpc_out=.  srpc.proto
+
+
+//ok
+protoc --go_out=. -I. --go-grpc_out=.  srpc.proto
+protoc-gen-grpc --ts_out=service=grpc-node:. --grpc_out=. srpc.proto
