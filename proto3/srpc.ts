@@ -226,6 +226,347 @@ export namespace srpc {
             return BucketSetRequest.deserialize(bytes);
         }
     }
+    export class BucketWatchRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            name?: string;
+            key?: string;
+            message?: string;
+            error?: string;
+            now?: string;
+            echo?: string;
+            plugin_id?: string;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("name" in data && data.name != undefined) {
+                    this.name = data.name;
+                }
+                if ("key" in data && data.key != undefined) {
+                    this.key = data.key;
+                }
+                if ("message" in data && data.message != undefined) {
+                    this.message = data.message;
+                }
+                if ("error" in data && data.error != undefined) {
+                    this.error = data.error;
+                }
+                if ("now" in data && data.now != undefined) {
+                    this.now = data.now;
+                }
+                if ("echo" in data && data.echo != undefined) {
+                    this.echo = data.echo;
+                }
+                if ("plugin_id" in data && data.plugin_id != undefined) {
+                    this.plugin_id = data.plugin_id;
+                }
+            }
+        }
+        get name() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set name(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get key() {
+            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+        }
+        set key(value: string) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        get message() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set message(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        get error() {
+            return pb_1.Message.getFieldWithDefault(this, 4, "") as string;
+        }
+        set error(value: string) {
+            pb_1.Message.setField(this, 4, value);
+        }
+        get now() {
+            return pb_1.Message.getFieldWithDefault(this, 5, "") as string;
+        }
+        set now(value: string) {
+            pb_1.Message.setField(this, 5, value);
+        }
+        get echo() {
+            return pb_1.Message.getFieldWithDefault(this, 6, "") as string;
+        }
+        set echo(value: string) {
+            pb_1.Message.setField(this, 6, value);
+        }
+        get plugin_id() {
+            return pb_1.Message.getFieldWithDefault(this, 7, "") as string;
+        }
+        set plugin_id(value: string) {
+            pb_1.Message.setField(this, 7, value);
+        }
+        static fromObject(data: {
+            name?: string;
+            key?: string;
+            message?: string;
+            error?: string;
+            now?: string;
+            echo?: string;
+            plugin_id?: string;
+        }): BucketWatchRequest {
+            const message = new BucketWatchRequest({});
+            if (data.name != null) {
+                message.name = data.name;
+            }
+            if (data.key != null) {
+                message.key = data.key;
+            }
+            if (data.message != null) {
+                message.message = data.message;
+            }
+            if (data.error != null) {
+                message.error = data.error;
+            }
+            if (data.now != null) {
+                message.now = data.now;
+            }
+            if (data.echo != null) {
+                message.echo = data.echo;
+            }
+            if (data.plugin_id != null) {
+                message.plugin_id = data.plugin_id;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                name?: string;
+                key?: string;
+                message?: string;
+                error?: string;
+                now?: string;
+                echo?: string;
+                plugin_id?: string;
+            } = {};
+            if (this.name != null) {
+                data.name = this.name;
+            }
+            if (this.key != null) {
+                data.key = this.key;
+            }
+            if (this.message != null) {
+                data.message = this.message;
+            }
+            if (this.error != null) {
+                data.error = this.error;
+            }
+            if (this.now != null) {
+                data.now = this.now;
+            }
+            if (this.echo != null) {
+                data.echo = this.echo;
+            }
+            if (this.plugin_id != null) {
+                data.plugin_id = this.plugin_id;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.name.length)
+                writer.writeString(1, this.name);
+            if (this.key.length)
+                writer.writeString(2, this.key);
+            if (this.message.length)
+                writer.writeString(3, this.message);
+            if (this.error.length)
+                writer.writeString(4, this.error);
+            if (this.now.length)
+                writer.writeString(5, this.now);
+            if (this.echo.length)
+                writer.writeString(6, this.echo);
+            if (this.plugin_id.length)
+                writer.writeString(7, this.plugin_id);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BucketWatchRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new BucketWatchRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.name = reader.readString();
+                        break;
+                    case 2:
+                        message.key = reader.readString();
+                        break;
+                    case 3:
+                        message.message = reader.readString();
+                        break;
+                    case 4:
+                        message.error = reader.readString();
+                        break;
+                    case 5:
+                        message.now = reader.readString();
+                        break;
+                    case 6:
+                        message.echo = reader.readString();
+                        break;
+                    case 7:
+                        message.plugin_id = reader.readString();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): BucketWatchRequest {
+            return BucketWatchRequest.deserialize(bytes);
+        }
+    }
+    export class BucketWatchResponse extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            echo?: string;
+            old?: string;
+            now?: string;
+            key?: string;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("echo" in data && data.echo != undefined) {
+                    this.echo = data.echo;
+                }
+                if ("old" in data && data.old != undefined) {
+                    this.old = data.old;
+                }
+                if ("now" in data && data.now != undefined) {
+                    this.now = data.now;
+                }
+                if ("key" in data && data.key != undefined) {
+                    this.key = data.key;
+                }
+            }
+        }
+        get echo() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set echo(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get old() {
+            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+        }
+        set old(value: string) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        get now() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set now(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        get key() {
+            return pb_1.Message.getFieldWithDefault(this, 4, "") as string;
+        }
+        set key(value: string) {
+            pb_1.Message.setField(this, 4, value);
+        }
+        static fromObject(data: {
+            echo?: string;
+            old?: string;
+            now?: string;
+            key?: string;
+        }): BucketWatchResponse {
+            const message = new BucketWatchResponse({});
+            if (data.echo != null) {
+                message.echo = data.echo;
+            }
+            if (data.old != null) {
+                message.old = data.old;
+            }
+            if (data.now != null) {
+                message.now = data.now;
+            }
+            if (data.key != null) {
+                message.key = data.key;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                echo?: string;
+                old?: string;
+                now?: string;
+                key?: string;
+            } = {};
+            if (this.echo != null) {
+                data.echo = this.echo;
+            }
+            if (this.old != null) {
+                data.old = this.old;
+            }
+            if (this.now != null) {
+                data.now = this.now;
+            }
+            if (this.key != null) {
+                data.key = this.key;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.echo.length)
+                writer.writeString(1, this.echo);
+            if (this.old.length)
+                writer.writeString(2, this.old);
+            if (this.now.length)
+                writer.writeString(3, this.now);
+            if (this.key.length)
+                writer.writeString(4, this.key);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BucketWatchResponse {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new BucketWatchResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.echo = reader.readString();
+                        break;
+                    case 2:
+                        message.old = reader.readString();
+                        break;
+                    case 3:
+                        message.now = reader.readString();
+                        break;
+                    case 4:
+                        message.key = reader.readString();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): BucketWatchResponse {
+            return BucketWatchResponse.deserialize(bytes);
+        }
+    }
     export class BucketSetResponse extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
@@ -921,6 +1262,96 @@ export namespace srpc {
             return SenderContentRequest.deserialize(bytes);
         }
     }
+    export class SenderListenResponse extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            echo?: string;
+            uuid?: string;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("echo" in data && data.echo != undefined) {
+                    this.echo = data.echo;
+                }
+                if ("uuid" in data && data.uuid != undefined) {
+                    this.uuid = data.uuid;
+                }
+            }
+        }
+        get echo() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set echo(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get uuid() {
+            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+        }
+        set uuid(value: string) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        static fromObject(data: {
+            echo?: string;
+            uuid?: string;
+        }): SenderListenResponse {
+            const message = new SenderListenResponse({});
+            if (data.echo != null) {
+                message.echo = data.echo;
+            }
+            if (data.uuid != null) {
+                message.uuid = data.uuid;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                echo?: string;
+                uuid?: string;
+            } = {};
+            if (this.echo != null) {
+                data.echo = this.echo;
+            }
+            if (this.uuid != null) {
+                data.uuid = this.uuid;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.echo.length)
+                writer.writeString(1, this.echo);
+            if (this.uuid.length)
+                writer.writeString(2, this.uuid);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): SenderListenResponse {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new SenderListenResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.echo = reader.readString();
+                        break;
+                    case 2:
+                        message.uuid = reader.readString();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): SenderListenResponse {
+            return SenderListenResponse.deserialize(bytes);
+        }
+    }
     export class SenderListenRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
@@ -936,6 +1367,9 @@ export namespace srpc {
             prohibit_users?: string[];
             allow_groups?: string[];
             prohibit_groups?: string[];
+            persistent?: boolean;
+            value?: string;
+            plugin_id?: string;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [2, 7, 8, 9, 10, 11, 12], this.#one_of_decls);
@@ -975,6 +1409,15 @@ export namespace srpc {
                 }
                 if ("prohibit_groups" in data && data.prohibit_groups != undefined) {
                     this.prohibit_groups = data.prohibit_groups;
+                }
+                if ("persistent" in data && data.persistent != undefined) {
+                    this.persistent = data.persistent;
+                }
+                if ("value" in data && data.value != undefined) {
+                    this.value = data.value;
+                }
+                if ("plugin_id" in data && data.plugin_id != undefined) {
+                    this.plugin_id = data.plugin_id;
                 }
             }
         }
@@ -1050,6 +1493,24 @@ export namespace srpc {
         set prohibit_groups(value: string[]) {
             pb_1.Message.setField(this, 12, value);
         }
+        get persistent() {
+            return pb_1.Message.getFieldWithDefault(this, 13, false) as boolean;
+        }
+        set persistent(value: boolean) {
+            pb_1.Message.setField(this, 13, value);
+        }
+        get value() {
+            return pb_1.Message.getFieldWithDefault(this, 14, "") as string;
+        }
+        set value(value: string) {
+            pb_1.Message.setField(this, 14, value);
+        }
+        get plugin_id() {
+            return pb_1.Message.getFieldWithDefault(this, 15, "") as string;
+        }
+        set plugin_id(value: string) {
+            pb_1.Message.setField(this, 15, value);
+        }
         static fromObject(data: {
             uuid?: string;
             rules?: string[];
@@ -1063,6 +1524,9 @@ export namespace srpc {
             prohibit_users?: string[];
             allow_groups?: string[];
             prohibit_groups?: string[];
+            persistent?: boolean;
+            value?: string;
+            plugin_id?: string;
         }): SenderListenRequest {
             const message = new SenderListenRequest({});
             if (data.uuid != null) {
@@ -1101,6 +1565,15 @@ export namespace srpc {
             if (data.prohibit_groups != null) {
                 message.prohibit_groups = data.prohibit_groups;
             }
+            if (data.persistent != null) {
+                message.persistent = data.persistent;
+            }
+            if (data.value != null) {
+                message.value = data.value;
+            }
+            if (data.plugin_id != null) {
+                message.plugin_id = data.plugin_id;
+            }
             return message;
         }
         toObject() {
@@ -1117,6 +1590,9 @@ export namespace srpc {
                 prohibit_users?: string[];
                 allow_groups?: string[];
                 prohibit_groups?: string[];
+                persistent?: boolean;
+                value?: string;
+                plugin_id?: string;
             } = {};
             if (this.uuid != null) {
                 data.uuid = this.uuid;
@@ -1154,6 +1630,15 @@ export namespace srpc {
             if (this.prohibit_groups != null) {
                 data.prohibit_groups = this.prohibit_groups;
             }
+            if (this.persistent != null) {
+                data.persistent = this.persistent;
+            }
+            if (this.value != null) {
+                data.value = this.value;
+            }
+            if (this.plugin_id != null) {
+                data.plugin_id = this.plugin_id;
+            }
             return data;
         }
         serialize(): Uint8Array;
@@ -1184,6 +1669,12 @@ export namespace srpc {
                 writer.writeRepeatedString(11, this.allow_groups);
             if (this.prohibit_groups.length)
                 writer.writeRepeatedString(12, this.prohibit_groups);
+            if (this.persistent != false)
+                writer.writeBool(13, this.persistent);
+            if (this.value.length)
+                writer.writeString(14, this.value);
+            if (this.plugin_id.length)
+                writer.writeString(15, this.plugin_id);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -1228,6 +1719,15 @@ export namespace srpc {
                         break;
                     case 12:
                         pb_1.Message.addToRepeatedField(message, 12, reader.readString());
+                        break;
+                    case 13:
+                        message.persistent = reader.readBool();
+                        break;
+                    case 14:
+                        message.value = reader.readString();
+                        break;
+                    case 15:
+                        message.plugin_id = reader.readString();
                         break;
                     default: reader.skipField();
                 }
@@ -1444,6 +1944,209 @@ export namespace srpc {
             return AdapterRequest.deserialize(bytes);
         }
     }
+    export class Any extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            type_url?: string;
+            value?: Uint8Array;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("type_url" in data && data.type_url != undefined) {
+                    this.type_url = data.type_url;
+                }
+                if ("value" in data && data.value != undefined) {
+                    this.value = data.value;
+                }
+            }
+        }
+        get type_url() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set type_url(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get value() {
+            return pb_1.Message.getFieldWithDefault(this, 2, new Uint8Array(0)) as Uint8Array;
+        }
+        set value(value: Uint8Array) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        static fromObject(data: {
+            type_url?: string;
+            value?: Uint8Array;
+        }): Any {
+            const message = new Any({});
+            if (data.type_url != null) {
+                message.type_url = data.type_url;
+            }
+            if (data.value != null) {
+                message.value = data.value;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                type_url?: string;
+                value?: Uint8Array;
+            } = {};
+            if (this.type_url != null) {
+                data.type_url = this.type_url;
+            }
+            if (this.value != null) {
+                data.value = this.value;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.type_url.length)
+                writer.writeString(1, this.type_url);
+            if (this.value.length)
+                writer.writeBytes(2, this.value);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Any {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Any();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.type_url = reader.readString();
+                        break;
+                    case 2:
+                        message.value = reader.readBytes();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): Any {
+            return Any.deserialize(bytes);
+        }
+    }
+    export class ConsoleRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            type?: string;
+            logs?: Any[];
+            plugin_id?: string;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [2], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("type" in data && data.type != undefined) {
+                    this.type = data.type;
+                }
+                if ("logs" in data && data.logs != undefined) {
+                    this.logs = data.logs;
+                }
+                if ("plugin_id" in data && data.plugin_id != undefined) {
+                    this.plugin_id = data.plugin_id;
+                }
+            }
+        }
+        get type() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set type(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get logs() {
+            return pb_1.Message.getRepeatedWrapperField(this, Any, 2) as Any[];
+        }
+        set logs(value: Any[]) {
+            pb_1.Message.setRepeatedWrapperField(this, 2, value);
+        }
+        get plugin_id() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set plugin_id(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        static fromObject(data: {
+            type?: string;
+            logs?: ReturnType<typeof Any.prototype.toObject>[];
+            plugin_id?: string;
+        }): ConsoleRequest {
+            const message = new ConsoleRequest({});
+            if (data.type != null) {
+                message.type = data.type;
+            }
+            if (data.logs != null) {
+                message.logs = data.logs.map(item => Any.fromObject(item));
+            }
+            if (data.plugin_id != null) {
+                message.plugin_id = data.plugin_id;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                type?: string;
+                logs?: ReturnType<typeof Any.prototype.toObject>[];
+                plugin_id?: string;
+            } = {};
+            if (this.type != null) {
+                data.type = this.type;
+            }
+            if (this.logs != null) {
+                data.logs = this.logs.map((item: Any) => item.toObject());
+            }
+            if (this.plugin_id != null) {
+                data.plugin_id = this.plugin_id;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.type.length)
+                writer.writeString(1, this.type);
+            if (this.logs.length)
+                writer.writeRepeatedMessage(2, this.logs, (item: Any) => item.serialize(writer));
+            if (this.plugin_id.length)
+                writer.writeString(3, this.plugin_id);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ConsoleRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ConsoleRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.type = reader.readString();
+                        break;
+                    case 2:
+                        reader.readMessage(message.logs, () => pb_1.Message.addToRepeatedWrapperField(message, 2, Any.deserialize(reader), Any));
+                        break;
+                    case 3:
+                        message.plugin_id = reader.readString();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): ConsoleRequest {
+            return ConsoleRequest.deserialize(bytes);
+        }
+    }
     interface GrpcUnaryServiceInterface<P, R> {
         (message: P, metadata: grpc_1.Metadata, options: grpc_1.CallOptions, callback: grpc_1.requestCallback<R>): grpc_1.ClientUnaryCall;
         (message: P, metadata: grpc_1.Metadata, callback: grpc_1.requestCallback<R>): grpc_1.ClientUnaryCall;
@@ -1532,6 +2235,15 @@ export namespace srpc {
                 requestDeserialize: (bytes: Buffer) => Empty.deserialize(new Uint8Array(bytes)),
                 responseSerialize: (message: BucketsResponse) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => BucketsResponse.deserialize(new Uint8Array(bytes))
+            },
+            BucketWatch: {
+                path: "/srpc.SillyGirlService/BucketWatch",
+                requestStream: true,
+                responseStream: true,
+                requestSerialize: (message: BucketWatchRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => BucketWatchRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: BucketWatchResponse) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => BucketWatchResponse.deserialize(new Uint8Array(bytes))
             },
             SenderGetUserId: {
                 path: "/srpc.SillyGirlService/SenderGetUserId",
@@ -1625,12 +2337,12 @@ export namespace srpc {
             },
             SenderListen: {
                 path: "/srpc.SillyGirlService/SenderListen",
-                requestStream: false,
-                responseStream: false,
+                requestStream: true,
+                responseStream: true,
                 requestSerialize: (message: SenderListenRequest) => Buffer.from(message.serialize()),
                 requestDeserialize: (bytes: Buffer) => SenderListenRequest.deserialize(new Uint8Array(bytes)),
-                responseSerialize: (message: Default) => Buffer.from(message.serialize()),
-                responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
+                responseSerialize: (message: SenderListenResponse) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => SenderListenResponse.deserialize(new Uint8Array(bytes))
             },
             SenderEvent: {
                 path: "/srpc.SillyGirlService/SenderEvent",
@@ -1650,6 +2362,15 @@ export namespace srpc {
                 responseSerialize: (message: Default) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
             },
+            SenderParam: {
+                path: "/srpc.SillyGirlService/SenderParam",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: ReplyRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => ReplyRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: Default) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
+            },
             SenderAction: {
                 path: "/srpc.SillyGirlService/SenderAction",
                 requestStream: false,
@@ -1658,6 +2379,15 @@ export namespace srpc {
                 requestDeserialize: (bytes: Buffer) => ReplyRequest.deserialize(new Uint8Array(bytes)),
                 responseSerialize: (message: Default) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
+            },
+            SenderDestroy: {
+                path: "/srpc.SillyGirlService/SenderDestroy",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: ReplyRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => ReplyRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: Empty) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => Empty.deserialize(new Uint8Array(bytes))
             },
             AdapterRegist: {
                 path: "/srpc.SillyGirlService/AdapterRegist",
@@ -1703,6 +2433,15 @@ export namespace srpc {
                 requestDeserialize: (bytes: Buffer) => AdapterRequest.deserialize(new Uint8Array(bytes)),
                 responseSerialize: (message: Default) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
+            },
+            Console: {
+                path: "/srpc.SillyGirlService/Console",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: ConsoleRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => ConsoleRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: Empty) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => Empty.deserialize(new Uint8Array(bytes))
             }
         };
         [method: string]: grpc_1.UntypedHandleCall;
@@ -1713,6 +2452,7 @@ export namespace srpc {
         abstract BucketLen(call: grpc_1.ServerUnaryCall<BucketRequest, LenResponse>, callback: grpc_1.sendUnaryData<LenResponse>): void;
         abstract BucketGetAll(call: grpc_1.ServerUnaryCall<BucketRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract BucketBuckets(call: grpc_1.ServerUnaryCall<Empty, BucketsResponse>, callback: grpc_1.sendUnaryData<BucketsResponse>): void;
+        abstract BucketWatch(call: grpc_1.ServerDuplexStream<BucketWatchRequest, BucketWatchResponse>): void;
         abstract SenderGetUserId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetUserName(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetChatId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
@@ -1723,15 +2463,18 @@ export namespace srpc {
         abstract SenderGetContent(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderSetContent(call: grpc_1.ServerUnaryCall<SenderContentRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract SenderContinue(call: grpc_1.ServerUnaryCall<SenderRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
-        abstract SenderListen(call: grpc_1.ServerUnaryCall<SenderListenRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract SenderListen(call: grpc_1.ServerDuplexStream<SenderListenRequest, SenderListenResponse>): void;
         abstract SenderEvent(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderReply(call: grpc_1.ServerUnaryCall<ReplyRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract SenderParam(call: grpc_1.ServerUnaryCall<ReplyRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderAction(call: grpc_1.ServerUnaryCall<ReplyRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract SenderDestroy(call: grpc_1.ServerUnaryCall<ReplyRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterRegist(call: grpc_1.ServerDuplexStream<AdapterRegistRequest, Default>): void;
         abstract AdapterReceive(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract AdapterPush(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract AdapterDestroy(call: grpc_1.ServerUnaryCall<AdapterRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterSender(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract Console(call: grpc_1.ServerUnaryCall<ConsoleRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
     }
     export class SillyGirlServiceClient extends grpc_1.makeGenericClientConstructor(UnimplementedSillyGirlServiceService.definition, "SillyGirlService", {}) {
         constructor(address: string, credentials: grpc_1.ChannelCredentials, options?: Partial<grpc_1.ChannelOptions>) {
@@ -1757,6 +2500,9 @@ export namespace srpc {
         };
         BucketBuckets: GrpcUnaryServiceInterface<Empty, BucketsResponse> = (message: Empty, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<BucketsResponse>, options?: grpc_1.CallOptions | grpc_1.requestCallback<BucketsResponse>, callback?: grpc_1.requestCallback<BucketsResponse>): grpc_1.ClientUnaryCall => {
             return super.BucketBuckets(message, metadata, options, callback);
+        };
+        BucketWatch: GrpcChunkServiceInterface<BucketWatchRequest, BucketWatchResponse> = (metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientDuplexStream<BucketWatchRequest, BucketWatchResponse> => {
+            return super.BucketWatch(metadata, options);
         };
         SenderGetUserId: GrpcUnaryServiceInterface<SenderRequest, Default> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderGetUserId(message, metadata, options, callback);
@@ -1788,8 +2534,8 @@ export namespace srpc {
         SenderContinue: GrpcUnaryServiceInterface<SenderRequest, Empty> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Empty>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Empty>, callback?: grpc_1.requestCallback<Empty>): grpc_1.ClientUnaryCall => {
             return super.SenderContinue(message, metadata, options, callback);
         };
-        SenderListen: GrpcUnaryServiceInterface<SenderListenRequest, Default> = (message: SenderListenRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
-            return super.SenderListen(message, metadata, options, callback);
+        SenderListen: GrpcChunkServiceInterface<SenderListenRequest, SenderListenResponse> = (metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientDuplexStream<SenderListenRequest, SenderListenResponse> => {
+            return super.SenderListen(metadata, options);
         };
         SenderEvent: GrpcUnaryServiceInterface<SenderRequest, Default> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderEvent(message, metadata, options, callback);
@@ -1797,8 +2543,14 @@ export namespace srpc {
         SenderReply: GrpcUnaryServiceInterface<ReplyRequest, Default> = (message: ReplyRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderReply(message, metadata, options, callback);
         };
+        SenderParam: GrpcUnaryServiceInterface<ReplyRequest, Default> = (message: ReplyRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
+            return super.SenderParam(message, metadata, options, callback);
+        };
         SenderAction: GrpcUnaryServiceInterface<ReplyRequest, Default> = (message: ReplyRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderAction(message, metadata, options, callback);
+        };
+        SenderDestroy: GrpcUnaryServiceInterface<ReplyRequest, Empty> = (message: ReplyRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Empty>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Empty>, callback?: grpc_1.requestCallback<Empty>): grpc_1.ClientUnaryCall => {
+            return super.SenderDestroy(message, metadata, options, callback);
         };
         AdapterRegist: GrpcChunkServiceInterface<AdapterRegistRequest, Default> = (metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientDuplexStream<AdapterRegistRequest, Default> => {
             return super.AdapterRegist(metadata, options);
@@ -1814,6 +2566,9 @@ export namespace srpc {
         };
         AdapterSender: GrpcUnaryServiceInterface<AdapterRequest, Default> = (message: AdapterRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.AdapterSender(message, metadata, options, callback);
+        };
+        Console: GrpcUnaryServiceInterface<ConsoleRequest, Empty> = (message: ConsoleRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Empty>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Empty>, callback?: grpc_1.requestCallback<Empty>): grpc_1.ClientUnaryCall => {
+            return super.Console(message, metadata, options, callback);
         };
     }
 }

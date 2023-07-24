@@ -26,6 +26,7 @@ const (
 	SillyGirlService_BucketLen_FullMethodName          = "/srpc.SillyGirlService/BucketLen"
 	SillyGirlService_BucketGetAll_FullMethodName       = "/srpc.SillyGirlService/BucketGetAll"
 	SillyGirlService_BucketBuckets_FullMethodName      = "/srpc.SillyGirlService/BucketBuckets"
+	SillyGirlService_BucketWatch_FullMethodName        = "/srpc.SillyGirlService/BucketWatch"
 	SillyGirlService_SenderGetUserId_FullMethodName    = "/srpc.SillyGirlService/SenderGetUserId"
 	SillyGirlService_SenderGetUserName_FullMethodName  = "/srpc.SillyGirlService/SenderGetUserName"
 	SillyGirlService_SenderGetChatId_FullMethodName    = "/srpc.SillyGirlService/SenderGetChatId"
@@ -39,12 +40,15 @@ const (
 	SillyGirlService_SenderListen_FullMethodName       = "/srpc.SillyGirlService/SenderListen"
 	SillyGirlService_SenderEvent_FullMethodName        = "/srpc.SillyGirlService/SenderEvent"
 	SillyGirlService_SenderReply_FullMethodName        = "/srpc.SillyGirlService/SenderReply"
+	SillyGirlService_SenderParam_FullMethodName        = "/srpc.SillyGirlService/SenderParam"
 	SillyGirlService_SenderAction_FullMethodName       = "/srpc.SillyGirlService/SenderAction"
+	SillyGirlService_SenderDestroy_FullMethodName      = "/srpc.SillyGirlService/SenderDestroy"
 	SillyGirlService_AdapterRegist_FullMethodName      = "/srpc.SillyGirlService/AdapterRegist"
 	SillyGirlService_AdapterReceive_FullMethodName     = "/srpc.SillyGirlService/AdapterReceive"
 	SillyGirlService_AdapterPush_FullMethodName        = "/srpc.SillyGirlService/AdapterPush"
 	SillyGirlService_AdapterDestroy_FullMethodName     = "/srpc.SillyGirlService/AdapterDestroy"
 	SillyGirlService_AdapterSender_FullMethodName      = "/srpc.SillyGirlService/AdapterSender"
+	SillyGirlService_Console_FullMethodName            = "/srpc.SillyGirlService/Console"
 )
 
 // SillyGirlServiceClient is the client API for SillyGirlService service.
@@ -58,6 +62,7 @@ type SillyGirlServiceClient interface {
 	BucketLen(ctx context.Context, in *BucketRequest, opts ...grpc.CallOption) (*LenResponse, error)
 	BucketGetAll(ctx context.Context, in *BucketRequest, opts ...grpc.CallOption) (*Default, error)
 	BucketBuckets(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BucketsResponse, error)
+	BucketWatch(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_BucketWatchClient, error)
 	SenderGetUserId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetUserName(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetChatId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
@@ -68,15 +73,18 @@ type SillyGirlServiceClient interface {
 	SenderGetContent(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderSetContent(ctx context.Context, in *SenderContentRequest, opts ...grpc.CallOption) (*Empty, error)
 	SenderContinue(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Empty, error)
-	SenderListen(ctx context.Context, in *SenderListenRequest, opts ...grpc.CallOption) (*Default, error)
+	SenderListen(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_SenderListenClient, error)
 	SenderEvent(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderReply(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error)
+	SenderParam(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderAction(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error)
+	SenderDestroy(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Empty, error)
 	AdapterRegist(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_AdapterRegistClient, error)
 	AdapterReceive(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
 	AdapterPush(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
 	AdapterDestroy(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Empty, error)
 	AdapterSender(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
+	Console(ctx context.Context, in *ConsoleRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type sillyGirlServiceClient struct {
@@ -148,6 +156,37 @@ func (c *sillyGirlServiceClient) BucketBuckets(ctx context.Context, in *Empty, o
 		return nil, err
 	}
 	return out, nil
+}
+
+func (c *sillyGirlServiceClient) BucketWatch(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_BucketWatchClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SillyGirlService_ServiceDesc.Streams[0], SillyGirlService_BucketWatch_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &sillyGirlServiceBucketWatchClient{stream}
+	return x, nil
+}
+
+type SillyGirlService_BucketWatchClient interface {
+	Send(*BucketWatchRequest) error
+	Recv() (*BucketWatchResponse, error)
+	grpc.ClientStream
+}
+
+type sillyGirlServiceBucketWatchClient struct {
+	grpc.ClientStream
+}
+
+func (x *sillyGirlServiceBucketWatchClient) Send(m *BucketWatchRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *sillyGirlServiceBucketWatchClient) Recv() (*BucketWatchResponse, error) {
+	m := new(BucketWatchResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *sillyGirlServiceClient) SenderGetUserId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error) {
@@ -240,13 +279,35 @@ func (c *sillyGirlServiceClient) SenderContinue(ctx context.Context, in *SenderR
 	return out, nil
 }
 
-func (c *sillyGirlServiceClient) SenderListen(ctx context.Context, in *SenderListenRequest, opts ...grpc.CallOption) (*Default, error) {
-	out := new(Default)
-	err := c.cc.Invoke(ctx, SillyGirlService_SenderListen_FullMethodName, in, out, opts...)
+func (c *sillyGirlServiceClient) SenderListen(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_SenderListenClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SillyGirlService_ServiceDesc.Streams[1], SillyGirlService_SenderListen_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &sillyGirlServiceSenderListenClient{stream}
+	return x, nil
+}
+
+type SillyGirlService_SenderListenClient interface {
+	Send(*SenderListenRequest) error
+	Recv() (*SenderListenResponse, error)
+	grpc.ClientStream
+}
+
+type sillyGirlServiceSenderListenClient struct {
+	grpc.ClientStream
+}
+
+func (x *sillyGirlServiceSenderListenClient) Send(m *SenderListenRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *sillyGirlServiceSenderListenClient) Recv() (*SenderListenResponse, error) {
+	m := new(SenderListenResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *sillyGirlServiceClient) SenderEvent(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error) {
@@ -267,6 +328,15 @@ func (c *sillyGirlServiceClient) SenderReply(ctx context.Context, in *ReplyReque
 	return out, nil
 }
 
+func (c *sillyGirlServiceClient) SenderParam(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error) {
+	out := new(Default)
+	err := c.cc.Invoke(ctx, SillyGirlService_SenderParam_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *sillyGirlServiceClient) SenderAction(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error) {
 	out := new(Default)
 	err := c.cc.Invoke(ctx, SillyGirlService_SenderAction_FullMethodName, in, out, opts...)
@@ -276,8 +346,17 @@ func (c *sillyGirlServiceClient) SenderAction(ctx context.Context, in *ReplyRequ
 	return out, nil
 }
 
+func (c *sillyGirlServiceClient) SenderDestroy(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SillyGirlService_SenderDestroy_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *sillyGirlServiceClient) AdapterRegist(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_AdapterRegistClient, error) {
-	stream, err := c.cc.NewStream(ctx, &SillyGirlService_ServiceDesc.Streams[0], SillyGirlService_AdapterRegist_FullMethodName, opts...)
+	stream, err := c.cc.NewStream(ctx, &SillyGirlService_ServiceDesc.Streams[2], SillyGirlService_AdapterRegist_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -343,6 +422,15 @@ func (c *sillyGirlServiceClient) AdapterSender(ctx context.Context, in *AdapterR
 	return out, nil
 }
 
+func (c *sillyGirlServiceClient) Console(ctx context.Context, in *ConsoleRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, SillyGirlService_Console_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SillyGirlServiceServer is the server API for SillyGirlService service.
 // All implementations must embed UnimplementedSillyGirlServiceServer
 // for forward compatibility
@@ -354,6 +442,7 @@ type SillyGirlServiceServer interface {
 	BucketLen(context.Context, *BucketRequest) (*LenResponse, error)
 	BucketGetAll(context.Context, *BucketRequest) (*Default, error)
 	BucketBuckets(context.Context, *Empty) (*BucketsResponse, error)
+	BucketWatch(SillyGirlService_BucketWatchServer) error
 	SenderGetUserId(context.Context, *SenderRequest) (*Default, error)
 	SenderGetUserName(context.Context, *SenderRequest) (*Default, error)
 	SenderGetChatId(context.Context, *SenderRequest) (*Default, error)
@@ -364,15 +453,18 @@ type SillyGirlServiceServer interface {
 	SenderGetContent(context.Context, *SenderRequest) (*Default, error)
 	SenderSetContent(context.Context, *SenderContentRequest) (*Empty, error)
 	SenderContinue(context.Context, *SenderRequest) (*Empty, error)
-	SenderListen(context.Context, *SenderListenRequest) (*Default, error)
+	SenderListen(SillyGirlService_SenderListenServer) error
 	SenderEvent(context.Context, *SenderRequest) (*Default, error)
 	SenderReply(context.Context, *ReplyRequest) (*Default, error)
+	SenderParam(context.Context, *ReplyRequest) (*Default, error)
 	SenderAction(context.Context, *ReplyRequest) (*Default, error)
+	SenderDestroy(context.Context, *ReplyRequest) (*Empty, error)
 	AdapterRegist(SillyGirlService_AdapterRegistServer) error
 	AdapterReceive(context.Context, *AdapterRequest) (*Default, error)
 	AdapterPush(context.Context, *AdapterRequest) (*Default, error)
 	AdapterDestroy(context.Context, *AdapterRequest) (*Empty, error)
 	AdapterSender(context.Context, *AdapterRequest) (*Default, error)
+	Console(context.Context, *ConsoleRequest) (*Empty, error)
 	mustEmbedUnimplementedSillyGirlServiceServer()
 }
 
@@ -400,6 +492,9 @@ func (UnimplementedSillyGirlServiceServer) BucketGetAll(context.Context, *Bucket
 }
 func (UnimplementedSillyGirlServiceServer) BucketBuckets(context.Context, *Empty) (*BucketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BucketBuckets not implemented")
+}
+func (UnimplementedSillyGirlServiceServer) BucketWatch(SillyGirlService_BucketWatchServer) error {
+	return status.Errorf(codes.Unimplemented, "method BucketWatch not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) SenderGetUserId(context.Context, *SenderRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderGetUserId not implemented")
@@ -431,8 +526,8 @@ func (UnimplementedSillyGirlServiceServer) SenderSetContent(context.Context, *Se
 func (UnimplementedSillyGirlServiceServer) SenderContinue(context.Context, *SenderRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderContinue not implemented")
 }
-func (UnimplementedSillyGirlServiceServer) SenderListen(context.Context, *SenderListenRequest) (*Default, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SenderListen not implemented")
+func (UnimplementedSillyGirlServiceServer) SenderListen(SillyGirlService_SenderListenServer) error {
+	return status.Errorf(codes.Unimplemented, "method SenderListen not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) SenderEvent(context.Context, *SenderRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderEvent not implemented")
@@ -440,8 +535,14 @@ func (UnimplementedSillyGirlServiceServer) SenderEvent(context.Context, *SenderR
 func (UnimplementedSillyGirlServiceServer) SenderReply(context.Context, *ReplyRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderReply not implemented")
 }
+func (UnimplementedSillyGirlServiceServer) SenderParam(context.Context, *ReplyRequest) (*Default, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SenderParam not implemented")
+}
 func (UnimplementedSillyGirlServiceServer) SenderAction(context.Context, *ReplyRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderAction not implemented")
+}
+func (UnimplementedSillyGirlServiceServer) SenderDestroy(context.Context, *ReplyRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SenderDestroy not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) AdapterRegist(SillyGirlService_AdapterRegistServer) error {
 	return status.Errorf(codes.Unimplemented, "method AdapterRegist not implemented")
@@ -457,6 +558,9 @@ func (UnimplementedSillyGirlServiceServer) AdapterDestroy(context.Context, *Adap
 }
 func (UnimplementedSillyGirlServiceServer) AdapterSender(context.Context, *AdapterRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdapterSender not implemented")
+}
+func (UnimplementedSillyGirlServiceServer) Console(context.Context, *ConsoleRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Console not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) mustEmbedUnimplementedSillyGirlServiceServer() {}
 
@@ -595,6 +699,32 @@ func _SillyGirlService_BucketBuckets_Handler(srv interface{}, ctx context.Contex
 		return srv.(SillyGirlServiceServer).BucketBuckets(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _SillyGirlService_BucketWatch_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(SillyGirlServiceServer).BucketWatch(&sillyGirlServiceBucketWatchServer{stream})
+}
+
+type SillyGirlService_BucketWatchServer interface {
+	Send(*BucketWatchResponse) error
+	Recv() (*BucketWatchRequest, error)
+	grpc.ServerStream
+}
+
+type sillyGirlServiceBucketWatchServer struct {
+	grpc.ServerStream
+}
+
+func (x *sillyGirlServiceBucketWatchServer) Send(m *BucketWatchResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *sillyGirlServiceBucketWatchServer) Recv() (*BucketWatchRequest, error) {
+	m := new(BucketWatchRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _SillyGirlService_SenderGetUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -777,22 +907,30 @@ func _SillyGirlService_SenderContinue_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SillyGirlService_SenderListen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SenderListenRequest)
-	if err := dec(in); err != nil {
+func _SillyGirlService_SenderListen_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(SillyGirlServiceServer).SenderListen(&sillyGirlServiceSenderListenServer{stream})
+}
+
+type SillyGirlService_SenderListenServer interface {
+	Send(*SenderListenResponse) error
+	Recv() (*SenderListenRequest, error)
+	grpc.ServerStream
+}
+
+type sillyGirlServiceSenderListenServer struct {
+	grpc.ServerStream
+}
+
+func (x *sillyGirlServiceSenderListenServer) Send(m *SenderListenResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *sillyGirlServiceSenderListenServer) Recv() (*SenderListenRequest, error) {
+	m := new(SenderListenRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(SillyGirlServiceServer).SenderListen(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SillyGirlService_SenderListen_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SillyGirlServiceServer).SenderListen(ctx, req.(*SenderListenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 func _SillyGirlService_SenderEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -831,6 +969,24 @@ func _SillyGirlService_SenderReply_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SillyGirlService_SenderParam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SillyGirlServiceServer).SenderParam(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SillyGirlService_SenderParam_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SillyGirlServiceServer).SenderParam(ctx, req.(*ReplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SillyGirlService_SenderAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReplyRequest)
 	if err := dec(in); err != nil {
@@ -845,6 +1001,24 @@ func _SillyGirlService_SenderAction_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SillyGirlServiceServer).SenderAction(ctx, req.(*ReplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SillyGirlService_SenderDestroy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SillyGirlServiceServer).SenderDestroy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SillyGirlService_SenderDestroy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SillyGirlServiceServer).SenderDestroy(ctx, req.(*ReplyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -947,6 +1121,24 @@ func _SillyGirlService_AdapterSender_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SillyGirlService_Console_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SillyGirlServiceServer).Console(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SillyGirlService_Console_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SillyGirlServiceServer).Console(ctx, req.(*ConsoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SillyGirlService_ServiceDesc is the grpc.ServiceDesc for SillyGirlService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1023,10 +1215,6 @@ var SillyGirlService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SillyGirlService_SenderContinue_Handler,
 		},
 		{
-			MethodName: "SenderListen",
-			Handler:    _SillyGirlService_SenderListen_Handler,
-		},
-		{
 			MethodName: "SenderEvent",
 			Handler:    _SillyGirlService_SenderEvent_Handler,
 		},
@@ -1035,8 +1223,16 @@ var SillyGirlService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SillyGirlService_SenderReply_Handler,
 		},
 		{
+			MethodName: "SenderParam",
+			Handler:    _SillyGirlService_SenderParam_Handler,
+		},
+		{
 			MethodName: "SenderAction",
 			Handler:    _SillyGirlService_SenderAction_Handler,
+		},
+		{
+			MethodName: "SenderDestroy",
+			Handler:    _SillyGirlService_SenderDestroy_Handler,
 		},
 		{
 			MethodName: "AdapterReceive",
@@ -1054,8 +1250,24 @@ var SillyGirlService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "AdapterSender",
 			Handler:    _SillyGirlService_AdapterSender_Handler,
 		},
+		{
+			MethodName: "Console",
+			Handler:    _SillyGirlService_Console_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "BucketWatch",
+			Handler:       _SillyGirlService_BucketWatch_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "SenderListen",
+			Handler:       _SillyGirlService_SenderListen_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
 		{
 			StreamName:    "AdapterRegist",
 			Handler:       _SillyGirlService_AdapterRegist_Handler,

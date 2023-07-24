@@ -6,11 +6,32 @@ let client = new srpc.SillyGirlServiceClient(
   grpc_1.credentials.createInsecure()
 );
 
+let senders: Sender[] = [];
+let plugin_id = process.env?.PLUGIN_ID ?? "";
+
+process.on("beforeExit", () => {
+  for (let sender of senders) {
+    sender.destructor();
+  }
+});
+
 class Sender {
-  private uuid: string;
+  public uuid: string;
+  private destoried = false;
   constructor(uuid: string) {
     this.uuid = uuid;
+    senders.push(this);
   }
+
+  destructor() {
+    if (this.destoried) return;
+    this.destoried = true;
+    client.SenderDestroy(
+      new srpc.ReplyRequest({ uuid: sender.uuid }),
+      (err, resp) => {}
+    );
+  }
+
   async getUserId(): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
       client.SenderGetUserId(
@@ -139,6 +160,23 @@ class Sender {
       );
     });
   }
+  async param(key: number | string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      client.SenderParam(
+        new srpc.ReplyRequest({
+          uuid: this.uuid,
+          content: `${key}`,
+        }),
+        (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(resp?.value ?? "");
+          }
+        }
+      );
+    });
+  }
   async setContent(content: string): Promise<undefined> {
     return new Promise((resolve, reject) => {
       client.SenderSetContent(
@@ -178,10 +216,11 @@ class Sender {
       platform: await this.getPlatform(),
     });
   }
+
   async listen(options?: {
     rules?: string[]; // 匹配规则
     timeout?: number; // 超时，单位毫秒
-    handle?: (s: Sender) => string | void; // 如果匹配成功，则进入消息处理逻辑。如果将 holdOn(content) 的结果作为返回值，会继续监听
+    handle?: (s: Sender) => Promise<string | void> | string | void; // 如果匹配成功，则进入消息处理逻辑。如果将 holdOn(content) 的结果作为返回值，会继续监听
     listen_private?: boolean; // 监听用户群内消息时，同时监听用户消息
     listen_group?: boolean; // 监听用户群内消息时，同时监听群员消息
     allow_platforms?: string[]; // 平台白名单
@@ -190,33 +229,116 @@ class Sender {
     prohibit_groups?: string[]; // 群聊黑名单
     allow_users?: string[]; // 用户白名单
     prohibit_users?: string[]; // 群聊白名单
+    persistent?: boolean; //持久化监听
   }): Promise<Sender> {
-    return new Promise((resolve, reject) => {
-      let params: any = {
-        uuid: this.uuid,
-        rules: options?.rules,
-        timeout: options?.timeout,
-        listen_private: options?.listen_private,
-        listen_group: options?.listen_group,
-        allow_platforms: options?.allow_platforms,
-        prohibit_platforms: options?.prohibit_platforms,
-        allow_groups: options?.allow_groups,
-        prohibit_groups: options?.prohibit_groups,
-        allow_users: options?.allow_users,
-        prohibit_users: options?.prohibit_users,
-      };
-      client.SenderListen(new srpc.SenderListenRequest(params), (err, resp) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (resp?.value) {
-            resolve(new Sender(resp.value));
-          } else {
-            reject(new Error("timeout"));
-          }
+    return new Promise(
+      async (resolve, reject) => {
+        let params: any = {
+          uuid: this.uuid,
+          rules: options?.rules,
+          timeout: options?.timeout,
+          listen_private: options?.listen_private,
+          listen_group: options?.listen_group,
+          allow_platforms: options?.allow_platforms,
+          prohibit_platforms: options?.prohibit_platforms,
+          allow_groups: options?.allow_groups,
+          prohibit_groups: options?.prohibit_groups,
+          allow_users: options?.allow_users,
+          prohibit_users: options?.prohibit_users,
+          persistent: options?.persistent,
+          plugin_id,
+        };
+        if (options?.handle && "*" == (await this.getPlatform())) {
+          params.persistent = true;
         }
-      });
-    });
+        const call = client.SenderListen();
+        // let callback: any = options.replyHandler;
+        // console.log("===",this.uuid)
+        call.on("data", (response) => {
+          if (response.echo == "END") {
+            call.cancel();
+            return;
+          }
+          let s = new Sender(response.uuid);
+          if (options?.handle) {
+            // console.log(`options?.handle`, options.persistent)
+            let obj = options?.handle(s);
+            if (typeof obj == "string") {
+              call.write(
+                new srpc.SenderListenRequest({
+                  uuid: response.echo,
+                  value: obj,
+                })
+              );
+            } else if (obj) {
+              obj
+                .then((v: any) => {
+                  call.write(
+                    new srpc.SenderListenRequest({
+                      uuid: response.echo,
+                      value: v ?? "",
+                    })
+                  );
+                })
+                .catch((e) => {
+                  call.write(
+                    new srpc.SenderListenRequest({
+                      uuid: response.echo,
+                      value: "",
+                    })
+                  );
+                });
+            } else {
+              call.write(
+                new srpc.SenderListenRequest({
+                  uuid: response.echo,
+                  value: "",
+                })
+              );
+            }
+            // console.log(`options?.handle`, options.persistent)
+          } else {
+            // console.log(`call.cancel()`, options?.persistent)
+            call.write(
+              new srpc.SenderListenRequest({
+                uuid: response.echo,
+                value: "",
+              })
+            );
+            // console.log(`call.cancel()`, options?.persistent)
+          }
+          // console.log("response", JSON.stringify(response));
+          // call.cancel()
+          resolve(s);
+        });
+        call.on("error", (err) => {
+          reject(err);
+          // console.error(err);
+        });
+        // console.log("params", JSON.stringify(params));
+        call.write(new srpc.SenderListenRequest(params));
+      }
+      // client.SenderListen(new srpc.SenderListenRequest(params), (err, resp) => {
+      //   if (err) {
+      //     reject(err);
+      //   } else {
+      //     if (resp?.value) {
+      //       let handle = options?.handle;
+      //       let s = new Sender(resp.value);
+      //       resolve(s);
+      //       if (handle) {
+      //         handle(s);
+      //       }
+      //     } else {
+      //       reject(new Error("timeout"));
+      //     }
+      //   }
+      // });
+      // }
+    );
+  }
+  holdOn(str: string) {
+    return "go_again_" + str;
   }
   async reply(content: string): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
@@ -236,7 +358,21 @@ class Sender {
     });
   }
   async action(options: any): Promise<any | undefined> {
-    return;
+    return new Promise((resolve, reject) => {
+      client.SenderAction(
+        new srpc.ReplyRequest({
+          uuid: this.uuid,
+          content: JSON.stringify(options),
+        }),
+        (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(resp?.value);
+          }
+        }
+      );
+    });
   }
   async event(): Promise<any | undefined> {
     return;
@@ -274,7 +410,7 @@ class Bucket {
     return v;
   }
 
-  reverseTransform(value: any) {
+  reverseTransform(value: any): string {
     if (typeof value === "number" || typeof value === "boolean") {
       return value.toString();
     }
@@ -286,7 +422,7 @@ class Bucket {
     }
     if (typeof value === "string") {
       if (!value) {
-        return undefined;
+        return "";
       }
       if (!isNaN(parseFloat(value))) {
         return "f:" + parseFloat(value);
@@ -420,9 +556,51 @@ class Bucket {
     });
   }
 
+  watch(
+    key: string,
+    handle: (old: any, now: any, key: string) => StorageFinal | void | any
+  ) {
+    const call = client.BucketWatch();
+    call.on("data", async (response) => {
+      let fin: any = handle(
+        this.transform(response.old),
+        this.transform(response.now),
+        response.key
+      );
+      fin = await fin;
+      let result: StorageFinal = {
+        echo: response.echo,
+      };
+      if (!fin) {
+        result.error = "VOID";
+      } else {
+        result.now = this.reverseTransform(fin.now);
+        result.message = fin.message;
+        result.error = fin.error;
+      }
+      call.write(new srpc.BucketWatchRequest(result));
+    });
+    call.on("error", (err) => {
+      // console.error(err);
+    });
+    call.write(
+      new srpc.BucketWatchRequest({
+        name: this.name,
+        key: key,
+        plugin_id,
+      })
+    );
+  }
+
   async _name(): Promise<string> {
     return this.name;
   }
+}
+interface StorageFinal {
+  echo?: string;
+  now?: any;
+  message?: string;
+  error?: string;
 }
 
 interface Message {
@@ -437,22 +615,24 @@ interface Message {
 class Adapter {
   platform: string | undefined;
   bot_id: string | undefined;
-  call: any
+  call: any;
   constructor(options: {
     platform?: string;
     bot_id?: string;
     replyHandler?: (message: Message) => string | undefined;
+    actionHandler?: (message: Message) => string | undefined;
   }) {
     this.platform = options.platform;
     this.bot_id = options.bot_id;
-    const call = client.AdapterRegist();
     if (options.replyHandler) {
+      const call = client.AdapterRegist();
       let callback: any = options.replyHandler;
       call.on("data", (response) => {
+        // console.log("start on data")
         let message = JSON.parse(response.value);
         const { echo, __type__ } = message;
-        delete(message.__type__)
-        delete(message.echo)
+        delete message.__type__;
+        delete message.echo;
         if (__type__ == "reply") {
           call.write(
             new srpc.AdapterRegistRequest({
@@ -461,17 +641,28 @@ class Adapter {
             })
           );
         }
+        if (__type__ == "action" && options.actionHandler) {
+          call.write(
+            new srpc.AdapterRegistRequest({
+              bot_id: echo,
+              platform: options.actionHandler(message),
+            })
+          );
+        }
+        // console.log("end on data")
       });
       call.on("error", (err) => {
-        // console.error(err);
+        console.error("adapter disc", err);
       });
+      // console.log("before write")
       call.write(
         new srpc.AdapterRegistRequest({
           bot_id: options.bot_id,
           platform: options.platform,
         })
       );
-      this.call = call
+      // console.log("after write write")
+      this.call = call;
     }
   }
   setActionHandler(func: (action: {}) => any): void {
@@ -509,15 +700,15 @@ class Adapter {
         (err, resp) => {
           if (err) {
             reject(err);
-          } else if (resp?.value) {
-            resolve(resp.value);
+          } else {
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
   async destroy(): Promise<void> {
-    this.call.cancel()
+    this.call.cancel();
   }
   async sender(options: any): Promise<Sender> {
     return new Promise<Sender>((resolve, reject) => {
@@ -525,6 +716,7 @@ class Adapter {
         new srpc.AdapterRequest({
           platform: this.platform,
           bot_id: this.bot_id,
+          value: JSON.stringify(options),
         }),
         (err, resp) => {
           if (err) {
@@ -538,12 +730,25 @@ class Adapter {
   }
 }
 
-let sender = new Sender(
-  process.env?.SENDER_ID ?? "4d6371a8-2778-11ee-a3c2-821680fbbf6b"
-);
+let sender: Sender = new Sender(process.env?.SENDER_ID ?? "");
 
 async function sleep(ms: number | undefined) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export { Adapter, Bucket, sender, sleep };
+let console = {
+  error: (message?: any, ...optionalParams: any[])=>{
+
+  },
+  info: (message?: any, ...optionalParams: any[])=>{
+
+  },
+  log: (message?: any, ...optionalParams: any[])=>{
+
+  },
+  debug: (message?: any, ...optionalParams: any[])=>{
+
+  },
+};
+
+export { Adapter, Bucket, sender, sleep};

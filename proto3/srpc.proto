@@ -16,6 +16,23 @@ message BucketSetRequest {
   string value = 3;
 }
 
+message BucketWatchRequest {
+  string name = 1;
+  string key = 2;
+  string message = 3;
+  string error = 4;
+  string now = 5;
+  string echo = 6;
+  string plugin_id = 7;
+}
+
+message BucketWatchResponse {
+  string echo = 1;
+  string old = 2;
+  string now = 3;
+  string key = 4;
+}
+
 message BucketSetResponse {
   bool changed = 1;
   string message = 2;
@@ -56,6 +73,11 @@ message SenderContentRequest {
   string content = 2;
 }
 
+message SenderListenResponse {
+  string echo = 1;
+  string uuid = 2;
+}
+
 message SenderListenRequest {
   string uuid = 1;
   repeated string rules = 2;
@@ -69,6 +91,9 @@ message SenderListenRequest {
   repeated string prohibit_users = 10;
   repeated string allow_groups = 11;
   repeated string prohibit_groups = 12;
+  bool persistent = 13;
+  string value = 14;
+  string plugin_id = 15;
 }
 
 message AdapterRegistRequest {
@@ -82,6 +107,18 @@ message AdapterRequest {
   string value = 3;
 }
 
+message Any {
+  string type_url = 1;
+  bytes value = 2;
+}
+
+message ConsoleRequest {
+  string type = 1;
+  repeated Any logs = 2;
+  string plugin_id = 3;
+}
+
+
 service SillyGirlService {
   rpc BucketGet(BucketKeyRequest) returns (Default);
   rpc BucketSet(BucketSetRequest) returns (BucketSetResponse);
@@ -90,6 +127,7 @@ service SillyGirlService {
   rpc BucketLen(BucketRequest) returns (LenResponse);
   rpc BucketGetAll(BucketRequest) returns (Default);
   rpc BucketBuckets(Empty) returns (BucketsResponse);
+  rpc BucketWatch (stream BucketWatchRequest) returns (stream BucketWatchResponse);
   rpc SenderGetUserId (SenderRequest) returns (Default);
   rpc SenderGetUserName (SenderRequest) returns (Default);
   rpc SenderGetChatId (SenderRequest) returns (Default);
@@ -100,13 +138,17 @@ service SillyGirlService {
   rpc SenderGetContent (SenderRequest) returns (Default);
   rpc SenderSetContent (SenderContentRequest) returns (Empty);
   rpc SenderContinue (SenderRequest) returns (Empty);
-  rpc SenderListen (SenderListenRequest) returns (Default);
+  rpc SenderListen (stream SenderListenRequest) returns (stream SenderListenResponse);
   rpc SenderEvent (SenderRequest) returns (Default);
   rpc SenderReply (ReplyRequest) returns (Default);
+  rpc SenderParam (ReplyRequest) returns (Default);
   rpc SenderAction (ReplyRequest) returns (Default);
+  rpc SenderDestroy(ReplyRequest) returns (Empty);
   rpc AdapterRegist(stream AdapterRegistRequest) returns (stream Default);
   rpc AdapterReceive(AdapterRequest) returns (Default);
   rpc AdapterPush(AdapterRequest) returns (Default);
   rpc AdapterDestroy(AdapterRequest) returns (Empty);
   rpc AdapterSender(AdapterRequest) returns (Default);
+  rpc Console(ConsoleRequest) returns (Empty);
 }
+
