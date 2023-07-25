@@ -43,7 +43,7 @@ func GetSender(uuid string) (common.Sender, error) {
 		}, nil
 	}
 	v, ok := senders.Load(uuid)
-	fmt.Println("uuid", uuid, v, ok)
+	// fmt.Println("uuid", uuid, v, ok)
 	if !ok {
 		return nil, errors.New("not found sender")
 	}
