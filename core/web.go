@@ -103,8 +103,8 @@ func initWeb() {
 						// 将路径转换为相对路径
 
 						relPath, err := filepath.Rel(dir, path)
-						relPath = name + "/" + relPath
 						is_index := relPath == "main.js"
+						relPath = name + "/" + relPath
 						if err != nil {
 							return err
 						}
