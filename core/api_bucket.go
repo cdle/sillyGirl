@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -195,7 +196,13 @@ func init() {
 			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
 				if vv, ok := plugins_id.Load(ar[1]); ok {
-					os.WriteFile(vv.(string), []byte(fmt.Sprint(v)), 0755)
+					filename := vv.(string)
+					vs := fmt.Sprint(v)
+					if vs == "" {
+						os.RemoveAll(filepath.Dir(filename))
+					} else {
+						os.WriteFile(filename, []byte(vs), 0755)
+					}
 					continue
 				}
 				msg, changed, err := SetBucketKeyValue(MakeBucket(ar[0]), ar[1], v)

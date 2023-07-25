@@ -21,10 +21,10 @@ func init() {
 		{
 			Admin: true,
 			Rules: []string{"identify sublink [地址] [组织]"},
-			ImType: &common.Filter{
-				BlackMode: true,
-				Items:     []string{"pgm"},
-			},
+			// ImType: &common.Filter{
+			// 	BlackMode: true,
+			// 	Items:     []string{"pgm"},
+			// },
 			Handle: func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
 				address := s.Get(0)
 				organization := s.Get(1)

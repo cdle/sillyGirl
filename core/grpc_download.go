@@ -82,31 +82,50 @@ func init() {
 
 func unzip(filename string, perm fs.FileMode) error {
 	zipFile, err := zip.OpenReader(filename)
-	dir := filepath.Dir(filename)
-	// fmt.Println(filename, err)
 	if err != nil {
 		return err
 	}
 	defer zipFile.Close()
+
 	for _, file := range zipFile.File {
 		// 忽略以 "__MACOSX/" 开头的文件
 		if strings.HasPrefix(file.Name, "__MACOSX/") {
 			continue
 		}
-		zipFile, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer zipFile.Close()
-		localFile, err := os.OpenFile(dir+"/"+file.Name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
-		if err != nil {
-			return err
-		}
-		defer localFile.Close()
-		_, err = io.Copy(localFile, zipFile)
-		if err != nil {
-			return err
+
+		path := filepath.Join(filepath.Dir(filename), file.Name)
+		if file.FileInfo().IsDir() {
+			// 如果是目录则创建目录
+			err = os.MkdirAll(path, perm)
+			if err != nil {
+				return err
+			}
+		} else {
+			// 创建文件的父目录
+			err = os.MkdirAll(filepath.Dir(path), perm)
+			if err != nil {
+				return err
+			}
+
+			// 创建文件并解压缩数据
+			zipFile, err := file.Open()
+			if err != nil {
+				return err
+			}
+			defer zipFile.Close()
+
+			localFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+			if err != nil {
+				return err
+			}
+			defer localFile.Close()
+
+			_, err = io.Copy(localFile, zipFile)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return err
+
+	return nil
 }

@@ -190,10 +190,14 @@ func AddNodePlugin(path, name string) error {
 	if err != nil {
 		return err
 	}
+	script := string(data)
+	if script == "" {
+		return nil
+	}
 	uuid := nameUuid(name)
 	plugins_id.Store(uuid, path)
 	// fmt.Println("add,", uuid, name)
-	f, cbs := pluginParse(string(data), uuid)
+	f, cbs := pluginParse(script, uuid)
 	f.Suffix = ".js"
 	f.Type = "typescript"
 	f.Handle = func(s common.Sender, f func(vm *goja.Runtime)) interface{} {
