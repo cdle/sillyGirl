@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +14,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 )
+
+func checkFilePlugin(key string, value *string) {
+	if v, ok := plugins_id.Load(key); ok {
+		data, _ := os.ReadFile(v.(string))
+		*value = string(data)
+	}
+}
 
 func init() {
 	var sillyGirl = MakeBucket("sillyGirl")
@@ -35,7 +43,6 @@ func init() {
 			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
 				if ar[0] == "plugins" && false { //todo
-
 					// data[bk] = halfDeEct(MakeBucket(ar[0]).GetString(ar[1]))
 				} else {
 					// data[bk] = MakeBucket(ar[0]).GetString(ar[1])
@@ -138,8 +145,13 @@ func init() {
 		for _, bk := range arr {
 			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
-				if ar[0] == "plugins" && IsCdle { //todo
-					data[bk] = DecryptPlugin(halfDeEct(MakeBucket(ar[0]).GetString(ar[1])))
+				if ar[0] == "plugins" { //todo
+					value := MakeBucket(ar[0]).GetString(ar[1])
+					checkFilePlugin(ar[1], &value)
+					if IsCdle {
+						value = DecryptPlugin(halfDeEct(value))
+					}
+					data[bk] = value
 				} else {
 					data[bk] = TransformBucketKeyValue(MakeBucket(ar[0]).GetString(ar[1]))
 				}
@@ -182,6 +194,10 @@ func init() {
 		for bk, v := range updates {
 			ar := strings.SplitN(bk, ".", 2)
 			if len(ar) == 2 {
+				if vv, ok := plugins_id.Load(ar[1]); ok {
+					os.WriteFile(vv.(string), []byte(fmt.Sprint(v)), 0755)
+					continue
+				}
 				msg, changed, err := SetBucketKeyValue(MakeBucket(ar[0]), ar[1], v)
 				if msg != "" {
 					messages[bk] = msg

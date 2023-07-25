@@ -1,6 +1,8 @@
 package core
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"embed"
 	"fmt"
@@ -8,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -71,9 +74,80 @@ func initWeb() {
 		uuid := c.Query("uuid")
 		for _, f := range Functions {
 			if f.UUID == uuid && f.Public {
-				plugin_downloads.Set(f.UUID, plugin_downloads.GetInt(f.UUID)+1)
-				c.String(200, publicScript(plugins.GetString(f.UUID)))
-				return
+				if f.Type == "goja" {
+					plugin_downloads.Set(f.UUID, plugin_downloads.GetInt(f.UUID)+1)
+					c.String(200, publicScript(plugins.GetString(f.UUID)))
+					return
+				} else {
+					v, ok := plugins_id.Load(f.UUID)
+					if !ok {
+						return
+					}
+					dir := filepath.Dir(v.(string))
+					if _, err := os.Stat(dir); err != nil { //执行压缩
+						return
+					}
+					ss := strings.Split(dir, "/")
+					name := ss[len(ss)-1]
+					buf := new(bytes.Buffer)
+					w := zip.NewWriter(buf)
+					// dir = strings.Replace(dir, utils.ExecPath+"", ".", 1)
+					err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+						if err != nil {
+							return err
+						}
+						if info.IsDir() {
+							return nil
+						}
+						// 将路径转换为相对路径
+						relPath, err := filepath.Rel(dir, path)
+						relPath = name + "/" + relPath
+						if err != nil {
+							return err
+						}
+
+						file, err := os.Open(path)
+						if err != nil {
+							return err
+						}
+						defer file.Close()
+
+						fh, err := zip.FileInfoHeader(info)
+						if err != nil {
+							return err
+						}
+
+						// 使用相对路径作为文件名
+						fh.Name = relPath
+
+						wr, err := w.CreateHeader(fh)
+						if err != nil {
+							return err
+						}
+
+						_, err = io.Copy(wr, file)
+						return err
+					})
+					if err != nil {
+						c.String(http.StatusInternalServerError, fmt.Sprintf("ZIP creation failed: %s", err))
+						return
+					}
+					err = w.Close()
+					if err != nil {
+						c.String(http.StatusInternalServerError, fmt.Sprintf("ZIP creation failed: %s", err))
+						return
+					}
+					c.Data(http.StatusOK, "application/zip", buf.Bytes())
+					// zippath := utils.ExecPath + "/public/" + f.UUID + ".zip"
+					// file, err := os.Open(zippath)
+					// if err != nil {
+					// 	return
+					// }
+					// defer file.Close()
+					// c.Header("Content-Type", "application/zip")
+					// io.Copy(c.Writer, file)
+					return
+				}
 			}
 		}
 	})

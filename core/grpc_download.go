@@ -2,7 +2,6 @@ package core
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
@@ -22,6 +21,8 @@ type Language struct {
 	Links   []string // 下载链接
 }
 
+var plugin_dir = utils.ExecPath + "/plugins"
+
 var languages = []Language{
 	{
 		Name:    "node",
@@ -40,7 +41,6 @@ var languages = []Language{
 }
 
 func init() {
-
 	go func() {
 		for _, item := range languages {
 			if !(item.Os == runtime.GOOS && item.Arch == runtime.GOARCH) {
@@ -83,7 +83,7 @@ func init() {
 func unzip(filename string, perm fs.FileMode) error {
 	zipFile, err := zip.OpenReader(filename)
 	dir := filepath.Dir(filename)
-	fmt.Println(filename, err)
+	// fmt.Println(filename, err)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,8 @@ package core
 import (
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"reflect"
 	"regexp"
@@ -113,6 +115,46 @@ func initPlugins() {
 				if p.UUID != key {
 					continue
 				}
+				if p.Type != "goja" { //下载目录插件
+					// Content-Type
+					var prefix = "?uuid=" + p.UUID
+					address := p.Address
+					if !strings.HasSuffix(address, "list.json") {
+						address = address + "/api/plugins/download" + prefix
+					} else {
+						address = strings.ReplaceAll(address, "list.json", "download"+prefix)
+					}
+					resp, err := http.Get(address)
+					if err != nil {
+						return &storage.Final{
+							Error: errors.New("插件源异常！"),
+						}
+					}
+					defer resp.Body.Close()
+					zipfile := plugin_dir + "/" + utils.GenUUID() + ".zip"
+					f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+					if err != nil {
+						return &storage.Final{
+							Error: errors.New("文件异常！"),
+						}
+					}
+					defer f.Close()
+					_, err = io.Copy(f, resp.Body)
+					if err != nil {
+						return &storage.Final{
+							Error: errors.New("下载异常！"),
+						}
+					}
+					defer os.Remove(zipfile)
+					if err := unzip(zipfile, 0755); err != nil {
+						return &storage.Final{
+							Error: errors.New("安装异常！"),
+						}
+					}
+					return &storage.Final{
+						Now: "",
+					}
+				}
 				script := string(fetchScript(p.Address, key))
 				if f, _, _ := initPlugin(script, p.UUID, ""); f.CreateAt != "" {
 					fin = &storage.Final{
@@ -128,6 +170,7 @@ func initPlugins() {
 						Error: errors.New("订阅源异常"),
 					}
 				}
+				break
 			}
 		}
 

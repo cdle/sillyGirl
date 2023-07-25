@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/core/storage"
@@ -96,6 +97,15 @@ func initNodePlugins() {
 					info, err := os.Stat(event.Name)
 					// fmt.Println(err)
 					if err == nil && info.IsDir() {
+						event_name := event.Name + "/main.js"
+						if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
+							AddNodePlugin(event_name, plugin_name)
+						} else {
+							time.Sleep(time.Millisecond * 100)
+							if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
+								AddNodePlugin(event_name, plugin_name)
+							}
+						}
 						watcher.Add(event.Name)
 						// fmt.Println("增加插件目录", event.Name)
 					} else {
@@ -103,6 +113,7 @@ func initNodePlugins() {
 					}
 				} else if plugin_index {
 					// fmt.Println("增加插件", event.Name)
+					// RemNodePlugin(plugin_name)
 					AddNodePlugin(event.Name, plugin_name)
 				}
 			case "REMOVE", "RENAME", "REMOVE|RENAME":
@@ -115,7 +126,7 @@ func initNodePlugins() {
 					// fmt.Println("移除插件", plugin_name)
 					RemNodePlugin(plugin_name)
 				}
-			case "WRITE":
+			case "WRITE": //, "CHMOD"
 				if plugin_index {
 					RemNodePlugin(plugin_name)
 					AddNodePlugin(event.Name, plugin_name)
@@ -135,6 +146,7 @@ func RemNodePlugin(name string) error {
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
+	plugins_id.Delete(key)
 	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
@@ -164,9 +176,12 @@ func nameUuid(name string) string {
 	return uuid.NewSHA1(uuid.Nil, hash[:]).String()
 }
 
+var plugins_id sync.Map
+
 func AddNodePlugin(path, name string) error {
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
+
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -176,20 +191,21 @@ func AddNodePlugin(path, name string) error {
 		return err
 	}
 	uuid := nameUuid(name)
+	plugins_id.Store(uuid, path)
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(string(data), uuid)
-	f.Suffix = ".ts"
+	f.Suffix = ".js"
 	f.Type = "typescript"
 	f.Handle = func(s common.Sender, f func(vm *goja.Runtime)) interface{} {
 		s.SetPluginID(uuid)
 		plt := s.GetImType()
 		// , "/home/user/.nvm/versions/node/v18.16.1/lib/node_modules/ts-node/dist/bin.js",
-		cmd := exec.Command(utils.ExecPath+"/language/node/node", path)
+		cmd := exec.Command("./node", path)
+		cmd.Dir = utils.ExecPath + "/language/node"
 		// cmd := exec.Command(utils.ExecPath+"/language/node/node", path)
 		id := s.SetID()
 		cmd.Env = append(cmd.Env, "SENDER_ID="+id)
 		cmd.Env = append(cmd.Env, "PLUGIN_ID="+uuid)
-
 		// 获取标准输出和标准错误输出的管道
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
@@ -217,7 +233,6 @@ func AddNodePlugin(path, name string) error {
 		// 处理标准输出
 		go func() {
 			defer wg.Done()
-
 			scanner := bufio.NewScanner(stdout)
 			for scanner.Scan() {
 				data := scanner.Text()
@@ -270,6 +285,9 @@ func AddNodePlugin(path, name string) error {
 	}
 	for _, cb := range cbs {
 		cb()
+	}
+	if !f.OnStart {
+		console.Log("已加载 %s%s", f.Title, f.Suffix)
 	}
 	AddCommand([]*common.Function{f})
 	return nil
