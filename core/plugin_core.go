@@ -130,19 +130,23 @@ func initPlugins() {
 							Error: errors.New("插件源异常！"),
 						}
 					}
-					defer resp.Body.Close()
 					zipfile := plugin_dir + "/" + utils.GenUUID() + ".zip"
-					f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-					if err != nil {
-						return &storage.Final{
-							Error: errors.New("文件异常！"),
+					err = func() error {
+						defer resp.Body.Close()
+						f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+						if err != nil {
+							return errors.New("下载异常！")
 						}
-					}
-					defer f.Close()
-					_, err = io.Copy(f, resp.Body)
+						defer f.Close()
+						_, err = io.Copy(f, resp.Body)
+						if err != nil {
+							return errors.New("文件异常！")
+						}
+						return nil
+					}()
 					if err != nil {
 						return &storage.Final{
-							Error: errors.New("下载异常！"),
+							Error: err,
 						}
 					}
 					defer os.Remove(zipfile)
