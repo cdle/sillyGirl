@@ -303,7 +303,12 @@ func AddNodePlugin(path, name string) error {
 				}
 				s := value.(common.Sender)
 				if s.GetPluginID() == uuid {
-					p.Process.Kill()
+					func() {
+						defer func() {
+							recover()
+						}()
+						p.Process.Kill()
+					}()
 				}
 				return true
 			})
