@@ -2,13 +2,68 @@ package core
 
 import (
 	"context"
+	"errors"
+	"sync"
+	"time"
 
+	"github.com/cdle/sillyGirl/core/storage"
 	"github.com/cdle/sillyGirl/proto3/srpc"
 	"github.com/cdle/sillyGirl/utils"
 )
 
 type SillyGirlService struct {
 	srpc.UnsafeSillyGirlServiceServer
+}
+
+func (sg *SillyGirlService) BucketWatch(stream srpc.SillyGirlService_BucketWatchServer) error {
+	var watcher func(old, new, key string) *storage.Final
+	var echos sync.Map
+	for {
+		req, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+		if watcher == nil {
+			watcher = func(old, new, key string) *storage.Final {
+				echo := utils.GenUUID()
+				ch := make(chan *storage.Final)
+				echos.Store(echo, ch)
+				defer echos.Delete(echo)
+				stream.Send(&srpc.BucketWatchResponse{
+					Echo: echo,
+					Old:  old,
+					Now:  new,
+					Key:  key,
+				})
+				select {
+				case v := <-ch:
+					return v
+				case <-time.After(time.Second * 5):
+				}
+				return nil
+			}
+			storage.Watch(MakeBucket(req.Name), req.Key, watcher, req.PluginId)
+		} else {
+			echo := req.Echo
+			v, ok := echos.Load(echo)
+			var fn *storage.Final
+			if req.Error != "VOID" {
+				fn = &storage.Final{
+					Now:     req.Now,
+					Message: req.Message,
+				}
+				if req.Error != "" {
+					fn.Error = errors.New(req.Error)
+				}
+			}
+			if ok {
+				select {
+				case v.(chan *storage.Final) <- fn:
+				case <-time.After(time.Millisecond):
+				}
+			}
+		}
+	}
 }
 
 // Get implements BucketServiceServer.Get.

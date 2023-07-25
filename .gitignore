@@ -34,3 +34,5 @@ test
 test*
 node_modules
 plugins
+bin
+language

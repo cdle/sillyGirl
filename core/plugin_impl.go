@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/core/logs"
+	"github.com/cdle/sillyGirl/proto3/srpc"
 	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 	// "golang.org/x/image/webp"
@@ -46,6 +48,21 @@ type Console struct {
 
 var console = &Console{}
 var Logs = &Console{}
+
+func (sg *SillyGirlService) Console(ctx context.Context, req *srpc.ConsoleRequest) (*srpc.Empty, error) {
+	log := &Console{
+		UUID: req.PluginId,
+	}
+	switch req.Type {
+	case "info", "log":
+		log.Info(req.Content)
+	case "error":
+		log.Error(req.Content)
+	case "debug":
+		log.Debug(req.Content)
+	}
+	return &srpc.Empty{}, nil
+}
 
 func pluginConsole(uuid string) *Console {
 	return &Console{

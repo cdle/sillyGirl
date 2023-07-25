@@ -1,0 +1,65 @@
+const path = require("path");
+
+const nodeExternals = require("webpack-node-externals");
+
+module.exports = {
+  entry: "./sillygirl.js",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "sillygirl.js",
+    library: { name: "sillygirl", type: "umd" },
+    // chunkFormat: "module",
+  },
+  // experiments: { outputModule: true },
+  target: "node",
+  mode: "production",
+  resolve: {
+    fallback: {
+      assert: false,
+      async_hooks: false,
+      buffer: false,
+      child_process: false,
+      cluster: false,
+      console: false,
+      constants: false,
+      crypto: false,
+      dgram: false,
+      dns: false,
+      domain: false,
+      events: false,
+      fs: false,
+      http: false,
+      http2: false,
+      https: false,
+      inspector: false,
+      module: false,
+      net: false,
+      os: false,
+      path: false,
+      perf_hooks: false,
+      process: false,
+      punycode: false,
+      querystring: false,
+      readline: false,
+      repl: false,
+      stream: false,
+      string_decoder: false,
+      timers: false,
+      tls: false,
+      trace_events: false,
+      tty: false,
+      url: false,
+      util: false,
+      v8: false,
+      vm: false,
+      zlib: false,
+    },
+  },
+  externalsPresets: { node: true },
+  externals: [
+    nodeExternals({
+      allowlist: [/grpc/, "google-protobuf"],
+    }),
+  ],
+};
+// npx webpack --config webpack.config.js

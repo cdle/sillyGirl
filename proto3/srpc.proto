@@ -114,7 +114,7 @@ message Any {
 
 message ConsoleRequest {
   string type = 1;
-  repeated Any logs = 2;
+  string content = 2;
   string plugin_id = 3;
 }
 

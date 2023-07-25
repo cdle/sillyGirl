@@ -1,6 +1,7 @@
 package core
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
@@ -8,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/core/storage"
@@ -21,6 +23,8 @@ import (
 func init() {
 	go initNodePlugins()
 }
+
+var processes sync.Map
 
 func initNodePlugins() {
 	root := utils.ExecPath + "/plugins"
@@ -40,7 +44,7 @@ func initNodePlugins() {
 				plugins = append(plugins, path)
 			}
 		case 2:
-			if (files[1] == "main.ts" || files[1] == "main.js") && !info.IsDir() {
+			if (files[1] == "main.js") && !info.IsDir() { //files[1] == "main.ts" ||
 				AddNodePlugin(path, files[0])
 			}
 		}
@@ -52,9 +56,7 @@ func initNodePlugins() {
 		return
 	}
 	defer watcher.Close()
-
 	// 要监控的文件夹路径
-
 	for _, dir := range plugins {
 		err = watcher.Add(dir)
 		if err != nil {
@@ -77,12 +79,14 @@ func initNodePlugins() {
 			switch len(files) {
 			case 1:
 				plugin_dir = true
-				fmt.Println("目录事件")
+				// fmt.Println("目录事件")
 				plugin_name = files[0]
 			case 2:
 				if files[1] == "main.ts" || files[1] == "main.js" {
-					plugin_index = true
-					fmt.Println("入口文件事件")
+					if files[1] == "main.js" {
+						plugin_index = true
+					}
+					// fmt.Println("入口文件事件")
 				}
 				plugin_name = files[0]
 			}
@@ -131,10 +135,10 @@ func RemNodePlugin(name string) error {
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
-	fmt.Println("rem", key, name)
+	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
-			fmt.Println("pl", key)
+			// fmt.Println("pl", key)
 			DestroyAdapterByUUID(key)
 			Functions[i].Running = false
 			if len(Functions[i].CronIds) != 0 {
@@ -177,16 +181,91 @@ func AddNodePlugin(path, name string) error {
 	f.Suffix = ".ts"
 	f.Type = "typescript"
 	f.Handle = func(s common.Sender, f func(vm *goja.Runtime)) interface{} {
-		cmd := exec.Command("node", "/home/user/.nvm/versions/node/v18.16.1/lib/node_modules/ts-node/dist/bin.js", path)
-		cmd.Env = append(cmd.Env, "SENDER_ID="+s.GetID())
-		// 执行命令，并捕获其输出
-		output, err := cmd.Output()
+		s.SetPluginID(uuid)
+		plt := s.GetImType()
+		// , "/home/user/.nvm/versions/node/v18.16.1/lib/node_modules/ts-node/dist/bin.js",
+		cmd := exec.Command(utils.ExecPath+"/language/node/node", path)
+		// cmd := exec.Command(utils.ExecPath+"/language/node/node", path)
+		id := s.SetID()
+		cmd.Env = append(cmd.Env, "SENDER_ID="+id)
+		cmd.Env = append(cmd.Env, "PLUGIN_ID="+uuid)
+
+		// 获取标准输出和标准错误输出的管道
+		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			fmt.Println("命令执行失败：", err)
-			return nil
+			// fmt.Printf("获取标准输出管道失败：%v\n", err)
+			// os.Exit(1)
 		}
-		// 输出命令的输出结果
-		fmt.Println(string(output))
+		stderr, err := cmd.StderrPipe()
+		if err != nil {
+			// fmt.Printf("获取标准错误输出管道失败：%v\n", err)
+			// os.Exit(1)
+		}
+		err = cmd.Start()
+		if err != nil {
+
+		}
+
+		// file, err := os.Create("output.log")
+		// if err != nil {
+		// 	fmt.Printf("创建文件失败：%v\n", err)
+		// 	os.Exit(1)
+		// }
+		// defer file.Close()
+		var wg sync.WaitGroup
+		wg.Add(2)
+		// 处理标准输出
+		go func() {
+			defer wg.Done()
+
+			scanner := bufio.NewScanner(stdout)
+			for scanner.Scan() {
+				data := scanner.Text()
+				fmt.Println("log", data)
+				// if _, err := file.WriteString(data + "\n"); err != nil {
+				// 	fmt.Printf("写入文件失败：%v\n", err)
+				// }
+			}
+		}()
+		// 处理标准错误输出
+		go func() {
+			defer wg.Done()
+			scanner := bufio.NewScanner(stderr)
+			for scanner.Scan() {
+				data := scanner.Text()
+				fmt.Fprintln(os.Stderr, "err "+data)
+				// if _, err := file.WriteString(data + "\n"); err != nil {
+				// 	fmt.Printf("写入文件失败：%v\n", err)
+				// }
+			}
+		}()
+		processes.Store(cmd, s)
+		if (plt) != "*" {
+			senders.Store(id, s)
+			defer senders.Delete(id)
+			defer processes.Delete(cmd)
+			err = cmd.Wait()
+			if err != nil {
+				fmt.Println("命令执行失败：", err)
+				return nil
+			}
+		} else {
+			processes.Range(func(key, value any) bool {
+				p := key.(*exec.Cmd)
+				if p == cmd {
+					return true
+				}
+				s := value.(common.Sender)
+				if s.GetPluginID() == uuid {
+					p.Process.Kill()
+				}
+				return true
+			})
+			go func() {
+				defer processes.Delete(cmd)
+				err = cmd.Wait()
+			}()
+		}
 		return nil
 	}
 	for _, cb := range cbs {

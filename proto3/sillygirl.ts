@@ -736,19 +736,13 @@ async function sleep(ms: number | undefined) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let console = {
-  error: (message?: any, ...optionalParams: any[])=>{
+class Console {
+  error = (message?: any, ...optionalParams: any[]) => {
 
-  },
-  info: (message?: any, ...optionalParams: any[])=>{
+  };
+  info = (message?: any, ...optionalParams: any[]) => {};
+  log = (message?: any, ...optionalParams: any[]) => {};
+  debug = (message?: any, ...optionalParams: any[]) => {};
+}
 
-  },
-  log: (message?: any, ...optionalParams: any[])=>{
-
-  },
-  debug: (message?: any, ...optionalParams: any[])=>{
-
-  },
-};
-
-export { Adapter, Bucket, sender, sleep};
+export { Adapter, Bucket, sender, sleep };

@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"sync"
 	"time"
 
@@ -13,8 +14,13 @@ import (
 func (sg *SillyGirlService) AdapterRegist(stream srpc.SillyGirlService_AdapterRegistServer) error {
 	var adapter *Factory
 	var echos sync.Map
+	// defer func() {
+	// 	fmt.Println("test defer")
+	// }()
 	for {
+		// fmt.Println("test for")
 		req, err := stream.Recv()
+		// fmt.Println("test fored", err)
 		if err != nil {
 			return err
 		}
@@ -41,6 +47,24 @@ func (sg *SillyGirlService) AdapterRegist(stream srpc.SillyGirlService_AdapterRe
 				}
 				return ""
 			})
+			adapter.action = func(m map[string]interface{}) string {
+				m["__type__"] = "action"
+				echo := utils.GenUUID()
+				ch := make(chan string)
+				echos.Store(echo, ch)
+				defer echos.Delete(echo)
+				m["echo"] = echo
+				stream.Send(&srpc.Default{
+					Value: string(utils.JsonMarshal(m)),
+				})
+				select {
+				case v := <-ch:
+					return v
+				case <-time.After(time.Second * 5):
+				}
+				return ""
+			}
+			// fmt.Println("test start")
 		} else {
 			echo := req.GetBotId()
 			message_id := req.GetPlatform()
@@ -63,7 +87,7 @@ func (sg *SillyGirlService) AdapterReceive(ctx context.Context, req *srpc.Adapte
 	adapter, err := GetAdapter(bot_id, platform)
 	if err == nil {
 		s := adapter.Receive(msgs)
-		return &srpc.Default{Value: s.GetID()}, nil
+		return &srpc.Default{Value: s.SetID()}, nil
 	}
 	return &srpc.Default{Value: ""}, err
 }
@@ -73,17 +97,17 @@ func (sg *SillyGirlService) AdapterPush(ctx context.Context, req *srpc.AdapterRe
 	bot_id := req.GetBotId()
 	platform := req.GetPlatform()
 	json.Unmarshal([]byte(req.Value), &msgs)
-	adapter, err := GetAdapter(bot_id, platform)
+	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
 		result := adapter.Push(msgs)
 		message_id := result["message_id"]
-		error := result["error"]
-		if error != "" {
-			return &srpc.Default{Value: ""}, err
+		errst := result["error"]
+		if errst != "" {
+			return &srpc.Default{Value: ""}, errors.New(errst)
 		}
-		return &srpc.Default{Value: message_id}, err
+		return &srpc.Default{Value: message_id}, nil
 	}
-	return &srpc.Default{Value: ""}, err
+	return &srpc.Default{Value: ""}, nil
 }
 
 func (sg *SillyGirlService) AdapterSender(ctx context.Context, req *srpc.AdapterRequest) (*srpc.Default, error) {
@@ -91,10 +115,10 @@ func (sg *SillyGirlService) AdapterSender(ctx context.Context, req *srpc.Adapter
 	bot_id := req.GetBotId()
 	platform := req.GetPlatform()
 	json.Unmarshal([]byte(req.Value), &msgs)
-	adapter, err := GetAdapter(bot_id, platform)
+	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
 		s := adapter.Sender2(msgs)
-		return &srpc.Default{Value: s.GetID()}, nil
+		return &srpc.Default{Value: s.SetID()}, nil
 	}
 	return &srpc.Default{Value: ""}, err
 }
@@ -102,7 +126,7 @@ func (sg *SillyGirlService) AdapterSender(ctx context.Context, req *srpc.Adapter
 func (sg *SillyGirlService) AdapterDestroy(ctx context.Context, req *srpc.AdapterRequest) (*srpc.Empty, error) {
 	bot_id := req.GetBotId()
 	platform := req.GetPlatform()
-	adapter, err := GetAdapter(bot_id, platform)
+	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
 		adapter.Destroy()
 	}

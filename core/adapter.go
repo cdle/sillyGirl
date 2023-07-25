@@ -53,6 +53,7 @@ type Factory struct {
 	msgChan    chan MsgChan
 	demo       *CustomSender
 	reply      func(map[string]interface{}) string
+	action     func(map[string]interface{}) string
 	lm         chan bool
 	nm         int64
 	isAdmin    func(string) bool
@@ -354,6 +355,23 @@ func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) 
 	}
 }
 
+func (f *Factory) SetActionHandler(function func(map[string]interface{}) string) {
+	f.action = func(m map[string]interface{}) string {
+		if f.uuid != "" {
+			mutex := GetMutex(f.uuid)
+			mutex.Lock()
+			defer mutex.Unlock()
+		}
+		defer func() {
+			err := recover()
+			if err != nil {
+				pluginConsole(f.uuid).Error("Sender(\""+f.botplt+"\").SetAction error:", err)
+			}
+		}()
+		return function(m)
+	}
+}
+
 // func (f *Factory) GetReplies() {
 
 // }
@@ -535,7 +553,7 @@ func (f *Factory) SetIsAdmin(function func(string) bool) {
 func (f *Factory) Sender2(options map[string]string) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
-	sender.SetID()
+	// sender.SetID()
 	if options != nil {
 		fsp := &common.FakerSenderParams{}
 		if v, ok := options[CONETNT]; ok {
@@ -570,8 +588,8 @@ func (f *Factory) Sender() interface{} {
 func (f *Factory) Receive(props map[string]interface{}) *CustomSender {
 	var demo = *f.demo
 	sender := &demo
-	sender.SetID()
-	console.Log("senderId", sender.GetID())
+	// sender.SetID()
+	// console.Log("senderId", sender.GetID())
 	emf := map[string]interface{}{}
 	for i := range props {
 		h := false
@@ -653,6 +671,9 @@ func (sender *CustomSender) GetBotID() string {
 type PUSH string
 
 func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, error) {
+	if sender.f.action != nil {
+		return sender.f.action(options), nil
+	}
 	var platform = sender.f.botplt
 	var any *common.Function
 	var one *common.Function
@@ -692,6 +713,7 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 			vm.Set("action", proxy)
 			vm.Set("adapter", sender.f)
 		})
+
 	}
 	return result, err
 }
@@ -918,16 +940,9 @@ func (sender *CustomSender) GetID() string {
 	return sender.id
 }
 
-var test = "4d6371a8-2778-11ee-a3c2-821680fbbf6b"
-
-func (sender *CustomSender) SetID() {
-	if test != "" {
-		sender.id = test
-		test = ""
-	} else {
-		sender.id = utils.GenUUID()
-	}
-
+func (sender *CustomSender) SetID() string {
+	sender.id = utils.GenUUID()
 	sender.CreatedAt = time.Now()
 	senders.Store(sender.id, sender)
+	return sender.id
 }

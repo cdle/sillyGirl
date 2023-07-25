@@ -162,6 +162,14 @@ type BaseSender struct {
 	emf            map[string]interface{}
 	id             string
 	CreatedAt      time.Time
+	plugin_id      string
+}
+
+func (sender *BaseSender) SetPluginID(plugin_id string) {
+	sender.plugin_id = plugin_id
+}
+func (sender *BaseSender) GetPluginID() string {
+	return sender.plugin_id
 }
 
 func (sender *BaseSender) SetLevel(l int) {
@@ -379,10 +387,11 @@ func (sender *BaseSender) GetID() string {
 	return sender.id
 }
 
-func (sender *BaseSender) SetID() {
+func (sender *BaseSender) SetID() string {
 	sender.id = utils.GenUUID()
 	sender.CreatedAt = time.Now()
 	senders.Store(sender.id, sender)
+	return sender.id
 }
 
 func (sender *BaseSender) GetTime() time.Time {

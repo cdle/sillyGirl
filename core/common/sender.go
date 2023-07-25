@@ -3,9 +3,11 @@ package common
 import "time"
 
 type Sender interface {
+	SetPluginID(string)
+	GetPluginID() string
 	GetID() string
 	GetTime() time.Time
-	SetID()
+	SetID() string
 	GetUserID() string
 	GetChatID() string
 	GetBotID() string
