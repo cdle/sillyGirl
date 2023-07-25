@@ -31,7 +31,7 @@ func initNodePlugins() {
 	plugins := []string{root}
 	os.Mkdir(root, 0755)
 	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !strings.HasPrefix(path, "/home/user/Code/sillyGirl/plugins/") {
+		if !strings.HasPrefix(path, utils.ExecPath+"/plugins/") {
 			return nil
 		}
 		files := strings.Split(strings.Replace(path, root+"/", "", 1), "/")

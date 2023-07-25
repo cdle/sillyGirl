@@ -36,32 +36,34 @@ var languages = []Language{
 
 func init() {
 
-	for _, item := range languages {
-		if !(item.Os == runtime.GOOS && item.Arch == runtime.GOARCH) {
-			continue
+	go func() {
+		for _, item := range languages {
+			if !(item.Os == runtime.GOOS && item.Arch == runtime.GOARCH) {
+				continue
+			}
+			func() {
+				dir := utils.ExecPath + "/language/" + item.Name
+				data, _ := os.ReadFile(dir + "/version")
+				if string(data) == item.Version {
+					return
+				}
+				os.MkdirAll(utils.ExecPath+"/language/"+item.Name, 0755)
+				resp, err := http.Get(item.Links[0])
+				if err != nil {
+					return
+				}
+				defer resp.Body.Close()
+				f, err := os.OpenFile(dir+"/"+item.Name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+				if err != nil {
+					return
+				}
+				defer f.Close()
+				_, err = io.Copy(f, resp.Body)
+				if err != nil {
+					return
+				}
+				os.WriteFile(dir+"/version", []byte(item.Version), 0755)
+			}()
 		}
-		func() {
-			dir := utils.ExecPath + "/language/" + item.Name
-			data, _ := os.ReadFile(dir + "/version")
-			if string(data) == item.Version {
-				return
-			}
-			os.MkdirAll(utils.ExecPath+"/language/"+item.Name, 0755)
-			resp, err := http.Get(item.Links[0])
-			if err != nil {
-				return
-			}
-			defer resp.Body.Close()
-			f, err := os.OpenFile(dir+"/"+item.Name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-			if err != nil {
-				return
-			}
-			defer f.Close()
-			_, err = io.Copy(f, resp.Body)
-			if err != nil {
-				return
-			}
-			os.WriteFile(dir+"/version", []byte(item.Version), 0755)
-		}()
-	}
+	}()
 }
