@@ -111,6 +111,19 @@ func initNodePlugins() {
 					} else {
 						// fmt.Println("非插件目录", event.Name)
 					}
+					tf := event.Name + "/node_modules/sillygirl.d.ts"
+					ti := event.Name + "/main.js"
+					if _, err := os.Stat(tf); err != nil {
+						os.Mkdir(event.Name+"/node_modules", 0700)
+						os.WriteFile(tf, []byte(typeat), 0700)
+					}
+					go func() {
+						time.Sleep(time.Second)
+						if _, err := os.Stat(ti); err != nil {
+							os.Mkdir(event.Name+"/node_modules", 0700)
+							os.WriteFile(ti, []byte(defaultScript(plugin_name)), 0700)
+						}
+					}()
 				} else if plugin_index {
 					// fmt.Println("增加插件", event.Name)
 					// RemNodePlugin(plugin_name)
@@ -207,8 +220,6 @@ func AddNodePlugin(path, name string) error {
 		cmd := exec.Command("./node", path)
 		cmd.Dir = utils.ExecPath + "/language/node"
 		// cmd := exec.Command(utils.ExecPath+"/language/node/node", path)
-		id := s.SetID()
-		cmd.Env = append(cmd.Env, "SENDER_ID="+id)
 		cmd.Env = append(cmd.Env, "PLUGIN_ID="+uuid)
 		// 获取标准输出和标准错误输出的管道
 		stdout, err := cmd.StdoutPipe()
@@ -220,10 +231,6 @@ func AddNodePlugin(path, name string) error {
 		if err != nil {
 			// fmt.Printf("获取标准错误输出管道失败：%v\n", err)
 			// os.Exit(1)
-		}
-		err = cmd.Start()
-		if err != nil {
-
 		}
 
 		// file, err := os.Create("output.log")
@@ -260,6 +267,12 @@ func AddNodePlugin(path, name string) error {
 		}()
 		processes.Store(cmd, s)
 		if (plt) != "*" {
+			id := s.SetID()
+			cmd.Env = append(cmd.Env, "SENDER_ID="+id)
+			err = cmd.Start()
+			if err != nil {
+
+			}
 			senders.Store(id, s)
 			defer senders.Delete(id)
 			defer processes.Delete(cmd)
@@ -269,6 +282,10 @@ func AddNodePlugin(path, name string) error {
 				return nil
 			}
 		} else {
+			err = cmd.Start()
+			if err != nil {
+
+			}
 			processes.Range(func(key, value any) bool {
 				p := key.(*exec.Cmd)
 				if p == cmd {
@@ -295,4 +312,104 @@ func AddNodePlugin(path, name string) error {
 	}
 	AddCommand([]*common.Function{f})
 	return nil
+}
+
+var typeat = `declare class Sender {
+	uuid: string;
+	private destoried;
+	constructor(uuid: string);
+	destructor(): void;
+	getUserId(): Promise<string | undefined>;
+	getUserName(): Promise<string | undefined>;
+	getChatId(): Promise<string | undefined>;
+	getChatName(): Promise<string | undefined>;
+	getMessageId(): Promise<string | undefined>;
+	getPlatform(): Promise<string | undefined>;
+	getBotId(): Promise<string | undefined>;
+	getContent(): Promise<string | undefined>;
+	param(key: number | string): Promise<string>;
+	setContent(content: string): Promise<undefined>;
+	continue(): Promise<undefined>;
+	getAdapter(): Promise<Adapter>;
+	listen(options?: {
+			rules?: string[];
+			timeout?: number;
+			handle?: (s: Sender) => Promise<string | void> | string | void;
+			listen_private?: boolean;
+			listen_group?: boolean;
+			allow_platforms?: string[];
+			prohibit_platforms?: string[];
+			allow_groups?: string[];
+			prohibit_groups?: string[];
+			allow_users?: string[];
+			prohibit_users?: string[];
+			persistent?: boolean;
+	}): Promise<Sender>;
+	holdOn(str: string): string;
+	reply(content: string): Promise<string | undefined>;
+	action(options: any): Promise<any | undefined>;
+	event(): Promise<any | undefined>;
+}
+declare class Bucket {
+	name: string;
+	constructor(name: string);
+	transform(v: string | undefined): string | number | boolean | undefined;
+	reverseTransform(value: any): string;
+	get(key: string, defaultValue?: any): Promise<any>;
+	set(key: string, value: any): Promise<{
+			message?: string;
+			changed?: boolean;
+	}>;
+	getAll(): Promise<any>;
+	delete(): Promise<undefined>;
+	keys(): Promise<string[] | undefined>;
+	len(): Promise<number | undefined>;
+	buckets(): Promise<string[] | undefined>;
+	watch(key: string, handle: (old: any, now: any, key: string) => StorageFinal | void | any): void;
+	_name(): Promise<string>;
+}
+interface StorageFinal {
+	echo?: string;
+	now?: any;
+	message?: string;
+	error?: string;
+}
+interface Message {
+	message_id?: string;
+	user_id: string;
+	chat_id?: string;
+	content: string;
+	user_name?: string;
+	chat_name?: string;
+}
+declare class Adapter {
+	platform: string | undefined;
+	bot_id: string | undefined;
+	call: any;
+	constructor(options: {
+			platform?: string;
+			bot_id?: string;
+			replyHandler?: (message: Message) => string | undefined;
+			actionHandler?: (message: Message) => string | undefined;
+	});
+	setActionHandler(func: (action: {}) => any): void;
+	receive(message: Message): Promise<Sender>;
+	push(message: Message): Promise<string>;
+	destroy(): Promise<void>;
+	sender(options: any): Promise<Sender>;
+}
+declare let sender: Sender;
+declare function sleep(ms: number | undefined): Promise<unknown>;
+export { Adapter, Bucket, sender, sleep };
+`
+
+func defaultScript(title string) string {
+	create_at := time.Now().Format("2006-01-02 15:04:05")
+	return `/**
+	* @title ` + title + `
+	* @create_at ` + create_at + `
+	* @description 🐒这个人很懒什么都没有留下
+	* @author ` + sillyGirl.GetString("author", "佚名") + `
+	* @version v1.0.0
+	*/`
 }

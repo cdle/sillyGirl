@@ -31,7 +31,7 @@ type Details struct {
 type CustomSender struct {
 	BaseSender
 	details Details
-	f       *Factory
+	F       *Factory
 }
 
 type MsgChan struct {
@@ -203,7 +203,7 @@ func (f *Factory) Init(botplt, botid string, params map[string]interface{}) {
 	f.botid = botid
 	f.msgChan = make(chan MsgChan, 100000)
 	f.demo = &CustomSender{
-		f: f,
+		F: f,
 	}
 	if v, ok := Bots[[2]string{botplt, botid}]; ok {
 		if v.uuid != f.uuid {
@@ -643,7 +643,7 @@ func (sender *CustomSender) GetChatID() string {
 	return sender.details.ChatID
 }
 func (sender *CustomSender) GetImType() string {
-	return sender.f.botplt
+	return sender.F.botplt
 }
 func (sender *CustomSender) GetUserName() string {
 	return sender.details.Username
@@ -665,16 +665,16 @@ func (sender *CustomSender) GetReplySenderUserID() int {
 }
 
 func (sender *CustomSender) GetBotID() string {
-	return sender.f.botid
+	return sender.F.botid
 }
 
 type PUSH string
 
 func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, error) {
-	if sender.f.action != nil {
-		return sender.f.action(options), nil
+	if sender.F.action != nil {
+		return sender.F.action(options), nil
 	}
-	var platform = sender.f.botplt
+	var platform = sender.F.botplt
 	var any *common.Function
 	var one *common.Function
 	var result interface{}
@@ -683,7 +683,7 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 		if function.Reply != nil && function.Reply.Platform == platform {
 			if len(function.Reply.BotsID) == 0 {
 				any = function
-			} else if Contains(function.Reply.BotsID, sender.f.botid) {
+			} else if Contains(function.Reply.BotsID, sender.F.botid) {
 				one = function
 			}
 		}
@@ -711,7 +711,7 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 				},
 			})
 			vm.Set("action", proxy)
-			vm.Set("adapter", sender.f)
+			vm.Set("adapter", sender.F)
 		})
 
 	}
@@ -720,8 +720,8 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 
 func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 	var push = false
-	var platform = sender.f.botplt
-	var bot_id = sender.f.botid
+	var platform = sender.F.botplt
+	var bot_id = sender.F.botid
 	var args = []interface{}{}
 	for _, item := range msgs {
 		switch item := item.(type) {
@@ -761,8 +761,8 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 		for k, v := range sender.GetExpandMessageInfo() {
 			msg[k] = v
 		}
-		if sender.f.umod { //订阅号模式
-			v, loaded := sender.f.gmsgChan.LoadOrStore(user_id, &GMsgChan{})
+		if sender.F.umod { //订阅号模式
+			v, loaded := sender.F.gmsgChan.LoadOrStore(user_id, &GMsgChan{})
 			ch := v.(*GMsgChan)
 			if !loaded {
 				// console.Debug("发送创建：", ch.Chan)
@@ -781,14 +781,14 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			}
 			return "", nil
 		}
-		if sender.f.reply == nil { //未设置回复函数
+		if sender.F.reply == nil { //未设置回复函数
 			var any *common.Function
 			var one *common.Function
 			for _, function := range Functions {
 				if function.Reply != nil && function.Reply.Platform == platform {
 					if len(function.Reply.BotsID) == 0 {
 						any = function
-					} else if Contains(function.Reply.BotsID, sender.f.botid) {
+					} else if Contains(function.Reply.BotsID, sender.F.botid) {
 						one = function
 					}
 				}
@@ -813,7 +813,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 					})
 					vm.Set("msg", proxy)
 					vm.Set("message", proxy)
-					vm.Set("adapter", sender.f)
+					vm.Set("adapter", sender.F)
 				})
 				return message_id, nil
 			} else { //存储消息
@@ -821,10 +821,10 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 					Msg:  msg,
 					Chan: make(chan string),
 				}
-				if sender.f.destroid {
+				if sender.F.destroid {
 					return "", errors.New("adapter destroid")
 				}
-				sender.f.msgChan <- c
+				sender.F.msgChan <- c
 				select {
 				case id := <-c.Chan:
 					return id, nil
@@ -835,7 +835,7 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			}
 		} else {
 			//todo 阻塞延迟异常
-			v := sender.f.reply(msg)
+			v := sender.F.reply(msg)
 			return v, nil
 		}
 	}
@@ -930,10 +930,10 @@ func (sender *CustomSender) GroupUnban(uid string) error {
 }
 
 func (sender *CustomSender) IsAdmin() bool {
-	if sender.f.isAdmin == nil {
-		return Contains(strings.Split(MakeBucket(sender.f.botplt).GetString("masters"), "&"), sender.GetUserID())
+	if sender.F.isAdmin == nil {
+		return Contains(strings.Split(MakeBucket(sender.F.botplt).GetString("masters"), "&"), sender.GetUserID())
 	}
-	return sender.f.isAdmin(sender.GetUserID())
+	return sender.F.isAdmin(sender.GetUserID())
 }
 
 func (sender *CustomSender) GetID() string {

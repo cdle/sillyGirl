@@ -248,7 +248,7 @@ class Sender {
           persistent: options?.persistent,
           plugin_id,
         };
-        if (options?.handle && "*" == (await this.getPlatform())) {
+        if (!this.uuid) {
           params.persistent = true;
         }
         const call = client.SenderListen();

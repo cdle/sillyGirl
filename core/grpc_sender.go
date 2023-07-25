@@ -34,14 +34,16 @@ var senders sync.Map
 // }
 
 func GetSender(uuid string) (common.Sender, error) {
+
 	if uuid == "" {
 		return &CustomSender{
-			f: &Factory{
+			F: &Factory{
 				botid: "*",
 			},
 		}, nil
 	}
 	v, ok := senders.Load(uuid)
+	fmt.Println("uuid", uuid, v, ok)
 	if !ok {
 		return nil, errors.New("not found sender")
 	}
@@ -138,6 +140,7 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 	// defer fmt.Println("已关闭，", "===")
 	for {
 		req, err := stream.Recv()
+
 		// fmt.Println("carry", carry, err)
 		if err == io.EOF {
 			break // 如果流已经关闭，则退出循环
@@ -146,6 +149,7 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 			return err
 		}
 		if carry != nil {
+			fmt.Println("req.Uuid", req.Uuid)
 			echo := req.GetUuid()
 			value := req.GetValue()
 			// fmt.Println("echo", echo, "value", value)

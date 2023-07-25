@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -100,8 +101,10 @@ func initWeb() {
 							return nil
 						}
 						// 将路径转换为相对路径
+
 						relPath, err := filepath.Rel(dir, path)
 						relPath = name + "/" + relPath
+						is_index := relPath == "main.js"
 						if err != nil {
 							return err
 						}
@@ -124,8 +127,22 @@ func initWeb() {
 						if err != nil {
 							return err
 						}
-
-						_, err = io.Copy(wr, file)
+						if is_index {
+							var data []byte
+							data, err = ioutil.ReadAll(file)
+							if err != nil {
+								return err
+							}
+							su := &ScriptUtils{
+								script: string(data),
+							}
+							if su.GetValue("public") == "true" {
+								su.SetValue("public", "false")
+							}
+							_, err = wr.Write([]byte(su.script))
+						} else {
+							_, err = io.Copy(wr, file)
+						}
 						return err
 					})
 					if err != nil {

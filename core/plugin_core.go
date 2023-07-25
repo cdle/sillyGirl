@@ -115,7 +115,7 @@ func initPlugins() {
 				if p.UUID != key {
 					continue
 				}
-				if p.Type != "goja" { //下载目录插件
+				if p.Type != "goja" && p.Type != "" { //下载目录插件
 					// Content-Type
 					var prefix = "?uuid=" + p.UUID
 					address := p.Address
@@ -149,7 +149,6 @@ func initPlugins() {
 							Error: err,
 						}
 					}
-					fmt.Println(zipfile)
 					defer os.Remove(zipfile)
 					if err := unzip(zipfile, 0755); err != nil {
 						return &storage.Final{

@@ -65,14 +65,22 @@ func main() {
 		if t {
 			core.Logs.Info("Terminal机器人已连接")
 			scanner := bufio.NewScanner(os.Stdin)
+			a := &core.Factory{}
+			a.Init("terminal", "default", nil)
+			a.SetReplyHandler(func(m map[string]interface{}) string {
+				fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, m[core.CONETNT])
+				return ""
+			})
 			for scanner.Scan() {
 				data := scanner.Text()
-				f := &core.Faker{
-					Type:    "terminal",
-					Message: string(data),
-					Admin:   true,
+				s := &core.CustomSender{
+					// Type:    "terminal",
+					// Message: string(data),
+					// Admin:   true,
+					F: a,
 				}
-				core.Messages <- f
+				s.SetContent(data)
+				core.Messages <- s
 			}
 			core.Logs.Info("Terminal机器人异常,请检查运行环境设置,如果是docker环境,请附加-it参数")
 		} else {
