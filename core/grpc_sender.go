@@ -149,7 +149,7 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 			return err
 		}
 		if carry != nil {
-			fmt.Println("req.Uuid", req.Uuid)
+			// fmt.Println("req.Uuid", req.Uuid)
 			echo := req.GetUuid()
 			value := req.GetValue()
 			// fmt.Println("echo", echo, "value", value)
