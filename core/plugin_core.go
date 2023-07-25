@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -110,11 +111,28 @@ func initPlugins() {
 	storage.Watch(plugins, nil, func(old, new, key string) (fin *storage.Final) {
 		pluginLock.Lock()
 		defer pluginLock.Unlock()
+		// fmt.Println("new", new, key)
+
+		if vv, ok := plugins_id.Load(key); ok {
+			filename := vv.(string)
+			if new == "" {
+				os.RemoveAll(filepath.Dir(filename))
+			} else {
+				os.WriteFile(filename, []byte(new), 0755)
+			}
+			return &storage.Final{
+				Now: "",
+			}
+		}
+
 		if new == "install" {
 			for _, p := range plugin_list {
+				// fmt.Println(p.UUID, p.UUID == key, p.Title)
 				if p.UUID != key {
 					continue
 				}
+				// fmt.Println("(p.Type", p.Type)
+
 				if p.Type != "goja" && p.Type != "" { //下载目录插件
 					// Content-Type
 					var prefix = "?uuid=" + p.UUID

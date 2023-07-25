@@ -129,12 +129,13 @@ func initNodePlugins() {
 					// RemNodePlugin(plugin_name)
 					AddNodePlugin(event.Name, plugin_name)
 				}
-			case "REMOVE", "RENAME", "REMOVE|RENAME":
+			case "REMOVE", "RENAME", "REMOVE|RENAME", "REMOVE|WRITE":
 				if plugin_dir {
 					watcher.Remove(event.Name)
 					// fmt.Println("移除插件目录", event.Name)
 					// fmt.Println("移除插件", plugin_name)
 					RemNodePlugin(plugin_name)
+
 				} else if plugin_index {
 					// fmt.Println("移除插件", plugin_name)
 					RemNodePlugin(plugin_name)
@@ -156,6 +157,9 @@ func initNodePlugins() {
 }
 
 func RemNodePlugin(name string) error {
+	if name == "" {
+		return nil
+	}
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
@@ -163,6 +167,7 @@ func RemNodePlugin(name string) error {
 	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
+			f := Functions[i]
 			// fmt.Println("pl", key)
 			DestroyAdapterByUUID(key)
 			Functions[i].Running = false
@@ -178,6 +183,8 @@ func RemNodePlugin(name string) error {
 			CancelHttpListen(key)
 			remStatic(key)
 			storage.DisableHandle(key)
+
+			console.Log("已移除 %s%s", f.Title, f.Suffix)
 			break
 		}
 	}
@@ -192,6 +199,9 @@ func nameUuid(name string) string {
 var plugins_id sync.Map
 
 func AddNodePlugin(path, name string) error {
+	if name == "" {
+		return nil
+	}
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 
@@ -247,7 +257,7 @@ func AddNodePlugin(path, name string) error {
 			scanner := bufio.NewScanner(stdout)
 			for scanner.Scan() {
 				data := scanner.Text()
-				fmt.Println("log", data)
+				fmt.Println(data)
 				// if _, err := file.WriteString(data + "\n"); err != nil {
 				// 	fmt.Printf("写入文件失败：%v\n", err)
 				// }
@@ -259,7 +269,7 @@ func AddNodePlugin(path, name string) error {
 			scanner := bufio.NewScanner(stderr)
 			for scanner.Scan() {
 				data := scanner.Text()
-				fmt.Fprintln(os.Stderr, "err "+data)
+				fmt.Println(data)
 				// if _, err := file.WriteString(data + "\n"); err != nil {
 				// 	fmt.Printf("写入文件失败：%v\n", err)
 				// }
