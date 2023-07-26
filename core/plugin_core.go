@@ -117,9 +117,11 @@ func initPlugins() {
 			filename := vv.(string)
 			if new == "" {
 				os.RemoveAll(filepath.Dir(filename))
-			} else {
+			} else if new != "install" {
+				fmt.Println("WriteFile", []byte(new))
 				os.WriteFile(filename, []byte(new), 0755)
 			}
+
 			return &storage.Final{
 				Now: "",
 			}

@@ -120,7 +120,8 @@ func unzip(filename string, perm fs.FileMode, pkg bool) error {
 	}
 	defer zipFile.Close()
 	top := ""
-	for _, file := range zipFile.File {
+	for i := range zipFile.File {
+		file := zipFile.File[i]
 		if top == "" {
 			top = strings.Split(file.Name, "/")[0]
 		}
@@ -167,7 +168,12 @@ func unzip(filename string, perm fs.FileMode, pkg bool) error {
 					defer func() { //安装依赖
 						cmd := exec.Command(utils.ExecPath+"/language/node/yarn/bin/yarn", "install")
 						cmd.Dir = utils.ExecPath + "/plugins/" + top
-						console.Log(cmd.Output())
+						data, err := cmd.Output()
+						if err != nil {
+							console.Error("依赖添加失败：", err)
+						} else {
+							console.Log(string(data))
+						}
 						de()
 					}()
 				} else {

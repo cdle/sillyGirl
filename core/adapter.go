@@ -288,7 +288,7 @@ func (f *Factory) Destroy() {
 	} else {
 		botid = f.botid
 	}
-	console.Log("%s机器人%s已销毁", strings.ToUpper(f.botplt), botid)
+	console.Log("%s机器人%s已销毁", f.botplt, botid)
 	go func() {
 		if f.uuid != "" {
 			su := &ScriptUtils{
