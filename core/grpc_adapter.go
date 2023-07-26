@@ -83,8 +83,9 @@ func (sg *SillyGirlService) AdapterReceive(ctx context.Context, req *srpc.Adapte
 	msgs := map[string]interface{}{}
 	bot_id := req.GetBotId()
 	platform := req.GetPlatform()
+	// fmt.Println("a ...any", bot_id, "=", platform, string(utils.JsonMarshal(msgs)))
 	json.Unmarshal([]byte(req.Value), &msgs)
-	adapter, err := GetAdapter(bot_id, platform)
+	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
 		s := adapter.Receive(msgs)
 		return &srpc.Default{Value: s.SetID()}, nil

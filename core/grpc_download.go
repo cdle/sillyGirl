@@ -22,62 +22,65 @@ type Language struct {
 }
 
 var plugin_dir = utils.ExecPath + "/plugins"
+var release = "20230726"
 
 var languages = []Language{
 	{
 		Name:    "node",
-		Version: "20230725",
+		Version: release,
 		Os:      "linux",
 		Arch:    "amd64",
-		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/20230725/node_linux_amd64.zip"},
+		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/" + release + "/node_linux_amd64.zip"},
 	},
 	{
 		Name:    "node",
-		Version: "20230725",
+		Version: release,
 		Os:      "darwin",
 		Arch:    "arm64",
-		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/20230725/node_darwin_arm64.zip"},
+		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/" + release + "/node_darwin_arm64.zip"},
 	},
 }
 
-func init() {
-	go func() {
-		for _, item := range languages {
-			if !(item.Os == runtime.GOOS && item.Arch == runtime.GOARCH) {
-				continue
-			}
-			func() {
-				dir := utils.ExecPath + "/language/" + item.Name
-				data, _ := os.ReadFile(dir + "/version")
-				if string(data) == item.Version {
-					return
-				}
-				os.MkdirAll(utils.ExecPath+"/language/"+item.Name, 0755)
-				resp, err := http.Get(item.Links[0])
-				if err != nil {
-					return
-				}
-				defer resp.Body.Close()
-				zipfile := dir + "/" + item.Name + ".zip"
-				f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
-				if err != nil {
-					return
-				}
-				defer f.Close()
-				_, err = io.Copy(f, resp.Body)
-				if err != nil {
-					// fmt.Println(err)
-					return
-				}
-				defer os.Remove(zipfile)
-				if err := unzip(zipfile, 0755); err == nil {
-					os.WriteFile(dir+"/version", []byte(item.Version), 0755)
-				} else {
-					// fmt.Println(err)
-				}
-			}()
+func initLanguage() {
+	// go func() {
+	for _, item := range languages {
+		if !(item.Os == runtime.GOOS && item.Arch == runtime.GOARCH) {
+			continue
 		}
-	}()
+		func() {
+			dir := utils.ExecPath + "/language/" + item.Name
+			data, _ := os.ReadFile(dir + "/version")
+			if string(data) == item.Version {
+				return
+			}
+			console.Log("正在安装", item.Name, "执行环境....")
+			os.MkdirAll(utils.ExecPath+"/language/"+item.Name, 0755)
+			resp, err := http.Get(item.Links[0])
+			if err != nil {
+				return
+			}
+			defer resp.Body.Close()
+			zipfile := dir + "/" + item.Name + ".zip"
+			f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+			if err != nil {
+				return
+			}
+			defer f.Close()
+			_, err = io.Copy(f, resp.Body)
+			if err != nil {
+				// fmt.Println(err)
+				return
+			}
+			defer os.Remove(zipfile)
+			if err := unzip(zipfile, 0755); err == nil {
+				os.WriteFile(dir+"/version", []byte(item.Version), 0755)
+			} else {
+				// fmt.Println(err)
+			}
+			console.Log("安装", item.Name, "执行环境成功")
+		}()
+	}
+	// }()
 }
 
 func unzip(filename string, perm fs.FileMode) error {

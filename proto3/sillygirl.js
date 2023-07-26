@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sleep = exports.sender = exports.Bucket = exports.Adapter = void 0;
+exports.utils = exports.sleep = exports.sender = exports.Bucket = exports.Adapter = void 0;
 const srpc_1 = require("./srpc");
 const grpc_1 = __importStar(require("@grpc/grpc-js"));
 let client = new srpc_1.srpc.SillyGirlServiceClient("localhost:50051", grpc_1.credentials.createInsecure());
@@ -538,23 +538,23 @@ class Adapter {
         this.bot_id = options.bot_id;
         if (options.replyHandler) {
             const call = client.AdapterRegist();
-            let callback = options.replyHandler;
-            call.on("data", (response) => {
-                // console.log("start on data")
+            call.on("data", async (response) => {
                 let message = JSON.parse(response.value);
                 const { echo, __type__ } = message;
                 delete message.__type__;
                 delete message.echo;
-                if (__type__ == "reply") {
+                if (__type__ == "reply" && options.replyHandler) {
+                    let v = (await options.replyHandler(message)) ?? "";
                     call.write(new srpc_1.srpc.AdapterRegistRequest({
                         bot_id: echo,
-                        platform: callback(message),
+                        platform: v,
                     }));
                 }
                 if (__type__ == "action" && options.actionHandler) {
+                    let v = await options.actionHandler(message);
                     call.write(new srpc_1.srpc.AdapterRegistRequest({
                         bot_id: echo,
-                        platform: options.actionHandler(message),
+                        platform: v,
                     }));
                 }
                 // console.log("end on data")
@@ -637,9 +637,40 @@ async function sleep(ms) {
 }
 exports.sleep = sleep;
 class Console {
-    error = (message, ...optionalParams) => {
-    };
+    error = (message, ...optionalParams) => { };
     info = (message, ...optionalParams) => { };
     log = (message, ...optionalParams) => { };
     debug = (message, ...optionalParams) => { };
 }
+let utils = {
+    parseCQText: (text, prefix = "CQ") => {
+        const cqRegex = new RegExp(`\\[${prefix}:(\\w+)(.*?)\\]`, "g");
+        const cqMatches = text.matchAll(cqRegex);
+        const result = [];
+        let lastIndex = 0;
+        for (const match of cqMatches) {
+            // 添加 CQ 码前的文本
+            const matchIndex = text.indexOf(match[0], lastIndex);
+            if (matchIndex > lastIndex) {
+                result.push(text.slice(lastIndex, matchIndex));
+            }
+            // 解析 CQ 码
+            const params = {};
+            const paramRegex = /(\w+)=([^,]+)/g;
+            const paramMatches = match[2].matchAll(paramRegex);
+            for (const paramMatch of paramMatches) {
+                params[paramMatch[1]] = paramMatch[2].trim();
+            }
+            result.push({
+                type: match[1],
+                params: params,
+            });
+            lastIndex = matchIndex + match[0].length;
+        }
+        if (lastIndex < text.length) {
+            result.push(text.slice(lastIndex));
+        }
+        return result;
+    },
+};
+exports.utils = utils;

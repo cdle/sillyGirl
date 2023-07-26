@@ -619,33 +619,39 @@ class Adapter {
   constructor(options: {
     platform?: string;
     bot_id?: string;
-    replyHandler?: (message: Message) => string | undefined;
-    actionHandler?: (message: Message) => string | undefined;
+    replyHandler?: (
+      message: Message
+    ) => string | undefined | Promise<string | undefined>;
+    actionHandler?: (
+      message: Message
+    ) => string | undefined | Promise<string | undefined>;
   }) {
     this.platform = options.platform;
     this.bot_id = options.bot_id;
     if (options.replyHandler) {
       const call = client.AdapterRegist();
-      let callback: any = options.replyHandler;
-      call.on("data", (response) => {
+      // let callback: any = ;
+      call.on("data", async (response) => {
         // console.log("start on data")
         let message = JSON.parse(response.value);
         const { echo, __type__ } = message;
         delete message.__type__;
         delete message.echo;
-        if (__type__ == "reply") {
+        if (__type__ == "reply" && options.replyHandler) {
+          let v = (await options.replyHandler(message)) ?? "";
           call.write(
             new srpc.AdapterRegistRequest({
               bot_id: echo,
-              platform: callback(message),
+              platform: v,
             })
           );
         }
         if (__type__ == "action" && options.actionHandler) {
+          let v = await options.actionHandler(message);
           call.write(
             new srpc.AdapterRegistRequest({
               bot_id: echo,
-              platform: options.actionHandler(message),
+              platform: v,
             })
           );
         }
@@ -737,12 +743,45 @@ async function sleep(ms: number | undefined) {
 }
 
 class Console {
-  error = (message?: any, ...optionalParams: any[]) => {
-
-  };
+  error = (message?: any, ...optionalParams: any[]) => {};
   info = (message?: any, ...optionalParams: any[]) => {};
   log = (message?: any, ...optionalParams: any[]) => {};
   debug = (message?: any, ...optionalParams: any[]) => {};
 }
 
-export { Adapter, Bucket, sender, sleep };
+let utils = {
+  parseCQText: (text: string, prefix = "CQ") => {
+    const cqRegex = new RegExp(`\\[${prefix}:(\\w+)(.*?)\\]`, "g");
+    const cqMatches = text.matchAll(cqRegex);
+    const result = [];
+
+    let lastIndex = 0;
+    for (const match of cqMatches) {
+      // 添加 CQ 码前的文本
+      const matchIndex = text.indexOf(match[0], lastIndex);
+      if (matchIndex > lastIndex) {
+        result.push(text.slice(lastIndex, matchIndex));
+      }
+
+      // 解析 CQ 码
+      const params: any = {};
+      const paramRegex = /(\w+)=([^,]+)/g;
+      const paramMatches = match[2].matchAll(paramRegex);
+      for (const paramMatch of paramMatches) {
+        params[paramMatch[1]] = paramMatch[2].trim();
+      }
+      result.push({
+        type: match[1],
+        params: params,
+      });
+
+      lastIndex = matchIndex + match[0].length;
+    }
+    if (lastIndex < text.length) {
+      result.push(text.slice(lastIndex));
+    }
+    return result;
+  },
+};
+
+export { Adapter, Bucket, sender, sleep, utils };

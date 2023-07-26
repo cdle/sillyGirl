@@ -73,8 +73,8 @@ declare class Adapter {
     constructor(options: {
         platform?: string;
         bot_id?: string;
-        replyHandler?: (message: Message) => string | undefined;
-        actionHandler?: (message: Message) => string | undefined;
+        replyHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
+        actionHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
     });
     setActionHandler(func: (action: {}) => any): void;
     receive(message: Message): Promise<Sender>;
@@ -84,4 +84,10 @@ declare class Adapter {
 }
 declare let sender: Sender;
 declare function sleep(ms: number | undefined): Promise<unknown>;
-export { Adapter, Bucket, sender, sleep };
+declare let utils: {
+    parseCQText: (text: string, prefix?: string) => (string | {
+        type: string;
+        params: any;
+    })[];
+};
+export { Adapter, Bucket, sender, sleep, utils };
