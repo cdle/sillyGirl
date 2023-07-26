@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -29,29 +28,48 @@ var processes sync.Map
 
 func initNodePlugins() {
 	initLanguage()
-	root := utils.ExecPath + "/plugins"
+	root := strings.ReplaceAll(utils.ExecPath+"/plugins", "\\", "/")
 	plugins := []string{root}
 	os.Mkdir(root, 0755)
-	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !strings.HasPrefix(path, utils.ExecPath+"/plugins/") {
-			return nil
+	fmt.Println("root", root)
+
+	files, _ := ioutil.ReadDir(root)
+	for _, file := range files {
+		if !file.IsDir() {
+			continue
 		}
-		files := strings.Split(strings.Replace(path, root+"/", "", 1), "/")
-		// var plugin_dir = false
-		// var plugin_index = false
-		switch len(files) {
-		case 1:
-			// plugin_dir = true
-			if info.IsDir() {
-				plugins = append(plugins, path)
-			}
-		case 2:
-			if (files[1] == "main.js") && !info.IsDir() { //files[1] == "main.ts" ||
-				AddNodePlugin(path, files[0])
-			}
+		name := file.Name()
+		path := root + "/" + name
+		plugins = append(plugins, path)
+		index := path + "/main.js"
+		if info, err := os.Stat(index); err == nil && !info.IsDir() {
+			AddNodePlugin(index, name)
 		}
-		return nil
-	})
+	}
+
+	// filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	// 	fmt.Println("path", path)
+	// 	path = strings.ReplaceAll(path, "\\", "/")
+	// 	if !strings.HasPrefix(path, root+"/") {
+	// 		return nil
+	// 	}
+	// 	files := strings.Split(strings.Replace(path, root+"/", "", 1), "/")
+	// 	fmt.Println("files", files)
+	// 	// var plugin_dir = false
+	// 	// var plugin_index = false
+	// 	switch len(files) {
+	// 	case 1:
+	// 		// plugin_dir = true
+	// 		if info.IsDir() {
+	// 			plugins = append(plugins, path)
+	// 		}
+	// 	case 2:
+	// 		if (files[1] == "main.js") && !info.IsDir() { //files[1] == "main.ts" ||
+	// 			AddNodePlugin(path, files[0])
+	// 		}
+	// 	}
+	// 	return nil
+	// })
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		fmt.Println("创建监视器失败：", err)
@@ -74,6 +92,7 @@ func initNodePlugins() {
 				return
 			}
 			// fmt.Println(event.Name, "op", event.Op.String())
+			event.Name = strings.ReplaceAll(event.Name, "\\", "/")
 			files := strings.Split(strings.Replace(event.Name, root+"/", "", 1), "/")
 			var plugin_dir = false
 			var plugin_index = false
@@ -91,6 +110,9 @@ func initNodePlugins() {
 					// fmt.Println("入口文件事件")
 				}
 				plugin_name = files[0]
+			}
+			if plugin_name == "." {
+				continue
 			}
 			switch event.Op.String() {
 			case "CREATE":
