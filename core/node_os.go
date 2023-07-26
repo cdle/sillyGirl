@@ -2,12 +2,15 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 
 	"github.com/axgle/mahonia"
+	"github.com/cdle/sillyGirl/utils"
 	"github.com/dop251/goja"
 )
 
@@ -20,7 +23,27 @@ func getJsOs(vm *goja.Runtime, running func() bool) *goja.Object {
 		}
 		return data
 	})
-
+	type ExecRequest struct {
+		Dir     string   `json:"dir"`
+		Command []string `json:"command"`
+		Env     []string `json:"env"`
+		Path    string   `json:"path"`
+	}
+	jsos.Set("path", utils.ExecPath)
+	jsos.Set("exec", func(er ExecRequest) string {
+		cmd := exec.Command(er.Command[0], er.Command[1:]...)
+		cmd.Dir = er.Dir
+		cmd.Env = er.Env
+		if er.Path != "" {
+			cmd.Path = er.Path
+		}
+		fmt.Println("==", cmd.Path)
+		data, err := cmd.Output()
+		if err != nil {
+			panic(Error(vm, err))
+		}
+		return string(data)
+	})
 	jsos.Set("readFileSync", func(path string, decode string) string {
 		// 读取文件内容
 		content, err := ioutil.ReadFile(path)

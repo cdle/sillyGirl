@@ -168,7 +168,7 @@ func initPlugins() {
 						}
 					}
 					defer os.Remove(zipfile)
-					if err := unzip(zipfile, 0755); err != nil {
+					if err := unzip(zipfile, 0755, true); err != nil {
 						return &storage.Final{
 							Error: errors.New("安装异常！" + err.Error()),
 						}

@@ -26,3 +26,6 @@ cp /home/user/Code/sillyGirl/proto3/dist/sillygirl.js /home/user/Code/node/node-
 #压缩
 cd /home/user/Code/nodes/node_darwin_arm64 && zip node_darwin_arm64.zip node
 cd /home/user/Code/nodes/node_linux_amd64 && zip node_linux_amd64.zip node
+
+##
+git add . && git commit -m "x" && git push

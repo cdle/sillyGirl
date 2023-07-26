@@ -203,6 +203,8 @@ func AddNodePlugin(path, name string) error {
 	if name == "" {
 		return nil
 	}
+	uuid := nameUuid(name)
+	plugins.Set(uuid, "")
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 
@@ -218,7 +220,7 @@ func AddNodePlugin(path, name string) error {
 	if script == "" {
 		return nil
 	}
-	uuid := nameUuid(name)
+
 	plugins_id.Store(uuid, path)
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(script, uuid)

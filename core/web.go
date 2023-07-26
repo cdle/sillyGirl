@@ -75,8 +75,8 @@ func initWeb() {
 		uuid := c.Query("uuid")
 		for _, f := range Functions {
 			if f.UUID == uuid && f.Public {
+				plugin_downloads.Set(f.UUID, plugin_downloads.GetInt(f.UUID)+1)
 				if f.Type == "goja" {
-					plugin_downloads.Set(f.UUID, plugin_downloads.GetInt(f.UUID)+1)
 					c.String(200, publicScript(plugins.GetString(f.UUID)))
 					return
 				} else {
@@ -97,13 +97,19 @@ func initWeb() {
 						if err != nil {
 							return err
 						}
+
+						if info.IsDir() && info.Name() == "node_modules" {
+							return filepath.SkipDir
+						}
+
 						if info.IsDir() {
 							return nil
 						}
-						// 将路径转换为相对路径
 
+						// 将路径转换为相对路径
 						relPath, err := filepath.Rel(dir, path)
 						is_index := relPath == "main.js"
+
 						relPath = name + "/" + relPath
 						if err != nil {
 							return err

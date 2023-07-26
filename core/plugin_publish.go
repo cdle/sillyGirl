@@ -36,7 +36,7 @@ func CheckPluginAddress(address string) error {
 
 func initPluginPublish() {
 	storage.Watch(sillyGirl, "plugin_sublink", func(old, address, key string) *storage.Final {
-		if strings.HasPrefix(address, "sub://") {
+		if strings.HasPrefix(address, "link://") {
 			return nil
 		}
 		if err := CheckPluginAddress(address); err != nil {
