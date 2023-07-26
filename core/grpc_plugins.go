@@ -164,7 +164,7 @@ func RemNodePlugin(name string) error {
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
-	// plugins_id.Delete(key)
+	plugins_id.Delete(key)
 	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
@@ -194,7 +194,11 @@ func RemNodePlugin(name string) error {
 
 func nameUuid(name string) string {
 	hash := sha1.Sum([]byte(name))
-	return uuid.NewSHA1(uuid.Nil, hash[:]).String()
+	return strings.ReplaceAll(uuid.NewSHA1(uuid.Nil, hash[:]).String(), "-", "_")
+}
+
+func isNameUuid(uuid string) bool {
+	return strings.Contains(uuid, "_")
 }
 
 var plugins_id sync.Map

@@ -462,7 +462,7 @@ func initWeb() {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 			if err := srvs[0].Shutdown(ctx); err == nil {
-				logs.Info("Http服务(%d)关闭", old)
+				logs.Info("Http服务(%v)关闭", old)
 			}
 			srvs = srvs[1:]
 		}

@@ -113,36 +113,12 @@ func initPlugins() {
 		defer pluginLock.Unlock()
 		// fmt.Println("new", new, key)
 
-		if new != "install" {
-			if vv, ok := plugins_id.Load(key); ok {
-				filename := vv.(string)
-				if new == "" {
-					os.RemoveAll(filepath.Dir(filename))
-				} else {
-					fmt.Println("WriteFile", []byte(new))
-					err := os.WriteFile(filename, []byte(new), 0755)
-					if err != nil {
-						return &storage.Final{
-							Error: err,
-						}
+		if isNameUuid(key) {
+			if new == "install" {
+				for _, p := range plugin_list {
+					if p.UUID != key {
+						continue
 					}
-				}
-				return &storage.Final{
-					Now: "",
-				}
-			}
-		}
-
-		if new == "install" {
-			for _, p := range plugin_list {
-				// fmt.Println(p.UUID, p.UUID == key, p.Title)
-				if p.UUID != key {
-					continue
-				}
-				// fmt.Println("(p.Type", p.Type)
-
-				if p.Type != "goja" && p.Type != "" { //下载目录插件
-					// Content-Type
 					var prefix = "?uuid=" + p.UUID
 					address := p.Address
 					if !strings.HasSuffix(address, "list.json") {
@@ -185,6 +161,36 @@ func initPlugins() {
 						Now: "",
 					}
 				}
+			}
+			if vv, ok := plugins_id.Load(key); ok {
+				filename := vv.(string)
+				if new == "" {
+					os.RemoveAll(filepath.Dir(filename))
+				} else {
+					err := os.WriteFile(filename, []byte(new), 0755)
+					if err != nil {
+						return &storage.Final{
+							Error: err,
+						}
+					}
+				}
+				return &storage.Final{
+					Now: "",
+				}
+			}
+			return &storage.Final{
+				Error: errors.New("非法操作！"),
+			}
+		}
+
+		if new == "install" {
+			for _, p := range plugin_list {
+				// fmt.Println(p.UUID, p.UUID == key, p.Title)
+				if p.UUID != key {
+					continue
+				}
+				// fmt.Println("(p.Type", p.Type)
+
 				script := string(fetchScript(p.Address, key))
 				if f, _, _ := initPlugin(script, p.UUID, ""); f.CreateAt != "" {
 					fin = &storage.Final{
