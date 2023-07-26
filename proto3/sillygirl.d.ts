@@ -28,7 +28,7 @@ declare class Sender {
         allow_users?: string[];
         prohibit_users?: string[];
         persistent?: boolean;
-    }): Promise<Sender>;
+    }): Promise<Sender | undefined>;
     holdOn(str: string): string;
     reply(content: string): Promise<string | undefined>;
     action(options: any): Promise<any | undefined>;

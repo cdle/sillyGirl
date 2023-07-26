@@ -230,7 +230,7 @@ class Sender {
     allow_users?: string[]; // 用户白名单
     prohibit_users?: string[]; // 群聊白名单
     persistent?: boolean; //持久化监听
-  }): Promise<Sender> {
+  }): Promise<Sender | undefined> {
     return new Promise(
       async (resolve, reject) => {
         let params: any = {
@@ -259,8 +259,8 @@ class Sender {
             call.cancel();
             return;
           }
-          let s = new Sender(response.uuid);
-          if (options?.handle) {
+          let s = response.uuid ? new Sender(response.uuid) : undefined;
+          if (options?.handle && s) {
             // console.log(`options?.handle`, options.persistent)
             let obj = options?.handle(s);
             if (typeof obj == "string") {

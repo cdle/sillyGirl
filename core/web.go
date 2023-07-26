@@ -243,8 +243,10 @@ func initWeb() {
 					}
 					if (matched || c.Request.URL.Path == path) && (c.Request.Method == method || "ANY" == method) {
 						req.handled = true
-						function.Handle(&Faker{
-							Type: "http",
+						function.Handle(&CustomSender{
+							F: &Factory{
+								botplt: "http",
+							},
 						}, func(vm *goja.Runtime) {
 							vm.Set("res", res)
 							vm.Set("req", req)

@@ -109,8 +109,11 @@ func handleWebsocket(c *gin.Context) {
 
 					req._event = "connect"
 					wc.conn = ws
-					go function.Handle(&Faker{
-						Type: "websocket",
+
+					go function.Handle(&CustomSender{
+						F: &Factory{
+							botplt: "websocket",
+						},
 					}, func(vm *goja.Runtime) {
 						vm.Set("res", &Response{
 							c:    c,
@@ -173,8 +176,10 @@ func handleWebsocket(c *gin.Context) {
 									function = f2
 								}
 							}
-							function.Handle(&Faker{
-								Type: "websocket",
+							function.Handle(&CustomSender{
+								F: &Factory{
+									botplt: "websocket",
+								},
 							}, func(vm *goja.Runtime) {
 								vm.Set("res", &Response{
 									c:    c,
@@ -193,8 +198,10 @@ func handleWebsocket(c *gin.Context) {
 								function = f2
 							}
 						}
-						go function.Handle(&Faker{
-							Type: "websocket",
+						go function.Handle(&CustomSender{
+							F: &Factory{
+								botplt: "websocket",
+							},
 						}, func(vm *goja.Runtime) {
 							vm.Set("res", &Response{
 								c:    c,

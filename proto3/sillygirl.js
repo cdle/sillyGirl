@@ -237,8 +237,8 @@ class Sender {
                     call.cancel();
                     return;
                 }
-                let s = new Sender(response.uuid);
-                if (options?.handle) {
+                let s = response.uuid ? new Sender(response.uuid) : undefined;
+                if (options?.handle && s) {
                     // console.log(`options?.handle`, options.persistent)
                     let obj = options?.handle(s);
                     if (typeof obj == "string") {
@@ -538,7 +538,9 @@ class Adapter {
         this.bot_id = options.bot_id;
         if (options.replyHandler) {
             const call = client.AdapterRegist();
+            // let callback: any = ;
             call.on("data", async (response) => {
+                // console.log("start on data")
                 let message = JSON.parse(response.value);
                 const { echo, __type__ } = message;
                 delete message.__type__;

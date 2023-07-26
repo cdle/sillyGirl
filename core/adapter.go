@@ -692,8 +692,10 @@ func (sender *CustomSender) Action(options map[string]interface{}) (interface{},
 		one = any
 	}
 	if one != nil {
-		one.Handle(&Faker{
-			Type: "action",
+		one.Handle(&CustomSender{
+			F: &Factory{
+				botplt: "action",
+			},
 		}, func(vm *goja.Runtime) {
 			obj := vm.NewObject()
 			for k, v := range options {
@@ -798,8 +800,10 @@ func (sender *CustomSender) Reply(msgs ...interface{}) (string, error) {
 			}
 			if one != nil {
 				message_id := ""
-				one.Handle(&Faker{
-					Type: "message",
+				one.Handle(&CustomSender{
+					F: &Factory{
+						botplt: "message",
+					},
 				}, func(vm *goja.Runtime) {
 					obj := vm.NewObject()
 					for k, v := range msg {
@@ -934,15 +938,4 @@ func (sender *CustomSender) IsAdmin() bool {
 		return Contains(strings.Split(MakeBucket(sender.F.botplt).GetString("masters"), "&"), sender.GetUserID())
 	}
 	return sender.F.isAdmin(sender.GetUserID())
-}
-
-func (sender *CustomSender) GetID() string {
-	return sender.id
-}
-
-func (sender *CustomSender) SetID() string {
-	sender.id = utils.GenUUID()
-	sender.CreatedAt = time.Now()
-	senders.Store(sender.id, sender)
-	return sender.id
 }

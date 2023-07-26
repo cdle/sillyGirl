@@ -24,7 +24,7 @@ type Language struct {
 }
 
 var plugin_dir = utils.ExecPath + "/plugins"
-var release = "20230726"
+var release = "20230727"
 
 var languages = []Language{
 	{

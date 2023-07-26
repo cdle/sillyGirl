@@ -378,8 +378,10 @@ func AddCommand(cmds []*common.Function) {
 			go func(f *common.Function) {
 				time.Sleep(time.Second)
 				console.Log("初始化%v服务", f.Title)
-				f.Handle(&Faker{
-					Type: "*",
+				f.Handle(&CustomSender{
+					F: &Factory{
+						botplt: "*",
+					},
 				}, nil)
 			}(cmds[j])
 		}
@@ -393,9 +395,10 @@ func AddCommand(cmds []*common.Function) {
 						Cron = "0 " + Cron
 					}
 					cronId, err := CRON.AddFunc(Cron, func() {
-						cmds[j].Handle(&Faker{
-							Admin: true,
-							Type:  plt,
+						cmds[j].Handle(&CustomSender{
+							F: &Factory{
+								botplt: plt,
+							},
 						}, nil)
 					})
 					if err == nil {
@@ -540,23 +543,23 @@ func HandleMessage(sender common.Sender) {
 					sender.SetMatch(res[1:])
 					sender.SetParams(c.Function.Params[i])
 					mtd = true
-					if f, ok := c.Message.(*Faker); ok && f.Carry != nil {
-						if s1, o := sender.(*Faker); o && s1.Carry != nil {
-							f.Carry = s1.Carry
-							c := make(chan string)
-							oc := s1.Carry
-							s1.Carry = c
-							go func() {
-								for {
-									r, o := <-c
-									if !o {
-										break
-									}
-									oc <- r
-								}
-							}()
-						}
-					}
+					// if f, ok := c.Message.(*CustomSender); ok && f.Carry != nil {
+					// 	if s1, o := sender.(*CustomSender); o && s1.Carry != nil {
+					// 		f.Carry = s1.Carry
+					// 		c := make(chan string)
+					// 		oc := s1.Carry
+					// 		s1.Carry = c
+					// 		go func() {
+					// 			for {
+					// 				r, o := <-c
+					// 				if !o {
+					// 					break
+					// 				}
+					// 				oc <- r
+					// 			}
+					// 		}()
+					// 	}
+					// }
 					c.Chan <- sender
 					sender.Reply(<-c.Result)
 					if !sender.IsContinue() {

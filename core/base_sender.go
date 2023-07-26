@@ -3,7 +3,6 @@ package core
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -26,127 +25,127 @@ type Faker struct {
 	Admin bool
 }
 
-func (sender *Faker) Listen() chan string {
-	return sender.Carry
-}
+//func (sender *Faker) Listen() chan string {
+// 	return sender.Carry
+// }
 
-func (sender *Faker) GetContent() string {
-	if sender.Fsps.Content != "" {
-		return sender.Fsps.Content
-	}
-	return sender.Message
-}
+//func (sender *Faker) GetContent() string {
+// 	if sender.Fsps.Content != "" {
+// 		return sender.Fsps.Content
+// 	}
+// 	return sender.Message
+// }
 
-func (sender *Faker) GetUserID() string {
-	return sender.UserID
-}
+//func (sender *Faker) GetUserID() string {
+// 	return sender.UserID
+// }
 
-func (sender *Faker) GetBotID() string {
-	return ""
-}
+//func (sender *Faker) GetBotID() string {
+// 	return ""
+// }
 
-func (sender *Faker) GetChatID() string {
-	return sender.ChatID
-}
+//func (sender *Faker) GetChatID() string {
+// 	return sender.ChatID
+// }
 
-func (sender *Faker) GetImType() string {
-	if sender.Type == "" {
-		return "fake"
-	}
-	return sender.Type
-}
+//func (sender *Faker) GetImType() string {
+// 	if sender.Type == "" {
+// 		return "fake"
+// 	}
+// 	return sender.Type
+// }
 
-func (sender *Faker) GetMessageID() string {
-	return ""
-}
+//func (sender *Faker) GetMessageID() string {
+// 	return ""
+// }
 
-func (sender *Faker) GetUserName() string {
-	return ""
-}
+//func (sender *Faker) GetUserName() string {
+// 	return ""
+// }
 
-func (sender *Faker) GetChatName() string {
-	return ""
-}
+//func (sender *Faker) GetChatName() string {
+// 	return ""
+// }
 
-func (sender *Faker) IsReply() bool {
-	return false
-}
+//func (sender *Faker) IsReply() bool {
+// 	return false
+// }
 
-func (sender *Faker) GetReplyUserID() int {
-	return 0
-}
+// //func (sender *Faker) GetReplyUserID() int {
+// 	return 0
+// }
 
-func (sender *Faker) GetRawMessage() interface{} {
-	return sender.Message
-}
+// //func (sender *Faker) GetRawMessage() interface{} {
+// 	return sender.Message
+// }
 
-func (sender *Faker) IsAdmin() bool {
-	return sender.Admin
-}
+// //func (sender *Faker) IsAdmin() bool {
+// 	return sender.Admin
+// }
 
-func (sender *Faker) IsMedia() bool {
-	return false
-}
+// //func (sender *Faker) IsMedia() bool {
+// 	return false
+// }
 
-func (sender *Faker) Reply(msgs ...interface{}) (string, error) {
-	rt := ""
-	for _, msg := range msgs {
-		switch msg := msg.(type) {
-		case []byte:
-			rt = (string(msg))
-		case string:
-			rt = msg
-		}
-	}
-	{
+//func (sender *Faker) Reply(msgs ...interface{}) (string, error) {
+// rt := ""
+// for _, msg := range msgs {
+// 	switch msg := msg.(type) {
+// 	case []byte:
+// 		rt = (string(msg))
+// 	case string:
+// 		rt = msg
+// 	}
+// }
+// {
 
-		for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(rt, -1) {
-			// qr := qrcode2console.NewQRCode2ConsoleWithUrl(v[1], true)
-			// defer qr.Output()
-			rt = strings.Replace(rt, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
-		}
-	}
+// 	for _, v := range regexp.MustCompile(`\[CQ:image,file=([^\[\]]+)\]`).FindAllStringSubmatch(rt, -1) {
+// 		// qr := qrcode2console.NewQRCode2ConsoleWithUrl(v[1], true)
+// 		// defer qr.Output()
+// 		rt = strings.Replace(rt, fmt.Sprintf(`[CQ:image,file=%s]`, v[1]), "", -1)
+// 	}
+// }
 
-	// if rt != "" && n != nil {
-	// 	NotifyMasters(rt)
-	// }
+// if rt != "" && n != nil {
+// 	NotifyMasters(rt)
+// }
 
-	// if rt != "" && sender.Carry != nil {
-	// 	sender.Carry <- rt
-	// }
+// if rt != "" && sender.Carry != nil {
+// 	sender.Carry <- rt
+// }
 
-	if rt != "" && sender.Type == "terminal" {
-		fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, rt)
-	}
-	return "", nil
-}
+// 	if rt != "" && sender.Type == "terminal" {
+// 		fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, rt)
+// 	}
+// 	return "", nil
+// }
 
-func (sender *Faker) Delete() error {
-	return nil
-}
+//func (sender *Faker) Delete() error {
+// 	return nil
+// }
 
-func (sender *Faker) Disappear(lifetime ...time.Duration) {
+//func (sender *Faker) Disappear(lifetime ...time.Duration) {
 
-}
+// }
 
-func (sender *Faker) Finish() {
-	if sender.Carry != nil {
-		close(sender.Carry)
-	}
-}
+//func (sender *Faker) Finish() {
+// 	if sender.Carry != nil {
+// 		close(sender.Carry)
+// 	}
+// }
 
-func (sender *Faker) Copy() common.Sender {
-	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Faker)
-	return &new
-}
+//func (sender *Faker) Copy() common.Sender {
+// 	new := reflect.Indirect(reflect.ValueOf(interface{}(sender))).Interface().(Faker)
+// 	return &new
+// }
 
-func (sender *Faker) GroupKick(uid string, reject_add_request bool) error {
-	return nil
-}
+//func (sender *Faker) GroupKick(uid string, reject_add_request bool) error {
+// return nil
+// }
 
-func (sender *Faker) GroupBan(uid string, duration int) error {
-	return nil
-}
+//func (sender *Faker) GroupBan(uid string, duration int) error {
+// 	return nil
+// }
 
 type BaseSender struct {
 	matches        [][]string
@@ -165,30 +164,30 @@ type BaseSender struct {
 	plugin_id      string
 }
 
-func (sender *BaseSender) SetPluginID(plugin_id string) {
+func (sender *CustomSender) SetPluginID(plugin_id string) {
 	sender.plugin_id = plugin_id
 }
-func (sender *BaseSender) GetPluginID() string {
+func (sender *CustomSender) GetPluginID() string {
 	return sender.plugin_id
 }
 
-func (sender *BaseSender) SetLevel(l int) {
+func (sender *CustomSender) SetLevel(l int) {
 	sender.level = l
 }
 
-func (sender *BaseSender) GetLevel() int {
+func (sender *CustomSender) GetLevel() int {
 	return sender.level
 }
 
-func (sender *BaseSender) SetMark(mark interface{}) {
+func (sender *CustomSender) SetMark(mark interface{}) {
 	sender.mark = mark
 }
 
-func (sender *BaseSender) GetMark() interface{} {
+func (sender *CustomSender) GetMark() interface{} {
 	return sender.mark
 }
 
-func (sender *BaseSender) SetExpandMessageInfo(emf map[string]interface{}) {
+func (sender *CustomSender) SetExpandMessageInfo(emf map[string]interface{}) {
 	if sender.emf == nil {
 		sender.emf = map[string]interface{}{}
 	}
@@ -197,21 +196,21 @@ func (sender *BaseSender) SetExpandMessageInfo(emf map[string]interface{}) {
 	}
 }
 
-func (sender *BaseSender) GetExpandMessageInfo() map[string]interface{} {
+func (sender *CustomSender) GetExpandMessageInfo() map[string]interface{} {
 	if sender.emf == nil {
 		sender.emf = map[string]interface{}{}
 	}
 	return sender.emf
 }
 
-func (sender *BaseSender) SetVar(key string, value interface{}) {
+func (sender *CustomSender) SetVar(key string, value interface{}) {
 	if sender.emf == nil {
 		sender.emf = map[string]interface{}{}
 	}
 	sender.emf[key] = value
 }
 
-func (sender *BaseSender) GetVar(key string) interface{} {
+func (sender *CustomSender) GetVar(key string) interface{} {
 	if sender.emf == nil {
 		sender.emf = map[string]interface{}{}
 	}
@@ -222,45 +221,45 @@ func (sender *BaseSender) GetVar(key string) interface{} {
 	return v
 }
 
-func (sender *BaseSender) SetMatch(ss []string) {
+func (sender *CustomSender) SetMatch(ss []string) {
 	sender.matches = [][]string{ss}
 }
-func (sender *BaseSender) SetParams(ss []string) {
+func (sender *CustomSender) SetParams(ss []string) {
 	sender.params = ss
 }
-func (sender *BaseSender) SetAllMatch(ss [][]string) {
+func (sender *CustomSender) SetAllMatch(ss [][]string) {
 	sender.matches = ss
 }
 
-func (sender *BaseSender) SetContent(content string) {
+func (sender *CustomSender) SetContent(content string) {
 	sender.Fsps.Content = content
 }
 
-func (sender *BaseSender) SetFsps(fsps *common.FakerSenderParams) {
+func (sender *CustomSender) SetFsps(fsps *common.FakerSenderParams) {
 	sender.Fsps = *fsps
 }
 
-func (sender *BaseSender) GetMatch() []string {
+func (sender *CustomSender) GetMatch() []string {
 	return sender.matches[0]
 }
 
-func (sender *BaseSender) GetAllMatch() [][]string {
+func (sender *CustomSender) GetAllMatch() [][]string {
 	return sender.matches
 }
 
-func (sender *BaseSender) Continue() {
+func (sender *CustomSender) Continue() {
 	sender.goon = true
 }
 
-func (sender *BaseSender) IsContinue() bool {
+func (sender *CustomSender) IsContinue() bool {
 	return sender.goon
 }
 
-func (sender *BaseSender) ClearContinue() {
+func (sender *CustomSender) ClearContinue() {
 	sender.goon = false
 }
 
-func (sender *BaseSender) Get(i interface{}) string {
+func (sender *CustomSender) Get(i interface{}) string {
 	switch i := i.(type) {
 	case int:
 		if len(sender.matches) == 0 {
@@ -281,7 +280,7 @@ func (sender *BaseSender) Get(i interface{}) string {
 	return ""
 }
 
-func (sender *BaseSender) Delete() error {
+func (sender *CustomSender) Delete() error {
 	return nil
 }
 
@@ -289,120 +288,70 @@ func (sender *BaseSender) Disappear(lifetime ...time.Duration) {
 
 }
 
-func (sender *BaseSender) Finish() {
+func (sender *CustomSender) Finish() {
 	sender.IsFinished = true
 }
 
-func (sender *BaseSender) IsMedia() bool {
+func (sender *CustomSender) IsMedia() bool {
 	return false
 }
 
-func (sender *BaseSender) GetRawMessage() interface{} {
+func (sender *CustomSender) GetRawMessage() interface{} {
 	return nil
 }
 
-func (sender *BaseSender) IsReply() bool {
+func (sender *CustomSender) IsReply() bool {
 	return false
 }
 
-func (sender *BaseSender) GetMessageID() string {
-	return ""
-}
-
-func (sender *BaseSender) RecallMessage(...interface{}) {
-
-}
-
-func (sender *BaseSender) GetUserID() string {
-	return ""
-}
-func (sender *BaseSender) GetChatID() string {
-	return ""
-}
-func (sender *BaseSender) Push(msg map[string]string) (string, error) {
+func (sender *CustomSender) Push(msg map[string]string) (string, error) {
 	return "", nil
 }
-func (sender *BaseSender) GetImType() string {
-	return ""
-}
 
-func (sender *BaseSender) GroupKick(uid string, reject_add_request bool) error {
+func (sender *CustomSender) GroupUnkick(uid string) error {
 	return nil
 }
 
-func (sender *BaseSender) GroupUnkick(uid string) error {
-	return nil
-}
-
-func (sender *BaseSender) GroupBan(uid string, duration int) error {
-	return nil
-}
-
-func (sender *BaseSender) GroupUnban(uid string) error {
-	return nil
-
-}
-
-func (sender *BaseSender) GetUserName() string {
-	return ""
-}
-
-func (sender *BaseSender) IsAdmin() bool {
-	return false
-}
-
-func (sender *BaseSender) GetChatName() string {
-	return ""
-}
-
-func (sender *BaseSender) GetReplyUserID() int {
+func (sender *CustomSender) GetReplyUserID() int {
 	return 0
 }
 
-func (sender *BaseSender) GetReplyMessageID() int {
+func (sender *CustomSender) GetReplyMessageID() int {
 	return 0
 }
 
-func (sender *BaseSender) AtLast() {
+func (sender *CustomSender) AtLast() {
 	sender.Atlast = true
 }
 
-func (sender *BaseSender) UAtLast() {
+func (sender *CustomSender) UAtLast() {
 	sender.Atlast = false
 }
 
-func (sender *BaseSender) Stop() {
+func (sender *CustomSender) Stop() {
 	panic("stop")
 }
 
-func (sender *BaseSender) Event() map[string]interface{} {
-	return nil
-}
-
-func (sender *BaseSender) Action(map[string]interface{}) (interface{}, error) {
-	return nil, nil
-}
-
-func (sender *BaseSender) GetID() string {
+func (sender *CustomSender) GetID() string {
 	return sender.id
 }
 
-func (sender *BaseSender) SetID() string {
+func (sender *CustomSender) SetID() string {
 	sender.id = utils.GenUUID()
 	sender.CreatedAt = time.Now()
 	senders.Store(sender.id, sender)
 	return sender.id
 }
 
-func (sender *BaseSender) GetTime() time.Time {
+func (sender *CustomSender) GetTime() time.Time {
 	return sender.CreatedAt
 }
 
-func (sender *BaseSender) IsAtLast() bool {
+func (sender *CustomSender) IsAtLast() bool {
 	return sender.Atlast
 }
 
-func (sender *BaseSender) MessagesToSend() string {
+func (sender *CustomSender) MessagesToSend() string {
 	return strings.Join(sender.ToSendMessages, "\n")
 }
 
@@ -507,7 +456,7 @@ type Switch []string
 
 var listenCounter int64
 
-func (s *BaseSender) Await(message common.Sender, callback func(common.Sender) interface{}, params ...interface{}) interface{} {
+func (s *CustomSender) Await(message common.Sender, callback func(common.Sender) interface{}, params ...interface{}) interface{} {
 	timeout := time.Hour * 999999
 	var handleErr func(error)
 	var persistent = false

@@ -34,7 +34,6 @@ var senders sync.Map
 // }
 
 func GetSender(uuid string) (common.Sender, error) {
-
 	if uuid == "" {
 		return &CustomSender{
 			F: &Factory{
@@ -43,7 +42,6 @@ func GetSender(uuid string) (common.Sender, error) {
 		}, nil
 	}
 	v, ok := senders.Load(uuid)
-	// fmt.Println("uuid", uuid, v, ok)
 	if !ok {
 		return nil, errors.New("not found sender")
 	}
@@ -201,10 +199,13 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 		if req.Persistent {
 			persistent = req.Persistent
 			options = append(options, "persistent")
+		} else {
+			options = append(options, func(err error) {
+				stream.Send(&srpc.SenderListenResponse{Echo: ""})
+			})
 		}
 		go s.Await(s, func(s common.Sender) interface{} {
 			id := s.SetID()
-			defer senders.Delete(id)
 			echo := utils.GenUUID()
 			ch := make(chan string)
 			echos.Store(echo, ch)
@@ -219,6 +220,7 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 					stream.Send(&srpc.SenderListenResponse{Echo: "END"})
 				}
 			} else {
+				defer senders.Delete(id)
 				value = strings.Replace(value, "go_again_", "", 1)
 			}
 			return value
