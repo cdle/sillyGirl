@@ -313,10 +313,7 @@ func AddNodePlugin(path, name string) error {
 
 			}
 			senders.Store(id, s)
-			// defer func() {
-			// 	fmt.Println("senders.Delete(id)")
-			// }()
-			senders.Delete(id)
+			defer senders.Delete(id)
 			defer processes.Delete(cmd)
 			err = cmd.Wait()
 			if err != nil {
