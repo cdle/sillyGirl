@@ -16,9 +16,13 @@ import (
 )
 
 func checkFilePlugin(key string, value *string) {
-	if v, ok := plugins_id.Load(key); ok {
-		data, _ := os.ReadFile(v.(string))
-		*value = string(data)
+	if isNameUuid(key) {
+		if v, ok := plugins_id.Load(key); ok {
+			data, _ := os.ReadFile(v.(string))
+			*value = string(data)
+		} else {
+			*value = "非法操作，请勿乱动。"
+		}
 	}
 }
 
