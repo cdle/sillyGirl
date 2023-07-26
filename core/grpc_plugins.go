@@ -31,7 +31,7 @@ func initNodePlugins() {
 	root := strings.ReplaceAll(utils.ExecPath+"/plugins", "\\", "/")
 	plugins := []string{root}
 	os.Mkdir(root, 0755)
-	fmt.Println("root", root)
+	// fmt.Println("root", root)
 
 	files, _ := ioutil.ReadDir(root)
 	for _, file := range files {

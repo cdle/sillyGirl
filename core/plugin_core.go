@@ -179,7 +179,7 @@ func initPlugins() {
 				}
 			}
 			return &storage.Final{
-				Error: errors.New("非法操作！"),
+				Error: errors.New("安装失败！！！"),
 			}
 		}
 

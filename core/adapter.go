@@ -340,11 +340,11 @@ func (f *Factory) Push(msg map[string]string) map[string]string {
 
 func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) {
 	f.reply = func(m map[string]interface{}) string {
-		if f.uuid != "" {
-			mutex := GetMutex(f.uuid)
-			mutex.Lock()
-			defer mutex.Unlock()
-		}
+		// if f.uuid != "" {
+		// 	mutex := GetMutex(f.uuid)
+		// 	mutex.Lock()
+		// 	defer mutex.Unlock()
+		// }
 		defer func() {
 			err := recover()
 			if err != nil {
@@ -357,11 +357,11 @@ func (f *Factory) SetReplyHandler(function func(map[string]interface{}) string) 
 
 func (f *Factory) SetActionHandler(function func(map[string]interface{}) string) {
 	f.action = func(m map[string]interface{}) string {
-		if f.uuid != "" {
-			mutex := GetMutex(f.uuid)
-			mutex.Lock()
-			defer mutex.Unlock()
-		}
+		// if f.uuid != "" {
+		// 	mutex := GetMutex(f.uuid)
+		// 	mutex.Lock()
+		// 	defer mutex.Unlock()
+		// }
 		defer func() {
 			err := recover()
 			if err != nil {
