@@ -90,4 +90,10 @@ declare let utils: {
         params: any;
     })[];
 };
-export { Adapter, Bucket, sender, sleep, utils };
+declare let console: {
+    log(...args: any[]): void;
+    info(...args: any[]): void;
+    error(...args: any[]): void;
+    debug(...args: any[]): void;
+};
+export { Adapter, Bucket, sender, sleep, utils, console };

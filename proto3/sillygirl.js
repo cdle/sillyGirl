@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.utils = exports.sleep = exports.sender = exports.Bucket = exports.Adapter = void 0;
+exports.console = exports.utils = exports.sleep = exports.sender = exports.Bucket = exports.Adapter = void 0;
 const srpc_1 = require("./srpc");
 const grpc_1 = __importStar(require("@grpc/grpc-js"));
 let client = new srpc_1.srpc.SillyGirlServiceClient("localhost:50051", grpc_1.credentials.createInsecure());
@@ -676,3 +676,24 @@ let utils = {
     },
 };
 exports.utils = utils;
+let slog = (type, ...args) => {
+};
+let console = {
+    log(...args) {
+        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        client.Console(new srpc_1.srpc.ConsoleRequest({ type: "log", content, plugin_id }), (err, resp) => { });
+    },
+    info(...args) {
+        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        client.Console(new srpc_1.srpc.ConsoleRequest({ type: "info", content, plugin_id }), (err, resp) => { });
+    },
+    error(...args) {
+        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        client.Console(new srpc_1.srpc.ConsoleRequest({ type: "error", content, plugin_id }), (err, resp) => { });
+    },
+    debug(...args) {
+        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        client.Console(new srpc_1.srpc.ConsoleRequest({ type: "debug", content, plugin_id }), (err, resp) => { });
+    },
+};
+exports.console = console;

@@ -313,9 +313,10 @@ func AddNodePlugin(path, name string) error {
 
 			}
 			senders.Store(id, s)
-			defer func() {
-				fmt.Println("senders.Delete(id)")
-			}()
+			// defer func() {
+			// 	fmt.Println("senders.Delete(id)")
+			// }()
+			senders.Delete(id)
 			defer processes.Delete(cmd)
 			err = cmd.Wait()
 			if err != nil {
@@ -446,7 +447,7 @@ declare class Adapter {
 }
 declare let sender: Sender;
 declare function sleep(ms: number | undefined): Promise<unknown>;
-export { Adapter, Bucket, sender, sleep };
+export { Adapter, Bucket, sender, sleep, console };
 `
 
 func defaultScript(title string) string {
