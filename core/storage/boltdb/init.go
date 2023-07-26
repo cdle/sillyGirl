@@ -180,7 +180,11 @@ func (bucket *Bucket) Set(key interface{}, value interface{}) (string, bool, err
 					return msg, changed, fin.Error
 				}
 				if fin.Now != "" {
-					new = fin.Now
+					if new == storage.EMPTY {
+						new = ""
+					} else {
+						new = fin.Now
+					}
 				}
 				if fin.EndFunc != nil {
 					endFuncs = append(endFuncs, fin.EndFunc)

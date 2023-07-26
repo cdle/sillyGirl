@@ -111,8 +111,13 @@ func initPlugins() {
 	storage.Watch(plugins, nil, func(old, new, key string) (fin *storage.Final) {
 		pluginLock.Lock()
 		defer pluginLock.Unlock()
-		// fmt.Println("new", new, key)
-
+		// fmt.Println(old, new, key, "===")
+		if new == "uninstall" {
+			new = ""
+			fin = &storage.Final{
+				Now: storage.EMPTY,
+			}
+		}
 		if isNameUuid(key) {
 			if new == "install" {
 				for _, p := range plugin_list {
@@ -162,25 +167,38 @@ func initPlugins() {
 					}
 				}
 			}
-			if vv, ok := plugins_id.Load(key); ok {
-				filename := vv.(string)
-				if new == "" {
-					os.RemoveAll(filepath.Dir(filename))
-				} else {
-					err := os.WriteFile(filename, []byte(new), 0755)
-					if err != nil {
-						return &storage.Final{
-							Error: err,
+			// if vv, ok := plugins_id.Load(key); ok {
+			for _, f := range Functions {
+				if f.UUID == key {
+					filename := f.Path
+					if new == "" {
+						ss := strings.Split(filename, "/")
+						os.RemoveAll(filepath.Dir(filename))
+						// fmt.Println(strings.Join(ss, " "))
+						if len(ss) > 2 {
+							go RemNodePlugin(ss[len(ss)-2])
+						}
+
+					} else {
+						err := os.WriteFile(filename, []byte(new), 0755)
+						if err != nil {
+							return &storage.Final{
+								Error: err,
+							}
 						}
 					}
 				}
-				return &storage.Final{
-					Now: "",
-				}
+			}
+			if fin != nil {
+				return fin
 			}
 			return &storage.Final{
-				Error: errors.New("安装失败！！！"),
+				Now: "",
 			}
+			// }
+			// return &storage.Final{
+			// 	Error: errors.New("安装失败！！！"),
+			// }
 		}
 
 		if new == "install" {
@@ -206,7 +224,6 @@ func initPlugins() {
 						Error: errors.New("订阅源异常"),
 					}
 				}
-				break
 			}
 		}
 

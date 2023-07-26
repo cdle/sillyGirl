@@ -17,12 +17,18 @@ import (
 
 func checkFilePlugin(key string, value *string) {
 	if isNameUuid(key) {
-		if v, ok := plugins_id.Load(key); ok {
-			data, _ := os.ReadFile(v.(string))
-			*value = string(data)
-		} else {
-			*value = "非法操作，请勿乱动。"
+		for _, f := range Functions {
+			if f.UUID == key {
+				data, _ := os.ReadFile(f.Path)
+				*value = string(data)
+				return
+			}
 		}
+		// if v, ok := plugins_id.Load(key); ok {
+
+		// } else {
+		*value = "非法操作，请勿乱动。"
+		// }
 	}
 }
 

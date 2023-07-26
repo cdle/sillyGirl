@@ -7,6 +7,8 @@ type Listen struct {
 	Handle func(old string, new string, key string) *Final
 }
 
+const EMPTY = "__EMPTY__"
+
 var Listens []Listen
 
 var DisableHandle = func(uuid string) {

@@ -41,6 +41,12 @@ var languages = []Language{
 		Arch:    "arm64",
 		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/" + release + "/node_darwin_arm64.zip"},
 	},
+	{
+		Name:    "node",
+		Version: release,
+		Os:      "windows",
+		Arch:    "amd64",
+	},
 }
 
 func initLanguage() {
@@ -59,7 +65,11 @@ func initLanguage() {
 			newPath = node_dir
 		}
 		os.Setenv("PATH", newPath)
+		if len(item.Links) == 0 {
+			continue
+		}
 		if _, err := os.Stat(node_dir + "/yarn"); err != nil {
+			fmt.Println(err, 1)
 			resp, err := http.Get("https://gitee.com/sillybot/binary/releases/download/yarn/yarn.zip")
 			if err == nil {
 				go func() {
@@ -67,15 +77,18 @@ func initLanguage() {
 					zipfile := node_dir + "/yarn.zip"
 					f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 					if err != nil {
+						fmt.Println(err, 2)
 						return
 					}
 					defer f.Close()
 					_, err = io.Copy(f, resp.Body)
 					if err != nil {
+						fmt.Println(err, 3)
 						return
 					}
 					defer os.Remove(zipfile)
-					unzip(zipfile, 0777, false)
+					err = unzip(zipfile, 0777, false)
+					fmt.Println(err, 4)
 				}()
 			}
 		}

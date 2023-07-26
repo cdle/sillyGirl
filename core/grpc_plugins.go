@@ -186,7 +186,7 @@ func RemNodePlugin(name string) error {
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
-	plugins_id.Delete(key)
+	// plugins_id.Delete(key)
 	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
@@ -223,7 +223,7 @@ func isNameUuid(uuid string) bool {
 	return strings.Contains(uuid, "_")
 }
 
-var plugins_id sync.Map
+// var plugins_id sync.Map
 
 func AddNodePlugin(path, name string) error {
 	if name == "" {
@@ -246,12 +246,12 @@ func AddNodePlugin(path, name string) error {
 	if script == "" {
 		return nil
 	}
-
-	plugins_id.Store(uuid, path)
+	// plugins_id.Store(uuid, path)
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(script, uuid)
 	f.Suffix = ".js"
-	f.Type = "typescript"
+	f.Type = "node"
+	f.Path = path
 	f.Handle = func(s common.Sender, f func(vm *goja.Runtime)) interface{} {
 		s.SetPluginID(uuid)
 		plt := s.GetImType()

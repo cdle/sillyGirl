@@ -76,15 +76,11 @@ func initWeb() {
 		for _, f := range Functions {
 			if f.UUID == uuid && f.Public {
 				plugin_downloads.Set(f.UUID, plugin_downloads.GetInt(f.UUID)+1)
-				if f.Type == "goja" {
+				if !isNameUuid(f.UUID) {
 					c.String(200, publicScript(plugins.GetString(f.UUID)))
 					return
 				} else {
-					v, ok := plugins_id.Load(f.UUID)
-					if !ok {
-						return
-					}
-					dir := filepath.Dir(v.(string))
+					dir := filepath.Dir(f.Path)
 					if _, err := os.Stat(dir); err != nil { //执行压缩
 						return
 					}

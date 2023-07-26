@@ -43,6 +43,7 @@ type Function struct {
 	Messages  interface{} `json:"messages"`
 	Classes   []string    `json:"classes"`
 	Debug     bool        `json:"debug"`
+	Path      string      `json:"-"`
 }
 type Filter struct {
 	BlackMode bool
