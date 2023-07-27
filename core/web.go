@@ -84,6 +84,7 @@ func initWeb() {
 					if _, err := os.Stat(dir); err != nil { //执行压缩
 						return
 					}
+					dir = strings.ReplaceAll(dir, "\\", "/")
 					ss := strings.Split(dir, "/")
 					name := ss[len(ss)-1]
 					buf := new(bytes.Buffer)

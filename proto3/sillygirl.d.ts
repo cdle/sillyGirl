@@ -84,11 +84,12 @@ declare class Adapter {
 }
 declare let sender: Sender;
 declare function sleep(ms: number | undefined): Promise<unknown>;
+interface CQItem {
+    type: string;
+    params: {};
+}
 declare let utils: {
-    parseCQText: (text: string, prefix?: string) => (string | {
-        type: string;
-        params: any;
-    })[];
+    parseCQText: (text: string, prefix?: string) => (string | CQItem)[];
 };
 declare let console: {
     log(...args: any[]): void;

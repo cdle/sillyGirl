@@ -749,11 +749,16 @@ class Console {
   debug = (message?: any, ...optionalParams: any[]) => {};
 }
 
+interface CQItem {
+  type: string;
+  params: {};
+}
+
 let utils = {
   parseCQText: (text: string, prefix = "CQ") => {
     const cqRegex = new RegExp(`\\[${prefix}:(\\w+)(.*?)\\]`, "g");
     const cqMatches = text.matchAll(cqRegex);
-    const result = [];
+    const result: (CQItem | string)[] = [];
 
     let lastIndex = 0;
     for (const match of cqMatches) {
@@ -784,38 +789,36 @@ let utils = {
   },
 };
 
-let slog = (type: string, ...args: any[]) => {
-
-};
+let slog = (type: string, ...args: any[]) => {};
 
 let console = {
   log(...args: any[]) {
-    const content = args.reduce((acc, arg) => acc + ' ' + arg, '')
+    const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
       new srpc.ConsoleRequest({ type: "log", content, plugin_id }),
       (err, resp) => {}
-    )
+    );
   },
   info(...args: any[]) {
-    const content = args.reduce((acc, arg) => acc + ' ' + arg, '')
+    const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
       new srpc.ConsoleRequest({ type: "info", content, plugin_id }),
       (err, resp) => {}
-    )
+    );
   },
   error(...args: any[]) {
-    const content = args.reduce((acc, arg) => acc + ' ' + arg, '')
+    const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
       new srpc.ConsoleRequest({ type: "error", content, plugin_id }),
       (err, resp) => {}
-    )
+    );
   },
   debug(...args: any[]) {
-    const content = args.reduce((acc, arg) => acc + ' ' + arg, '')
+    const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
       new srpc.ConsoleRequest({ type: "debug", content, plugin_id }),
       (err, resp) => {}
-    )
+    );
   },
 };
 

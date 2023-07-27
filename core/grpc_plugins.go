@@ -388,7 +388,7 @@ var typeat = `declare class Sender {
 			allow_users?: string[];
 			prohibit_users?: string[];
 			persistent?: boolean;
-	}): Promise<Sender>;
+	}): Promise<Sender | undefined>;
 	holdOn(str: string): string;
 	reply(content: string): Promise<string | undefined>;
 	action(options: any): Promise<any | undefined>;
@@ -433,8 +433,8 @@ declare class Adapter {
 	constructor(options: {
 			platform?: string;
 			bot_id?: string;
-			replyHandler?: (message: Message) => string | undefined;
-			actionHandler?: (message: Message) => string | undefined;
+			replyHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
+			actionHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
 	});
 	setActionHandler(func: (action: {}) => any): void;
 	receive(message: Message): Promise<Sender>;
@@ -444,7 +444,21 @@ declare class Adapter {
 }
 declare let sender: Sender;
 declare function sleep(ms: number | undefined): Promise<unknown>;
-export { Adapter, Bucket, sender, sleep, console };
+interface CQItem {
+	type: string;
+	params: {};
+}
+declare let utils: {
+	parseCQText: (text: string, prefix?: string) => (string | CQItem)[];
+};
+declare let console: {
+	log(...args: any[]): void;
+	info(...args: any[]): void;
+	error(...args: any[]): void;
+	debug(...args: any[]): void;
+};
+export { Adapter, Bucket, sender, sleep, utils, console };
+
 `
 
 func defaultScript(title string) string {

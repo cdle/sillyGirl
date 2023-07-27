@@ -676,23 +676,22 @@ let utils = {
     },
 };
 exports.utils = utils;
-let slog = (type, ...args) => {
-};
+let slog = (type, ...args) => { };
 let console = {
     log(...args) {
-        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        const content = args.reduce((acc, arg) => acc + " " + arg, "");
         client.Console(new srpc_1.srpc.ConsoleRequest({ type: "log", content, plugin_id }), (err, resp) => { });
     },
     info(...args) {
-        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        const content = args.reduce((acc, arg) => acc + " " + arg, "");
         client.Console(new srpc_1.srpc.ConsoleRequest({ type: "info", content, plugin_id }), (err, resp) => { });
     },
     error(...args) {
-        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        const content = args.reduce((acc, arg) => acc + " " + arg, "");
         client.Console(new srpc_1.srpc.ConsoleRequest({ type: "error", content, plugin_id }), (err, resp) => { });
     },
     debug(...args) {
-        const content = args.reduce((acc, arg) => acc + ' ' + arg, '');
+        const content = args.reduce((acc, arg) => acc + " " + arg, "");
         client.Console(new srpc_1.srpc.ConsoleRequest({ type: "debug", content, plugin_id }), (err, resp) => { });
     },
 };
