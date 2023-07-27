@@ -94,9 +94,13 @@ func initPlugins() {
 		return nil
 	})
 	plugins.Foreach(func(key, data []byte) error {
+		uuid := string(key)
+		if isNameUuid(uuid) {
+			return nil
+		}
 		pluginLock.Lock()
 		defer pluginLock.Unlock()
-		f, cbs, err := initPlugin(string(data), string(key), "")
+		f, cbs, err := initPlugin(string(data), uuid, "")
 		if err != nil {
 			console.Error("初始化插件%s错误: %v", key, err)
 		}
@@ -167,23 +171,25 @@ func initPlugins() {
 					}
 				}
 			}
-			// if vv, ok := plugins_id.Load(key); ok {
-			for _, f := range Functions {
-				if f.UUID == key {
-					filename := f.Path
-					if new == "" {
-						ss := strings.Split(filename, "/")
-						os.RemoveAll(filepath.Dir(filename))
-						// fmt.Println(strings.Join(ss, " "))
-						if len(ss) > 2 {
-							go RemNodePlugin(ss[len(ss)-2])
-						}
-
-					} else {
-						err := os.WriteFile(filename, []byte(new), 0755)
-						if err != nil {
-							return &storage.Final{
-								Error: err,
+			{
+				for _, f := range Functions {
+					if f.UUID == key {
+						filename := f.Path
+						if new == "reload" { //重载
+							go f.Reload()
+						} else if new == "" {
+							ss := strings.Split(filename, "/")
+							os.RemoveAll(filepath.Dir(filename))
+							// fmt.Println(strings.Join(ss, " "))
+							if len(ss) > 2 {
+								go RemNodePlugin(ss[len(ss)-2])
+							}
+						} else {
+							err := os.WriteFile(filename, []byte(new), 0755)
+							if err != nil {
+								return &storage.Final{
+									Error: err,
+								}
 							}
 						}
 					}

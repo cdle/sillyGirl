@@ -179,15 +179,13 @@ func initNodePlugins() {
 	}
 }
 
-func RemNodePlugin(name string) error {
+func RemNodePlugin(name string) bool {
 	if name == "" {
-		return nil
+		return false
 	}
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
 	key := nameUuid(name)
-	// plugins_id.Delete(key)
-	// fmt.Println("rem", key, name)
 	for i := range Functions {
 		if Functions[i].UUID == key {
 			f := Functions[i]
@@ -206,12 +204,11 @@ func RemNodePlugin(name string) error {
 			CancelHttpListen(key)
 			remStatic(key)
 			storage.DisableHandle(key)
-
 			console.Log("已移除 %s%s", f.Title, f.Suffix)
-			break
+			return true
 		}
 	}
-	return nil
+	return false
 }
 
 func nameUuid(name string) string {
@@ -233,7 +230,6 @@ func AddNodePlugin(path, name string) error {
 	plugins.Set(uuid, "")
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
-
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -249,6 +245,10 @@ func AddNodePlugin(path, name string) error {
 	// plugins_id.Store(uuid, path)
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(script, uuid)
+	f.Reload = func() { //重载
+		RemNodePlugin(path)
+		AddNodePlugin(path, name)
+	}
 	f.Suffix = ".js"
 	f.Type = "node"
 	f.Path = path

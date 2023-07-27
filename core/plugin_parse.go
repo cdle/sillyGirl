@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/cdle/sillyGirl/core/common"
-	"github.com/cdle/sillyGirl/core/storage"
 	"github.com/cdle/sillyGirl/utils"
 )
 
@@ -47,16 +46,16 @@ func pluginParse(script string, uuid string) (*common.Function, []func()) {
 			rule := strings.TrimSpace(res[2])
 			rule = parseReply3(rule, func(s1, s2 string) {
 				k := s1 + "." + s2
-				if _, ok := ks[k]; !ok {
-					cbs = append(cbs, func() {
-						storage.Watch(MakeBucket(s1), s2, func(old, new, key string) *storage.Final {
-							return &storage.Final{
-								EndFunc: func() {
-									plugins.Set(uuid, "reload")
-								},
-							}
-						}, uuid)
-					})
+				if _, ok := ks[k]; !ok { //已改成表单提交触发
+					// cbs = append(cbs, func() {
+					// 	storage.Watch(MakeBucket(s1), s2, func(old, new, key string) *storage.Final {
+					// 		return &storage.Final{
+					// 			EndFunc: func() {
+					// 				plugins.Set(uuid, "reload")
+					// 			},
+					// 		}
+					// 	}, uuid)
+					// })
 					ks[k] = true
 				}
 			})

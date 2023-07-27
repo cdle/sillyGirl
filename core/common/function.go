@@ -44,6 +44,7 @@ type Function struct {
 	Classes   []string    `json:"classes"`
 	Debug     bool        `json:"debug"`
 	Path      string      `json:"-"`
+	Reload    func()      `json:"-"`
 }
 type Filter struct {
 	BlackMode bool

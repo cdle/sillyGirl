@@ -179,6 +179,19 @@ func init() {
 		})
 	})
 	GinApi(PUT, "/api/storage", RequireAuth, func(ctx *gin.Context) {
+		uuid := ctx.Query("uuid")
+		if uuid != "" {
+			for _, f := range Functions {
+				if f.UUID == uuid {
+					if f.Reload != nil {
+						defer f.Reload() //脚本重载
+					} else {
+						defer plugins.Set(uuid, "reload") //goja重载
+					}
+					break
+				}
+			}
+		}
 		data, err := ioutil.ReadAll(ctx.Request.Body)
 		if err != nil {
 			ctx.JSON(200, map[string]interface{}{
