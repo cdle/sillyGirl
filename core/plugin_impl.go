@@ -384,6 +384,12 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 					carry.ProhibitGroups = arrayss(p)
 				case "prohibt_users":
 					carry.ProhibitUsers = arrayss(p)
+				case "user_id":
+					carry.UserID = p.(string)
+				case "chat_id":
+					carry.ChatID = p.(string)
+				case "platform":
+					carry.AllowPlatforms = []string{p.(string)}
 				}
 			}
 		case bool:
@@ -431,8 +437,12 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 	} else if len(carry.AllowPlatforms) == 0 {
 		carry.AllowPlatforms = []string{sender.GetPlatform()}
 	}
-	carry.UserID = sender.GetUserID()
-	carry.ChatID = sender.GetChatID()
+	if carry.UserID != "" {
+		carry.UserID = sender.GetUserID()
+	}
+	if carry.ChatID != "" {
+		carry.ChatID = sender.GetChatID()
+	}
 	carry.UUID = sender.UUID
 	options = append(options, carry)
 	var newJsSender *SenderJsIplm

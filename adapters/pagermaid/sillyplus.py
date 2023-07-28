@@ -1,6 +1,6 @@
 import contextlib
-import io
 import json
+import io
 
 from asyncio import sleep
 
@@ -18,8 +18,7 @@ pip_install("aiohttp")
 
 import aiohttp
 
-uri = "ws://106.52.87.206:8080/bot/pagermaid?secure_token=1a14c723-2150-11ee-af60-5254001a4920"
-
+uri = "${rws()}"
 
 class WebSocket:
     def __init__(self):
@@ -142,7 +141,7 @@ async def connect_ws():
         await log(f"[ws] Connection failed: {e}")
 
 
-@listener(incoming=True, outgoing=True)
+@listener(incoming=True, outgoing=False, ignore_edited=True)
 async def websocket_push(message: Message):
     with contextlib.suppress(Exception):
         if message.chat and message.chat.type in [
@@ -169,3 +168,4 @@ async def websocket_to_connect(message: Message):
         return await message.edit("傻+ 已连接")
     else:
         return await message.edit("傻+ 已离线")
+

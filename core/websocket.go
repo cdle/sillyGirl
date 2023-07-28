@@ -125,9 +125,9 @@ func handleWebsocket(c *gin.Context) {
 					time.Sleep(time.Millisecond * 500)
 					for {
 						_, data, err := ws.ReadMessage()
+						matched := false
 						wc.patterns.Range(func(key, value any) bool {
 							wp := value.(*WsPattern)
-							matched := false
 							// fmt.Println("wp.Value", wp.Value)
 							for k, v := range wp.Value {
 								value, _, _, err := jsonparser.Get(data, strings.Split(k, ".")...)
@@ -166,9 +166,13 @@ func handleWebsocket(c *gin.Context) {
 								} else {
 									// fmt.Println("err3", err)
 								}
+								return false
 							}
 							return true
 						})
+						if matched {
+							continue
+						}
 						if err != nil { // disconnect
 							req._event = "disconnect"
 							for _, f2 := range Functions {

@@ -573,9 +573,9 @@ func (f *Factory) Sender2(options map[string]string) *CustomSender {
 	return sender
 }
 
-func (f *Factory) Sender() interface{} {
+func (f *Factory) Sender(options map[string]string) interface{} {
 	return &SenderJsIplm{
-		Message:    f.Sender2(nil),
+		Message:    f.Sender2(options),
 		Vm:         f.vm,
 		Private:    "private",
 		Group:      "group",
