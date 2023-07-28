@@ -408,7 +408,11 @@ declare class Bucket {
 			changed?: boolean;
 	}>;
 	getAll(): Promise<any>;
-	delete(): Promise<undefined>;
+	delete(key: string): Promise<{
+			message?: string | undefined;
+			changed?: boolean | undefined;
+	}>;
+	deleteAll(): Promise<undefined>;
 	keys(): Promise<string[] | undefined>;
 	len(): Promise<number | undefined>;
 	buckets(): Promise<string[] | undefined>;
@@ -460,19 +464,17 @@ declare let console: {
 	error(...args: any[]): void;
 	debug(...args: any[]): void;
 };
-export { Adapter, Bucket, sender, sleep, utils, console };
-
-`
+export { Adapter, Bucket, sender, sleep, utils, console };`
 
 func defaultScript(title string) string {
 	create_at := time.Now().Format("2006-01-02 15:04:05")
 	return `/**
-	* @title ` + title + `
-	* @create_at ` + create_at + `
-	* @description 🐒这个人很懒什么都没有留下
-	* @author ` + sillyGirl.GetString("author", "佚名") + `
-	* @version v1.0.0
-	*/
+* @title ` + title + `
+* @create_at ` + create_at + `
+* @description 🐒这个人很懒什么都没有留下
+* @author ` + sillyGirl.GetString("author", "佚名") + `
+* @version v1.0.0
+*/
 
-	const { sender: s, Bucket, Adapter, sleep } = require("sillygirl");`
+const { sender: s, Bucket, Adapter, sleep } = require("sillygirl");`
 }
