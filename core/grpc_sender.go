@@ -53,7 +53,7 @@ func (sg *SillyGirlService) SenderGetUserId(ctx context.Context, req *srpc.Sende
 	if err != nil {
 		return nil, err
 	}
-	return &srpc.Default{Value: s.GetChatID()}, nil
+	return &srpc.Default{Value: s.GetUserID()}, nil
 }
 
 func (sg *SillyGirlService) SenderGetUserName(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
