@@ -147,12 +147,12 @@ func initPlugins() {
 						defer resp.Body.Close()
 						f, err := os.OpenFile(zipfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 						if err != nil {
-							return errors.New("下载异常！")
+							return errors.New("打开文件异常：" + err.Error())
 						}
 						defer f.Close()
 						_, err = io.Copy(f, resp.Body)
 						if err != nil {
-							return errors.New("文件异常！")
+							return errors.New("文件写入异常：" + err.Error())
 						}
 						return nil
 					}()
