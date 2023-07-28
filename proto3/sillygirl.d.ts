@@ -45,7 +45,11 @@ declare class Bucket {
         changed?: boolean;
     }>;
     getAll(): Promise<any>;
-    delete(): Promise<undefined>;
+    delete(key: string): Promise<{
+        message?: string | undefined;
+        changed?: boolean | undefined;
+    }>;
+    deleteAll(): Promise<undefined>;
     keys(): Promise<string[] | undefined>;
     len(): Promise<number | undefined>;
     buckets(): Promise<string[] | undefined>;

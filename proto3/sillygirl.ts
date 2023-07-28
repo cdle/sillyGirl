@@ -499,7 +499,14 @@ class Bucket {
     });
   }
 
-  async delete(): Promise<undefined> {
+  async delete(key: string): Promise<{
+    message?: string | undefined;
+    changed?: boolean | undefined;
+  }> {
+    return this.set(key, "");
+  }
+
+  async deleteAll(): Promise<undefined> {
     return new Promise((resolve, reject) => {
       client.BucketDelete(
         new srpc.BucketRequest({ name: this.name }),

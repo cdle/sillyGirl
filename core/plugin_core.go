@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -179,6 +180,22 @@ func initPlugins() {
 							go f.Reload()
 						} else if new == "" {
 							ss := strings.Split(filename, "/")
+							processes.Range(func(key, value any) bool { //先停止脚本，避免windows锁定文件
+								p := key.(*exec.Cmd)
+								s := value.(common.Sender)
+								if s.GetPluginID() == f.UUID {
+									console.Log("已终止 % s", f.Title)
+									func() {
+										defer func() {
+											recover()
+										}()
+										if p.Process.Kill() == nil {
+											processes.Delete(key)
+										}
+									}()
+								}
+								return true
+							})
 							os.RemoveAll(filepath.Dir(filename))
 							// fmt.Println(strings.Join(ss, " "))
 							if len(ss) > 2 {

@@ -234,6 +234,7 @@ func AddNodePlugin(path, name string) error {
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		return err
@@ -336,7 +337,9 @@ func AddNodePlugin(path, name string) error {
 						defer func() {
 							recover()
 						}()
-						p.Process.Kill()
+						if p.Process.Kill() == nil {
+							processes.Delete(key)
+						}
 					}()
 				}
 				return true

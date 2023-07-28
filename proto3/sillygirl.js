@@ -449,7 +449,10 @@ class Bucket {
             });
         });
     }
-    async delete() {
+    async delete(key) {
+        return this.set(key, "");
+    }
+    async deleteAll() {
         return new Promise((resolve, reject) => {
             client.BucketDelete(new srpc_1.srpc.BucketRequest({ name: this.name }), (err, resp) => {
                 if (err) {

@@ -24,7 +24,7 @@ type Language struct {
 }
 
 var plugin_dir = utils.ExecPath + "/plugins"
-var release = "20230727"
+var release = "20230728"
 
 var languages = []Language{
 	{
@@ -46,6 +46,7 @@ var languages = []Language{
 		Version: release,
 		Os:      "windows",
 		Arch:    "amd64",
+		Links:   []string{"https://gitee.com/sillybot/binary/releases/download/" + release + "/node_windows_amd64.zip"},
 	},
 }
 
