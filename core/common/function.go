@@ -13,7 +13,7 @@ type Function struct {
 	Handle      func(Sender, func(vm *goja.Runtime)) interface{} `json:"-"`
 	Cron        map[string]string                                `json:"cron"`
 	Priority    int                                              `json:"-"`
-	Disable     bool                                             `json:"-"`
+	Disable     bool                                             `json:"disable"`
 	Hidden      bool                                             `json:"-"`
 	CronIds     []int                                            `json:"-"`
 	Origin      string                                           `json:"-"`
