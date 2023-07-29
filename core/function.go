@@ -566,7 +566,7 @@ func HandleMessage(sender common.Sender) {
 						con = false
 						return false
 					}
-					content = utils.TrimHiddenCharacter(sender.GetContent())
+					sender.ClearContinue()
 					break
 				}
 			}
