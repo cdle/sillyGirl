@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/cdle/sillyGirl/core/common"
 	"github.com/cdle/sillyGirl/utils"
@@ -17,7 +18,7 @@ func pluginParse(script string, uuid string) (*common.Function, []func()) {
 	var groupId *common.Filter
 	var cron = map[string]string{}
 	var admin bool
-	var disable bool
+	var disable bool = plugin_disable.GetString(uuid) == "b:true"
 	var priority int
 	var title string
 	var public bool
@@ -158,8 +159,8 @@ func pluginParse(script string, uuid string) (*common.Function, []func()) {
 
 		case "admin":
 			admin = strings.TrimSpace(res[2]) == "true"
-		case "disable":
-			disable = strings.TrimSpace(res[2]) == "true"
+		// case "disable":
+		// 	disable = strings.TrimSpace(res[2]) == "true"
 		case "findall":
 			FindAll = strings.TrimSpace(res[2]) == "true"
 		case "priority":
@@ -219,11 +220,11 @@ func pluginParse(script string, uuid string) (*common.Function, []func()) {
 		case "form":
 			hasForm = true
 		case "paterner":
-			// paterner := strings.TrimSpace(res[2])
-			// go func() {
-			// 	time.Sleep(time.Second * 2)
-			// 	getPaterner(uuid, strings.TrimSpace(paterner))
-			// }()
+			paterner := strings.TrimSpace(res[2])
+			go func() {
+				time.Sleep(time.Second * 2)
+				getPaterner(uuid, strings.TrimSpace(paterner))
+			}()
 		default:
 			cron_ := strings.TrimSpace(res[2])
 			cron_ = strings.ReplaceAll(cron_, `\/`, "/")
