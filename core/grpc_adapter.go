@@ -79,7 +79,7 @@ func (sg *SillyGirlService) AdapterRegist(stream srpc.SillyGirlService_AdapterRe
 	}
 }
 
-func (sg *SillyGirlService) AdapterReceive(ctx context.Context, req *srpc.AdapterRequest) (*srpc.Default, error) {
+func (sg *SillyGirlService) AdapterReceive(ctx context.Context, req *srpc.AdapterRequest) (*srpc.Empty, error) {
 	msgs := map[string]interface{}{}
 	bot_id := req.GetBotId()
 	platform := req.GetPlatform()
@@ -87,10 +87,10 @@ func (sg *SillyGirlService) AdapterReceive(ctx context.Context, req *srpc.Adapte
 	json.Unmarshal([]byte(req.Value), &msgs)
 	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
-		s := adapter.Receive(msgs)
-		return &srpc.Default{Value: s.SetID()}, nil
+		adapter.Receive(msgs)
+		return &srpc.Empty{}, nil
 	}
-	return &srpc.Default{Value: ""}, err
+	return &srpc.Empty{}, err
 }
 
 func (sg *SillyGirlService) AdapterPush(ctx context.Context, req *srpc.AdapterRequest) (*srpc.Default, error) {
@@ -118,8 +118,11 @@ func (sg *SillyGirlService) AdapterSender(ctx context.Context, req *srpc.Adapter
 	json.Unmarshal([]byte(req.Value), &msgs)
 	adapter, err := GetAdapter(platform, bot_id)
 	if err == nil {
-		s := adapter.Sender2(msgs)
-		return &srpc.Default{Value: s.SetID()}, nil
+		_, regist, err := getSenderRegisterByCtx(ctx)
+		if err == nil {
+			s := adapter.Sender2(msgs)
+			return &srpc.Default{Value: regist(s)}, nil
+		}
 	}
 	return &srpc.Default{Value: ""}, err
 }

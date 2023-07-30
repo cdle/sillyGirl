@@ -332,17 +332,6 @@ func (sender *CustomSender) Stop() {
 	panic("stop")
 }
 
-func (sender *CustomSender) GetID() string {
-	return sender.id
-}
-
-func (sender *CustomSender) SetID() string {
-	sender.id = utils.GenUUID()
-	sender.CreatedAt = time.Now()
-	senders.Store(sender.id, sender)
-	return sender.id
-}
-
 func (sender *CustomSender) GetTime() time.Time {
 	return sender.CreatedAt
 }
@@ -487,6 +476,7 @@ func (s *CustomSender) Await(message common.Sender, callback func(common.Sender)
 	if len(c.Function.Rules) == 0 {
 		c.Function.Rules = []string{`raw [\s\S]+`}
 	}
+	// fmt.Println("carry", c)
 	fmtRule(&c.Function)
 	c.Chan = make(chan interface{}, 1)
 	c.Result = make(chan interface{}, 1)

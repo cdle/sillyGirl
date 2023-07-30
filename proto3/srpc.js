@@ -2166,7 +2166,7 @@ var srpc;
                 requestSerialize: (message) => Buffer.from(message.serialize()),
                 requestDeserialize: (bytes) => AdapterRequest.deserialize(new Uint8Array(bytes)),
                 responseSerialize: (message) => Buffer.from(message.serialize()),
-                responseDeserialize: (bytes) => Default.deserialize(new Uint8Array(bytes))
+                responseDeserialize: (bytes) => Empty.deserialize(new Uint8Array(bytes))
             },
             AdapterPush: {
                 path: "/srpc.SillyGirlService/AdapterPush",

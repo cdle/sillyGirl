@@ -145,7 +145,7 @@ service SillyGirlService {
   rpc SenderAction (ReplyRequest) returns (Default);
   rpc SenderDestroy(ReplyRequest) returns (Empty);
   rpc AdapterRegist(stream AdapterRegistRequest) returns (stream Default);
-  rpc AdapterReceive(AdapterRequest) returns (Default);
+  rpc AdapterReceive(AdapterRequest) returns (Empty);
   rpc AdapterPush(AdapterRequest) returns (Default);
   rpc AdapterDestroy(AdapterRequest) returns (Empty);
   rpc AdapterSender(AdapterRequest) returns (Default);

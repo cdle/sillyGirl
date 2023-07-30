@@ -2404,8 +2404,8 @@ export namespace srpc {
                 responseStream: false,
                 requestSerialize: (message: AdapterRequest) => Buffer.from(message.serialize()),
                 requestDeserialize: (bytes: Buffer) => AdapterRequest.deserialize(new Uint8Array(bytes)),
-                responseSerialize: (message: Default) => Buffer.from(message.serialize()),
-                responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
+                responseSerialize: (message: Empty) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => Empty.deserialize(new Uint8Array(bytes))
             },
             AdapterPush: {
                 path: "/srpc.SillyGirlService/AdapterPush",
@@ -2470,7 +2470,7 @@ export namespace srpc {
         abstract SenderAction(call: grpc_1.ServerUnaryCall<ReplyRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderDestroy(call: grpc_1.ServerUnaryCall<ReplyRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterRegist(call: grpc_1.ServerDuplexStream<AdapterRegistRequest, Default>): void;
-        abstract AdapterReceive(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract AdapterReceive(call: grpc_1.ServerUnaryCall<AdapterRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterPush(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract AdapterDestroy(call: grpc_1.ServerUnaryCall<AdapterRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterSender(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
@@ -2555,7 +2555,7 @@ export namespace srpc {
         AdapterRegist: GrpcChunkServiceInterface<AdapterRegistRequest, Default> = (metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientDuplexStream<AdapterRegistRequest, Default> => {
             return super.AdapterRegist(metadata, options);
         };
-        AdapterReceive: GrpcUnaryServiceInterface<AdapterRequest, Default> = (message: AdapterRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
+        AdapterReceive: GrpcUnaryServiceInterface<AdapterRequest, Empty> = (message: AdapterRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Empty>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Empty>, callback?: grpc_1.requestCallback<Empty>): grpc_1.ClientUnaryCall => {
             return super.AdapterReceive(message, metadata, options, callback);
         };
         AdapterPush: GrpcUnaryServiceInterface<AdapterRequest, Default> = (message: AdapterRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {

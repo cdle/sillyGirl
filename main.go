@@ -71,6 +71,10 @@ func main() {
 				fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, m[core.CONETNT])
 				return ""
 			})
+			// a.SetActionHandler(func(m map[string]interface{}) string {
+			// 	fmt.Println("action", m)
+			// 	return `{"a":"a"}`
+			// })
 			for scanner.Scan() {
 				data := scanner.Text()
 				s := &core.CustomSender{

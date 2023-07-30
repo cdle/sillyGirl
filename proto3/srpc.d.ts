@@ -802,8 +802,8 @@ export declare namespace srpc {
                 responseStream: boolean;
                 requestSerialize: (message: AdapterRequest) => Buffer;
                 requestDeserialize: (bytes: Buffer) => AdapterRequest;
-                responseSerialize: (message: Default) => Buffer;
-                responseDeserialize: (bytes: Buffer) => Default;
+                responseSerialize: (message: Empty) => Buffer;
+                responseDeserialize: (bytes: Buffer) => Empty;
             };
             AdapterPush: {
                 path: string;
@@ -868,7 +868,7 @@ export declare namespace srpc {
         abstract SenderAction(call: grpc_1.ServerUnaryCall<ReplyRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderDestroy(call: grpc_1.ServerUnaryCall<ReplyRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterRegist(call: grpc_1.ServerDuplexStream<AdapterRegistRequest, Default>): void;
-        abstract AdapterReceive(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract AdapterReceive(call: grpc_1.ServerUnaryCall<AdapterRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterPush(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract AdapterDestroy(call: grpc_1.ServerUnaryCall<AdapterRequest, Empty>, callback: grpc_1.sendUnaryData<Empty>): void;
         abstract AdapterSender(call: grpc_1.ServerUnaryCall<AdapterRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
@@ -902,7 +902,7 @@ export declare namespace srpc {
         SenderAction: GrpcUnaryServiceInterface<ReplyRequest, Default>;
         SenderDestroy: GrpcUnaryServiceInterface<ReplyRequest, Empty>;
         AdapterRegist: GrpcChunkServiceInterface<AdapterRegistRequest, Default>;
-        AdapterReceive: GrpcUnaryServiceInterface<AdapterRequest, Default>;
+        AdapterReceive: GrpcUnaryServiceInterface<AdapterRequest, Empty>;
         AdapterPush: GrpcUnaryServiceInterface<AdapterRequest, Default>;
         AdapterDestroy: GrpcUnaryServiceInterface<AdapterRequest, Empty>;
         AdapterSender: GrpcUnaryServiceInterface<AdapterRequest, Default>;

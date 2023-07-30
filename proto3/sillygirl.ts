@@ -1,5 +1,8 @@
 import { srpc } from "./srpc";
 import * as grpc_1 from "@grpc/grpc-js";
+import { format } from "util";
+
+grpc_1.setLogVerbosity(grpc_1.logVerbosity.NONE);
 
 let client = new srpc.SillyGirlServiceClient(
   "localhost:50051",
@@ -8,153 +11,156 @@ let client = new srpc.SillyGirlServiceClient(
 
 let senders: Sender[] = [];
 let plugin_id = process.env?.PLUGIN_ID ?? "";
-
-process.on("beforeExit", () => {
-  for (let sender of senders) {
-    sender.destructor();
-  }
-});
+const metadata = new grpc_1.Metadata();
+metadata.add("RUNTIME_ID", process.env?.RUNTIME_ID ?? "");
 
 class Sender {
-  public uuid: string;
+  private uuid: string;
   private destoried = false;
   constructor(uuid: string) {
     this.uuid = uuid;
     senders.push(this);
   }
-
-  destructor() {
+  destroy() {
     if (this.destoried) return;
     this.destoried = true;
     client.SenderDestroy(
       new srpc.ReplyRequest({ uuid: sender.uuid }),
+      metadata,
       (err, resp) => {}
     );
   }
-
-  async getUserId(): Promise<string | undefined> {
+  async getUserId(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetUserId(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getUserName(): Promise<string | undefined> {
+  async getUserName(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetUserName(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getChatId(): Promise<string | undefined> {
+  async getChatId(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetChatId(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getChatName(): Promise<string | undefined> {
+  async getChatName(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetChatName(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getMessageId(): Promise<string | undefined> {
+  async getMessageId(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetMessageId(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getPlatform(): Promise<string | undefined> {
+  async getPlatform(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetPlatform(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getBotId(): Promise<string | undefined> {
+  async getBotId(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetBotId(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async getContent(): Promise<string | undefined> {
+  async getContent(): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderGetContent(
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
@@ -167,6 +173,7 @@ class Sender {
           uuid: this.uuid,
           content: `${key}`,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
@@ -184,6 +191,7 @@ class Sender {
           uuid: this.uuid,
           content,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
@@ -200,6 +208,7 @@ class Sender {
         new srpc.SenderRequest({
           uuid: this.uuid,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
@@ -210,7 +219,7 @@ class Sender {
       );
     });
   }
-  async getAdapter() {
+  async getAdapter(): Promise<Adapter> {
     return new Adapter({
       bot_id: await this.getBotId(),
       platform: await this.getPlatform(),
@@ -229,39 +238,34 @@ class Sender {
     prohibit_groups?: string[]; // 群聊黑名单
     allow_users?: string[]; // 用户白名单
     prohibit_users?: string[]; // 群聊白名单
-    persistent?: boolean; //持久化监听
   }): Promise<Sender | undefined> {
-    return new Promise(
-      async (resolve, reject) => {
-        let params: any = {
-          uuid: this.uuid,
-          rules: options?.rules,
-          timeout: options?.timeout,
-          listen_private: options?.listen_private,
-          listen_group: options?.listen_group,
-          allow_platforms: options?.allow_platforms,
-          prohibit_platforms: options?.prohibit_platforms,
-          allow_groups: options?.allow_groups,
-          prohibit_groups: options?.prohibit_groups,
-          allow_users: options?.allow_users,
-          prohibit_users: options?.prohibit_users,
-          persistent: options?.persistent,
-          plugin_id,
-        };
-        if (!this.uuid) {
-          params.persistent = true;
+    return new Promise(async (resolve, reject) => {
+      let params: any = {
+        uuid: this.uuid,
+        rules: options?.rules,
+        timeout: options?.timeout,
+        listen_private: options?.listen_private,
+        listen_group: options?.listen_group,
+        allow_platforms: options?.allow_platforms ?? [],
+        prohibit_platforms: options?.prohibit_platforms ?? [],
+        allow_groups: options?.allow_groups,
+        prohibit_groups: options?.prohibit_groups,
+        allow_users: options?.allow_users,
+        prohibit_users: options?.prohibit_users,
+        plugin_id,
+      };
+      if (!this.uuid) {
+        params.persistent = true;
+      }
+      const call = client.SenderListen(metadata);
+      call.on("data", (response) => {
+        if (response.echo == "END") {
+          call.cancel();
+          return;
         }
-        const call = client.SenderListen();
-        // let callback: any = options.replyHandler;
-        // console.log("===",this.uuid)
-        call.on("data", (response) => {
-          if (response.echo == "END") {
-            call.cancel();
-            return;
-          }
-          let s = response.uuid ? new Sender(response.uuid) : undefined;
-          if (options?.handle && s) {
-            // console.log(`options?.handle`, options.persistent)
+        let s = response.uuid ? new Sender(response.uuid) : undefined;
+        if (options?.handle && s) {
+          try {
             let obj = options?.handle(s);
             if (typeof obj == "string") {
               call.write(
@@ -281,6 +285,7 @@ class Sender {
                   );
                 })
                 .catch((e) => {
+                  console.error(e);
                   call.write(
                     new srpc.SenderListenRequest({
                       uuid: response.echo,
@@ -296,96 +301,92 @@ class Sender {
                 })
               );
             }
-            // console.log(`options?.handle`, options.persistent)
-          } else {
-            // console.log(`call.cancel()`, options?.persistent)
-            call.write(
-              new srpc.SenderListenRequest({
-                uuid: response.echo,
-                value: "",
-              })
-            );
-            // console.log(`call.cancel()`, options?.persistent)
+          } catch (e) {
+            console.error(e);
           }
-          // console.log("response", JSON.stringify(response));
-          // call.cancel()
-          resolve(s);
-        });
-        call.on("error", (err) => {
-          reject(err);
-          // console.error(err);
-        });
-        // console.log("params", JSON.stringify(params));
-        call.write(new srpc.SenderListenRequest(params));
-      }
-      // client.SenderListen(new srpc.SenderListenRequest(params), (err, resp) => {
-      //   if (err) {
-      //     reject(err);
-      //   } else {
-      //     if (resp?.value) {
-      //       let handle = options?.handle;
-      //       let s = new Sender(resp.value);
-      //       resolve(s);
-      //       if (handle) {
-      //         handle(s);
-      //       }
-      //     } else {
-      //       reject(new Error("timeout"));
-      //     }
-      //   }
-      // });
-      // }
-    );
+        } else {
+          call.write(
+            new srpc.SenderListenRequest({
+              uuid: response.echo,
+              value: "",
+            })
+          );
+        }
+        resolve(s);
+      });
+      call.on("error", (err) => {
+        reject(err);
+      });
+      call.write(new srpc.SenderListenRequest(params));
+    });
   }
   holdOn(str: string) {
     return "go_again_" + str;
   }
-  async reply(content: string): Promise<string | undefined> {
+  async reply(content: string): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderReply(
         new srpc.ReplyRequest({
           uuid: this.uuid,
           content,
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(resp?.value ?? "");
           }
         }
       );
     });
   }
-  async action(options: any): Promise<any | undefined> {
+  async doAction(options: Record<string, any>): Promise<any> {
     return new Promise((resolve, reject) => {
+      console.log({
+        uuid: this.uuid,
+        content: JSON.stringify(options),
+      });
       client.SenderAction(
         new srpc.ReplyRequest({
           uuid: this.uuid,
           content: JSON.stringify(options),
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.value);
+            resolve(JSON.parse(resp?.value ?? "{}"));
           }
         }
       );
     });
   }
-  async event(): Promise<any | undefined> {
-    return;
+  async getEvent(): Promise<Record<string, any>> {
+    return new Promise((resolve, reject) => {
+      client.SenderEvent(
+        new srpc.SenderRequest({
+          uuid: this.uuid,
+        }),
+        metadata,
+        (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(JSON.parse(resp?.value ?? "{}"));
+          }
+        }
+      );
+    });
   }
 }
 
 class Bucket {
-  name: string;
-
+  private name: string;
   constructor(name: string) {
     this.name = name;
   }
-
   transform(v: string | undefined) {
     if (!v) {
       return undefined;
@@ -477,7 +478,7 @@ class Bucket {
     });
   }
 
-  async getAll(): Promise<any> {
+  async getAll(): Promise<Record<string, any>> {
     return new Promise((resolve, reject) => {
       client.BucketGetAll(
         new srpc.BucketRequest({ name: this.name }),
@@ -500,8 +501,8 @@ class Bucket {
   }
 
   async delete(key: string): Promise<{
-    message?: string | undefined;
-    changed?: boolean | undefined;
+    message?: string;
+    changed?: boolean;
   }> {
     return this.set(key, "");
   }
@@ -521,7 +522,7 @@ class Bucket {
     });
   }
 
-  async keys(): Promise<string[] | undefined> {
+  async keys(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       client.BucketKeys(
         new srpc.BucketRequest({ name: this.name }),
@@ -529,14 +530,14 @@ class Bucket {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.keys);
+            resolve(resp?.keys ?? []);
           }
         }
       );
     });
   }
 
-  async len(): Promise<number | undefined> {
+  async len(): Promise<number> {
     return new Promise((resolve, reject) => {
       client.BucketLen(
         new srpc.BucketRequest({ name: this.name }),
@@ -544,20 +545,20 @@ class Bucket {
           if (err) {
             reject(err);
           } else {
-            resolve(resp?.length);
+            resolve(resp?.length ?? 0);
           }
         }
       );
     });
   }
 
-  async buckets(): Promise<string[] | undefined> {
+  async buckets(): Promise<string[]> {
     return new Promise((resolve, reject) => {
       client.BucketBuckets(new srpc.Empty(), (err, resp) => {
         if (err) {
           reject(err);
         } else {
-          resolve(resp?.buckets);
+          resolve(resp?.buckets ?? []);
         }
       });
     });
@@ -565,7 +566,7 @@ class Bucket {
 
   watch(
     key: string,
-    handle: (old: any, now: any, key: string) => StorageFinal | void | any
+    handle: (old: any, now: any, key: string) => StorageModifier | void
   ) {
     const call = client.BucketWatch();
     call.on("data", async (response) => {
@@ -574,8 +575,12 @@ class Bucket {
         this.transform(response.now),
         response.key
       );
-      fin = await fin;
-      let result: StorageFinal = {
+      try {
+        fin = await fin;
+      } catch (e) {
+        console.error(e);
+      }
+      let result: StorageModifier = {
         echo: response.echo,
       };
       if (!fin) {
@@ -599,11 +604,11 @@ class Bucket {
     );
   }
 
-  async _name(): Promise<string> {
+  async getName(): Promise<string> {
     return this.name;
   }
 }
-interface StorageFinal {
+interface StorageModifier {
   echo?: string;
   now?: any;
   message?: string;
@@ -620,82 +625,78 @@ interface Message {
 }
 
 class Adapter {
-  platform: string | undefined;
-  bot_id: string | undefined;
+  platform: string;
+  bot_id: string;
   call: any;
   constructor(options: {
-    platform?: string;
-    bot_id?: string;
-    replyHandler?: (
-      message: Message
-    ) => string | undefined | Promise<string | undefined>;
-    actionHandler?: (
-      message: Message
-    ) => string | undefined | Promise<string | undefined>;
+    platform: string;
+    bot_id: string;
+    replyHandler?: (message: Message) => Promise<string | undefined>;
+    actionHandler?: (message: Message) => Promise<string | undefined>;
   }) {
     this.platform = options.platform;
     this.bot_id = options.bot_id;
     if (options.replyHandler) {
-      const call = client.AdapterRegist();
-      // let callback: any = ;
+      const call = client.AdapterRegist(metadata);
       call.on("data", async (response) => {
-        // console.log("start on data")
         let message = JSON.parse(response.value);
         const { echo, __type__ } = message;
         delete message.__type__;
         delete message.echo;
         if (__type__ == "reply" && options.replyHandler) {
-          let v = (await options.replyHandler(message)) ?? "";
-          call.write(
-            new srpc.AdapterRegistRequest({
-              bot_id: echo,
-              platform: v,
-            })
-          );
+          try {
+            let v = (await options.replyHandler(message)) ?? "";
+            call.write(
+              new srpc.AdapterRegistRequest({
+                bot_id: echo,
+                platform: v,
+              })
+            );
+          } catch (e) {
+            console.error(e);
+          }
         }
         if (__type__ == "action" && options.actionHandler) {
-          let v = await options.actionHandler(message);
-          call.write(
-            new srpc.AdapterRegistRequest({
-              bot_id: echo,
-              platform: v,
-            })
-          );
+          try {
+            let v = await options.actionHandler(message);
+            call.write(
+              new srpc.AdapterRegistRequest({
+                bot_id: echo,
+                platform: v,
+              })
+            );
+          } catch (e) {
+            console.error(e);
+          }
         }
-        // console.log("end on data")
       });
       call.on("error", (err) => {
         console.error("adapter disc", err);
       });
-      // console.log("before write")
       call.write(
         new srpc.AdapterRegistRequest({
           bot_id: options.bot_id,
           platform: options.platform,
         })
       );
-      // console.log("after write write")
       this.call = call;
     }
   }
-  setActionHandler(func: (action: {}) => any): void {
-    // 将从服务端不断接收action消息，并处理
-    // 事件处理巨饼
-  }
-  async receive(message: Message): Promise<Sender> {
+  async receive(message: Message): Promise<undefined> {
     //投递消息
-    return new Promise<Sender>((resolve, reject) => {
+    return new Promise<undefined>((resolve, reject) => {
       client.AdapterReceive(
         new srpc.AdapterRequest({
           platform: this.platform,
           bot_id: this.bot_id,
           value: JSON.stringify(message),
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
-          } else if (resp?.value) {
-            resolve(new Sender(resp.value));
+          } else {
+            resolve(undefined);
           }
         }
       );
@@ -710,6 +711,7 @@ class Adapter {
           bot_id: this.bot_id,
           value: JSON.stringify(message),
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
@@ -731,6 +733,7 @@ class Adapter {
           bot_id: this.bot_id,
           value: JSON.stringify(options),
         }),
+        metadata,
         (err, resp) => {
           if (err) {
             reject(err);
@@ -745,7 +748,7 @@ class Adapter {
 
 let sender: Sender = new Sender(process.env?.SENDER_ID ?? "");
 
-async function sleep(ms: number | undefined) {
+async function sleep(ms = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -758,10 +761,27 @@ class Console {
 
 interface CQItem {
   type: string;
-  params: {};
+  params: Record<string, string>;
+}
+
+interface CQParams {
+  [key: string]: string | number | boolean;
 }
 
 let utils = {
+  buildCQTag: (type: string, params: CQParams, prefix = "CQ"): string => {
+    const paramStrings: string[] = [];
+    for (const key in params) {
+      const value = params[key];
+      const paramString = `${key}=${value}`;
+      paramStrings.push(paramString);
+    }
+    const paramString = paramStrings.join(",");
+    const cqString = `[${prefix}:${type}${
+      paramString ? "," + paramString : ""
+    }]`;
+    return cqString;
+  },
   parseCQText: (text: string, prefix = "CQ") => {
     const cqRegex = new RegExp(`\\[${prefix}:(\\w+)(.*?)\\]`, "g");
     const cqMatches = text.matchAll(cqRegex);
@@ -796,34 +816,47 @@ let utils = {
   },
 };
 
-let slog = (type: string, ...args: any[]) => {};
-
 let console = {
   log(...args: any[]) {
-    const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
-      new srpc.ConsoleRequest({ type: "log", content, plugin_id }),
+      new srpc.ConsoleRequest({
+        type: "log",
+        content: format(...args),
+        plugin_id,
+      }),
       (err, resp) => {}
     );
   },
   info(...args: any[]) {
     const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
-      new srpc.ConsoleRequest({ type: "info", content, plugin_id }),
+      new srpc.ConsoleRequest({
+        type: "info",
+        content: format(...args),
+        plugin_id,
+      }),
       (err, resp) => {}
     );
   },
   error(...args: any[]) {
     const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
-      new srpc.ConsoleRequest({ type: "error", content, plugin_id }),
+      new srpc.ConsoleRequest({
+        type: "error",
+        content: format(...args),
+        plugin_id,
+      }),
       (err, resp) => {}
     );
   },
   debug(...args: any[]) {
     const content = args.reduce((acc, arg) => acc + " " + arg, "");
     client.Console(
-      new srpc.ConsoleRequest({ type: "debug", content, plugin_id }),
+      new srpc.ConsoleRequest({
+        type: "debug",
+        content: format(...args),
+        plugin_id,
+      }),
       (err, resp) => {}
     );
   },

@@ -472,9 +472,9 @@ func HandleMessage(sender common.Sender) {
 	u, g, i, a := sender.GetUserID(), sender.GetChatID(), sender.GetImType(), sender.IsAdmin()
 	con := true
 	mtd := false
-
 	for _, wait := range waits {
 		wait.Foreach(func(k int64, c *Carry) bool {
+
 			// userID := vs.Get("u")
 			// chatID := vs.Get("c")
 			// imType := vs.Get("i")
@@ -485,18 +485,26 @@ func HandleMessage(sender common.Sender) {
 			// if userID != u && (forGroup == "" || forGroup == "me") {
 			// 	return true
 			// }
+
 			if c.RequireAdmin && !a {
 				return true
 			}
+			// fmt.Println(c.Function.Rules, "==", c.AllowPlatforms, len(c.AllowPlatforms))
+
 			if len(c.AllowPlatforms) != 0 && !Contains(c.AllowPlatforms, i) {
 				return true
 			}
+
+			// fmt.Println(c.Function.Rules)
+
 			if len(c.ProhibitPlatforms) != 0 && Contains(c.ProhibitPlatforms, i) {
 				return true
 			}
+
 			if len(c.AllowUsers) != 0 && !Contains(c.AllowUsers, u) {
 				return true
 			}
+
 			if len(c.ProhibitUsers) != 0 && Contains(c.ProhibitUsers, u) {
 				return true
 			}
@@ -543,23 +551,6 @@ func HandleMessage(sender common.Sender) {
 					sender.SetMatch(res[1:])
 					sender.SetParams(c.Function.Params[i])
 					mtd = true
-					// if f, ok := c.Message.(*CustomSender); ok && f.Carry != nil {
-					// 	if s1, o := sender.(*CustomSender); o && s1.Carry != nil {
-					// 		f.Carry = s1.Carry
-					// 		c := make(chan string)
-					// 		oc := s1.Carry
-					// 		s1.Carry = c
-					// 		go func() {
-					// 			for {
-					// 				r, o := <-c
-					// 				if !o {
-					// 					break
-					// 				}
-					// 				oc <- r
-					// 			}
-					// 		}()
-					// 	}
-					// }
 					c.Chan <- sender
 					sender.Reply(<-c.Result)
 					if !sender.IsContinue() {

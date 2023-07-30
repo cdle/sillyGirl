@@ -3,7 +3,6 @@ package core
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -15,41 +14,8 @@ import (
 	"github.com/cdle/sillyGirl/utils"
 )
 
-var senders sync.Map
-
-// func init() {
-// 	//垃圾回收
-// 	go func() {
-// 		for {
-// 			time.Sleep(time.Minute)
-// 			senders.Range(func(key, value any) bool {
-// 				s := value.(common.Sender)
-// 				if s.GetTime().Add(time.Minute * 20).Before(time.Now()) {
-// 					senders.Delete(s.GetID())
-// 				}
-// 				return true
-// 			})
-// 		}
-// 	}()
-// }
-
-func GetSender(uuid string) (common.Sender, error) {
-	if uuid == "" {
-		return &CustomSender{
-			F: &Factory{
-				botid: "*",
-			},
-		}, nil
-	}
-	v, ok := senders.Load(uuid)
-	if !ok {
-		return nil, errors.New("not found sender")
-	}
-	return v.(common.Sender), nil
-}
-
 func (sg *SillyGirlService) SenderGetUserId(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +23,7 @@ func (sg *SillyGirlService) SenderGetUserId(ctx context.Context, req *srpc.Sende
 }
 
 func (sg *SillyGirlService) SenderGetUserName(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +31,7 @@ func (sg *SillyGirlService) SenderGetUserName(ctx context.Context, req *srpc.Sen
 }
 
 func (sg *SillyGirlService) SenderGetChatId(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +39,7 @@ func (sg *SillyGirlService) SenderGetChatId(ctx context.Context, req *srpc.Sende
 }
 
 func (sg *SillyGirlService) SenderGetChatName(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +47,7 @@ func (sg *SillyGirlService) SenderGetChatName(ctx context.Context, req *srpc.Sen
 }
 
 func (sg *SillyGirlService) SenderGetMessageId(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +55,7 @@ func (sg *SillyGirlService) SenderGetMessageId(ctx context.Context, req *srpc.Se
 }
 
 func (sg *SillyGirlService) SenderGetPlatform(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +63,7 @@ func (sg *SillyGirlService) SenderGetPlatform(ctx context.Context, req *srpc.Sen
 }
 
 func (sg *SillyGirlService) SenderGetBotId(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +71,7 @@ func (sg *SillyGirlService) SenderGetBotId(ctx context.Context, req *srpc.Sender
 }
 
 func (sg *SillyGirlService) SenderGetContent(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +79,7 @@ func (sg *SillyGirlService) SenderGetContent(ctx context.Context, req *srpc.Send
 }
 
 func (sg *SillyGirlService) SenderSetContent(ctx context.Context, req *srpc.SenderContentRequest) (*srpc.Empty, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +88,7 @@ func (sg *SillyGirlService) SenderSetContent(ctx context.Context, req *srpc.Send
 }
 
 func (sg *SillyGirlService) SenderContinue(ctx context.Context, req *srpc.SenderRequest) (*srpc.Empty, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -132,13 +98,17 @@ func (sg *SillyGirlService) SenderContinue(ctx context.Context, req *srpc.Sender
 
 // todo
 func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderListenServer) error {
+	runtime_id, register, err := getSenderRegisterByCtx(stream.Context())
+	if err != nil {
+		return err
+	}
+	// fmt.Println(runtime_id)
 	var carry *Carry
 	var echos sync.Map
 	var persistent bool
 	// defer fmt.Println("已关闭，", "===")
 	for {
 		req, err := stream.Recv()
-
 		// fmt.Println("carry", carry, err)
 		if err == io.EOF {
 			break // 如果流已经关闭，则退出循环
@@ -146,7 +116,9 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 		if err != nil {
 			return err
 		}
+
 		if carry != nil {
+			// fmt.Println("已监听，", req)
 			// fmt.Println("req.Uuid", req.Uuid)
 			echo := req.GetUuid()
 			value := req.GetValue()
@@ -163,7 +135,8 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 			// }
 			continue
 		}
-		s, err := GetSender(req.Uuid)
+		s, err := getRegisterSender(runtime_id, req.Uuid)
+
 		if err != nil {
 			return err
 		}
@@ -195,6 +168,12 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 				}
 			}
 		}
+		if carry.AllowPlatforms == nil {
+			plt := s.GetImType()
+			if plt != "*" {
+				carry.AllowPlatforms = []string{plt}
+			}
+		}
 		options = append(options, carry)
 		if req.Persistent {
 			persistent = req.Persistent
@@ -204,13 +183,15 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 				stream.Send(&srpc.SenderListenResponse{Echo: ""})
 			})
 		}
+		level := s.GetLevel()
+
 		go s.Await(s, func(s common.Sender) interface{} {
-			id := s.SetID()
+			s.SetLevel(level + 1)
 			echo := utils.GenUUID()
 			ch := make(chan string)
 			echos.Store(echo, ch)
 			defer echos.Delete(echo)
-			stream.Send(&srpc.SenderListenResponse{Echo: echo, Uuid: id})
+			stream.Send(&srpc.SenderListenResponse{Echo: echo, Uuid: register(s)})
 			value := <-ch
 			if !persistent {
 				if strings.HasPrefix(value, "go_again_") {
@@ -220,7 +201,6 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 					stream.Send(&srpc.SenderListenResponse{Echo: "END"})
 				}
 			} else {
-				defer senders.Delete(id)
 				value = strings.Replace(value, "go_again_", "", 1)
 			}
 			return value
@@ -230,7 +210,7 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 }
 
 func (sg *SillyGirlService) SenderEvent(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +218,7 @@ func (sg *SillyGirlService) SenderEvent(ctx context.Context, req *srpc.SenderReq
 }
 
 func (sg *SillyGirlService) SenderReply(ctx context.Context, req *srpc.ReplyRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +227,7 @@ func (sg *SillyGirlService) SenderReply(ctx context.Context, req *srpc.ReplyRequ
 }
 
 func (sg *SillyGirlService) SenderParam(ctx context.Context, req *srpc.ReplyRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -262,10 +242,11 @@ func (sg *SillyGirlService) SenderParam(ctx context.Context, req *srpc.ReplyRequ
 }
 
 func (sg *SillyGirlService) SenderAction(ctx context.Context, req *srpc.ReplyRequest) (*srpc.Default, error) {
-	s, err := GetSender(req.Uuid)
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {
 		return nil, err
 	}
+
 	var params = map[string]interface{}{}
 	err = json.Unmarshal([]byte(req.Content), &params)
 	if err != nil {
@@ -276,7 +257,5 @@ func (sg *SillyGirlService) SenderAction(ctx context.Context, req *srpc.ReplyReq
 }
 
 func (sg *SillyGirlService) SenderDestroy(ctx context.Context, req *srpc.ReplyRequest) (*srpc.Empty, error) {
-	// fmt.Println("删除", req.Uuid)
-	senders.Delete(req.Uuid)
 	return &srpc.Empty{}, nil
 }

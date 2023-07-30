@@ -1,16 +1,16 @@
 declare class Sender {
-    uuid: string;
+    private uuid;
     private destoried;
     constructor(uuid: string);
-    destructor(): void;
-    getUserId(): Promise<string | undefined>;
-    getUserName(): Promise<string | undefined>;
-    getChatId(): Promise<string | undefined>;
-    getChatName(): Promise<string | undefined>;
-    getMessageId(): Promise<string | undefined>;
-    getPlatform(): Promise<string | undefined>;
-    getBotId(): Promise<string | undefined>;
-    getContent(): Promise<string | undefined>;
+    destroy(): void;
+    getUserId(): Promise<string>;
+    getUserName(): Promise<string>;
+    getChatId(): Promise<string>;
+    getChatName(): Promise<string>;
+    getMessageId(): Promise<string>;
+    getPlatform(): Promise<string>;
+    getBotId(): Promise<string>;
+    getContent(): Promise<string>;
     param(key: number | string): Promise<string>;
     setContent(content: string): Promise<undefined>;
     continue(): Promise<undefined>;
@@ -27,15 +27,14 @@ declare class Sender {
         prohibit_groups?: string[];
         allow_users?: string[];
         prohibit_users?: string[];
-        persistent?: boolean;
     }): Promise<Sender | undefined>;
     holdOn(str: string): string;
-    reply(content: string): Promise<string | undefined>;
-    action(options: any): Promise<any | undefined>;
-    event(): Promise<any | undefined>;
+    reply(content: string): Promise<string>;
+    doAction(options: Record<string, any>): Promise<any>;
+    getEvent(): Promise<Record<string, any>>;
 }
 declare class Bucket {
-    name: string;
+    private name;
     constructor(name: string);
     transform(v: string | undefined): string | number | boolean | undefined;
     reverseTransform(value: any): string;
@@ -44,19 +43,19 @@ declare class Bucket {
         message?: string;
         changed?: boolean;
     }>;
-    getAll(): Promise<any>;
+    getAll(): Promise<Record<string, any>>;
     delete(key: string): Promise<{
-        message?: string | undefined;
-        changed?: boolean | undefined;
+        message?: string;
+        changed?: boolean;
     }>;
     deleteAll(): Promise<undefined>;
-    keys(): Promise<string[] | undefined>;
-    len(): Promise<number | undefined>;
-    buckets(): Promise<string[] | undefined>;
-    watch(key: string, handle: (old: any, now: any, key: string) => StorageFinal | void | any): void;
-    _name(): Promise<string>;
+    keys(): Promise<string[]>;
+    len(): Promise<number>;
+    buckets(): Promise<string[]>;
+    watch(key: string, handle: (old: any, now: any, key: string) => StorageModifier | void): void;
+    getName(): Promise<string>;
 }
-interface StorageFinal {
+interface StorageModifier {
     echo?: string;
     now?: any;
     message?: string;
@@ -71,28 +70,31 @@ interface Message {
     chat_name?: string;
 }
 declare class Adapter {
-    platform: string | undefined;
-    bot_id: string | undefined;
+    platform: string;
+    bot_id: string;
     call: any;
     constructor(options: {
-        platform?: string;
-        bot_id?: string;
-        replyHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
-        actionHandler?: (message: Message) => string | undefined | Promise<string | undefined>;
+        platform: string;
+        bot_id: string;
+        replyHandler?: (message: Message) => Promise<string | undefined>;
+        actionHandler?: (message: Message) => Promise<string | undefined>;
     });
-    setActionHandler(func: (action: {}) => any): void;
-    receive(message: Message): Promise<Sender>;
+    receive(message: Message): Promise<undefined>;
     push(message: Message): Promise<string>;
     destroy(): Promise<void>;
     sender(options: any): Promise<Sender>;
 }
 declare let sender: Sender;
-declare function sleep(ms: number | undefined): Promise<unknown>;
+declare function sleep(ms?: number): Promise<unknown>;
 interface CQItem {
     type: string;
-    params: {};
+    params: Record<string, string>;
+}
+interface CQParams {
+    [key: string]: string | number | boolean;
 }
 declare let utils: {
+    buildCQTag: (type: string, params: CQParams, prefix?: string) => string;
     parseCQText: (text: string, prefix?: string) => (string | CQItem)[];
 };
 declare let console: {

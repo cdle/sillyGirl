@@ -80,7 +80,7 @@ type SillyGirlServiceClient interface {
 	SenderAction(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderDestroy(ctx context.Context, in *ReplyRequest, opts ...grpc.CallOption) (*Empty, error)
 	AdapterRegist(ctx context.Context, opts ...grpc.CallOption) (SillyGirlService_AdapterRegistClient, error)
-	AdapterReceive(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
+	AdapterReceive(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Empty, error)
 	AdapterPush(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
 	AdapterDestroy(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Empty, error)
 	AdapterSender(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error)
@@ -386,8 +386,8 @@ func (x *sillyGirlServiceAdapterRegistClient) Recv() (*Default, error) {
 	return m, nil
 }
 
-func (c *sillyGirlServiceClient) AdapterReceive(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Default, error) {
-	out := new(Default)
+func (c *sillyGirlServiceClient) AdapterReceive(ctx context.Context, in *AdapterRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, SillyGirlService_AdapterReceive_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -460,7 +460,7 @@ type SillyGirlServiceServer interface {
 	SenderAction(context.Context, *ReplyRequest) (*Default, error)
 	SenderDestroy(context.Context, *ReplyRequest) (*Empty, error)
 	AdapterRegist(SillyGirlService_AdapterRegistServer) error
-	AdapterReceive(context.Context, *AdapterRequest) (*Default, error)
+	AdapterReceive(context.Context, *AdapterRequest) (*Empty, error)
 	AdapterPush(context.Context, *AdapterRequest) (*Default, error)
 	AdapterDestroy(context.Context, *AdapterRequest) (*Empty, error)
 	AdapterSender(context.Context, *AdapterRequest) (*Default, error)
@@ -547,7 +547,7 @@ func (UnimplementedSillyGirlServiceServer) SenderDestroy(context.Context, *Reply
 func (UnimplementedSillyGirlServiceServer) AdapterRegist(SillyGirlService_AdapterRegistServer) error {
 	return status.Errorf(codes.Unimplemented, "method AdapterRegist not implemented")
 }
-func (UnimplementedSillyGirlServiceServer) AdapterReceive(context.Context, *AdapterRequest) (*Default, error) {
+func (UnimplementedSillyGirlServiceServer) AdapterReceive(context.Context, *AdapterRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdapterReceive not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) AdapterPush(context.Context, *AdapterRequest) (*Default, error) {
