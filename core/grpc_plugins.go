@@ -320,7 +320,7 @@ func AddNodePlugin(path, name string) error {
 	}
 	if !f.Disable { //!f.OnStart &&
 		if rf == nil {
-			console.Log("已加载 %s%s", f.Title, f.Suffix)
+			// console.Log("已加载 %s%s", f.Title, f.Suffix)
 		} else {
 			console.Log("已重载 %s%s", f.Title, f.Suffix)
 		}

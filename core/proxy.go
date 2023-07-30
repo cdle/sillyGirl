@@ -267,7 +267,7 @@ func checkProxy() {
 						resp.Body.Close()
 						spend := endTime - startTime
 						check[site] = spend
-						console.Log(site, "resp.StatusCode", resp.StatusCode, "time", spend)
+						// console.Log(site, "resp.StatusCode", resp.StatusCode, "time", spend)
 					}(site)
 				}
 				params["check"] = check

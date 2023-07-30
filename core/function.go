@@ -42,14 +42,14 @@ type GroupInfo struct {
 var AddNoReplyGroups = func(code string, desc string, plt string) {
 	_, loaded := NoReplyGroups.LoadOrStore(code, plt)
 	if !loaded {
-		logs.Info(desc)
+		// logs.Info(desc)
 	}
 }
 
 var AddListenOnGroup = func(code string, desc string, plt string) {
 	_, loaded := ListenOnGroups.LoadOrStore(code, plt)
 	if !loaded {
-		logs.Info(desc)
+		// logs.Info(desc)
 	}
 }
 
@@ -57,7 +57,7 @@ var RemNoReplyGroups = func(code string, desc string) {
 	_, loaded := NoReplyGroups.Load(code)
 	if loaded {
 		NoReplyGroups.Delete(code)
-		logs.Info(desc)
+		// logs.Info(desc)
 	}
 }
 
@@ -65,7 +65,7 @@ var RemListenOnGroup = func(code string, desc string) {
 	_, loaded := ListenOnGroups.Load(code)
 	if loaded {
 		ListenOnGroups.Delete(code)
-		logs.Info(desc)
+		// logs.Info(desc)
 	}
 }
 

@@ -63,7 +63,7 @@ func main() {
 			}
 		}
 		if t {
-			core.Logs.Info("Terminal机器人已连接")
+			// core.Logs.Info("Terminal机器人已连接")
 			scanner := bufio.NewScanner(os.Stdin)
 			a := &core.Factory{}
 			a.Init("terminal", "default", nil)

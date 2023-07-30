@@ -352,7 +352,7 @@ func initPlugins() {
 					AddCommand([]*common.Function{f})
 					if !f.Disable {
 						if old == "" {
-							console.Log("已加载 %s%s", f.Title, f.Suffix)
+							// console.Log("已加载 %s%s", f.Title, f.Suffix)
 						} else { //if !f.OnStart
 							console.Log("已重载 %s%s", f.Title, f.Suffix)
 						}
