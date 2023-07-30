@@ -217,6 +217,7 @@ func Init() {
 			} else {
 				console.Debug("正在删除旧程序错误...")
 				if err = os.RemoveAll(filename); err != nil {
+					plugins.Set2(key, "")
 					console.Error("删除旧程序错误：%v", err)
 					return &storage.Final{
 						Error: fmt.Errorf("删除旧程序错误：%v", err),
