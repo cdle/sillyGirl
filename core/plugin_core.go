@@ -116,7 +116,6 @@ func initPlugins() {
 	storage.Watch(plugins, nil, func(old, new, key string) (fin *storage.Final) {
 		pluginLock.Lock()
 		defer pluginLock.Unlock()
-		// fmt.Println(old, new, key, "===")
 		if new == "uninstall" {
 			new = ""
 			fin = &storage.Final{
@@ -179,6 +178,7 @@ func initPlugins() {
 						if new == "reload" { //重载
 							go f.Reload()
 						} else if new == "" {
+							// fmt.Println("new", new)
 							ss := strings.Split(filename, "/")
 							processes.Range(func(key, value any) bool { //先停止脚本，避免windows锁定文件
 								p := key.(*exec.Cmd)
@@ -198,8 +198,9 @@ func initPlugins() {
 							})
 							os.RemoveAll(filepath.Dir(filename))
 							// fmt.Println(strings.Join(ss, " "))
-							if len(ss) > 2 {
-								go RemNodePlugin(ss[len(ss)-2])
+							l := len(ss)
+							if l > 2 {
+								go AddNodePlugin(filename, ss[l-1])
 							}
 						} else {
 							err := os.WriteFile(filename, []byte(new), 0755)

@@ -157,15 +157,14 @@ func initNodePlugins() {
 					watcher.Remove(event.Name)
 					// fmt.Println("移除插件目录", event.Name)
 					// fmt.Println("移除插件", plugin_name)
-					RemNodePlugin(plugin_name)
+					AddNodePlugin(event.Name, plugin_name)
 
 				} else if plugin_index {
 					// fmt.Println("移除插件", plugin_name)
-					RemNodePlugin(plugin_name)
+					AddNodePlugin(event.Name, plugin_name)
 				}
 			case "WRITE": //, "CHMOD"
 				if plugin_index {
-					RemNodePlugin(plugin_name)
 					AddNodePlugin(event.Name, plugin_name)
 					// fmt.Println("变更插件", event.Name, plugin_name)
 				}
@@ -179,37 +178,36 @@ func initNodePlugins() {
 	}
 }
 
-func RemNodePlugin(name string) bool {
-	if name == "" {
-		return false
-	}
-	pluginLock.Lock()
-	defer pluginLock.Unlock()
-	key := nameUuid(name)
-	for i := range Functions {
-		if Functions[i].UUID == key {
-			f := Functions[i]
-			// fmt.Println("pl", key)
-			DestroyAdapterByUUID(key)
-			Functions[i].Running = false
-			if len(Functions[i].CronIds) != 0 {
-				for _, id := range Functions[i].CronIds {
-					CRON.Remove(cron.EntryID(id))
-				}
-			}
-			Functions = append(Functions[:i], Functions[i+1:]...)
-			CancelPluginCrons(key)
-			CancelPluginWebs(key)
-			CancelPluginlistening(key)
-			CancelHttpListen(key)
-			remStatic(key)
-			storage.DisableHandle(key)
-			console.Log("已移除 %s%s", f.Title, f.Suffix)
-			return true
-		}
-	}
-	return false
-}
+// func RemNodePlugin2(name string) bool {
+// 	if name == "" {
+// 		return false
+// 	}
+// 	pluginLock.Lock()
+// 	defer pluginLock.Unlock()
+// 	key := nameUuid(name)
+// 	for i := range Functions {
+// 		if Functions[i].UUID == key {
+// 			f := Functions[i]
+// 			DestroyAdapterByUUID(key)
+// 			Functions[i].Running = false
+// 			if len(Functions[i].CronIds) != 0 {
+// 				for _, id := range Functions[i].CronIds {
+// 					CRON.Remove(cron.EntryID(id))
+// 				}
+// 			}
+// 			Functions = append(Functions[:i], Functions[i+1:]...)
+// 			CancelPluginCrons(key)
+// 			CancelPluginWebs(key)
+// 			CancelPluginlistening(key)
+// 			CancelHttpListen(key)
+// 			remStatic(key)
+// 			storage.DisableHandle(key)
+// 			console.Log("已移除 %s%s", f.Title, f.Suffix)
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 func nameUuid(name string) string {
 	hash := sha1.Sum([]byte(name))
@@ -227,11 +225,35 @@ func AddNodePlugin(path, name string) error {
 		return nil
 	}
 	uuid := nameUuid(name)
-	plugins.Set(uuid, "")
 	pluginLock.Lock()
 	defer pluginLock.Unlock()
+	//移除
+	var rf *common.Function
+	for i := range Functions {
+		if Functions[i].UUID == uuid {
+			rf = Functions[i]
+			DestroyAdapterByUUID(uuid)
+			Functions[i].Running = false
+			if len(Functions[i].CronIds) != 0 {
+				for _, id := range Functions[i].CronIds {
+					CRON.Remove(cron.EntryID(id))
+				}
+			}
+			Functions = append(Functions[:i], Functions[i+1:]...)
+			CancelPluginCrons(uuid)
+			CancelPluginWebs(uuid)
+			CancelPluginlistening(uuid)
+			CancelHttpListen(uuid)
+			remStatic(uuid)
+			storage.DisableHandle(uuid)
+			break
+		}
+	}
 	file, err := os.Open(path)
 	if err != nil {
+		if rf != nil {
+			console.Log("已卸载 %s%s", rf.Title, rf.Suffix)
+		}
 		return err
 	}
 	defer file.Close()
@@ -247,7 +269,6 @@ func AddNodePlugin(path, name string) error {
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(script, uuid)
 	f.Reload = func() { //重载
-		RemNodePlugin(path)
 		AddNodePlugin(path, name)
 	}
 	f.Suffix = ".js"
@@ -355,7 +376,11 @@ func AddNodePlugin(path, name string) error {
 		cb()
 	}
 	if !f.OnStart {
-		console.Log("已加载 %s%s", f.Title, f.Suffix)
+		if rf == nil {
+			console.Log("已加载 %s%s", f.Title, f.Suffix)
+		} else {
+			console.Log("已重载 %s%s", f.Title, f.Suffix)
+		}
 	}
 	AddCommand([]*common.Function{f})
 	return nil
