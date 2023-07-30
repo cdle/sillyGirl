@@ -77,7 +77,7 @@ func deleteSenderRegister(runtime_id string) {
 	if ok {
 		sm := v.(*sync.Map)
 		sm.Range(func(key, value any) bool {
-			fmt.Println(key)
+			// fmt.Println(key)
 			sm.Delete(key)
 			return true
 		})

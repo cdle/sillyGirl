@@ -318,7 +318,7 @@ func AddNodePlugin(path, name string) error {
 	for _, cb := range cbs {
 		cb()
 	}
-	if !f.OnStart {
+	if !f.Disable { //!f.OnStart &&
 		if rf == nil {
 			console.Log("已加载 %s%s", f.Title, f.Suffix)
 		} else {

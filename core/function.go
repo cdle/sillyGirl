@@ -377,7 +377,7 @@ func AddCommand(cmds []*common.Function) {
 		if cmds[j].OnStart && !cmds[j].Disable {
 			go func(f *common.Function) {
 				time.Sleep(time.Second)
-				console.Log("初始化%v服务", f.Title)
+				// console.Log("初始化%v服务", f.Title)
 				f.Handle(&CustomSender{
 					F: &Factory{
 						botplt: "*",

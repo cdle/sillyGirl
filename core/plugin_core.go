@@ -350,10 +350,12 @@ func initPlugins() {
 				storage.DisableHandle(key)
 				if new != "" {
 					AddCommand([]*common.Function{f})
-					if old == "" {
-						console.Log("已加载 %s%s", f.Title, f.Suffix)
-					} else if !f.OnStart {
-						console.Log("已重载 %s%s", f.Title, f.Suffix)
+					if !f.Disable {
+						if old == "" {
+							console.Log("已加载 %s%s", f.Title, f.Suffix)
+						} else { //if !f.OnStart
+							console.Log("已重载 %s%s", f.Title, f.Suffix)
+						}
 					}
 				} else {
 					of, _, _ := initPlugin(old, key, "")

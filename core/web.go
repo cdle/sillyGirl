@@ -182,9 +182,9 @@ func initWeb() {
 		}
 	})
 	Server.NoRoute(func(c *gin.Context) {
-		if c.Request.URL.Path != "/api/web_chat" {
-			logs.Debug(c.Request.URL.Path)
-		}
+		// if c.Request.URL.Path != "/api/web_chat" {
+		// 	logs.Debug(c.Request.URL.Path)
+		// }
 		c.Status(200)
 		if strings.HasPrefix(c.Request.URL.Path, "/admin") {
 			if file, err := static.Open(strings.Trim(c.Request.URL.Path, "/")); err == nil {
@@ -436,7 +436,7 @@ func initWeb() {
 			return nil
 		}
 		port := new
-		console.Log("port", new)
+		// console.Log("port", new)
 		srv := &http.Server{
 			Addr:    ":" + port,
 			Handler: Server,

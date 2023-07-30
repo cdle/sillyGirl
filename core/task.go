@@ -83,7 +83,7 @@ func RegistTasks(pt *Tasks) {
 	}
 	cid, _ := CRON.AddFunc(pt.Schedule, pt.Handle)
 	pt.CronID = int(cid)
-	console.Debug("已添加计划任务：%s(%v)", pt.Title, pt.CronID)
+	// console.Debug("已添加计划任务：%s(%v)", pt.Title, pt.CronID)
 }
 
 func init() {
