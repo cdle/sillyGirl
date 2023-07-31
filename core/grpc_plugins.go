@@ -218,6 +218,7 @@ func AddNodePlugin(path, name string) error {
 	f.Type = "node"
 	f.Path = path
 	f.Handle = func(s common.Sender, f func(vm *goja.Runtime)) interface{} {
+		console := &Console{UUID: uuid}
 		s.SetPluginID(uuid)
 		plt := s.GetImType()
 		cmd := exec.Command("./node", path)
@@ -252,6 +253,7 @@ func AddNodePlugin(path, name string) error {
 			for scanner.Scan() {
 				data := scanner.Text()
 				fmt.Println(data)
+
 				// if _, err := file.WriteString(data + "\n"); err != nil {
 				// 	fmt.Printf("写入文件失败：%v\n", err)
 				// }
@@ -264,6 +266,7 @@ func AddNodePlugin(path, name string) error {
 			for scanner.Scan() {
 				data := scanner.Text()
 				fmt.Println(data)
+				console.Error(data)
 				// if _, err := file.WriteString(data + "\n"); err != nil {
 				// 	fmt.Printf("写入文件失败：%v\n", err)
 				// }
