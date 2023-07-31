@@ -375,28 +375,20 @@ class Bucket {
         return v;
     }
     reverseTransform(value) {
-        if (typeof value === "number" || typeof value === "boolean") {
-            return value.toString();
+        if (typeof value === "number") {
+            if (value % 1 === 0) {
+                return `d:${value}`;
+            }
+            return `f:${value}`;
+        }
+        if (typeof value === "boolean") {
+            return `b:${value}`;
         }
         if (typeof value === "object" && value !== null) {
             return "o:" + JSON.stringify(value);
         }
-        if (value === undefined || value === null) {
+        if (!value) {
             return "";
-        }
-        if (typeof value === "string") {
-            if (!value) {
-                return "";
-            }
-            if (!isNaN(parseFloat(value))) {
-                return "f:" + parseFloat(value);
-            }
-            if (!isNaN(parseInt(value))) {
-                return "d:" + parseInt(value);
-            }
-            if (value === "true" || value === "false") {
-                return "b:" + (value === "true");
-            }
         }
         return value;
     }
