@@ -121,6 +121,7 @@ func initPlugins() {
 			fin = &storage.Final{
 				Now: storage.EMPTY,
 			}
+			
 		}
 		if isNameUuid(key) {
 			if new == "install" {

@@ -166,6 +166,23 @@ class Sender {
       );
     });
   }
+  async isAdmin(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      client.SenderIsAdmin(
+        new srpc.SenderRequest({
+          uuid: this.uuid,
+        }),
+        metadata,
+        (err, resp) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(resp?.value ?? false);
+          }
+        }
+      );
+    });
+  }
   async param(key: number | string): Promise<string> {
     return new Promise((resolve, reject) => {
       client.SenderParam(
@@ -343,10 +360,6 @@ class Sender {
   }
   async doAction(options: Record<string, any>): Promise<any> {
     return new Promise((resolve, reject) => {
-      console.log({
-        uuid: this.uuid,
-        content: JSON.stringify(options),
-      });
       client.SenderAction(
         new srpc.ReplyRequest({
           uuid: this.uuid,
@@ -813,6 +826,12 @@ let utils = {
       result.push(text.slice(lastIndex));
     }
     return result;
+  },
+  image: (url: string) => {
+    return utils.buildCQTag("image", { url });
+  },
+  video: (url: string) => {
+    return utils.buildCQTag("video", { url });
   },
 };
 

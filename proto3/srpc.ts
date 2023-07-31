@@ -948,6 +948,73 @@ export namespace srpc {
             return LenResponse.deserialize(bytes);
         }
     }
+    export class BoolResponse extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            value?: boolean;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("value" in data && data.value != undefined) {
+                    this.value = data.value;
+                }
+            }
+        }
+        get value() {
+            return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
+        }
+        set value(value: boolean) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data: {
+            value?: boolean;
+        }): BoolResponse {
+            const message = new BoolResponse({});
+            if (data.value != null) {
+                message.value = data.value;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                value?: boolean;
+            } = {};
+            if (this.value != null) {
+                data.value = this.value;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.value != false)
+                writer.writeBool(1, this.value);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BoolResponse {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new BoolResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.value = reader.readBool();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): BoolResponse {
+            return BoolResponse.deserialize(bytes);
+        }
+    }
     export class BucketsResponse extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
@@ -2290,6 +2357,15 @@ export namespace srpc {
                 responseSerialize: (message: Default) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => Default.deserialize(new Uint8Array(bytes))
             },
+            SenderIsAdmin: {
+                path: "/srpc.SillyGirlService/SenderIsAdmin",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: SenderRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => SenderRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: BoolResponse) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => BoolResponse.deserialize(new Uint8Array(bytes))
+            },
             SenderGetPlatform: {
                 path: "/srpc.SillyGirlService/SenderGetPlatform",
                 requestStream: false,
@@ -2458,6 +2534,7 @@ export namespace srpc {
         abstract SenderGetChatId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetChatName(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetMessageId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract SenderIsAdmin(call: grpc_1.ServerUnaryCall<SenderRequest, BoolResponse>, callback: grpc_1.sendUnaryData<BoolResponse>): void;
         abstract SenderGetPlatform(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetBotId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetContent(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
@@ -2518,6 +2595,9 @@ export namespace srpc {
         };
         SenderGetMessageId: GrpcUnaryServiceInterface<SenderRequest, Default> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderGetMessageId(message, metadata, options, callback);
+        };
+        SenderIsAdmin: GrpcUnaryServiceInterface<SenderRequest, BoolResponse> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<BoolResponse>, options?: grpc_1.CallOptions | grpc_1.requestCallback<BoolResponse>, callback?: grpc_1.requestCallback<BoolResponse>): grpc_1.ClientUnaryCall => {
+            return super.SenderIsAdmin(message, metadata, options, callback);
         };
         SenderGetPlatform: GrpcUnaryServiceInterface<SenderRequest, Default> = (message: SenderRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<Default>, options?: grpc_1.CallOptions | grpc_1.requestCallback<Default>, callback?: grpc_1.requestCallback<Default>): grpc_1.ClientUnaryCall => {
             return super.SenderGetPlatform(message, metadata, options, callback);

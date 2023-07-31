@@ -10,7 +10,9 @@ protoc --js_out=import_style=commonjs,binary:. --grpc_out=.  srpc.proto
 
 #ok
 protoc --go_out=. -I. --go-grpc_out=.  srpc.proto
-protoc-gen-grpc --ts_out=service=grpc-node:. --grpc_out=. srpc.proto
+protoc-gen-grpc --ts_out=service=grpc-node:.  srpc.proto
+
+#--grpc_out=.
 
 #打包
 npx webpack --config webpack.config.js

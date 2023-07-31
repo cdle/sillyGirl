@@ -11,6 +11,7 @@ declare class Sender {
     getPlatform(): Promise<string>;
     getBotId(): Promise<string>;
     getContent(): Promise<string>;
+    isAdmin(): Promise<boolean>;
     param(key: number | string): Promise<string>;
     setContent(content: string): Promise<undefined>;
     continue(): Promise<undefined>;
@@ -96,6 +97,8 @@ interface CQParams {
 declare let utils: {
     buildCQTag: (type: string, params: CQParams, prefix?: string) => string;
     parseCQText: (text: string, prefix?: string) => (string | CQItem)[];
+    image: (url: string) => string;
+    video: (url: string) => string;
 };
 declare let console: {
     log(...args: any[]): void;

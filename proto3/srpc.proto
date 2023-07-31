@@ -55,6 +55,10 @@ message LenResponse {
   int32 length = 1;
 }
 
+message BoolResponse {
+  bool value = 1;
+}
+
 message BucketsResponse {
   repeated string buckets = 1;
 }
@@ -133,6 +137,7 @@ service SillyGirlService {
   rpc SenderGetChatId (SenderRequest) returns (Default);
   rpc SenderGetChatName (SenderRequest) returns (Default);
   rpc SenderGetMessageId (SenderRequest) returns (Default);
+  rpc SenderIsAdmin (SenderRequest) returns (BoolResponse);
   rpc SenderGetPlatform (SenderRequest) returns (Default);
   rpc SenderGetBotId (SenderRequest) returns (Default);
   rpc SenderGetContent (SenderRequest) returns (Default);

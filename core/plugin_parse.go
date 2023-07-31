@@ -215,7 +215,7 @@ func pluginParse(script string, uuid string) (*common.Function, []func()) {
 			carry = strings.TrimSpace(res[2]) == "true"
 		case "encrypt":
 			encrypt = strings.TrimSpace(res[2]) == "true"
-		case "on_start":
+		case "on_start", "service":
 			onStart = strings.TrimSpace(res[2]) == "true"
 		case "form":
 			hasForm = true

@@ -32,6 +32,7 @@ const (
 	SillyGirlService_SenderGetChatId_FullMethodName    = "/srpc.SillyGirlService/SenderGetChatId"
 	SillyGirlService_SenderGetChatName_FullMethodName  = "/srpc.SillyGirlService/SenderGetChatName"
 	SillyGirlService_SenderGetMessageId_FullMethodName = "/srpc.SillyGirlService/SenderGetMessageId"
+	SillyGirlService_SenderIsAdmin_FullMethodName      = "/srpc.SillyGirlService/SenderIsAdmin"
 	SillyGirlService_SenderGetPlatform_FullMethodName  = "/srpc.SillyGirlService/SenderGetPlatform"
 	SillyGirlService_SenderGetBotId_FullMethodName     = "/srpc.SillyGirlService/SenderGetBotId"
 	SillyGirlService_SenderGetContent_FullMethodName   = "/srpc.SillyGirlService/SenderGetContent"
@@ -68,6 +69,7 @@ type SillyGirlServiceClient interface {
 	SenderGetChatId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetChatName(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetMessageId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
+	SenderIsAdmin(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*BoolResponse, error)
 	SenderGetPlatform(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetBotId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
 	SenderGetContent(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error)
@@ -228,6 +230,15 @@ func (c *sillyGirlServiceClient) SenderGetChatName(ctx context.Context, in *Send
 func (c *sillyGirlServiceClient) SenderGetMessageId(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*Default, error) {
 	out := new(Default)
 	err := c.cc.Invoke(ctx, SillyGirlService_SenderGetMessageId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sillyGirlServiceClient) SenderIsAdmin(ctx context.Context, in *SenderRequest, opts ...grpc.CallOption) (*BoolResponse, error) {
+	out := new(BoolResponse)
+	err := c.cc.Invoke(ctx, SillyGirlService_SenderIsAdmin_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -448,6 +459,7 @@ type SillyGirlServiceServer interface {
 	SenderGetChatId(context.Context, *SenderRequest) (*Default, error)
 	SenderGetChatName(context.Context, *SenderRequest) (*Default, error)
 	SenderGetMessageId(context.Context, *SenderRequest) (*Default, error)
+	SenderIsAdmin(context.Context, *SenderRequest) (*BoolResponse, error)
 	SenderGetPlatform(context.Context, *SenderRequest) (*Default, error)
 	SenderGetBotId(context.Context, *SenderRequest) (*Default, error)
 	SenderGetContent(context.Context, *SenderRequest) (*Default, error)
@@ -510,6 +522,9 @@ func (UnimplementedSillyGirlServiceServer) SenderGetChatName(context.Context, *S
 }
 func (UnimplementedSillyGirlServiceServer) SenderGetMessageId(context.Context, *SenderRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderGetMessageId not implemented")
+}
+func (UnimplementedSillyGirlServiceServer) SenderIsAdmin(context.Context, *SenderRequest) (*BoolResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SenderIsAdmin not implemented")
 }
 func (UnimplementedSillyGirlServiceServer) SenderGetPlatform(context.Context, *SenderRequest) (*Default, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SenderGetPlatform not implemented")
@@ -813,6 +828,24 @@ func _SillyGirlService_SenderGetMessageId_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SillyGirlServiceServer).SenderGetMessageId(ctx, req.(*SenderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SillyGirlService_SenderIsAdmin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SenderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SillyGirlServiceServer).SenderIsAdmin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SillyGirlService_SenderIsAdmin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SillyGirlServiceServer).SenderIsAdmin(ctx, req.(*SenderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1193,6 +1226,10 @@ var SillyGirlService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SenderGetMessageId",
 			Handler:    _SillyGirlService_SenderGetMessageId_Handler,
+		},
+		{
+			MethodName: "SenderIsAdmin",
+			Handler:    _SillyGirlService_SenderIsAdmin_Handler,
 		},
 		{
 			MethodName: "SenderGetPlatform",

@@ -254,6 +254,25 @@ export declare namespace srpc {
         serializeBinary(): Uint8Array;
         static deserializeBinary(bytes: Uint8Array): LenResponse;
     }
+    export class BoolResponse extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            value?: boolean;
+        });
+        get value(): boolean;
+        set value(value: boolean);
+        static fromObject(data: {
+            value?: boolean;
+        }): BoolResponse;
+        toObject(): {
+            value?: boolean | undefined;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BoolResponse;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): BoolResponse;
+    }
     export class BucketsResponse extends pb_1.Message {
         #private;
         constructor(data?: any[] | {
@@ -688,6 +707,15 @@ export declare namespace srpc {
                 responseSerialize: (message: Default) => Buffer;
                 responseDeserialize: (bytes: Buffer) => Default;
             };
+            SenderIsAdmin: {
+                path: string;
+                requestStream: boolean;
+                responseStream: boolean;
+                requestSerialize: (message: SenderRequest) => Buffer;
+                requestDeserialize: (bytes: Buffer) => SenderRequest;
+                responseSerialize: (message: BoolResponse) => Buffer;
+                responseDeserialize: (bytes: Buffer) => BoolResponse;
+            };
             SenderGetPlatform: {
                 path: string;
                 requestStream: boolean;
@@ -856,6 +884,7 @@ export declare namespace srpc {
         abstract SenderGetChatId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetChatName(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetMessageId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
+        abstract SenderIsAdmin(call: grpc_1.ServerUnaryCall<SenderRequest, BoolResponse>, callback: grpc_1.sendUnaryData<BoolResponse>): void;
         abstract SenderGetPlatform(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetBotId(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
         abstract SenderGetContent(call: grpc_1.ServerUnaryCall<SenderRequest, Default>, callback: grpc_1.sendUnaryData<Default>): void;
@@ -890,6 +919,7 @@ export declare namespace srpc {
         SenderGetChatId: GrpcUnaryServiceInterface<SenderRequest, Default>;
         SenderGetChatName: GrpcUnaryServiceInterface<SenderRequest, Default>;
         SenderGetMessageId: GrpcUnaryServiceInterface<SenderRequest, Default>;
+        SenderIsAdmin: GrpcUnaryServiceInterface<SenderRequest, BoolResponse>;
         SenderGetPlatform: GrpcUnaryServiceInterface<SenderRequest, Default>;
         SenderGetBotId: GrpcUnaryServiceInterface<SenderRequest, Default>;
         SenderGetContent: GrpcUnaryServiceInterface<SenderRequest, Default>;

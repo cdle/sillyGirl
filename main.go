@@ -11,6 +11,7 @@ import (
 	// _ "github.com/cdle/sillyGirl/adapters/qq"
 	"github.com/cdle/sillyGirl/adapters/web"
 	"github.com/cdle/sillyGirl/core"
+	"github.com/cdle/sillyGirl/core/common"
 
 	"github.com/cdle/sillyGirl/utils"
 )
@@ -67,14 +68,17 @@ func main() {
 			scanner := bufio.NewScanner(os.Stdin)
 			a := &core.Factory{}
 			a.Init("terminal", "default", nil)
+			i := 0
 			a.SetReplyHandler(func(m map[string]interface{}) string {
+				i++
 				fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, m[core.CONETNT])
+				return fmt.Sprint(i)
+			})
+			a.SetActionHandler(func(m map[string]interface{}) string {
+				fmt.Println(`do action: ` + string(utils.JsonMarshal(m)))
 				return ""
 			})
-			// a.SetActionHandler(func(m map[string]interface{}) string {
-			// 	fmt.Println("action", m)
-			// 	return `{"a":"a"}`
-			// })
+
 			for scanner.Scan() {
 				data := scanner.Text()
 				s := &core.CustomSender{
@@ -83,6 +87,11 @@ func main() {
 					// Admin:   true,
 					F: a,
 				}
+				i++
+				s.SetFsps(&common.FakerSenderParams{
+					Content:   data,
+					MessageID: fmt.Sprint(i),
+				})
 				s.SetContent(data)
 				core.Messages <- s
 			}

@@ -872,6 +872,66 @@ var srpc;
         }
     }
     srpc.LenResponse = LenResponse;
+    class BoolResponse extends pb_1.Message {
+        #one_of_decls = [];
+        constructor(data) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("value" in data && data.value != undefined) {
+                    this.value = data.value;
+                }
+            }
+        }
+        get value() {
+            return pb_1.Message.getFieldWithDefault(this, 1, false);
+        }
+        set value(value) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data) {
+            const message = new BoolResponse({});
+            if (data.value != null) {
+                message.value = data.value;
+            }
+            return message;
+        }
+        toObject() {
+            const data = {};
+            if (this.value != null) {
+                data.value = this.value;
+            }
+            return data;
+        }
+        serialize(w) {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.value != false)
+                writer.writeBool(1, this.value);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes) {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new BoolResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.value = reader.readBool();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary() {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes) {
+            return BoolResponse.deserialize(bytes);
+        }
+    }
+    srpc.BoolResponse = BoolResponse;
     class BucketsResponse extends pb_1.Message {
         #one_of_decls = [];
         constructor(data) {
@@ -2051,6 +2111,15 @@ var srpc;
                 responseSerialize: (message) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes) => Default.deserialize(new Uint8Array(bytes))
             },
+            SenderIsAdmin: {
+                path: "/srpc.SillyGirlService/SenderIsAdmin",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes) => SenderRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes) => BoolResponse.deserialize(new Uint8Array(bytes))
+            },
             SenderGetPlatform: {
                 path: "/srpc.SillyGirlService/SenderGetPlatform",
                 requestStream: false,
@@ -2249,6 +2318,9 @@ var srpc;
         };
         SenderGetMessageId = (message, metadata, options, callback) => {
             return super.SenderGetMessageId(message, metadata, options, callback);
+        };
+        SenderIsAdmin = (message, metadata, options, callback) => {
+            return super.SenderIsAdmin(message, metadata, options, callback);
         };
         SenderGetPlatform = (message, metadata, options, callback) => {
             return super.SenderGetPlatform(message, metadata, options, callback);

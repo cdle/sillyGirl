@@ -30,6 +30,14 @@ func (sg *SillyGirlService) SenderGetUserName(ctx context.Context, req *srpc.Sen
 	return &srpc.Default{Value: s.GetUserName()}, nil
 }
 
+func (sg *SillyGirlService) SenderIsAdmin(ctx context.Context, req *srpc.SenderRequest) (*srpc.BoolResponse, error) {
+	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
+	if err != nil {
+		return nil, err
+	}
+	return &srpc.BoolResponse{Value: s.IsAdmin()}, nil
+}
+
 func (sg *SillyGirlService) SenderGetChatId(ctx context.Context, req *srpc.SenderRequest) (*srpc.Default, error) {
 	s, err := getRegisterSenderByCtx(ctx, req.Uuid)
 	if err != nil {

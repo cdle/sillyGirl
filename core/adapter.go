@@ -104,23 +104,32 @@ func GetMessageByUUID(uuid string) string {
 }
 
 func GetAdapter(botplt string, bots_id ...string) (*Factory, error) {
-	BotsLocker.RLock()
-	defer BotsLocker.RUnlock()
+
 	var bots = []*Factory{}
 	var select_bots = []*Factory{}
-	for i := range Bots {
-		plt, id := i[0], i[1]
-		// fmt.Println("plt", plt, "id", id, botplt, bots_id)
-		for j := range bots_id {
-			if plt == botplt && bots_id[j] == id {
-				select_bots = append(select_bots, Bots[i])
-			}
-			if plt == botplt {
-				bots = append(bots, Bots[i])
+	var tries = 0
+Try:
+	func() {
+		BotsLocker.RLock()
+		defer BotsLocker.RUnlock()
+		for i := range Bots {
+			plt, id := i[0], i[1]
+			for j := range bots_id {
+				if plt == botplt && bots_id[j] == id {
+					select_bots = append(select_bots, Bots[i])
+				}
+				if plt == botplt {
+					bots = append(bots, Bots[i])
+				}
 			}
 		}
-	}
+	}()
 	if len(bots) == 0 {
+		if tries < 8 {
+			tries++
+			time.Sleep(10 * time.Millisecond)
+			goto Try
+		}
 		return nil, ErrNotFind
 	}
 	if len(select_bots) != 0 {
@@ -672,6 +681,7 @@ type PUSH string
 
 func (sender *CustomSender) Action(options map[string]interface{}) (interface{}, error) {
 	if sender.F.action != nil {
+
 		return sender.F.action(options), nil
 	}
 	var platform = sender.F.botplt

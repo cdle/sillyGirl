@@ -158,6 +158,20 @@ class Sender {
             });
         });
     }
+    async isAdmin() {
+        return new Promise((resolve, reject) => {
+            client.SenderIsAdmin(new srpc_1.srpc.SenderRequest({
+                uuid: this.uuid,
+            }), metadata, (err, resp) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(resp?.value ?? false);
+                }
+            });
+        });
+    }
     async param(key) {
         return new Promise((resolve, reject) => {
             client.SenderParam(new srpc_1.srpc.ReplyRequest({
@@ -304,10 +318,6 @@ class Sender {
     }
     async doAction(options) {
         return new Promise((resolve, reject) => {
-            console.log({
-                uuid: this.uuid,
-                content: JSON.stringify(options),
-            });
             client.SenderAction(new srpc_1.srpc.ReplyRequest({
                 uuid: this.uuid,
                 content: JSON.stringify(options),
@@ -684,6 +694,12 @@ let utils = {
             result.push(text.slice(lastIndex));
         }
         return result;
+    },
+    image: (url) => {
+        return utils.buildCQTag("image", { url });
+    },
+    video: (url) => {
+        return utils.buildCQTag("video", { url });
     },
 };
 exports.utils = utils;
