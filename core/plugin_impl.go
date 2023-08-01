@@ -437,10 +437,10 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 	} else if len(carry.AllowPlatforms) == 0 {
 		carry.AllowPlatforms = []string{sender.GetPlatform()}
 	}
-	if carry.UserID != "" {
+	if carry.UserID == "" {
 		carry.UserID = sender.GetUserID()
 	}
-	if carry.ChatID != "" {
+	if carry.ChatID == "" {
 		carry.ChatID = sender.GetChatID()
 	}
 	carry.UUID = sender.UUID
