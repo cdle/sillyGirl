@@ -172,6 +172,7 @@ func (sender *SenderJsIplm) GetImType() string {
 func (sender *SenderJsIplm) GetPlatform() string {
 	return sender.Message.GetImType()
 }
+
 func (sender *SenderJsIplm) RecallMessage(p ...interface{}) {
 	sender.Message.RecallMessage(p...)
 }
@@ -308,6 +309,10 @@ func (sender *SenderJsIplm) Action(options map[string]interface{}) interface{} {
 	}
 }
 
+func (sender *SenderJsIplm) DoAction(options map[string]interface{}) interface{} {
+	return sender.Action(options)
+}
+
 func (sender *SenderJsIplm) Reply(texts ...interface{}) interface{} {
 	i, err := sender.Message.Reply(texts...)
 	var errstr interface{}
@@ -437,10 +442,10 @@ func (sender *SenderJsIplm) Listen(ps ...interface{}) interface{} {
 	} else if len(carry.AllowPlatforms) == 0 {
 		carry.AllowPlatforms = []string{sender.GetPlatform()}
 	}
-	if carry.UserID == "" {
+	if carry.UserID != "" {
 		carry.UserID = sender.GetUserID()
 	}
-	if carry.ChatID == "" {
+	if carry.ChatID != "" {
 		carry.ChatID = sender.GetChatID()
 	}
 	carry.UUID = sender.UUID

@@ -12,7 +12,11 @@ protoc --js_out=import_style=commonjs,binary:. --grpc_out=.  srpc.proto
 protoc --go_out=. -I. --go-grpc_out=.  srpc.proto
 protoc-gen-grpc --ts_out=service=grpc-node:.  srpc.proto
 
-#--grpc_out=.
+#protoc-gen-grpc --python_out=.  srpc.proto
+#protoc --python_out=.  srpc.proto
+# pip install "grpcio-tools==1.43.0"
+python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. srpc.proto
+
 
 #打包
 npx webpack --config webpack.config.js
