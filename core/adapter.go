@@ -263,6 +263,10 @@ func (f *Factory) GetBotID() string {
 	return f.botid
 }
 
+func (f *Factory) GetBotId() string {
+	return f.botid
+}
+
 func (f *Factory) GetPlatform() string {
 	return f.botplt
 }
