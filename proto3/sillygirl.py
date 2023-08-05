@@ -113,42 +113,42 @@ class Bucket:
         response = stub.BucketBuckets(request)
         return list(response.buckets)
 
-    def watch(self, key, handle):
-        queue = Queue()
+    def watch(self):
+        def watch_thread(self, key, handle):
+            queue = Queue()
+            def entry_request_iterator():
+                yield srpc_pb2.BucketWatchRequest(
+                    name=self.__name, key=key, plugin_id=plugin_id
+                )
+                while True:
+                    yield queue.get()
+                    print("queue.get()")
+                # 阻塞A区 等待B区发送数据
 
-        def entry_request_iterator():
-            yield srpc_pb2.BucketWatchRequest(
-                name=self.__name, key=key, plugin_id=plugin_id
-            )
-            while True:
-                yield queue.get()
-                print("queue.get()")
-            # 阻塞A区 等待B区发送数据
-
-        generator = entry_request_iterator()
-        for response in stub.BucketWatch(generator):
-            print("Server response:", response)
-            old = transform(response.old)
-            now = transform(response.now)
-            result = handle(old, now, response.key)
-            try:
-                fin = result
-            except Exception as e:
-                print(e)
-                continue
-            storage_modifier = {
-                "echo": response.echo,
-            }
-            if not fin:
-                storage_modifier["error"] = "VOID"
-            else:
-                if "now" in fin:
-                    storage_modifier["now"] = reverseTransform(fin["now"])
-                if "message" in fin:
-                    storage_modifier["message"] = fin["message"]
-                if "error" in fin:
-                    storage_modifier["error"] = fin["error"]
-            queue.put(srpc_pb2.BucketWatchRequest(**storage_modifier))
+            generator = entry_request_iterator()
+            for response in stub.BucketWatch(generator):
+                print("Server response:", response)
+                old = transform(response.old)
+                now = transform(response.now)
+                result = handle(old, now, response.key)
+                try:
+                    fin = result
+                except Exception as e:
+                    print(e)
+                    continue
+                storage_modifier = {
+                    "echo": response.echo,
+                }
+                if not fin:
+                    storage_modifier["error"] = "VOID"
+                else:
+                    if "now" in fin:
+                        storage_modifier["now"] = reverseTransform(fin["now"])
+                    if "message" in fin:
+                        storage_modifier["message"] = fin["message"]
+                    if "error" in fin:
+                        storage_modifier["error"] = fin["error"]
+                queue.put(srpc_pb2.BucketWatchRequest(**storage_modifier))
 
 
 app = Bucket("test")
@@ -181,7 +181,7 @@ app.watch(key="*", handle=handle)
 # app.name = random.randrange(1,100,1)
 # print("==")
 # app.deleteAll()
-print(app.name)
+print("app.name", app.name)
 
 
 class Sender:
