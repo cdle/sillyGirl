@@ -88,7 +88,10 @@ func initLanguage() {
 					}
 					defer os.Remove(zipfile)
 					err = unzip(zipfile, 0777, false)
-					fmt.Println(err, 4)
+					if err != nil {
+						fmt.Println(err, 4)
+						return
+					}
 				}()
 			}
 		}

@@ -1,54 +1,35 @@
-# 使用Alpine镜像作为基础镜像
-FROM alpine:latest
+# 使用Debian镜像作为基础镜像
+FROM debian:11
 
-# 将APK源更换为国内源（这里使用阿里云的源）
-RUN echo "https://mirrors.aliyun.com/alpine/latest-stable/main" > /etc/apk/repositories && \
-    echo "https://mirrors.aliyun.com/alpine/latest-stable/community" >> /etc/apk/repositories
+# 将APT源更换为国内源（这里使用阿里云的源）
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com\/debian-security/g' /etc/apt/sources.list
 
 # 更新软件包索引并安装必要的工具
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     python3 \
-    py3-pip \
+    python3-pip \
     php \
     php-json \
-    php-phar \
-    php-openssl \
-    php-pdo \
-    php-mysqli \
-    php-session \
-    php-ctype \
-    php-tokenizer \
-    php-dom \
     php-xml \
-    php-xmlwriter \
     php-mbstring \
-    php-simplexml \
-    php-fileinfo \
-    php-opcache \
-    php-zlib \
     php-curl \
-    php-ftp \
     php-gd \
-    php-xmlreader \
-    php-pdo_mysql \
-    php-pdo_sqlite \
-    php-pdo_pgsql \
-    php-posix \
-    php-sockets \
-    php-bcmath \
+    php-zip \
+    php-mysql \
+    php-pgsql \
     php-redis \
     php-pear \
     php-dev \
-    php-pear-grpc \
     curl \
     wget \
     git
 
 # 安装gRPC扩展
-RUN pecl install grpc
+# RUN pecl install grpc
 
 # 清理缓存和临时文件
-RUN rm -rf /tmp/* /var/cache/apk/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 下载文件
 RUN mkdir -p /usr/local/sillyGirl \
@@ -72,10 +53,12 @@ RUN mkdir -p /usr/local/sillyGirl \
 # 设置工作目录
 WORKDIR /usr/local/sillyGirl
 
-
-ENV PATH="/usr/local/sillyGirl/language/node/yarn:${PATH}"
+ENV PATH="/usr/local/sillyGirl/language/node/yarn/bin:${PATH}"
 ENV PATH="/usr/local/sillyGirl/language/node:${PATH}"
 ENV SILLYGIRL_DATA_PATH=/usr/local/sillyGirl/
 
 # 指定容器启动时要运行的命令
-CMD ["/usr/local/sillyGirl/sillyGirl"]
+CMD ["/usr/local/sillyGirl/sillyGirl", "-t"]
+
+# docker build -t my-sillygirl .
+# docker run -d --restart always --name my-sillygirl my-sillygirl
