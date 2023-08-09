@@ -121,7 +121,7 @@ func initPlugins() {
 			fin = &storage.Final{
 				Now: storage.EMPTY,
 			}
-			
+
 		}
 		if isNameUuid(key) {
 			if new == "install" {
@@ -201,7 +201,7 @@ func initPlugins() {
 							// fmt.Println(strings.Join(ss, " "))
 							l := len(ss)
 							if l > 2 {
-								go AddNodePlugin(filename, ss[l-1])
+								go AddNodePlugin(filename, ss[l-1], f.Type)
 							}
 						} else {
 							err := os.WriteFile(filename, []byte(new), 0755)

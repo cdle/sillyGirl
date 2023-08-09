@@ -69,6 +69,9 @@ func main() {
 			a := &core.Factory{}
 			a.Init("terminal", "default", nil)
 			i := 0
+			a.SetIsAdmin(func(s string) bool {
+				return true
+			})
 			a.SetReplyHandler(func(m map[string]interface{}) string {
 				i++
 				fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, m[core.CONETNT])

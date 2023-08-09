@@ -14,6 +14,15 @@ import (
 var senderRegisters sync.Map
 
 func getRegisterSenderByCtx(ctx context.Context, uuid string) (common.Sender, error) {
+	// if uuid == "" { //临时---====+++测试
+	// 	plt, _ := GetAdapter("terminal", "default")
+	// 	return plt.Sender2(map[string]string{
+	// 		CONETNT:    "hello",
+	// 		USER_ID:    "user_id",
+	// 		CHAT_ID:    "chat_id",
+	// 		MESSAGE_ID: "MESSAGE_ID",
+	// 	}), nil
+	// }
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("missing metadata")

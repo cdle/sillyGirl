@@ -18,6 +18,9 @@ type SillyGirlService struct {
 func (sg *SillyGirlService) BucketWatch(stream srpc.SillyGirlService_BucketWatchServer) error {
 	var watcher func(old, new, key string) *storage.Final
 	var echos sync.Map
+	defer func() {
+		watcher = nil
+	}()
 	for {
 		req, err := stream.Recv()
 		if err != nil {
@@ -25,6 +28,9 @@ func (sg *SillyGirlService) BucketWatch(stream srpc.SillyGirlService_BucketWatch
 		}
 		if watcher == nil {
 			watcher = func(old, new, key string) *storage.Final {
+				if watcher == nil {
+					return nil
+				}
 				echo := utils.GenUUID()
 				ch := make(chan *storage.Final)
 				echos.Store(echo, ch)
@@ -64,6 +70,7 @@ func (sg *SillyGirlService) BucketWatch(stream srpc.SillyGirlService_BucketWatch
 			}
 		}
 	}
+
 }
 
 // Get implements BucketServiceServer.Get.

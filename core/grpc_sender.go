@@ -114,9 +114,12 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 	var carry *Carry
 	var echos sync.Map
 	var persistent bool
-	// defer fmt.Println("已关闭，", "===")
+	ctx := stream.Context()
+
+	defer fmt.Println("已关闭，", "===")
 	for {
 		req, err := stream.Recv()
+		// fmt.Println("req", string(utils.JsonMarshal(req)))
 		// fmt.Println("carry", carry, err)
 		if err == io.EOF {
 			break // 如果流已经关闭，则退出循环
@@ -187,30 +190,42 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 			persistent = req.Persistent
 			options = append(options, "persistent")
 		} else {
-			options = append(options, func(err error) {
-				stream.Send(&srpc.SenderListenResponse{Echo: ""})
+			// fmt.Println("???")
+			options = append(options, func(err error) { //超时
+				stream.Send(&srpc.SenderListenResponse{Echo: "END"})
 			})
+			// fmt.Println("?????")
 		}
 		level := s.GetLevel()
-
 		go s.Await(s, func(s common.Sender) interface{} {
 			s.SetLevel(level + 1)
 			echo := utils.GenUUID()
 			ch := make(chan string)
 			echos.Store(echo, ch)
 			defer echos.Delete(echo)
+			// fmt.Println("tosend")
 			stream.Send(&srpc.SenderListenResponse{Echo: echo, Uuid: register(s)})
-			value := <-ch
+			// fmt.Println("sended")
+			value := ""
+			select {
+			case <-ctx.Done():
+				return nil
+			case value = <-ch:
+			}
+			// fmt.Println("value := <-ch")
 			if !persistent {
 				if strings.HasPrefix(value, "go_again_") {
 					value = strings.Replace(value, "go_again_", "", 1)
 					return GoAgain(value)
 				} else {
+					// fmt.Println("toend")
 					stream.Send(&srpc.SenderListenResponse{Echo: "END"})
+					// fmt.Println("ended")
 				}
 			} else {
 				value = strings.Replace(value, "go_again_", "", 1)
 			}
+			// fmt.Println("watch pver")
 			return value
 		}, options...)
 	}

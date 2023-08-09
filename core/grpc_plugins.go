@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -32,7 +33,6 @@ func initNodePlugins() {
 	plugins := []string{root}
 	os.Mkdir(root, 0755)
 	// fmt.Println("root", root)
-
 	files, _ := ioutil.ReadDir(root)
 	for _, file := range files {
 		if !file.IsDir() {
@@ -41,9 +41,10 @@ func initNodePlugins() {
 		name := file.Name()
 		path := root + "/" + name
 		plugins = append(plugins, path)
-		index := path + "/main.js"
-		if info, err := os.Stat(index); err == nil && !info.IsDir() {
-			AddNodePlugin(index, name)
+		index, class := FindMainIndex(path)
+
+		if index != "" {
+			AddNodePlugin(index, name, class)
 		}
 	}
 	watcher, err := fsnotify.NewWatcher()
@@ -73,18 +74,20 @@ func initNodePlugins() {
 			var plugin_dir = false
 			var plugin_index = false
 			var plugin_name = ""
+			var class = ""
 			switch len(files) {
 			case 1:
 				plugin_dir = true
 				// fmt.Println("目录事件")
 				plugin_name = files[0]
 			case 2:
-				if files[1] == "main.ts" || files[1] == "main.js" {
-					if files[1] == "main.js" {
-						plugin_index = true
-					}
-					// fmt.Println("入口文件事件")
-				}
+				class, plugin_index = CheckMainIndex(files[1])
+				// if files[1] == "main.js" {
+				// 	if files[1] == "main.js" {
+				// 		plugin_index = true
+				// 	}
+				// 	// fmt.Println("入口文件事件")
+				// }
 				plugin_name = files[0]
 			}
 			if plugin_name == "." {
@@ -96,52 +99,62 @@ func initNodePlugins() {
 					info, err := os.Stat(event.Name)
 					// fmt.Println(err)
 					if err == nil && info.IsDir() {
-						event_name := event.Name + "/main.js"
-						if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
-							AddNodePlugin(event_name, plugin_name)
-						} else {
-							time.Sleep(time.Millisecond * 100)
-							if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
-								AddNodePlugin(event_name, plugin_name)
-							}
+						index, class := FindMainIndex(event.Name)
+						switch class {
+						case NODE:
+							AddNodePlugin(index, plugin_name, class)
+						case PYTHON:
+						case "":
+							// time.Sleep(time.Millisecond * 100) //如果没有
+							// if info, err := os.Stat(event.Name + "/demo.main.js"); err == nil && !info.IsDir() {
+
+							// }
 						}
+						// event_name := event.Name + "/main.js"
+						// if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
+						// 	AddNodePlugin(event_name, plugin_name)
+						// } else {
+						// 	time.Sleep(time.Millisecond * 100)
+						// 	if info, err := os.Stat(event_name); err == nil && !info.IsDir() {
+						// 		AddNodePlugin(event_name, plugin_name)
+						// 	}
+						// }
 						watcher.Add(event.Name)
 						// fmt.Println("增加插件目录", event.Name)
 					} else {
 						// fmt.Println("非插件目录", event.Name)
 					}
-					tf := event.Name + "/node_modules/sillygirl.d.ts"
-					ti := event.Name + "/main.js"
-					if _, err := os.Stat(tf); err != nil {
-						os.Mkdir(event.Name+"/node_modules", 0700)
-						os.WriteFile(tf, []byte(typeat), 0700)
-					}
-					go func() {
-						time.Sleep(time.Second)
-						if _, err := os.Stat(ti); err != nil {
-							os.Mkdir(event.Name+"/node_modules", 0700)
-							os.WriteFile(ti, []byte(defaultScript(plugin_name)), 0700)
-						}
-					}()
+					// tf := event.Name + "/node_modules/sillygirl.d.ts"
+					// ti := event.Name + "/demo.main.js"
+					// if _, err := os.Stat(tf); err != nil {
+					// 	os.Mkdir(event.Name+"/node_modules", 0700)
+					// 	os.WriteFile(tf, []byte(typeat), 0700)
+					// }
+					// go func() {
+					// 	time.Sleep(time.Second)
+					// 	if _, err := os.Stat(ti); err != nil {
+					// 		os.Mkdir(event.Name+"/node_modules", 0700)
+					// 		os.WriteFile(ti, []byte(defaultScript(plugin_name)), 0700)
+					// 	}
+					// }()
 				} else if plugin_index {
 					// fmt.Println("增加插件", event.Name)
 					// RemNodePlugin(plugin_name)
-					AddNodePlugin(event.Name, plugin_name)
+					AddNodePlugin(event.Name, plugin_name, class)
 				}
 			case "REMOVE", "RENAME", "REMOVE|RENAME", "REMOVE|WRITE":
 				if plugin_dir {
 					watcher.Remove(event.Name)
 					// fmt.Println("移除插件目录", event.Name)
 					// fmt.Println("移除插件", plugin_name)
-					AddNodePlugin(event.Name, plugin_name)
-
+					AddNodePlugin(event.Name, plugin_name, UNKNOWN)
 				} else if plugin_index {
 					// fmt.Println("移除插件", plugin_name)
-					AddNodePlugin(event.Name, plugin_name)
+					AddNodePlugin(event.Name, plugin_name, class)
 				}
 			case "WRITE": //, "CHMOD"
 				if plugin_index {
-					AddNodePlugin(event.Name, plugin_name)
+					AddNodePlugin(event.Name, plugin_name, class)
 					// fmt.Println("变更插件", event.Name, plugin_name)
 				}
 			}
@@ -163,7 +176,8 @@ func isNameUuid(uuid string) bool {
 	return strings.Contains(uuid, "_")
 }
 
-func AddNodePlugin(path, name string) error {
+func AddNodePlugin(path, name, class string) error {
+
 	if name == "" {
 		return nil
 	}
@@ -212,17 +226,34 @@ func AddNodePlugin(path, name string) error {
 	// fmt.Println("add,", uuid, name)
 	f, cbs := pluginParse(script, uuid)
 	f.Reload = func() { //重载
-		AddNodePlugin(path, name)
+		AddNodePlugin(path, name, class)
 	}
-	f.Suffix = ".js"
-	f.Type = "node"
+
+	f.Type = class
+	switch f.Type {
+	case NODE:
+		f.Suffix = ".js"
+	case PYTHON:
+		f.Suffix = ".py"
+	}
 	f.Path = path
 	f.Handle = func(s common.Sender, _ func(vm *goja.Runtime)) interface{} {
 		console := &Console{UUID: uuid}
 		s.SetPluginID(uuid)
 		plt := s.GetImType()
-		cmd := exec.Command("./node", path)
-		cmd.Dir = utils.ExecPath + "/language/node"
+		bin := ""
+		var cmd *exec.Cmd
+		switch class {
+		case NODE:
+			bin = utils.ExecPath + "/language/node/node"
+			cmd = exec.Command(bin, path)
+		case PYTHON:
+			bin = "python3"
+			cmd = exec.Command(bin, "-u", path)
+			cmd.Env = append(cmd.Env, "PYTHONPATH=/home/user/Code/sillyGirl/proto3")
+		}
+
+		cmd.Dir = filepath.Dir(path)
 		RUNTIME_ID := utils.GenUUID()
 		cmd.Env = append(cmd.Env, "RUNTIME_ID="+RUNTIME_ID)
 		cmd.Env = append(cmd.Env, "PLUGIN_ID="+uuid)
@@ -249,6 +280,7 @@ func AddNodePlugin(path, name string) error {
 		// 处理标准输出
 		go func() {
 			defer wg.Done()
+
 			scanner := bufio.NewScanner(stdout)
 			for scanner.Scan() {
 				data := scanner.Text()
@@ -466,4 +498,30 @@ const {
   utils: { buildCQTag, image, video },
 } = require("sillygirl");
 `
+}
+
+const (
+	NODE    = "node"
+	PYTHON  = "python3"
+	UNKNOWN = "unknown"
+)
+
+func FindMainIndex(home string) (string, string) {
+	if info, err := os.Stat(home + "/main.js"); err == nil && !info.IsDir() {
+		return home + "/main.js", NODE
+	}
+	if info, err := os.Stat(home + "/main.py"); err == nil && !info.IsDir() {
+		return home + "/main.py", PYTHON
+	}
+	return "", ""
+}
+
+func CheckMainIndex(filename string) (string, bool) {
+	switch filename {
+	case "main.js":
+		return NODE, true
+	case "main.py":
+		return PYTHON, true
+	}
+	return "", false
 }
