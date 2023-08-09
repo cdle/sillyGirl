@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"io/ioutil"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -10,7 +11,28 @@ import (
 )
 
 var temp *PersistentKeyValueStore
-var tempPath = utils.GetDataHome() + "temp.json"
+var tempPath = filepath.Join(utils.GetDataHome(), "cache.json")
+
+var cache = func(pre string, sec int) interface{} {
+	return map[string]interface{}{
+		"set": func(key string, value interface{}, num int) {
+			if sec != 0 && num == 0 {
+				num = sec
+			}
+			temp.Set(pre+"_"+key, value, num)
+		},
+		"get": func(key string, def interface{}) interface{} {
+			v := temp.Get(pre + "_" + key)
+			if v == nil {
+				v = def
+			}
+			return v
+		},
+		"delete": func(key string) {
+			temp.Delete(pre + "_" + key)
+		},
+	}
+}
 
 type PersistentKeyValueStore struct {
 	sync.RWMutex

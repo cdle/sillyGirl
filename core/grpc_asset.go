@@ -23,7 +23,7 @@ type Language struct {
 	Links   []string // 下载链接
 }
 
-var plugin_dir = utils.ExecPath + "/plugins"
+var plugin_dir = filepath.Join(utils.ExecPath, "plugins")
 var release = "20230732"
 
 var languages = []Language{

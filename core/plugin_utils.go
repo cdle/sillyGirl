@@ -317,26 +317,9 @@ func SetPluginMethod(vm *goja.Runtime, uuid string, on_start bool, running func(
 		}
 		return Script(str)
 	})
-	vm.Set("Temp", func(pre string, sec int) interface{} {
-		return map[string]interface{}{
-			"set": func(key string, value interface{}, num int) {
-				if sec != 0 && num == 0 {
-					num = sec
-				}
-				temp.Set(pre+"_"+key, value, num)
-			},
-			"get": func(key string, def interface{}) interface{} {
-				v := temp.Get(pre + "_" + key)
-				if v == nil {
-					v = def
-				}
-				return v
-			},
-			"delete": func(key string) {
-				temp.Delete(pre + "_" + key)
-			},
-		}
-	})
+
+	vm.Set("Cache", cache)
+	vm.Set("Temp", cache)
 
 	osjs := getJsOs(vm, running)
 	vm.Set("os", osjs)

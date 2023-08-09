@@ -2,7 +2,6 @@ package core
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -372,12 +371,12 @@ func initPlugins() {
 		if !apd {
 			AddCommand([]*common.Function{f})
 		}
-		if f.UUID != "" && f.Public {
-			go func() {
-				os.WriteFile(fmt.Sprintf("%s/%s.js", plugin_download_file, f.UUID), []byte(publicScript(plugins.GetString(f.UUID))), 0666)
-				os.WriteFile(plugin_path+"list.json", utils.JsonMarshal(GetPublicResponse()), 0666)
-			}()
-		}
+		// if f.UUID != "" && f.Public {
+		// 	go func() {
+		// 		os.WriteFile(fmt.Sprintf("%s/%s.js", plugin_download_file, f.UUID), []byte(publicScript(plugins.GetString(f.UUID))), 0666)
+		// 		os.WriteFile(plugin_path+"list.json", utils.JsonMarshal(GetPublicResponse()), 0666)
+		// 	}()
+		// }
 		return
 	})
 }

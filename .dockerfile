@@ -73,7 +73,7 @@ WORKDIR /usr/local/sillyGirl
 
 
 
-
+ENV SILLYGIRL_DATA_PATH=/usr/local/sillyGirl/
 
 # 指定容器启动时要运行的命令
 CMD ["/usr/local/sillyGirl/sillyGirl"]

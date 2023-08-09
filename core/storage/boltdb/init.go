@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"time"
 
@@ -55,7 +56,9 @@ func Get(key string) string {
 var Buckets = []Bucket{}
 
 func InitsillyGirl() storage.Bucket {
-	bd := utils.GetDataHome() + "sillyGirl.db"
+
+	bd := filepath.Join(utils.GetDataHome(), "sillyGirl.db")
+
 	_, err := os.Stat(bd)
 	if err != nil {
 		f, err := os.Create(bd)

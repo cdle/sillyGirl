@@ -18,7 +18,6 @@ import (
 	"github.com/cdle/sillyGirl/utils"
 )
 
-var DataHome = utils.GetDataHome()
 var version = compiled_at
 
 func GetVersion() (string, error) {
@@ -46,10 +45,6 @@ func Init() {
 	}()
 	initLoc()
 	sillyGirl = MakeBucket("sillyGirl")
-	_, err := os.Stat(DataHome)
-	if err != nil {
-		os.MkdirAll(DataHome, os.ModePerm)
-	}
 	// utils.ReadYaml(utils.ExecPath+"/conf/", &Config, "https://raw.githubusercontent.com/cdle/sillyGirl/main/conf/demo_config.yaml")
 	initToHandleMessage()
 	sillyGirl.Set("compiled_at", compiled_at)
