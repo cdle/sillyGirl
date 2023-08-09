@@ -70,7 +70,6 @@ func initLanguage() {
 			continue
 		}
 		if _, err := os.Stat(node_dir + "/yarn"); err != nil {
-			fmt.Println(err, 1)
 			resp, err := http.Get("https://gitee.com/sillybot/binary/releases/download/yarn/yarn.zip")
 			if err == nil {
 				go func() {

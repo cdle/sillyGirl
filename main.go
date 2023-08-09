@@ -77,10 +77,10 @@ func main() {
 				fmt.Printf("\x1b[%dm%s \x1b[0m\n", 31, m[core.CONETNT])
 				return fmt.Sprint(i)
 			})
-			a.SetActionHandler(func(m map[string]interface{}) string {
-				fmt.Println(`do action: ` + string(utils.JsonMarshal(m)))
-				return ""
-			})
+			// a.SetActionHandler(func(m map[string]interface{}) string {
+			// 	fmt.Println(`do action: ` + string(utils.JsonMarshal(m)))
+			// 	return ""
+			// })
 
 			for scanner.Scan() {
 				data := scanner.Text()

@@ -41,6 +41,7 @@ RUN apk update && apk add --no-cache \
     php-dev \
     php-pear-grpc \
     curl \
+    wget \
     git
 
 # 安装gRPC扩展
@@ -54,25 +55,26 @@ RUN mkdir -p /usr/local/sillyGirl \
     && ARCH=$(uname -m) \
     && DOWNLOAD_URL="" \
     && if [ "$ARCH" = "x86_64" ]; then \
-        DOWNLOAD_URL="https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_amd64"; \
+        DOWNLOAD_URL="/releases/download/main/sillyGirl_linux_amd64"; \
     elif [ "$ARCH" = "aarch64" ]; then \
-        DOWNLOAD_URL="https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_arm64"; \
+        DOWNLOAD_URL="/releases/download/main/sillyGirl_linux_arm64"; \
     elif [ "$ARCH" = "armv7l" ]; then \
-        DOWNLOAD_URL="https://github.com/cdle/sillyGirl/releases/download/main/sillyGirl_linux_armv7"; \
+        DOWNLOAD_URL="/releases/download/main/sillyGirl_linux_armv7"; \
     else \
         echo "Unsupported architecture: $ARCH"; \
         exit 1; \
     fi \
-    && curl -sSL --connect-timeout 20 -f "$DOWNLOAD_URL" -o /usr/local/sillyGirl/sillyGirl \
+    && curl -L -sSL -f "https://gitee.com/sillybot/sillyGirl$DOWNLOAD_URL" -o /usr/local/sillyGirl/sillyGirl \
     || (echo "Download from original address failed, trying proxy address..." \
-    && curl -sSL --connect-timeout 60 -f https://ghproxy.com/"$DOWNLOAD_URL" -o /usr/local/sillyGirl/sillyGirl) \
+    && curl -sSL --connect-timeout 10 -f "https://github.com/cdle/sillyGirl$DOWNLOAD_URL" -o /usr/local/sillyGirl/sillyGirl) \
     && chmod +x /usr/local/sillyGirl/sillyGirl
 
 # 设置工作目录
 WORKDIR /usr/local/sillyGirl
 
 
-
+ENV PATH="/usr/local/sillyGirl/language/node/yarn:${PATH}"
+ENV PATH="/usr/local/sillyGirl/language/node:${PATH}"
 ENV SILLYGIRL_DATA_PATH=/usr/local/sillyGirl/
 
 # 指定容器启动时要运行的命令
