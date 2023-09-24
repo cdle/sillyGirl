@@ -14,7 +14,6 @@ func getPaterner(uuid, path string) (string, string, bool) {
 			break
 		}
 	}
-
 	for _, f := range ls { //同源
 		if f.Address == address && (f.Title == path || f.UUID == path) {
 			data = plugins.GetBytes(f.UUID)

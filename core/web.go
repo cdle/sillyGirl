@@ -7,7 +7,6 @@ import (
 	"embed"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -132,7 +131,7 @@ func initWeb() {
 						}
 						if is_index {
 							var data []byte
-							data, err = ioutil.ReadAll(file)
+							data, err = io.ReadAll(file)
 							if err != nil {
 								return err
 							}

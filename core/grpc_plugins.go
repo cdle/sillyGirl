@@ -124,19 +124,19 @@ func initNodePlugins() {
 					} else {
 						// fmt.Println("非插件目录", event.Name)
 					}
-					// tf := event.Name + "/node_modules/sillygirl.d.ts"
-					// ti := event.Name + "/demo.main.js"
-					// if _, err := os.Stat(tf); err != nil {
-					// 	os.Mkdir(event.Name+"/node_modules", 0700)
-					// 	os.WriteFile(tf, []byte(typeat), 0700)
-					// }
-					// go func() {
-					// 	time.Sleep(time.Second)
-					// 	if _, err := os.Stat(ti); err != nil {
-					// 		os.Mkdir(event.Name+"/node_modules", 0700)
-					// 		os.WriteFile(ti, []byte(defaultScript(plugin_name)), 0700)
-					// 	}
-					// }()
+					tf := event.Name + "/node_modules/sillygirl.d.ts"
+					ti := event.Name + "/demo.main.js"
+					if _, err := os.Stat(tf); err != nil {
+						os.Mkdir(event.Name+"/node_modules", 0700)
+						os.WriteFile(tf, []byte(typeat), 0700)
+					}
+					go func() {
+						time.Sleep(time.Second)
+						if _, err := os.Stat(ti); err != nil {
+							os.Mkdir(event.Name+"/node_modules", 0700)
+							os.WriteFile(ti, []byte(defaultScript(plugin_name)), 0700)
+						}
+					}()
 				} else if plugin_index {
 					// fmt.Println("增加插件", event.Name)
 					// RemNodePlugin(plugin_name)

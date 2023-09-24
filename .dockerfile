@@ -1,11 +1,8 @@
-# 使用Debian镜像作为基础镜像
 FROM debian:11
 
-# 将APT源更换为国内源（这里使用阿里云的源）
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
     sed -i 's/security.debian.org/mirrors.aliyun.com\/debian-security/g' /etc/apt/sources.list
 
-# 更新软件包索引并安装必要的工具
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -58,7 +55,9 @@ ENV PATH="/usr/local/sillyGirl/language/node:${PATH}"
 ENV SILLYGIRL_DATA_PATH=/usr/local/sillyGirl/
 
 # 指定容器启动时要运行的命令
-CMD ["/usr/local/sillyGirl/sillyGirl", "-t"]
+# CMD ["/usr/local/sillyGirl/sillyGirl", "-t"]
 
-# docker build -t my-sillygirl .
-# docker run -d --restart always --name my-sillygirl my-sillygirl
+CMD ["/usr/local/sillyGirl/sillyGirl -t"]
+
+# docker build -t sillygirl .
+# docker run -d --restart always --name sillygirl sillygirl

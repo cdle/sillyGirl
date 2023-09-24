@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 
 	// _ "github.com/cdle/sillyGirl/adapters/qq"
@@ -65,10 +66,10 @@ func main() {
 		}
 		if t {
 			// core.Logs.Info("Terminal机器人已连接")
-			scanner := bufio.NewScanner(os.Stdin)
+
 			a := &core.Factory{}
 			a.Init("terminal", "default", nil)
-			i := 0
+			i := 1
 			a.SetIsAdmin(func(s string) bool {
 				return true
 			})
@@ -81,24 +82,27 @@ func main() {
 			// 	fmt.Println(`do action: ` + string(utils.JsonMarshal(m)))
 			// 	return ""
 			// })
+			reader := bufio.NewReader(os.Stdin)
+			for {
+				input, err := reader.ReadString('\n')
+				if err != nil {
+					core.Logs.Error(err)
+					a.Destroy()
+					break
+				}
+				input = strings.TrimSpace(input)
 
-			for scanner.Scan() {
-				data := scanner.Text()
 				s := &core.CustomSender{
-					// Type:    "terminal",
-					// Message: string(data),
-					// Admin:   true,
 					F: a,
 				}
 				i++
 				s.SetFsps(&common.FakerSenderParams{
-					Content:   data,
+					Content:   input,
 					MessageID: fmt.Sprint(i),
 				})
-				s.SetContent(data)
 				core.Messages <- s
+				// 在这里可以根据输入执行相应的逻辑
 			}
-			core.Logs.Info("Terminal机器人异常,请检查运行环境设置,如果是docker环境,请附加-it参数")
 		} else {
 			// core.Logs.Info("Terminal机器人不可用，运行带-t参数即可启用")
 		}

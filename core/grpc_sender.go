@@ -116,7 +116,6 @@ func (sg *SillyGirlService) SenderListen(stream srpc.SillyGirlService_SenderList
 	var persistent bool
 	ctx := stream.Context()
 
-	defer fmt.Println("已关闭，", "===")
 	for {
 		req, err := stream.Recv()
 		// fmt.Println("req", string(utils.JsonMarshal(req)))
