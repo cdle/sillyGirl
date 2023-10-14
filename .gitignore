@@ -38,3 +38,4 @@ node_modules
 plugins
 bin
 language
+.VSCodeCounter
