@@ -1,531 +1,250 @@
-# 傻妞
+# SillyGirl
 
-一个不太有用的机器人，不生产消息，只搬运消息。
+> 一个可扩展、跨平台的开源机器人框架，内置强大的 JavaScript 插件系统与丰富的交互能力。
 
-## 特性
+[![Go Version](https://img.shields.io/badge/Go-1.18+-00ADD8?style=flat&logo=go)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-stable-green.svg)]()
 
-- 简单易用的消息搬运功能。
-- 简单强大的自定义回复功能。
-- 完整支持 ECMAScript 5.1 的插件系统，基于 [otto](https://github.com/robertkrimen/otto)。
-- 支持通过内置的阉割版 `Express` / `request` ，接入互联网。
-- 内置 `Cron` ，轻松实现定时任务。
-- 持久化的 `Bucket` 存储模块。
-- 支持同时接入多个平台多个机器人，自己开发。
+## 目录
 
-## 快速上手
+- [简介](#简介)
+- [核心特性](#核心特性)
+- [架构概览](#架构概览)
+- [快速开始](#快速开始)
+  - [二进制安装](#二进制安装)
+  - [源码编译](#源码编译)
+  - [Docker 部署](#docker-部署)
+  - [第一个插件](#开发第一个插件)
+- [项目结构](#项目结构)
+- [技术栈](#技术栈)
+- [文档](#文档)
+- [版本历史](#版本历史)
+- [许可](#许可)
 
-### 安装
+## 简介
 
-在 [releases](https://github.com/cdle/sillyGirl/releases) 中找到合适自己系统版本的程序运行带 `-t` 可以开启终端机器人，直接与程序进行交互。
+SillyGirl 是一个基于 **Go 语言** 开发的高性能开源机器人框架，其设计核心围绕强大的 **JavaScript 插件系统** 展开。框架内置了完整的 ECMAScript 5.1 运行时（基于 [Goja](https://github.com/dop251/goja) 引擎），允许开发者使用熟悉的 JavaScript 语法编写插件，并通过热重载机制实现功能的动态扩展，无需重启服务。
 
-```shell
+框架提供了丰富的内置能力：持久化键值存储、Cron 定时任务调度、HTTP/WebSocket 服务、gRPC 跨语言 RPC、Web Admin 管理面板、多平台机器人适配器等。开发者可以通过简单的 JavaScript 脚本快速构建具有复杂交互逻辑的机器人应用，并同时接入多个平台（QQ、Web、Pagermaid 等）的多个机器人实例，实现统一的业务逻辑与跨平台消息互通。
+
+## 核心特性
+
+### JavaScript 插件系统
+- **完整 ES5.1 支持**：基于 Goja 引擎，支持闭包、原型链、正则表达式等标准语法
+- **热重载机制**：插件文件变更后自动重新加载，开发调试零停机
+- **丰富的元数据注解**：通过注释声明规则匹配、定时任务、HTTP 路由、权限控制等
+- **Node.js 兼容层**：内置 `request`、`crypto`、`os` 等常用 Node API 的模拟实现
+- **插件市场**：支持订阅远程插件源，一键安装、更新、卸载
+
+### 多平台适配器架构
+- **统一抽象接口**：所有平台通过标准化的 `Sender` 和 `Factory` 接口接入核心引擎
+- **多实例管理**：同一平台可同时接入多个机器人账号，支持负载均衡与故障转移
+- **内置适配器**：QQ（CQHTTP/OQ）、Web（内置聊天页）、Pagermaid（Python 桥接）
+- **自定义适配器**：通过 gRPC 或 Go 接口自行开发新平台适配器
+
+### 交互与存储能力
+- **Bucket 持久化存储**：键值对存储抽象，支持 BoltDB（默认）、Redis、MongoDB 后端
+- **存储变更监听**：支持 `watch` 机制，配置变更实时通知插件，实现热配置更新
+- **Cron 定时任务**：基于 `robfig/cron`，支持秒级和分钟级表达式，多平台独立调度
+- **消息监听与等待**：`s.listen()` 支持按规则捕获后续消息，实现对话式交互
+- **群聊管理**：内置禁言、踢人、群组监听/屏蔽等群管能力
+
+### 网络服务
+- **HTTP 服务**：基于 Gin 框架，插件可通过注释声明 HTTP 路由，或运行时动态注册
+- **WebSocket**：内置实时通信通道，Admin 面板与 Web 聊天均基于此
+- **gRPC 服务**：提供跨语言调用的 RPC 接口（Bucket、Plugin、Adapter、Sender 等）
+- **Admin 管理面板**：基于 React 的可视化界面，支持插件管理、存储浏览、日志查看、配置修改
+
+### 运维与扩展
+- **自动升级**：内置版本检测与二进制热更新机制
+- **日志系统**：完整的分级日志框架，支持文件、控制台、ES、Slack、SMTP 等多种后端
+- **容器化部署**：提供 Dockerfile，支持 Docker 一键部署
+- **代理支持**：内置 HTTP/SOCKS5 代理传输层，支持翻墙与内网穿透场景
+
+## 架构概览
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Adapters                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐  │
+│  │    QQ    │  │   Web    │  │Pagermaid │  │  Custom    │  │
+│  │ (CQHTTP) │  │ (ChatUI) │  │ (Python) │  │  (gRPC)    │  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └─────┬──────┘  │
+└───────┼─────────────┼─────────────┼──────────────┼─────────┘
+        │             │             │              │
+        └─────────────┴─────────────┴──────────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │   Message Router   │
+                    │  (Listen/Reply/    │
+                    │   Group Filter)    │
+                    └─────────┬──────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────┐
+│                      Core Engine                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   Plugin    │  │   Bucket    │  │   Adapter Manager   │ │
+│  │   Engine    │  │   Storage   │  │   (Factory/Pool)    │ │
+│  │  (Goja VM)  │  │(BoltDB/Redis│  │                     │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │    Cron     │  │   Web/Gin   │  │   gRPC Services     │ │
+│  │  Scheduler  │  │   Server    │  │  (srpc.proto)       │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**数据流**：
+1. 适配器接收平台原始消息，构造 `Sender` 对象
+2. 消息进入路由层，进行群组过滤、用户屏蔽、管理员指令处理
+3. 插件引擎按优先级遍历所有插件，正则匹配 `rule` 规则
+4. 匹配的插件在隔离的 Goja 运行时中执行，通过 `Sender` 接口回复
+5. 适配器将回复发回原始平台
+
+## 快速开始
+
+### 二进制安装
+
+从 [Releases](../../releases) 下载对应系统的可执行文件：
+
+```bash
+# Linux / macOS
+chmod +x sillyGirl
 ./sillyGirl -t
-2023/05/24 14:12:01.859 [I]  默认使用boltdb进行数据存储。
-2023/05/24 14:12:01.950 [I]  Http服务已运行(8080)。
+
+# Windows
+sillyGirl.exe -t
+```
+
+`-t` 参数开启终端机器人模式，启动后可直接在命令行与程序交互：
+
+```
+2023/06/01 08:26:40 [I] 默认使用 boltdb 进行数据存储。
+2023/06/01 08:26:40 [I] Http 服务已运行(8080)。
+```
+
+访问 `http://localhost:8080/admin` 打开 Admin 管理面板。
+
+### 源码编译
+
+```bash
+git clone https://github.com/cdle/sillyGirl.git
+cd sillyGirl
+go build -o sillyGirl
+```
+
+### Docker 部署
+
+```bash
+docker build -t sillygirl .
+docker run -d -p 8080:8080 -v $(pwd)/data:/data sillygirl
 ```
 
 ### 开发第一个插件
 
+创建 `hello.js`：
+
 ```js
 /**
- * @title HelleWorld
+ * @title HelloWorld
  * @rule raw ^你好$
  */
 
-s.reply("Helle World!");
+s.reply("Hello World!");
 ```
 
-怼着程序输入 `你好` ，就可以看到机器人回复的 `Helle World!` 了
+在终端输入 `你好`，即可看到回复 `Hello World!`。
 
-```sh
-你好
-2023/05/24 14:15:48.350 [I]  匹配到规则：^你好$
-Helle World!
-```
-
-插件注释 `@rule raw ^你好$` 中的正则表达式被消息匹配时插件脚本就会被触发。
-
-### 添加和销毁定时任务
-
-不同于`HelleWorld`，插件注释 `@on_start true` 时是作为傻妞系统服务持续运行的。
+**进阶示例 — 猜拳游戏**：
 
 ```js
 /**
- * @title 定时任务
- * @on_start true
- */
-
-const task = Cron();
-let taskId = 0;
-let times = 5;
-const { id } = task.add("*/5 * * * * *", () => {
-  // 同样支持分钟级任务，如：*/5 * * * *
-  times--;
-  console.log(
-    `每5秒执行一次任务，${
-      times ? `${times}次后结束任务` : "这是最后一次任务"
-    }。`
-  );
-  if (times == 0) {
-    task.remove(taskId); //移除任务
-  }
-});
-taskId = id;
-```
-
-程序输出：
-
-```sh
-2023/05/27 19:57:00.000 [I]  每5秒执行一次任务，4次后结束任务。
-2023/05/27 19:57:05.001 [I]  每5秒执行一次任务，3次后结束任务。
-2023/05/27 19:57:10.001 [I]  每5秒执行一次任务，2次后结束任务。
-2023/05/27 19:57:15.001 [I]  每5秒执行一次任务，1次后结束任务。
-2023/05/27 19:57:20.000 [I]  每5秒执行一次任务，这是最后一次任务。
-```
-
-### 接入机器人
-
-接入一个机器人首先 `initAdapter`，然后再通过 `receive` 持续接收消息和设置`setReplyHandler`以发送消息。
-
-```js
-/**
- * @title 第一个机器人
- * @on_start true
- */
-
-const task = Cron();
-const qq_1700000 = initAdapter("qq", "1700000"); //初始化机器人，参数分别是平台、机器人ID
-
-//模拟场景：每5秒用户100009给机器人1700000发送消息你好
-task.add("*/5 * * * * *", function () {
-  let message = {
-    user_id: 100000, //用户ID，这里是假的，其他也是假的
-    content: "你好", //消息内容ID
-    // chat_id: "",    //聊天ID，注意，群聊默认不回复，在对应群聊使用口令listen和reply口令激活群聊
-    // message_id: "", //消息ID
-    // chat_name: "", //群聊名
-    // user_name: "", //用户名
-  };
-  qq_1700000.receive(message); //机器人收到消息
-});
-
-qq_1700000.setReplyHandler(function (message) {
-  console.log(`给用户${message.user_id}发消息：${message.content}`); //回复用户
-});
-```
-
-程序每 5 秒都会输出该机器人收到的消息以及同时触发规则运行插件的日志。
-
-```sh
-2023/05/24 14:36:50.001 [I]  接收到消息 qq/100000@：你好
-2023/05/24 14:36:50.001 [I]  匹配到规则：你好
-2023/05/24 14:36:50.002 [I]  给用户100000发消息：Hello World！
-```
-
-### 与用户交互
-
-```js
-/**
- * @title 用户交互插件
+ * @title 猜拳游戏
  * @rule 猜拳
  */
 
 s.reply("你先出，请在10秒内出拳！");
-ns = s.listen({
-  rules: ["[出拳:剪刀,石头,布]"], // []中出拳是参数名，剪刀,石头,布是参数可能值
-  timeout: 10000, // 超时设置
+const result = s.listen({
+  rules: ["[出拳:剪刀,石头,布]"],
+  timeout: 10000,
   handle: (s) => {
-    let choose = s.param("出拳");
-    s.reply(
-      `我出${
-        choose == "石头" ? "剪刀" : choose == "布" ? "剪刀" : "石头"
-      }，我赢了。`
-    );
+    const choose = s.param("出拳");
+    const win = { "石头": "布", "剪刀": "石头", "布": "剪刀" };
+    s.reply(`我出${win[choose]}，我赢了！`);
   },
 });
-if (!ns) {
+if (!result) {
   s.reply("你没出拳，算我赢了！");
 }
 ```
 
-### 开发 HTTP 接口
+更多开发文档见 [docs/](docs/)。
 
-```js
-/**
- * @title 第一个web服务
- * @on_start true
- */
-
-const app = Express(); //导入HTTP服务，傻妞默认开启，端口8080
-app.get("/helloWorld", function (req, res) {
-  res.send("Hello world!");
-});
-```
-
-打开浏览器访问 `http://127.0.0.1:8080/helloWorld` ，当然地址根据实际情况，理论上可以看到接口返回的 `Hello world!` 。
-
-### 实现一个 HTTP 请求
-
-```js
-/**
- * @title 实现一个HTTP 请求
- * @on_start true
- */
-
-let api = "/testRequest"; //接口地址
-
-//第一步，实现一个原样返回请求数据的接口
-const app = Express();
-app.post(api, (req, res) => res.json(req.json()));
-
-//第二步，请求第一步实现的接口
-const port = Bucket("app").port ?? "8080"; // 获取http服务端口
-const url = `http://127.0.0.1:${port}${api}`;
-fetch({
-  url,
-  method: "POST",
-  body: { value: "test" },
-})
-  .then((resp) => resp.json())
-  .then((data) => console.log(`value is ${data.value}`))
-  .catch((e) => console.log(e));
-```
-
-### 持久化存储
-
-```js
-/**
- * @title 持久化存储
- * @rule raw ^我是谁$
- * @rule 我是[姓名]
- */
-
-const user = Bucket("user"); //初始化存储桶user
-let name = s.param("姓名");
-
-if (user.name == "") {
-  s.reply(`我不知道你是谁！`);
-} else if (name == "谁") {
-  s.reply(`你是${user.name}`);
-} else {
-  user.name = name;
-  s.reply(`好的，你的姓名更新为${user.name}`);
-}
-```
-
-插件实现了记名字的功能，其中`姓名`是方括号里匹配到的值，本质还是正则匹配到的。
+## 项目结构
 
 ```
-我是谁
-2023/05/24 15:43:40.121 [I]  匹配到规则：^我是谁$
-我不知道你是谁！
-我是小千
-2023/05/24 15:43:49.735 [I]  匹配到规则：^我是([\s\S]+)$
-好的，你的姓名更新为小千
-我是谁
-2023/05/24 15:43:53.727 [I]  匹配到规则：^我是谁$
-你是小千
+sillyGirl/
+├── adapters/              # 平台适配器
+│   ├── qq/               # QQ 机器人适配器
+│   ├── web/              # Web 聊天适配器
+│   └── pagermaid/        # Pagermaid 桥接适配器
+├── core/                  # 核心框架
+│   ├── admin/            # React 管理面板（编译产物，embed）
+│   ├── common/           # 公共接口定义（Sender、Function）
+│   ├── logs/             # 分级日志框架
+│   ├── storage/          # 存储抽象与后端实现
+│   ├── adapter.go        # 适配器工厂与消息收发
+│   ├── bucket.go         # Bucket 键值存储
+│   ├── function.go       # 消息路由与规则匹配
+│   ├── init.go           # 系统初始化流程
+│   ├── plugin_core.go    # 插件引擎（加载/卸载/热重载）
+│   ├── plugin_impl.go    # JS API 实现（Sender、Cron、Bucket）
+│   ├── web.go            # Gin Web 服务器与 Admin 面板
+│   └── grpc_*.go         # gRPC 服务实现
+├── proto3/               # Protobuf 定义与多语言生成代码
+├── mongodb/              # MongoDB 存储后端
+├── emoji/                # Emoji 数据处理
+├── docs/                 # 项目文档
+├── main.go               # 程序入口
+├── go.mod                # Go 模块依赖
+└── .dockerfile           # 容器构建配置
 ```
 
-有了 `Bucket` 才有了傻妞从不认识小千到认识小千的过程。
+## 技术栈
 
-### 管理员
+| 层次 | 技术 | 说明 |
+|------|------|------|
+| 语言 | Go 1.18+ | 核心框架开发语言 |
+| JS 运行时 | [Goja](https://github.com/dop251/goja) | ECMAScript 5.1，纯 Go 实现 |
+| Web 框架 | [Gin](https://github.com/gin-gonic/gin) | HTTP 服务与 REST API |
+| 前端 | React / Ant Design Pro | Admin 管理面板 |
+| 存储 | BoltDB / Redis / MongoDB | 键值对持久化 |
+| 定时任务 | [robfig/cron/v3](https://github.com/robfig/cron) | Cron 表达式调度 |
+| RPC | [gRPC](https://grpc.io) | 跨语言服务接口 |
+| 消息协议 | CQHTTP / 自定义 | QQ 等平台的通信协议 |
 
-```js
-const masters = Bucket("qq")["masters"];
-```
+## 文档
 
-`masters` 是管理员账号通过"&"拼接起来的，系统默认依此判断用户是否是管理员。
+| 文档 | 说明 |
+|------|------|
+| [docs/quickstart.md](docs/quickstart.md) | 详细安装与配置指南 |
+| [docs/plugin-dev.md](docs/plugin-dev.md) | 插件开发完整指南与 API 详解 |
+| [docs/architecture.md](docs/architecture.md) | 架构设计与核心模块分析 |
+| [docs/api-reference.md](docs/api-reference.md) | REST、gRPC 与 JavaScript API 参考 |
+| [docs/deployment.md](docs/deployment.md) | 二进制、Docker 与反向代理部署 |
 
-### 群组消息
+## 版本历史
 
-默认不监听不回复任何群组，监听口令 `listen` 和 `unlisten`，回复口令 `reply` 和 `noreply`，需要管理员在对应群组发送口令。
+本项目经历了两个主要阶段：
 
-## 深入了解
+- **v1 (2021)** — 早期探索版本，基于直接函数调用的简单机器人框架
+- **v2 (2023)** — 全面重构，引入 Goja JS 插件系统、Bucket 存储抽象、gRPC 服务、Admin 面板等现代架构
 
-### 插件注释
+## 许可
 
-| 字段          | 举例                               | 用法                                               |
-| ------------- | ---------------------------------- | -------------------------------------------------- |
-| `title`       | HelloWorld                         | 插件标题                                           |
-| `rule`        | raw `^我是([\s\S]+)$`              | 可写多行，取括号内参数 `s.param(1)` ，多个参数类推 |
-| `priority`    | `1`                                | 插件优先级，越高则优先处理                         |
-| `on_start`    | `true`                             | 插件后台任务执行脚本，避免重复运行                 |
-| `disable`     | `true`                             | 禁用脚本                                           |
-| `form`        | `{title: "姓名", key:"user.name"}` | 插件表，key 值对应 `存储桶.键名`                   |
-| `public`      | `true`                             | 公开插件                                           |
-| `create_at`   | 2023-05-24 15:14:53                | 插件创建时间                                       |
-| `description` | 本插件用于每天向女友问好           | 插件描述                                           |
-| `author`      | `cdle`                             | 插件作者                                           |
-| `version`     | `v1.0.0`                           | 插件版本                                           |
-| `icon`        | url 省略...                        | 给插件增加图标                                     |
+[MIT](LICENSE)
 
-### Sender
+---
 
-傻妞搬运的核心对象，在插件中为全局变量 s or sender。
-
-```ts
-interface Sender {
-  getUserId(): string; //获取用户ID
-  getUserName(): string; //获取用户昵称
-  getChatId(): string; //获取群聊ID
-  getChatName(): string; //获取群聊名称
-  getMessageId(): string; //获取消息ID
-  getContent(): string; //获取消息内容
-  continue(): void; //使消息继续往下匹配正则，消息正常第一次被匹配就会停止继续匹配
-  setContent(content: string): void; //修改接收到的消息内容，可配合`continue`被其他规则匹配
-  param(index: string | number): string; //获取`rule`匹配参数，可取[]内参数，?型参数从1开始取，例 `@rule 回复 ?` 对应 `s.param(1)`
-  holdOn(content: string): string; //持续监听
-  listen({
-    rules: string[]; //匹配规则
-    timeout: number; //超时，单位毫秒
-    handle: (s: Sender): string;//如果匹配成功，则进入消息处理逻辑。如果将 holdOn(content) 的结果作为返回值，会继续监听
-    listen_private: boolean; //监听用户群内消息时，同时监听用户消息
-    listen_group: boolean; //监听用户群内消息时，同时监听群员消息
-    allow_platforms: string[]; //平台白名单
-    prohibit_platforms: string[]; //平台黑名单
-    allow_groups: string[]; //群聊白名单
-    prohibit_groups: string[]; //群聊黑名单
-    allow_users: string[]; //用户白名单
-    prohibit_users: string[]; //群聊白名单
-  }): Sender; //超时，返回undefined
-  isAdmin(): boolean; //判断消息是否来自管理员
-  getPlatform(): string; //获取消息平台
-  getBotId(): string; //获取机器人ID
-  reply(content: string): {message_id: string, error: string}; //回复消息，媒体消息推荐使用CQ码实现，返回消息ID
-  recallMessage(meesageId: string | string[] | number): {error: string}; //撤回消息，number类型时为延时毫秒
-  kick(user_id: string): {error: string}; //移出群聊
-  unkick(user_id: string): {error: string}; //取消移出群聊
-  ban(user_id: string, duration: number): {error: string}; //禁言，并指定时长
-  unban(user_id: string): {error: string};  //取消禁言
-}
-```
-
-### Express `Request` / `Response`
-
-只能说是够用，有需求可联系作者。插件中通过 `Express()` 返回一个对象。
-
-```ts
-interface Request {
-  body(): string; //获取请求体
-  json(): any; //将请求体解析为JSON
-  ip(): string; //获取客户端IP地址
-  originalUrl(): string; //获取原始请求URL
-  query(param: string): string; //获取查询参数
-  param(i: number): string; //根据索引获取路径参数
-  querys(): Record<string, string[]>; //获取所有查询参数
-  postForm(s: string): string; //获取表单数据
-  postForms(): Record<string, string[]>; //获取所有表单数据
-  path(): string; //获取请求路径
-  header(s: string): string; //获取请求头
-  get(s: string): string; //获取请求头
-  headers(): Record<string, string[]>; //获取所有请求头
-  method(): string; //获取请求方法
-  cookie(s: string): string; //获取 cookie
-  cookies(): Record<string, string>; //获取 cookies
-  continue(): void; //继续匹配其他路由
-  setSession(k: string, v: string): string; //设置会话值
-  getSession(k: string): string; //获取会话值
-  getSessionId(): string; //获取会话ID
-  destroySession(): string; //销毁会话
-  logined(): boolean; //是否面板登录状态
-}
-
-interface Response {
-  send(body: any): Response; //发送响应体
-  sendStatus(status: number): Response; //发送状态码
-  json(...ps: any[]): Response; //发送JSON响应
-  header(str: string, value: string): Response; //设置响应头
-  set(str: string, value: string): void; //设置响应头
-  render(view: string, params: Record<string, any>): Response; //渲染视图
-  redirect(...is: any[]): void; //重定向到URL
-  status(i: number, ...s: string[]): Response; //设置状态码和文本
-  setCookie(name: string, value: string, ...i: any[]): Response; //设置 Cookie
-  stop(): void; //代码片段停止
-}
-```
-
-### request
-
-由 `net/http` 封装而成，如有更多需求可以联系作者。
-
-```ts
-function request(options: {
-  url: string; //请求地址
-  method: string; //请求方法
-  headers: { [key: string]: string }; //请求头
-  json: boolean; // 返回json对象，等价于 responseType: "json"
-  timeout: number; //超时参数，单位毫秒
-  form: { [key: string]: any }; //formData表单数据，优先于下面的body
-  body: any; // 请求体，支持字符串、二进制，对象自动转json字符串和添加相应请求头
-  allow_redirects: boolean; // 是否允许重定向，默认允许
-  proxy: {};
-}): {
-  status: number; // 状态码，同statusCode
-  headers: { [key: string]: string };
-  body: any;
-};
-```
-
-### Adapter
-
-```ts
-interface Message{
-  message_id: string; // 消息ID
-  user_id: string;    // 用户ID
-  chat_id: string;    // 聊天ID
-  content: string;    // 聊天内容
-  user_name: string;  // 用户名
-  chat_name: string;  // 群组名
-}
-
-class Adapter(botplt: string, botid: string) {
-  isAdapter(botid: string): boolean; //判断id是否为机器人
-  push(message: Message): string; //推送消息，无视禁言设置
-  getReplyMessage(): Promise<message: Message>; //获取一条回复消息，实际发送成功后，如果有id，请设置 message.message_id
-  setReplyHandler(func: (message: Message): string): void; //设置回复事件处理方法，方法中返回消息ID，不推荐使用。
-  receive(message: Message): Sender; //接收一个消息，并返回一个Sender对象
-  setRecallMessage(func: (i: string | string[]) => boolean): void;//设置撤回消息函数。
-  setGroupKick(func: (user_id: string, chat_id: string, reject_add_request: boolean) => void): boolean; //设置群聊成员移除函数，reject_add_request指5是否继续接受请求
-  setGroupBan(func: (user_id: string, chat_id: string, duration: number) => void): boolean;//设置群聊成员禁言函数
-  setGroupUnban(func: (user_id: string, chat_id: string) => void): boolean;//设置群聊成员解除禁言函数
-  setIsAdmin(func: (user_id: string) => boolean): void; //设置用户是否是成员函数，默认自动实现
-  destroy(): void;//销毁机器人
-}
-function getAdapter(platform: string, bot_id string): {Adapter: string, error: string}; //获取一个机器人
-
-function getAdapterBotsID(bot_id string): Adapter[]; //获取一个平台的所有机器人
-
-function getAdapterBotPlts(platform: string): string[]; //所有机器人平台
-```
-
-### Bucket
-
-例：通过 `Bucket("app")` 初始化一个 app 存储痛
-
-```ts
-interface Bucket(name: string) {
-  get(key: string, defaultValue: any): any; // 取值
-  set(key: string, value: any): Error | null; // 设值
-  watch(key: string, event: (old: any, new_: any, key: string) => void); // 设置监听器，key 值为 * 时将监听整个桶的存储事件
-  getAll(): []; // 获取全部值
-  delete(key: string): Error | null; // 删值
-  empty(): Error | undefined; // 清空桶
-  keys(): string[]; // 获取所有键名
-  len(): number | undefined; // 获取数据数目
-  buckets(): string[]; // 获取所有存在的桶名
-  _name(): string; // 获取当前桶名
-}
-```
-
-### Cron
-
-可以通过`let task = Cron()`返回的对象来添加定时任务 `const {id, error} = task.add("* * * * *", ()=>{})`
-
-```ts
-interface Cron {
-  add(crontab: string, ()=>void): {id: number, error: string}//添加定时任务 crontab同时支持秒级和分钟级
-  remove(id: number): void//移除定时任务
-}
-```
-
-### 插件表单
-
-可以使用注释 `@form {title: "标题", key: "test.title"}` 添加表单元素。当如也可以直接在插件代码中添加，如下。
-
-```js
-// 单个表单元素
-Form({
-  title: "姓名",
-  key: "test.name",
-});
-// 多个表单元素
-Form([
-  {
-    title: "姓名",
-    key: "test.name",
-  },
-  {
-    title: "性别",
-    key: "test.sex",
-  },
-]);
-// 使用schema-form
-Form([
-  {
-    title: "创建时间",
-    key: "test.createName",
-    dataIndex: "test.createName",
-    valueType: "date",
-  },
-  {
-    title: "创建时间",
-    key: "test.createName",
-    dataIndex: "test.createName",
-    valueType: "date",
-  },
-  {
-    title: "分组",
-    valueType: "group",
-    columns: [
-      {
-        title: "状态",
-        dataIndex: "test.groupState",
-        valueType: "select",
-        width: "xs",
-        valueEnum: {
-          all: { text: "全部", status: "Default" },
-          open: {
-            text: "未解决",
-            status: "Error",
-          },
-          closed: {
-            text: "已解决",
-            status: "Success",
-            disabled: true,
-          },
-          processing: {
-            text: "解决中",
-            status: "Processing",
-          },
-        },
-      },
-      {
-        title: "标题",
-        width: "md",
-        dataIndex: "test.groupTitle",
-        formItemProps: {
-          rules: [
-            {
-              required: true,
-              message: "此项为必填项",
-            },
-          ],
-        },
-      },
-    ],
-  },
-]);
-```
-
-### 其他
-
-```ts
-支持 Crypto、Buffer
-sleep(millsec: number): void; //等待
-md5(string): string; //加密
-running(): boolean; //服务是否运行
-uuid(): string; //获取脚本uuid
-genUuid(): string; //生成uuid
-```
-
-### 拓展 CQ 码
-
-[CQ:delete,id=message_id]
-[CQ:kick,user_id,chat_id,forever=true]
-[CQ:ban,user_id,chat_id,duration=0]
-
-### 项目赞助
-
-打开微信扫一扫，深入了解作者~
-![](https://raw.githubusercontent.com/cdle/sillyGirl/main/appreciate.jpg)
+*本项目不再活跃维护，但代码和文档保持开源状态，供社区参考和使用。*
