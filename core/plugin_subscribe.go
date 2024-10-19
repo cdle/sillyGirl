@@ -33,8 +33,7 @@ type RequestPluginResult struct {
 var plugin_list = []*common.Function{}
 
 var cdle_sublink = `
-//傻妞官方
-link://T4EywWN46ztYBhHNdOl6Tpz8QQsCZGj8JvdRJ5QKatJm0P+mI/G3ruO7AC04guqqKKa29VOvTGR7ATUJGYayRBpG2RFq+6ZPK3vcu6KCDGvRE3S43Gj42EXfvs04M6s4
+link://T4EywWN46ztYBhHNdOl6TjEq/FHESPN1WFuDzv+cZCV2fhsy7n2wjHP4slqkvU259/bne2aNgoeM3TQI3OlA9W1RmGhVf2vIZWuLbNwaY+j/0mZCineppkVPWYGNsp7g
 //大灰机
 link://T4EywWN46ztYBhHNdOl6ThvHulsS6Fo5vRI+WFDJEtMXOScYg8z+dTEsiDC6yxMYc9hIUl7YBc0Z4Oqhyf86njlfjjC7OVT2O6xmsVQklX6kiOV6gbnk8Q42rT198viP
 //季春二九
